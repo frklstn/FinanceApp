@@ -24,7 +24,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <div className="relative">
           <select
             ref={ref}
-            className={`w-full px-4 py-2.5 rounded-lg bg-light-card border text-sm appearance-none focus:outline-none transition-all duration-200 cursor-pointer dark:bg-dark-bg/40 
+            className={`w-full px-4 py-2.5 rounded-lg bg-light-card border text-sm text-light-text-primary dark:text-dark-text-primary appearance-none focus:outline-none transition-all duration-200 cursor-pointer dark:bg-dark-bg/40 
               ${
                 error
                   ? 'border-danger/60 focus:border-danger'

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { budgetService, Budget } from '@/lib/services/budget.service';
+import { formatRupiah } from '@/lib/debt-planner/format';
 import { categoryService, Category } from '@/lib/services/category.service';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,8 +38,9 @@ export default function BudgetsPage() {
       ]);
       setBudgets(bList);
       setCategories(cList.filter((c) => c.type === 'expense'));
-    } catch (err: any) {
-      toast(err.message || 'Error fetching budgeting tools.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error fetching budgeting tools.';
+      toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
@@ -68,8 +70,9 @@ export default function BudgetsPage() {
       setCategoryId('');
       setLimitAmount('');
       fetchBudgets();
-    } catch (err: any) {
-      toast(err.message || 'Failed to save budget target.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save budget target.';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -81,8 +84,9 @@ export default function BudgetsPage() {
       await budgetService.deleteBudget(id);
       toast('Budget cap removed.', 'success');
       fetchBudgets();
-    } catch (err: any) {
-      toast(err.message || 'Failed to delete budget.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete budget.';
+      toast(msg, 'danger');
     }
   };
 
@@ -98,15 +102,15 @@ export default function BudgetsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary">
-            Monthly Category Budgets
+            Anggaran Kategori Bulanan
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            Establish spending caps for specific expense categories to secure your net margin
+            Tetapkan batas pengeluaran untuk kategori belanja tertentu guna menjaga margin tabungan Anda
           </p>
         </div>
         <Button className="flex items-center gap-2 cursor-pointer" onClick={() => setIsModalOpen(true)}>
           <Plus className="w-4 h-4" />
-          Setup Budget Cap
+          Atur Batas Anggaran
         </Button>
       </div>
 
@@ -121,13 +125,13 @@ export default function BudgetsPage() {
           <div className="w-14 h-14 rounded-2xl bg-light-border/40 dark:bg-dark-border/40 flex items-center justify-center mb-4 text-light-text-secondary">
             <PiggyBank className="w-6.5 h-6.5" />
           </div>
-          <h4 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">No Budgets Formulated</h4>
+          <h4 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">Belum Ada Anggaran</h4>
           <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary max-w-sm mb-4">
-            Select standard categories (like Food, Rent, Entertainment) and configure custom limits to monitor monthly thresholds.
+            Pilih kategori standar (seperti Makan, Sewa, Hiburan) dan konfigurasi batas kustom untuk memantau ambang bulanan.
           </p>
           <Button size="sm" onClick={() => setIsModalOpen(true)}>
             <Plus className="w-4 h-4 mr-1.5" />
-            Set Budget Cap
+            Atur Batas Anggaran
           </Button>
         </div>
       ) : (
@@ -163,9 +167,9 @@ export default function BudgetsPage() {
                   {/* Visual limit numbers */}
                   <div className="space-y-1">
                     <div className="flex justify-between items-end text-xs font-semibold">
-                      <span className="text-light-text-secondary dark:text-dark-text-secondary">Spent compared to budget</span>
+                      <span className="text-light-text-secondary dark:text-dark-text-secondary">Telah dibelanjakan dibanding anggaran</span>
                       <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                        ${spentNum.toFixed(0)} / ${limitNum.toFixed(0)}
+                        {formatRupiah(spentNum)} / {formatRupiah(limitNum)}
                       </span>
                     </div>
                     <Progress value={percentage} variant={getBudgetVariant(percentage)} />
@@ -177,13 +181,13 @@ export default function BudgetsPage() {
                   {isOver ? (
                     <>
                       <AlertCircle className="w-4 h-4 text-danger shrink-0" />
-                      <span className="text-danger">Over budget by ${Math.abs(remaining).toFixed(2)}</span>
+                      <span className="text-danger">Melebihi anggaran sebesar {formatRupiah(Math.abs(remaining))}</span>
                     </>
                   ) : (
                     <>
                       <ShieldCheck className="w-4 h-4 text-success shrink-0" />
                       <span className="text-light-text-secondary dark:text-dark-text-secondary">
-                        ${remaining.toFixed(2)} remaining inside safe threshold
+                        Sisa {formatRupiah(remaining)} di dalam batas aman
                       </span>
                     </>
                   )}
@@ -195,12 +199,12 @@ export default function BudgetsPage() {
       )}
 
       {/* Set budget Limit modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Configure Budget Cap">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Konfigurasi Batas Anggaran">
         <form onSubmit={handleSaveBudget} className="space-y-4">
           <Select
-            label="Target Expense Category"
+            label="Kategori Pengeluaran Target"
             options={[
-              { value: '', label: '-- Choose --' },
+              { value: '', label: '-- Pilih --' },
               ...categories.map((c) => ({ value: c.id, label: c.name })),
             ]}
             value={categoryId}
@@ -209,8 +213,8 @@ export default function BudgetsPage() {
             disabled={submitting}
           />
           <Input
-            label="Monthly Limit ($)"
-            placeholder="500.00"
+            label="Batas Bulanan (Rp)"
+            placeholder="500000"
             type="number"
             step="1"
             value={limitAmount}
@@ -226,10 +230,10 @@ export default function BudgetsPage() {
               onClick={() => setIsModalOpen(false)}
               disabled={submitting}
             >
-              Cancel
+              Batal
             </Button>
             <Button type="submit" loading={submitting}>
-              Apply Budget Cap
+              Terapkan Batas Anggaran
             </Button>
           </div>
         </form>

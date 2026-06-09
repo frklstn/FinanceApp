@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
-import { transactionService } from '@/lib/services/transaction.service';
+import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
 import { walletService, type Wallet } from '@/lib/services/wallet.service';
 import { categoryService, type Category } from '@/lib/services/category.service';
+import { formatRupiah } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +30,7 @@ export default function TransactionsPage() {
   const { toast } = useToast();
 
   // Core Data Lists
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<PopulatedTransaction[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   
@@ -41,6 +42,7 @@ export default function TransactionsPage() {
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterTag, setFilterTag] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterWallet, setFilterWallet] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
@@ -70,7 +72,7 @@ export default function TransactionsPage() {
       ]);
       setWallets(wList);
       setCategories(cList);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     }
   }, [accountId]);
@@ -87,17 +89,19 @@ export default function TransactionsPage() {
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         search: searchTerm.trim() || undefined,
+        tag: filterTag.trim() || undefined,
         limit,
         offset,
       });
       setTransactions(data);
       setCount(total);
-    } catch (err: any) {
-      toast(err.message || 'Failed to retrieve transactions.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal memuat transaksi.';
+      toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
-  }, [accountId, page, filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, toast]);
+  }, [accountId, page, filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, filterTag, toast]);
 
   useEffect(() => {
     if (accountId) {
@@ -116,18 +120,18 @@ export default function TransactionsPage() {
     e.preventDefault();
     if (!accountId) return;
     if (!txWalletId || !txAmount) {
-      toast('Please enter a wallet and amount.', 'warning');
+      toast('Silakan pilih dompet dan masukkan jumlah nominal.', 'warning');
       return;
     }
 
     const amountNum = Number(txAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      toast('Please enter a valid positive amount.', 'danger');
+      toast('Silakan masukkan jumlah nominal positif yang valid.', 'danger');
       return;
     }
 
     if (txType === 'transfer' && !txDestWalletId) {
-      toast('Please specify a destination wallet for this transfer.', 'warning');
+      toast('Silakan pilih dompet tujuan transfer.', 'warning');
       return;
     }
 
@@ -148,7 +152,7 @@ export default function TransactionsPage() {
         recurring_id: null,
       });
 
-      toast('Transaction logged successfully!', 'success');
+      toast('Transaksi berhasil dicatat!', 'success');
       setIsModalOpen(false);
       
       // Reset Form fields
@@ -161,8 +165,9 @@ export default function TransactionsPage() {
       
       setPage(1); // Return to first page
       fetchTransactions();
-    } catch (err: any) {
-      toast(err.message || 'Failed to register transaction.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menyimpan catatan transaksi.';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -170,13 +175,14 @@ export default function TransactionsPage() {
 
   // Delete transaction handler
   const handleDeleteTransaction = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this transaction? This will reverse the amount change on the wallet balance.')) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini akan mengembalikan saldo dompet seperti semula.')) return;
     try {
       await transactionService.deleteTransaction(id);
-      toast('Transaction deleted successfully.', 'success');
+      toast('Transaksi berhasil dihapus.', 'success');
       fetchTransactions();
-    } catch (err: any) {
-      toast(err.message || 'Failed to remove transaction', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menghapus transaksi';
+      toast(msg, 'danger');
     }
   };
 
@@ -209,15 +215,15 @@ export default function TransactionsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary">
-            Financial Ledger
+            Buku Transaksi Finansial
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            View, filter, and track all incoming and outgoing transaction flows
+            Lihat, filter, dan lacak seluruh aliran masuk dan keluar uang Anda
           </p>
         </div>
         <Button className="flex items-center gap-2 cursor-pointer" onClick={() => setIsModalOpen(true)}>
           <Plus className="w-4 h-4" />
-          Add Transaction
+          Tambah Transaksi
         </Button>
       </div>
 
@@ -225,23 +231,31 @@ export default function TransactionsPage() {
       <Card className="p-4 md:p-6 space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40 text-sm font-bold text-light-text-primary dark:text-dark-text-primary">
           <Filter className="w-4 h-4 text-primary" />
-          Filter Options
+          Opsi Penyaringan & Filter
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <Input
-            placeholder="Search notes..."
+            placeholder="Cari deskripsi catatan..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setPage(1);
             }}
           />
+          <Input
+            placeholder="Filter berdasarkan tag..."
+            value={filterTag}
+            onChange={(e) => {
+              setFilterTag(e.target.value);
+              setPage(1);
+            }}
+          />
           <Select
             options={[
-              { value: '', label: 'All Types' },
-              { value: 'income', label: 'Income Only' },
-              { value: 'expense', label: 'Expense Only' },
-              { value: 'transfer', label: 'Transfer Only' },
+              { value: '', label: 'Semua Tipe' },
+              { value: 'income', label: 'Hanya Pemasukan' },
+              { value: 'expense', label: 'Hanya Pengeluaran' },
+              { value: 'transfer', label: 'Hanya Transfer' },
             ]}
             value={filterType}
             onChange={(e) => {
@@ -251,7 +265,7 @@ export default function TransactionsPage() {
           />
           <Select
             options={[
-              { value: '', label: 'All Wallets' },
+              { value: '', label: 'Semua Dompet' },
               ...wallets.map((w) => ({ value: w.id, label: w.name })),
             ]}
             value={filterWallet}
@@ -260,10 +274,12 @@ export default function TransactionsPage() {
               setPage(1);
             }}
           />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-2">
           <Select
             options={[
-              { value: '', label: 'All Categories' },
-              ...categories.map((c) => ({ value: c.id, label: `${c.name} (${c.type})` })),
+              { value: '', label: 'Semua Kategori' },
+              ...categories.map((c) => ({ value: c.id, label: `${c.name} (${c.type === 'income' ? 'Pemasukan' : 'Pengeluaran'})` })),
             ]}
             value={filterCategory}
             onChange={(e) => {
@@ -271,26 +287,26 @@ export default function TransactionsPage() {
               setPage(1);
             }}
           />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg pt-1">
-          <Input
-            type="date"
-            label="Start Date"
-            value={startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-              setPage(1);
-            }}
-          />
-          <Input
-            type="date"
-            label="End Date"
-            value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-              setPage(1);
-            }}
-          />
+          <div className="sm:col-span-2 grid grid-cols-2 gap-4">
+            <Input
+              type="date"
+              label="Tanggal Mulai"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setPage(1);
+              }}
+            />
+            <Input
+              type="date"
+              label="Tanggal Akhir"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
         </div>
       </Card>
 
@@ -308,10 +324,10 @@ export default function TransactionsPage() {
               <Info className="w-6 h-6" />
             </div>
             <h4 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">
-              No transactions matched
+              Tidak ada transaksi yang cocok
             </h4>
             <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary max-w-sm">
-              Adjust your search keywords, remove filter criteria, or insert a brand new transaction record above
+              Sesuaikan kata kunci pencarian Anda, hapus kriteria filter, atau masukkan catatan transaksi baru di atas.
             </p>
           </div>
         ) : (
@@ -330,14 +346,14 @@ export default function TransactionsPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary truncate">
-                        {tx.note || (tx.type === 'transfer' ? 'Wallet Transfer' : 'Uncategorized expense')}
+                        {tx.note || (tx.type === 'transfer' ? 'Transfer Dompet' : 'Pengeluaran tanpa kategori')}
                       </p>
                       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-0.5 text-xs text-light-text-secondary dark:text-dark-text-secondary">
-                        <span className="font-semibold">{tx.wallets?.name || 'Unknown account'}</span>
+                        <span className="font-semibold">{tx.wallets?.name || 'Rekening Umum'}</span>
                         <span className="opacity-40">•</span>
                         {tx.type !== 'transfer' ? (
                           <span className="font-medium text-[11px]" style={{ color: tx.categories?.color }}>
-                            {tx.categories?.name || 'General'}
+                            {tx.categories?.name || 'Umum'}
                           </span>
                         ) : (
                           <span className="font-semibold text-info text-[11px]">Transfer</span>
@@ -345,9 +361,20 @@ export default function TransactionsPage() {
                         <span className="opacity-40">•</span>
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {new Date(tx.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
                       </div>
+                      
+                      {/* Note & Tags visual improvement */}
+                      {tx.tags && tx.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {tx.tags.map((tag: string, idx: number) => (
+                            <span key={idx} className="text-[9px] font-bold bg-primary/10 text-primary dark:bg-primary/20 dark:text-white px-1.5 py-0.5 rounded-md">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -355,12 +382,12 @@ export default function TransactionsPage() {
                     <span className={`text-sm font-bold tracking-tight shrink-0 ${
                       tx.type === 'income' ? 'text-success' : tx.type === 'expense' ? 'text-danger' : 'text-info'
                     }`}>
-                      {details.sign}${Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {details.sign}{formatRupiah(Number(tx.amount))}
                     </span>
                     <button
                       onClick={() => handleDeleteTransaction(tx.id)}
                       className="p-1.5 rounded-lg hover:bg-danger/10 text-light-text-secondary hover:text-danger cursor-pointer transition-all duration-150"
-                      title="Delete record"
+                      title="Hapus Transaksi"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -375,7 +402,7 @@ export default function TransactionsPage() {
         {count > limit && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-light-border/40 dark:border-dark-border/40">
             <span className="text-xs text-light-text-secondary dark:text-dark-text-secondary font-medium">
-              Showing {(page - 1) * limit + 1}-{Math.min(page * limit, count)} of {count}
+              Menampilkan {(page - 1) * limit + 1}-{Math.min(page * limit, count)} dari {count}
             </span>
             <div className="flex gap-2">
               <Button
@@ -385,7 +412,7 @@ export default function TransactionsPage() {
                 disabled={page === 1}
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
-                Prev
+                Sebelumnya
               </Button>
               <Button
                 variant="outline"
@@ -393,7 +420,7 @@ export default function TransactionsPage() {
                 onClick={() => setPage((p) => (p * limit < count ? p + 1 : p))}
                 disabled={page * limit >= count}
               >
-                Next
+                Selanjutnya
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -402,7 +429,7 @@ export default function TransactionsPage() {
       </Card>
 
       {/* Quick Add Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Log New Transaction">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Catat Transaksi Baru">
         <form onSubmit={handleAddTransaction} className="space-y-4">
           {/* Type Tab Selection */}
           <div className="grid grid-cols-3 gap-2 bg-light-bg dark:bg-dark-bg/60 p-1 rounded-xl border border-light-border/40 dark:border-dark-border/40">
@@ -424,24 +451,23 @@ export default function TransactionsPage() {
                     : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary dark:hover:text-dark-text-primary'
                 }`}
               >
-                {t}
+                {t === 'income' ? 'Pemasukan' : t === 'expense' ? 'Pengeluaran' : 'Transfer'}
               </button>
             ))}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Transaction Amount"
+              label="Jumlah Nominal (Rp)"
               type="number"
-              step="0.01"
-              placeholder="0.00"
+              placeholder="0"
               value={txAmount}
               onChange={(e) => setTxAmount(e.target.value)}
               required
               disabled={submitting}
             />
             <Input
-              label="Transaction Date"
+              label="Tanggal Transaksi"
               type="datetime-local"
               value={txDate}
               onChange={(e) => setTxDate(e.target.value)}
@@ -452,10 +478,10 @@ export default function TransactionsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Select
-              label={txType === 'transfer' ? 'Source Wallet' : 'Wallet Account'}
+              label={txType === 'transfer' ? 'Dompet Asal' : 'Pilih Dompet'}
               options={[
-                { value: '', label: '-- Choose --' },
-                ...wallets.map((w) => ({ value: w.id, label: `${w.name} ($${Number(w.balance).toFixed(2)})` })),
+                { value: '', label: '-- Pilih Dompet --' },
+                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
               ]}
               value={txWalletId}
               onChange={(e) => setTxWalletId(e.target.value)}
@@ -464,10 +490,10 @@ export default function TransactionsPage() {
             />
             {txType === 'transfer' ? (
               <Select
-                label="Destination Wallet"
+                label="Dompet Penerima"
                 options={[
-                  { value: '', label: '-- Choose --' },
-                  ...wallets.map((w) => ({ value: w.id, label: `${w.name} ($${Number(w.balance).toFixed(2)})` })),
+                  { value: '', label: '-- Pilih Dompet --' },
+                  ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
                 ]}
                 value={txDestWalletId}
                 onChange={(e) => setTxDestWalletId(e.target.value)}
@@ -476,9 +502,9 @@ export default function TransactionsPage() {
               />
             ) : (
               <Select
-                label="Category"
+                label="Kategori"
                 options={[
-                  { value: '', label: '-- General --' },
+                  { value: '', label: '-- Umum / Tanpa Kategori --' },
                   ...categories
                     .filter((c) => c.type === txType)
                     .map((c) => ({ value: c.id, label: c.name })),
@@ -491,18 +517,20 @@ export default function TransactionsPage() {
           </div>
 
           <Input
-            label="Note / Remarks"
-            placeholder="e.g. Starbucks Cappuccino"
+            label="Catatan / Deskripsi"
+            placeholder="misal: Makan siang Nasi Padang"
             value={txNote}
             onChange={(e) => setTxNote(e.target.value)}
             disabled={submitting}
+            description="Keterangan ringkas transaksi Anda."
           />
           <Input
-            label="Tags (Comma separated)"
-            placeholder="e.g. coffee, breakfast, office"
+            label="Tag (Pisahkan dengan koma)"
+            placeholder="misal: makanan, kantor, bulanan"
             value={txTagsString}
             onChange={(e) => setTxTagsString(e.target.value)}
             disabled={submitting}
+            description="Label pengelompokan transaksi untuk mempermudah pencarian (misal: kopi, kafe)."
           />
 
           <div className="flex justify-end gap-3 pt-2">
@@ -512,10 +540,10 @@ export default function TransactionsPage() {
               onClick={() => setIsModalOpen(false)}
               disabled={submitting}
             >
-              Cancel
+              Batal
             </Button>
             <Button type="submit" loading={submitting}>
-              Log Record
+              Simpan Transaksi
             </Button>
           </div>
         </form>

@@ -14,9 +14,11 @@ interface SpendingChartProps {
   data: { date: string; amount: number }[];
 }
 
+import { formatRupiah } from '@/lib/debt-planner/format';
+
 // Format numbers nicely
 const formatCurrency = (val: number) => {
-  return `$${val.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+  return formatRupiah(val);
 };
 
 interface CustomTooltipProps {
@@ -67,7 +69,7 @@ export function SpendingChart({ data }: SpendingChartProps) {
             tickLine={false}
             axisLine={false}
             opacity={0.4}
-            tickFormatter={(v) => `$${v}`}
+            tickFormatter={(v) => formatRupiah(v)}
           />
           <Tooltip content={<CustomTooltip />} />
           <Area

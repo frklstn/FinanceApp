@@ -53,8 +53,9 @@ export default function ResetPasswordPage() {
         setSuccessMsg('Password updated successfully! Redirecting...');
         setTimeout(() => router.replace('/dashboard'), 2000);
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'An unexpected error occurred.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }

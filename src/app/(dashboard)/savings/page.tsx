@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { savingsService, SavingsGoal } from '@/lib/services/savings.service';
 import { walletService, Wallet } from '@/lib/services/wallet.service';
+import { formatRupiah } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,8 +47,9 @@ export default function SavingsPage() {
       ]);
       setGoals(gList);
       setWallets(wList);
-    } catch (err: any) {
-      toast(err.message || 'Error compiling savings modules.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error compiling savings modules.';
+      toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
@@ -87,8 +89,9 @@ export default function SavingsPage() {
       setCurrentAmt('0');
       setDeadline('');
       fetchData();
-    } catch (err: any) {
-      toast(err.message || 'Failed to establish goal.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to establish goal.';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -122,25 +125,27 @@ export default function SavingsPage() {
         contribNote
       );
 
-      toast(`Successfully deposited $${amtNum} to "${selectedGoal.name}"!`, 'success');
+      toast(`Berhasil menyetor ${formatRupiah(amtNum)} ke "${selectedGoal.name}"!`, 'success');
       setIsContributionModalOpen(false);
       setSelectedGoal(null);
       fetchData();
-    } catch (err: any) {
-      toast(err.message || 'Contribution failed.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menyetor tabungan.';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteGoal = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this savings target?')) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus target tabungan ini?')) return;
     try {
       await savingsService.deleteSavingsGoal(id);
-      toast('Goal removed.', 'success');
+      toast('Target tabungan dihapus.', 'success');
       fetchData();
-    } catch (err: any) {
-      toast(err.message || 'Failed to remove target.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menghapus target.';
+      toast(msg, 'danger');
     }
   };
 
@@ -151,15 +156,15 @@ export default function SavingsPage() {
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
             <Target className="w-5.5 h-5.5 text-primary" />
-            Wealth Savings Goals
+            Target Tabungan Mandiri
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            Accumulate funds for specific milestones, investments, and purchases
+            Kumpulkan dana untuk pencapaian khusus, investasi, dan pengeluaran besar Anda
           </p>
         </div>
         <Button className="flex items-center gap-2 cursor-pointer" onClick={() => setIsGoalModalOpen(true)}>
           <Plus className="w-4 h-4" />
-          Add Savings Goal
+          Tambah Target Tabungan
         </Button>
       </div>
 
@@ -174,13 +179,13 @@ export default function SavingsPage() {
           <div className="w-14 h-14 rounded-2xl bg-light-border/40 dark:bg-dark-border/40 flex items-center justify-center mb-4 text-light-text-secondary">
             <PiggyBank className="w-6.5 h-6.5" />
           </div>
-          <h4 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">No Goals Active</h4>
+          <h4 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">Belum Ada Target Aktif</h4>
           <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary max-w-sm mb-4">
-            Initialize targets (like emergency buffers, real-estate, down-payments) and transfer small balances dynamically.
+            Mulai buat target tabungan Anda (seperti dana darurat, pembelian aset, DP rumah) dan setor saldo secara berkala.
           </p>
           <Button size="sm" onClick={() => setIsGoalModalOpen(true)}>
             <Plus className="w-4 h-4 mr-1.5" />
-            Set Savings Goal
+            Buat Target Tabungan
           </Button>
         </div>
       ) : (
@@ -211,9 +216,9 @@ export default function SavingsPage() {
                   {/* Progress ring indicators */}
                   <div className="space-y-1">
                     <div className="flex justify-between items-end text-xs font-semibold">
-                      <span className="text-light-text-secondary dark:text-dark-text-secondary">Accumulated Progress</span>
+                      <span className="text-light-text-secondary dark:text-dark-text-secondary">Progres Terkumpul</span>
                       <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                        ${currentNum.toFixed(0)} / ${targetNum.toFixed(0)}
+                        {formatRupiah(currentNum)} / {formatRupiah(targetNum)}
                       </span>
                     </div>
                     <Progress value={percentage} variant={isFinished ? 'success' : 'primary'} />
@@ -225,18 +230,18 @@ export default function SavingsPage() {
                   <div className="flex items-center gap-1 text-[11px] font-semibold text-light-text-secondary dark:text-dark-text-secondary">
                     <Calendar className="w-3.5 h-3.5" />
                     {goal.deadline
-                      ? `By ${new Date(goal.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-                      : 'No Deadline'}
+                      ? `Selesai s.d. ${new Date(goal.deadline).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}`
+                      : 'Tanpa Tenggat Waktu'}
                   </div>
                   {isFinished ? (
                     <div className="flex items-center gap-1 text-xs font-bold text-success">
                       <ShieldCheck className="w-4 h-4" />
-                      Completed
+                      Selesai
                     </div>
                   ) : (
                     <Button size="sm" variant="outline" className="flex items-center gap-1 cursor-pointer" onClick={() => handleOpenContribution(goal)}>
                       <Coins className="w-3 h-3" />
-                      Fund Goal
+                      Setor Tabungan
                     </Button>
                   )}
                 </div>
@@ -247,11 +252,11 @@ export default function SavingsPage() {
       )}
 
       {/* Add goal target modal */}
-      <Modal isOpen={isGoalModalOpen} onClose={() => setIsGoalModalOpen(false)} title="Add Savings Goal">
+      <Modal isOpen={isGoalModalOpen} onClose={() => setIsGoalModalOpen(false)} title="Tambah Target Tabungan">
         <form onSubmit={handleCreateGoal} className="space-y-4">
           <Input
-            label="Goal Name"
-            placeholder="e.g. Wedding Fund, Emergency Buffer"
+            label="Nama Target"
+            placeholder="misal: Dana Darurat, DP Rumah"
             value={goalName}
             onChange={(e) => setGoalName(e.target.value)}
             required
@@ -259,8 +264,8 @@ export default function SavingsPage() {
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Target Amount ($)"
-              placeholder="5000"
+              label="Target Nominal (Rp)"
+              placeholder="5000000"
               type="number"
               value={targetAmt}
               onChange={(e) => setTargetAmt(e.target.value)}
@@ -268,7 +273,7 @@ export default function SavingsPage() {
               disabled={submitting}
             />
             <Input
-              label="Initial Stash ($)"
+              label="Setoran Awal (Rp)"
               type="number"
               value={currentAmt}
               onChange={(e) => setCurrentAmt(e.target.value)}
@@ -277,7 +282,7 @@ export default function SavingsPage() {
             />
           </div>
           <Input
-            label="Target Date / Deadline"
+            label="Tanggal Batas Waktu / Tenggat"
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
@@ -291,24 +296,24 @@ export default function SavingsPage() {
               onClick={() => setIsGoalModalOpen(false)}
               disabled={submitting}
             >
-              Cancel
+              Batal
             </Button>
             <Button type="submit" loading={submitting}>
-              Establish Goal
+              Buat Target
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Contribution Drawer modal */}
-      <Modal isOpen={isContributionModalOpen} onClose={() => setIsContributionModalOpen(false)} title={`Fund Goal: ${selectedGoal?.name}`}>
+      <Modal isOpen={isContributionModalOpen} onClose={() => setIsContributionModalOpen(false)} title={`Setor Tabungan: ${selectedGoal?.name}`}>
         {selectedGoal && (
           <form onSubmit={handleContributionSubmit} className="space-y-4">
             <Select
-              label="Funding Wallet Source"
+              label="Sumber Dompet Pendanaan"
               options={[
-                { value: '', label: '-- Choose --' },
-                ...wallets.map((w) => ({ value: w.id, label: `${w.name} ($${Number(w.balance).toFixed(2)})` })),
+                { value: '', label: '-- Pilih --' },
+                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
               ]}
               value={contribWalletId}
               onChange={(e) => setContribWalletId(e.target.value)}
@@ -316,17 +321,16 @@ export default function SavingsPage() {
               disabled={submitting}
             />
             <Input
-              label="Contribution Amount ($)"
-              placeholder="100.00"
+              label="Jumlah Setoran (Rp)"
+              placeholder="100000"
               type="number"
-              step="0.01"
               value={contribAmount}
               onChange={(e) => setContribAmount(e.target.value)}
               required
               disabled={submitting}
             />
             <Input
-              label="Contribution Note"
+              label="Catatan Setoran"
               value={contribNote}
               onChange={(e) => setContribNote(e.target.value)}
               disabled={submitting}
@@ -339,10 +343,10 @@ export default function SavingsPage() {
                 onClick={() => setIsContributionModalOpen(false)}
                 disabled={submitting}
               >
-                Cancel
+                Batal
               </Button>
               <Button type="submit" loading={submitting}>
-                Execute Deposit
+                Proses Setoran
               </Button>
             </div>
           </form>

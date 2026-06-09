@@ -75,8 +75,9 @@ export default function RegisterPage() {
           setConfirmPassword('');
         }
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'An unexpected error occurred.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }

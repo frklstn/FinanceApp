@@ -101,18 +101,14 @@ flutter pub get
 flutter build apk --release
 ```
 
-**Build AAB (Google Play Store):**
-```bash
-flutter build appbundle --release
-```
 
 ---
 
 ## 🔄 CI/CD (GitHub Actions)
 
 File `.github/workflows/android-release.yml` menyediakan:
-*   Build APK + AAB otomatis pada push ke `main`.
-*   Auto-create GitHub Release dengan APK/AAB saat push tag `v*`.
+*   Build APK otomatis pada push ke `main`.
+*   Auto-create GitHub Release dengan APK saat push tag `v*`.
 *   Validasi kode via `flutter analyze` pada setiap PR.
 
 ---

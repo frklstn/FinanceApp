@@ -13,6 +13,8 @@ interface CategoryPieChartProps {
   data: { name: string; value: number; color: string }[];
 }
 
+import { formatRupiah } from '@/lib/debt-planner/format';
+
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{
@@ -37,9 +39,9 @@ const CustomTooltip = ({ active, payload, total }: CustomTooltipProps) => {
           {item.name}
         </p>
         <p className="text-sm font-extrabold">
-          ${item.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          {formatRupiah(item.value)}
         </p>
-        <p className="opacity-60 font-semibold">{percentage}% of total expenses</p>
+        <p className="opacity-60 font-semibold">{percentage}% dari total pengeluaran</p>
       </div>
     );
   }
@@ -50,7 +52,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
-  const onPieEnter = (_: any, index: number) => {
+  const onPieEnter = (_: unknown, index: number) => {
     setActiveIndex(index);
   };
 
@@ -123,7 +125,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
                 </span>
               </div>
               <span className="text-light-text-secondary dark:text-dark-text-secondary font-bold shrink-0">
-                ${item.value.toLocaleString('en-US', { maximumFractionDigits: 0 })} ({pct}%)
+                {formatRupiah(item.value)} ({pct}%)
               </span>
             </div>
           );

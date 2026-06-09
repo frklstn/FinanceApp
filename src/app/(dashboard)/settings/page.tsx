@@ -4,10 +4,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { createClient } from '@/lib/supabase/client';
 import { transactionService } from '@/lib/services/transaction.service';
+import { categoryService, type Category } from '@/lib/services/category.service';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
 import * as XLSX from 'xlsx';
 import {
@@ -15,6 +17,10 @@ import {
   Settings,
   Database,
   Download,
+  Plus,
+  Pencil,
+  Trash2,
+  Tag,
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -22,8 +28,19 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const supabase = createClient();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'data'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'categories' | 'data'>('profile');
   const [loading, setLoading] = useState(true);
+
+  // Category CRUD states
+  const [categoriesList, setCategoriesList] = useState<Category[]>([]);
+  const [catModalOpen, setCatModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  
+  const [catName, setCatName] = useState('');
+  const [catType, setCatType] = useState<'income' | 'expense' | 'transfer'>('expense');
+  const [catIcon, setCatIcon] = useState('tag');
+  const [catColor, setCatColor] = useState('#4F46E5');
+  const [catLoading, setCatLoading] = useState(false);
 
   // Profile preferences fields
   const [fullName, setFullName] = useState('');
@@ -41,6 +58,18 @@ export default function SettingsPage() {
     { name: 'Crypto Adventurer', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Trader' },
   ];
 
+  const fetchCategories = useCallback(async () => {
+    if (!accountId) return;
+    try {
+      const list = await categoryService.getCategories(accountId);
+      setCategoriesList(list);
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Gagal memuat kategori';
+      toast(msg, 'danger');
+    }
+  }, [accountId, toast]);
+
   const fetchProfile = useCallback(async () => {
     try {
       setLoading(true);
@@ -48,7 +77,7 @@ export default function SettingsPage() {
       if (user) {
         setEmail(user.email || '');
         setFullName(user.user_metadata?.full_name || 'User');
-        setCurrency(user.user_metadata?.currency || 'USD');
+        setCurrency(user.user_metadata?.currency || 'IDR');
         
         // Fetch current custom profile details from profiles table
         const { data: profile } = await supabase
@@ -61,7 +90,7 @@ export default function SettingsPage() {
           setAvatarUrl(profile.avatar_url || '');
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -70,28 +99,33 @@ export default function SettingsPage() {
 
   useEffect(() => {
     Promise.resolve().then(fetchProfile);
+    if (accountId) {
+      Promise.resolve().then(fetchCategories);
+    }
     // Query param tab select check
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab');
       if (tabParam === 'data') {
         Promise.resolve().then(() => setActiveTab('data'));
+      } else if (tabParam === 'categories') {
+        Promise.resolve().then(() => setActiveTab('categories'));
       }
     }
-  }, [fetchProfile]);
+  }, [fetchProfile, fetchCategories, accountId]);
 
   useEffect(() => {
-    if (fullName) {
-      document.title = `FinanceApp - ${fullName}`;
+    if (fullName && appSettings?.document_title) {
+      document.title = `${appSettings.document_title} - ${fullName}`;
     }
-  }, [fullName]);
+  }, [fullName, appSettings?.document_title]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error('Pengguna tidak terotentikasi');
 
       // 1. Update user metadata
       const { error: authError } = await supabase.auth.updateUser({
@@ -113,20 +147,83 @@ export default function SettingsPage() {
         .eq('id', user.id);
       if (profileError) throw profileError;
 
-      toast('Profile preferences and avatar updated!', 'success');
+      toast('Profil dan avatar berhasil diperbarui!', 'success');
       
       // Instantly update tab title
-      document.title = `FinanceApp - ${fullName}`;
-    } catch (err: any) {
-      toast(err.message || 'Failed to update settings', 'danger');
+      if (appSettings?.document_title) {
+        document.title = `${appSettings.document_title} - ${fullName}`;
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal memperbarui profil';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!accountId || !catName.trim()) return;
+    setCatLoading(true);
+    try {
+      if (editingCategory) {
+        await categoryService.updateCategory(
+          editingCategory.id,
+          catName.trim(),
+          catIcon,
+          catColor,
+          catType
+        );
+        toast('Kategori berhasil diperbarui!', 'success');
+      } else {
+        await categoryService.createCategory(
+          accountId,
+          catName.trim(),
+          catIcon,
+          catColor,
+          catType
+        );
+        toast('Kategori berhasil ditambahkan!', 'success');
+      }
+      setCatModalOpen(false);
+      setCatName('');
+      setCatIcon('tag');
+      setCatColor('#4F46E5');
+      setCatType('expense');
+      setEditingCategory(null);
+      fetchCategories();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menyimpan kategori';
+      toast(msg, 'danger');
+    } finally {
+      setCatLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = async (catId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus kategori ini? Transaksi yang menggunakan kategori ini akan kehilangan relasinya.')) return;
+    try {
+      await categoryService.deleteCategory(catId);
+      toast('Kategori berhasil dihapus.', 'success');
+      fetchCategories();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menghapus kategori';
+      toast(msg, 'danger');
+    }
+  };
+
+  const handleOpenEditCategory = (cat: Category) => {
+    setEditingCategory(cat);
+    setCatName(cat.name);
+    setCatType(cat.type);
+    setCatIcon(cat.icon || 'tag');
+    setCatColor(cat.color || '#4F46E5');
+    setCatModalOpen(true);
+  };
+
   const handleExcelExport = async () => {
     if (!accountId) return;
-    toast('Fetching full ledger transactions...', 'info');
+    toast('Mengambil seluruh data transaksi...', 'info');
 
     try {
       // 1. Fetch ALL transactions inside workspace
@@ -142,40 +239,41 @@ export default function SettingsPage() {
       // 2. Map items to neat headers
       const rows = allTxs.map((tx) => ({
         ID: tx.id,
-        Date: new Date(tx.date).toLocaleDateString(),
-        Type: tx.type.toUpperCase(),
-        Amount: Number(tx.amount),
-        Wallet: tx.wallets?.name || 'General',
-        Category: tx.categories?.name || 'General',
-        Note: tx.note || '',
-        Tags: tx.tags?.join(', ') || '',
+        Tanggal: new Date(tx.date).toLocaleDateString('id-ID'),
+        Tipe: tx.type === 'income' ? 'PEMASUKAN' : tx.type === 'expense' ? 'PENGELUARAN' : 'TRANSFER',
+        Nominal: Number(tx.amount),
+        Dompet: tx.wallets?.name || 'Umum',
+        Kategori: tx.categories?.name || 'Umum',
+        Catatan: tx.note || '',
+        Tag: tx.tags?.join(', ') || '',
       }));
 
       // 3. Create SheetJS sheet & workbook
       const worksheet = XLSX.utils.json_to_sheet(rows);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions Ledger');
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan Keuangan');
 
       // Autofit widths
       const colWidths = [
         { wch: 25 }, // ID
-        { wch: 12 }, // Date
-        { wch: 10 }, // Type
-        { wch: 12 }, // Amount
-        { wch: 15 }, // Wallet
-        { wch: 15 }, // Category
-        { wch: 30 }, // Note
-        { wch: 20 }, // Tags
+        { wch: 12 }, // Tanggal
+        { wch: 12 }, // Tipe
+        { wch: 15 }, // Nominal
+        { wch: 15 }, // Dompet
+        { wch: 15 }, // Kategori
+        { wch: 30 }, // Catatan
+        { wch: 20 }, // Tag
       ];
       worksheet['!cols'] = colWidths;
 
       // 4. Save file
-      const fileName = `${appSettings.app_name.replace(/\s+/g, '_')}_Ledger.xlsx`;
+      const fileName = `${appSettings.app_name.replace(/\s+/g, '_')}_Buku_Besar.xlsx`;
       XLSX.writeFile(workbook, fileName);
-      toast('Excel sheet workbook exported successfully!', 'success');
+      toast('Buku besar berhasil diekspor ke Excel!', 'success');
 
-    } catch (err: any) {
-      toast(err.message || 'Excel compilation failed.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengekspor file Excel.';
+      toast(msg, 'danger');
     }
   };
 
@@ -185,10 +283,10 @@ export default function SettingsPage() {
       <div>
         <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
           <Settings className="w-5.5 h-5.5 text-primary" />
-          System Preferences & Settings
+          Preferensi & Pengaturan Sistem
         </h2>
         <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-          Configure profile metadata, default currency, and export transaction data.
+          Atur informasi profil, mata uang utama, kategori keuangan, serta ekspor laporan transaksi.
         </p>
       </div>
 
@@ -203,7 +301,18 @@ export default function SettingsPage() {
           }`}
         >
           <User className="w-4 h-4" />
-          Profile preferences
+          Preferensi Profil
+        </button>
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`flex items-center gap-2 pb-2 text-xs font-bold uppercase transition-all duration-150 cursor-pointer ${
+            activeTab === 'categories'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
+          }`}
+        >
+          <Tag className="w-4 h-4" />
+          Kelola Kategori
         </button>
         <button
           onClick={() => setActiveTab('data')}
@@ -214,7 +323,7 @@ export default function SettingsPage() {
           }`}
         >
           <Database className="w-4 h-4" />
-          Export & Import
+          Ekspor & Impor
         </button>
       </div>
 
@@ -225,34 +334,34 @@ export default function SettingsPage() {
         <Card className="p-6">
           <form onSubmit={handleUpdateProfile} className="space-y-6">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
-              Personal Information
+              Informasi Pribadi
             </h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label="Full Name"
+                label="Nama Lengkap"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
                 disabled={submitting}
               />
               <Input
-                label="Email Address"
+                label="Alamat Email"
                 value={email}
                 required
                 disabled
-                description="Your login credential address is immutable."
+                description="Alamat email untuk masuk sistem bersifat tetap."
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Select
-                label="Global Currency Symbol"
+                label="Simbol Mata Uang Utama"
                 options={[
-                  { value: 'USD', label: 'USD ($) - United States' },
-                  { value: 'EUR', label: 'EUR (€) - European Union' },
                   { value: 'IDR', label: 'IDR (Rp) - Indonesia' },
-                  { value: 'GBP', label: 'GBP (£) - United Kingdom' },
+                  { value: 'USD', label: 'USD ($) - Amerika Serikat' },
+                  { value: 'EUR', label: 'EUR (€) - Uni Eropa' },
+                  { value: 'GBP', label: 'GBP (£) - Inggris' },
                 ]}
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
@@ -263,7 +372,7 @@ export default function SettingsPage() {
             {/* Premium User Avatar Customizer Section */}
             <div className="space-y-4 pt-4 border-t border-light-border/40 dark:border-dark-border/40">
               <label className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
-                User Profile Avatar
+                Avatar Profil
               </label>
               
               <div className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-2xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/20 dark:bg-dark-bg/10">
@@ -278,12 +387,12 @@ export default function SettingsPage() {
 
                 <div className="flex-1 w-full space-y-3">
                   <Input
-                    label="Avatar Custom URL"
+                    label="URL Avatar Kustom"
                     value={avatarUrl}
                     onChange={(e) => setAvatarUrl(e.target.value)}
                     placeholder="https://example.com/avatar.jpg"
                     disabled={submitting}
-                    description="Paste any premium direct graphic link, or select from the presets below."
+                    description="Tempel tautan langsung gambar kustom, atau pilih dari preset di bawah."
                   />
                 </div>
               </div>
@@ -291,7 +400,7 @@ export default function SettingsPage() {
               {/* Predefined Avatars Picker Grid */}
               <div className="space-y-2">
                 <p className="text-[10px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-                  Select Predefined Premium Avatar Preset:
+                  Pilih Preset Avatar Premium:
                 </p>
                 <div className="grid grid-cols-5 gap-3 max-w-lg">
                   {PRESET_AVATARS.map((av) => (
@@ -320,17 +429,91 @@ export default function SettingsPage() {
 
             <div className="flex justify-end pt-4 border-t border-light-border/40 dark:border-dark-border/40">
               <Button type="submit" loading={submitting}>
-                Save Preferences
+                Simpan Perubahan
               </Button>
             </div>
           </form>
         </Card>
+      ) : activeTab === 'categories' ? (
+        /* Categories Tab */
+        <div className="space-y-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">
+                Kategori Keuangan
+              </h3>
+              <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary">
+                Kelola kategori pemasukan dan pengeluaran Anda untuk pencatatan transaksi yang akurat.
+              </p>
+            </div>
+            <Button className="flex items-center gap-1.5 cursor-pointer text-xs" size="sm" onClick={() => {
+              setEditingCategory(null);
+              setCatName('');
+              setCatType('expense');
+              setCatIcon('tag');
+              setCatColor('#4F46E5');
+              setCatModalOpen(true);
+            }}>
+              <Plus className="w-4 h-4" />
+              Kategori Baru
+            </Button>
+          </div>
+
+          <Card className="p-6">
+            {categoriesList.length === 0 ? (
+              <p className="text-center text-xs text-light-text-secondary py-8">Belum ada kategori yang dikonfigurasi.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {categoriesList.map((cat) => (
+                  <div key={cat.id} className="flex items-center justify-between p-3.5 rounded-xl border border-light-border/40 dark:border-dark-border/40 hover:bg-light-bg/30 dark:hover:bg-dark-bg/20 transition-all duration-150">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                      <div>
+                        <h4 className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary">
+                          {cat.name}
+                        </h4>
+                        <span className="text-[9px] uppercase tracking-wider font-semibold text-light-text-secondary">
+                          {cat.type === 'income' ? 'Pemasukan' : cat.type === 'expense' ? 'Pengeluaran' : 'Transfer'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {cat.workspace_id ? (
+                        <>
+                          <button
+                            onClick={() => handleOpenEditCategory(cat)}
+                            className="p-1 text-light-text-secondary hover:text-primary transition-colors cursor-pointer"
+                            title="Edit Kategori"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(cat.id)}
+                            className="p-1 text-light-text-secondary hover:text-danger transition-colors cursor-pointer"
+                            title="Hapus Kategori"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[9px] font-bold text-light-text-secondary/50 dark:text-dark-text-secondary/40 select-none">
+                          Bawaan Sistem
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
       ) : (
         /* Data Tab */
         <div className="space-y-6">
           <Card className="p-6 space-y-4">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
-              Export Finance Data
+              Ekspor Data Keuangan
             </h3>
             <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary leading-relaxed">
               Unduh seluruh transaksi akun Anda dalam format `.xlsx` (kategori, dompet, nominal, catatan).
@@ -338,13 +521,90 @@ export default function SettingsPage() {
             <div className="flex items-center gap-3 pt-2">
               <Button className="flex items-center gap-2 cursor-pointer" onClick={handleExcelExport}>
                 <Download className="w-4 h-4" />
-                Export Ledger to Excel (.xlsx)
+                Ekspor Buku Besar ke Excel (.xlsx)
               </Button>
             </div>
           </Card>
-
         </div>
       )}
+
+      {/* Category CRUD Modal */}
+      <Modal isOpen={catModalOpen} onClose={() => setCatModalOpen(false)} title={editingCategory ? 'Edit Kategori' : 'Tambah Kategori Baru'}>
+        <form onSubmit={handleSaveCategory} className="space-y-4">
+          <Input
+            label="Nama Kategori"
+            placeholder="misal: Makan Siang, Transportasi"
+            value={catName}
+            onChange={(e) => setCatName(e.target.value)}
+            required
+            disabled={catLoading}
+          />
+          
+          <Select
+            label="Tipe Kategori"
+            options={[
+              { value: 'expense', label: 'Pengeluaran (Expense)' },
+              { value: 'income', label: 'Pemasukan (Income)' },
+            ]}
+            value={catType}
+            onChange={(e) => setCatType(e.target.value as 'income' | 'expense' | 'transfer')}
+            disabled={catLoading}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Ikon Kategori"
+              options={[
+                { value: 'tag', label: 'Tag' },
+                { value: 'coffee', label: 'Kopi / Makanan' },
+                { value: 'shopping-bag', label: 'Belanja' },
+                { value: 'home', label: 'Rumah / Kost' },
+                { value: 'car', label: 'Kendaraan' },
+                { value: 'gift', label: 'Hadiah' },
+                { value: 'wallet', label: 'Dompet' },
+                { value: 'heart', label: 'Kesehatan' },
+                { value: 'book', label: 'Pendidikan' },
+              ]}
+              value={catIcon}
+              onChange={(e) => setCatIcon(e.target.value)}
+              disabled={catLoading}
+            />
+
+            <div>
+              <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1.5">
+                Warna Tema Kategori
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {['#4F46E5', '#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#14B8A6'].map((col) => (
+                  <button
+                    key={col}
+                    type="button"
+                    onClick={() => setCatColor(col)}
+                    className={`w-6 h-6 rounded-full border cursor-pointer transition-all duration-150 ${
+                      catColor === col ? 'scale-110 ring-2 ring-primary/20 border-white' : 'border-transparent'
+                    }`}
+                    style={{ backgroundColor: col }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCatModalOpen(false)}
+              disabled={catLoading}
+            >
+              Batal
+            </Button>
+            <Button type="submit" loading={catLoading}>
+              Simpan Kategori
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

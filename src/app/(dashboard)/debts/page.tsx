@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { debtService, Debt } from '@/lib/services/debt.service';
 import { walletService, Wallet } from '@/lib/services/wallet.service';
+import { formatRupiah } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,8 +48,9 @@ export default function DebtsPage() {
       ]);
       setDebts(dList);
       setWallets(wList);
-    } catch (err: any) {
-      toast(err.message || 'Failed to assemble ledger accounts.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to assemble ledger accounts.';
+      toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
@@ -88,8 +90,9 @@ export default function DebtsPage() {
       setContactInfo('');
       setDueDate('');
       fetchData();
-    } catch (err: any) {
-      toast(err.message || 'Failed to save record.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save record.';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -127,8 +130,9 @@ export default function DebtsPage() {
       setIsPayModalOpen(false);
       setSelectedDebt(null);
       fetchData();
-    } catch (err: any) {
-      toast(err.message || 'Repayment failed.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Repayment failed.';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -140,8 +144,9 @@ export default function DebtsPage() {
       await debtService.deleteDebt(id);
       toast('Record removed.', 'success');
       fetchData();
-    } catch (err: any) {
-      toast(err.message || 'Failed to delete record.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete record.';
+      toast(msg, 'danger');
     }
   };
 
@@ -156,15 +161,15 @@ export default function DebtsPage() {
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
             <HandCoins className="w-5.5 h-5.5 text-primary" />
-            Debt & Lending Ledger
+            Buku Utang & Piutang
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            Monitor liabilities (debts you owe back) and liquid assets (loans you lent out)
+            Pantau utang (uang yang harus Anda bayar) dan piutang (uang yang Anda pinjamkan)
           </p>
         </div>
         <Button className="flex items-center gap-2 cursor-pointer" onClick={() => setIsDebtModalOpen(true)}>
           <Plus className="w-4 h-4" />
-          Add Loan / Debt
+          Tambah Utang / Piutang
         </Button>
       </div>
 
@@ -173,10 +178,10 @@ export default function DebtsPage() {
         <Card className="p-5 bg-gradient-to-r from-danger/5 to-danger/10 border-danger/20 flex items-center justify-between">
           <div>
             <span className="text-[10px] uppercase font-bold text-danger/80 tracking-wider">
-              Total Liabilities (Debts Owed)
+              Total Kewajiban (Utang Saya)
             </span>
             <h3 className="text-2xl font-extrabold text-danger mt-1">
-              ${totalOwe.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              {formatRupiah(totalOwe)}
             </h3>
           </div>
           <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center text-danger">
@@ -187,10 +192,10 @@ export default function DebtsPage() {
         <Card className="p-5 bg-gradient-to-r from-success/5 to-success/10 border-success/20 flex items-center justify-between">
           <div>
             <span className="text-[10px] uppercase font-bold text-success/80 tracking-wider">
-              Total Assets (Loans Lent Out)
+              Total Aset (Piutang Saya)
             </span>
             <h3 className="text-2xl font-extrabold text-success mt-1">
-              ${totalLend.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              {formatRupiah(totalLend)}
             </h3>
           </div>
           <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center text-success">
@@ -212,14 +217,14 @@ export default function DebtsPage() {
             <HandCoins className="w-6.5 h-6.5" />
           </div>
           <h4 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">
-            No Debt Ledger entries
+            Belum ada catatan utang/piutang
           </h4>
           <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary max-w-sm mb-4">
-            Create a record when you borrow money from a bank/friend, or lend resources out to keep your ledger correct.
+            Buat catatan saat Anda meminjam uang atau meminjamkan dana kepada orang lain agar keuangan Anda tetap tercatat dengan benar.
           </p>
           <Button size="sm" onClick={() => setIsDebtModalOpen(true)}>
             <Plus className="w-4 h-4 mr-1.5" />
-            Add First Ledger Entry
+            Tambah Catatan Pertama
           </Button>
         </div>
       ) : (
@@ -227,11 +232,11 @@ export default function DebtsPage() {
           {/* Owe list */}
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary uppercase tracking-wider">
-              Debts I Owe
+              Utang Saya (Kewajiban)
             </h3>
             {debts.filter((d) => d.type === 'owe').length === 0 ? (
               <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary py-4 font-semibold">
-                No active liabilities logged.
+                Tidak ada kewajiban aktif yang tercatat.
               </p>
             ) : (
               debts.filter((d) => d.type === 'owe').map((debt) => {
@@ -266,9 +271,9 @@ export default function DebtsPage() {
                       {/* Repayment Progress */}
                       <div className="space-y-1">
                         <div className="flex justify-between items-end text-xs font-semibold">
-                          <span className="text-light-text-secondary dark:text-dark-text-secondary">Repayment Ratio</span>
+                          <span className="text-light-text-secondary dark:text-dark-text-secondary">Rasio Pelunasan</span>
                           <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                            ${paid.toFixed(0)} / ${tot.toFixed(0)}
+                            {formatRupiah(paid)} / {formatRupiah(tot)}
                           </span>
                         </div>
                         <Progress value={percentage} variant="danger" />
@@ -278,16 +283,16 @@ export default function DebtsPage() {
                     <div className="flex items-center justify-between gap-3 mt-6 pt-3 border-t border-light-border/40 dark:border-dark-border/40">
                       <div className="flex items-center gap-1 text-[11px] font-semibold text-light-text-secondary dark:text-dark-text-secondary">
                         <Calendar className="w-3.5 h-3.5" />
-                        {debt.due_date ? `Due ${new Date(debt.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'No Due Date'}
+                        {debt.due_date ? `Jatuh tempo ${new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}` : 'Tanpa Tenggat'}
                       </div>
                       {isPaid ? (
                         <span className="text-xs font-bold text-success flex items-center gap-1">
-                          <ShieldCheck className="w-4 h-4" /> Settled
+                          <ShieldCheck className="w-4 h-4" /> Lunas
                         </span>
                       ) : (
                         <Button size="sm" variant="outline" className="flex items-center gap-1 cursor-pointer" onClick={() => handleOpenPayment(debt)}>
                           <Coins className="w-3 h-3" />
-                          Pay Installment
+                          Bayar Cicilan
                         </Button>
                       )}
                     </div>
@@ -300,11 +305,11 @@ export default function DebtsPage() {
           {/* Lend list */}
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary uppercase tracking-wider">
-              Money Lent Out
+              Piutang Saya (Aset)
             </h3>
             {debts.filter((d) => d.type === 'lend').length === 0 ? (
               <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary py-4 font-semibold">
-                No active lending channels registered.
+                Tidak ada piutang aktif yang tercatat.
               </p>
             ) : (
               debts.filter((d) => d.type === 'lend').map((debt) => {
@@ -339,9 +344,9 @@ export default function DebtsPage() {
                       {/* Repayment Progress */}
                       <div className="space-y-1">
                         <div className="flex justify-between items-end text-xs font-semibold">
-                          <span className="text-light-text-secondary dark:text-dark-text-secondary">Collected Ratio</span>
+                          <span className="text-light-text-secondary dark:text-dark-text-secondary">Rasio Pengumpulan</span>
                           <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                            ${paid.toFixed(0)} / ${tot.toFixed(0)}
+                            {formatRupiah(paid)} / {formatRupiah(tot)}
                           </span>
                         </div>
                         <Progress value={percentage} variant="success" />
@@ -351,16 +356,16 @@ export default function DebtsPage() {
                     <div className="flex items-center justify-between gap-3 mt-6 pt-3 border-t border-light-border/40 dark:border-dark-border/40">
                       <div className="flex items-center gap-1 text-[11px] font-semibold text-light-text-secondary dark:text-dark-text-secondary">
                         <Calendar className="w-3.5 h-3.5" />
-                        {debt.due_date ? `Due ${new Date(debt.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'No Due Date'}
+                        {debt.due_date ? `Jatuh tempo ${new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}` : 'Tanpa Tenggat'}
                       </div>
                       {isPaid ? (
                         <span className="text-xs font-bold text-success flex items-center gap-1">
-                          <ShieldCheck className="w-4 h-4" /> Settled
+                          <ShieldCheck className="w-4 h-4" /> Lunas
                         </span>
                       ) : (
                         <Button size="sm" variant="outline" className="flex items-center gap-1 cursor-pointer" onClick={() => handleOpenPayment(debt)}>
                           <Coins className="w-3 h-3" />
-                          Collect Cash
+                          Tagih Cicilan
                         </Button>
                       )}
                     </div>
@@ -373,7 +378,7 @@ export default function DebtsPage() {
       )}
 
       {/* Add Debt/Lend record modal */}
-      <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Register Debt / Lending Record">
+      <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Daftarkan Catatan Utang / Piutang">
         <form onSubmit={handleCreateDebt} className="space-y-4">
           <div className="grid grid-cols-2 gap-2 bg-light-bg dark:bg-dark-bg/60 p-1 rounded-xl border border-light-border/40 dark:border-dark-border/40">
             {(['owe', 'lend'] as const).map((t) => (
@@ -389,14 +394,14 @@ export default function DebtsPage() {
                     : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
                 }`}
               >
-                {t === 'owe' ? 'Debt I Owe' : 'Money I Lent'}
+                {t === 'owe' ? 'Utang Saya' : 'Piutang Saya'}
               </button>
             ))}
           </div>
 
           <Input
-            label="Name / Title"
-            placeholder="e.g. Chase Mortgage, Laptop loan to Dave"
+            label="Nama / Judul Catatan"
+            placeholder="misal: KPR Bank, Pinjaman Laptop ke Dave"
             value={debtName}
             onChange={(e) => setDebtName(e.target.value)}
             required
@@ -404,8 +409,8 @@ export default function DebtsPage() {
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Total Capital ($)"
-              placeholder="1000"
+              label="Total Nominal (Rp)"
+              placeholder="1000000"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -413,7 +418,7 @@ export default function DebtsPage() {
               disabled={submitting}
             />
             <Input
-              label="Due Date / Deadline"
+              label="Tanggal Jatuh Tempo"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
@@ -421,7 +426,7 @@ export default function DebtsPage() {
             />
           </div>
           <Input
-            label="Contact Info / Remarks"
+            label="Kontak / Catatan Tambahan"
             placeholder="Dave (dave@email.com)"
             value={contactInfo}
             onChange={(e) => setContactInfo(e.target.value)}
@@ -435,24 +440,24 @@ export default function DebtsPage() {
               onClick={() => setIsDebtModalOpen(false)}
               disabled={submitting}
             >
-              Cancel
+              Batal
             </Button>
             <Button type="submit" loading={submitting}>
-              Register Record
+              Daftar Catatan
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Pay Installment Modal */}
-      <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title={`Ledger repays: ${selectedDebt?.name}`}>
+      <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title={`Pembayaran Catatan: ${selectedDebt?.name}`}>
         {selectedDebt && (
           <form onSubmit={handlePaymentSubmit} className="space-y-4">
             <Select
-              label={selectedDebt.type === 'owe' ? 'Repayment Source Wallet' : 'Receiving Wallet Account'}
+              label={selectedDebt.type === 'owe' ? 'Sumber Dompet Pembayaran' : 'Dompet Penerima Pembayaran'}
               options={[
-                { value: '', label: '-- Choose --' },
-                ...wallets.map((w) => ({ value: w.id, label: `${w.name} ($${Number(w.balance).toFixed(2)})` })),
+                { value: '', label: '-- Pilih --' },
+                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
               ]}
               value={payWalletId}
               onChange={(e) => setPayWalletId(e.target.value)}
@@ -460,17 +465,16 @@ export default function DebtsPage() {
               disabled={submitting}
             />
             <Input
-              label="Transaction Installment ($)"
-              placeholder="100.00"
+              label="Nominal Cicilan (Rp)"
+              placeholder="100000"
               type="number"
-              step="0.01"
               value={payAmount}
               onChange={(e) => setPayAmount(e.target.value)}
               required
               disabled={submitting}
             />
             <Input
-              label="Payment Remarks / Note"
+              label="Catatan Pembayaran"
               value={payNote}
               onChange={(e) => setPayNote(e.target.value)}
               disabled={submitting}
@@ -483,10 +487,10 @@ export default function DebtsPage() {
                 onClick={() => setIsPayModalOpen(false)}
                 disabled={submitting}
               >
-                Cancel
+                Batal
               </Button>
               <Button type="submit" loading={submitting}>
-                {selectedDebt.type === 'owe' ? 'Execute Payment' : 'Log Collection'}
+                {selectedDebt.type === 'owe' ? 'Bayar Cicilan' : 'Terima Pembayaran'}
               </Button>
             </div>
           </form>

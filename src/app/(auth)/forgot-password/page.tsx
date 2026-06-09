@@ -38,8 +38,9 @@ export default function ForgotPasswordPage() {
         setSuccessMsg('Reset link sent! Please check your email for the recovery link.');
         setEmail('');
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'An unexpected error occurred.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }

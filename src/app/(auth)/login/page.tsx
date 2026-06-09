@@ -22,7 +22,11 @@ export default function LoginPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlError = params.get('error');
-    if (urlError) setErrorMsg(decodeURIComponent(urlError));
+    if (urlError) {
+      setTimeout(() => {
+        setErrorMsg(decodeURIComponent(urlError));
+      }, 0);
+    }
   }, []);
 
 
@@ -58,8 +62,9 @@ export default function LoginPage() {
           router.refresh();
         }, 1000);
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'An unexpected error occurred.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }

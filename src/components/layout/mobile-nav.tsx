@@ -4,22 +4,13 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  PieChart,
-  Target,
-  Wallet,
-  HandCoins,
-  AlertTriangle,
-  BarChart3,
-  Settings,
   Menu,
   LogOut,
-  ShieldAlert,
 } from 'lucide-react';
 import { useApp } from '@/contexts/app-context';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/toast';
+import { navigationItems, mobileBottomBarPaths } from '@/config/navigation';
 
 export default function MobileNav() {
   const pathname = usePathname();
@@ -28,12 +19,10 @@ export default function MobileNav() {
   const { isSuperAdmin: showAdmin } = useApp();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
-  const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Transaksi', path: '/transactions', icon: ArrowLeftRight },
-    { name: 'Anggaran', path: '/budgets', icon: PieChart },
-    { name: 'Tabungan', path: '/savings', icon: Target },
-  ];
+  const navItems = navigationItems.filter((item) => mobileBottomBarPaths.includes(item.path));
+  const drawerItems = navigationItems.filter(
+    (item) => !mobileBottomBarPaths.includes(item.path) && (!item.isAdmin || showAdmin)
+  );
 
   const handleLogout = async () => {
     try {
@@ -123,73 +112,37 @@ export default function MobileNav() {
 
         {/* Features Navigation Grid */}
         <div className="grid grid-cols-3 gap-3.5 mb-8">
-          <Link
-            href="/wallets"
-            onClick={() => setIsMoreOpen(false)}
-            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-light-bg/40 dark:bg-dark-bg/35 border border-light-border dark:border-dark-border/40 hover:bg-light-bg dark:hover:bg-dark-bg/65 transition-all duration-150 group"
-          >
-            <Wallet className="w-6 h-6 text-primary group-hover:scale-110 transition-transform duration-150" />
-            <span className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary mt-2 text-center">
-              Dompet
-            </span>
-          </Link>
+          {drawerItems.map((item) => {
+            const Icon = item.icon;
+            const isPinjol = item.path === '/pinjol';
+            const isAdminItem = item.isAdmin;
 
-          <Link
-            href="/debts"
-            onClick={() => setIsMoreOpen(false)}
-            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-light-bg/40 dark:bg-dark-bg/35 border border-light-border dark:border-dark-border/40 hover:bg-light-bg dark:hover:bg-dark-bg/65 transition-all duration-150 group"
-          >
-            <HandCoins className="w-6 h-6 text-primary group-hover:scale-110 transition-transform duration-150" />
-            <span className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary mt-2 text-center leading-tight">
-              Utang & Piutang
-            </span>
-          </Link>
-
-          <Link
-            href="/pinjol"
-            onClick={() => setIsMoreOpen(false)}
-            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-light-bg/40 dark:bg-dark-bg/35 border border-light-border dark:border-dark-border/40 hover:bg-light-bg dark:hover:bg-dark-bg/65 transition-all duration-150 group"
-          >
-            <AlertTriangle className="w-6 h-6 text-warning group-hover:scale-110 transition-transform duration-150" />
-            <span className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary mt-2 text-center leading-tight">
-              Pinjol Tracker
-            </span>
-          </Link>
-
-          <Link
-            href="/reports"
-            onClick={() => setIsMoreOpen(false)}
-            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-light-bg/40 dark:bg-dark-bg/35 border border-light-border dark:border-dark-border/40 hover:bg-light-bg dark:hover:bg-dark-bg/65 transition-all duration-150 group"
-          >
-            <BarChart3 className="w-6 h-6 text-primary group-hover:scale-110 transition-transform duration-150" />
-            <span className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary mt-2 text-center">
-              Laporan
-            </span>
-          </Link>
-
-          <Link
-            href="/settings"
-            onClick={() => setIsMoreOpen(false)}
-            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-light-bg/40 dark:bg-dark-bg/35 border border-light-border dark:border-dark-border/40 hover:bg-light-bg dark:hover:bg-dark-bg/65 transition-all duration-150 group"
-          >
-            <Settings className="w-6 h-6 text-primary group-hover:scale-110 transition-transform duration-150" />
-            <span className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary mt-2 text-center">
-              Pengaturan
-            </span>
-          </Link>
-
-          {showAdmin && (
-            <Link
-              href="/admin"
-              onClick={() => setIsMoreOpen(false)}
-              className="flex flex-col items-center justify-center p-4 rounded-2xl bg-danger/5 dark:bg-danger/10 border border-danger/20 hover:bg-danger/10 transition-all duration-150 group"
-            >
-              <ShieldAlert className="w-6 h-6 text-danger group-hover:scale-110 transition-transform duration-150" />
-              <span className="text-xs font-bold text-danger mt-2 text-center">
-                Admin
-              </span>
-            </Link>
-          )}
+            return (
+              <Link
+                key={item.path}
+                href={item.path}
+                onClick={() => setIsMoreOpen(false)}
+                className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-150 group ${
+                  isAdminItem
+                    ? 'bg-danger/5 dark:bg-danger/10 border-danger/20 hover:bg-danger/10'
+                    : 'bg-light-bg/40 dark:bg-dark-bg/35 border-light-border dark:border-dark-border/40 hover:bg-light-bg dark:hover:bg-dark-bg/65'
+                }`}
+              >
+                <Icon
+                  className={`w-6 h-6 group-hover:scale-110 transition-transform duration-150 ${
+                    isPinjol ? 'text-warning' : isAdminItem ? 'text-danger' : 'text-primary'
+                  }`}
+                />
+                <span
+                  className={`text-xs font-bold mt-2 text-center leading-tight ${
+                    isAdminItem ? 'text-danger' : 'text-light-text-primary dark:text-dark-text-primary'
+                  }`}
+                >
+                  {item.name}
+                </span>
+              </Link>
+            );
+          })}
         </div>
 
         {/* Log Out CTA */}

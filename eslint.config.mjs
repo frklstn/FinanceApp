@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "create-superadmin.js",
+    "get-admin-email.js",
+    "run-migration.js",
+    "scripts/**",
+    "mobile/**",
   ]),
 ]);
 

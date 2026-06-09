@@ -4,24 +4,15 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  Wallet,
-  PieChart,
-  Target,
-  HandCoins,
-  BarChart3,
-  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
-  ShieldAlert,
-  AlertTriangle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/toast';
 import { useApp } from '@/contexts/app-context';
 import { AppBrand } from '@/components/layout/app-brand';
+import { navigationItems } from '@/config/navigation';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -31,18 +22,7 @@ export default function Sidebar() {
 
   const [collapsed, setCollapsed] = useState(false);
 
-  const menuItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Transactions', path: '/transactions', icon: ArrowLeftRight },
-    { name: 'Wallets', path: '/wallets', icon: Wallet },
-    { name: 'Budgets', path: '/budgets', icon: PieChart },
-    { name: 'Savings Goals', path: '/savings', icon: Target },
-    { name: 'Debts & Loans', path: '/debts', icon: HandCoins },
-    { name: 'Pinjol Tracker', path: '/pinjol', icon: AlertTriangle },
-    { name: 'Reports', path: '/reports', icon: BarChart3 },
-    { name: 'Settings', path: '/settings', icon: Settings },
-    ...(showAdmin ? [{ name: 'Admin', path: '/admin', icon: ShieldAlert }] : []),
-  ];
+  const menuItems = navigationItems.filter((item) => !item.isAdmin || showAdmin);
 
   const handleLogout = async () => {
     try {
@@ -130,10 +110,10 @@ export default function Sidebar() {
           className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-danger/80 hover:text-danger hover:bg-danger/10 transition-all duration-150 cursor-pointer ${
             collapsed ? 'justify-center' : ''
           }`}
-          title={collapsed ? 'Sign out' : undefined}
+          title={collapsed ? 'Keluar' : undefined}
         >
           <LogOut className="w-5 h-5 shrink-0" />
-          {!collapsed && <span>Sign Out</span>}
+          {!collapsed && <span>Keluar</span>}
         </button>
       </div>
     </aside>

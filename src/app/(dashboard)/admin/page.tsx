@@ -97,8 +97,9 @@ export default function AdminPage() {
         `User successfully ${newState ? 'Suspended (Disabled)' : 'Enabled (Activated)'}!`,
         newState ? 'warning' : 'success'
       );
-    } catch (err: any) {
-      toast(err.message || 'Action failed', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Action failed';
+      toast(msg, 'danger');
     } finally {
       setUpdatingUserId(null);
     }
@@ -142,8 +143,9 @@ export default function AdminPage() {
 
       toast('Profil pengguna diperbarui.', 'success');
       setEditingUser(null);
-    } catch (err: any) {
-      toast(err.message || 'Failed to update user', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update user';
+      toast(msg, 'danger');
     } finally {
       setUpdatingUserId(null);
     }

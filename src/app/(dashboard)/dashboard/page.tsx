@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { insightsService, FinancialInsight } from '@/lib/services/insights.service';
-import { transactionService } from '@/lib/services/transaction.service';
+import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
+import { formatRupiah } from '@/lib/debt-planner/format';
 import { SpendingChart } from '@/components/charts/spending-chart';
 import { CategoryPieChart } from '@/components/charts/category-pie-chart';
 import { Card } from '@/components/ui/card';
@@ -40,7 +41,7 @@ export default function DashboardPage() {
     savings: 0,
   });
   const [insights, setInsights] = useState<FinancialInsight[]>([]);
-  const [recentTxs, setRecentTxs] = useState<any[]>([]);
+  const [recentTxs, setRecentTxs] = useState<PopulatedTransaction[]>([]);
   const [chartData, setChartData] = useState<{ date: string; amount: number }[]>([]);
   const [pieData, setPieData] = useState<{ name: string; value: number; color: string }[]>([]);
   const [showGuide, setShowGuide] = useState(false);
@@ -125,8 +126,9 @@ export default function DashboardPage() {
 
       setPieData(pieList);
 
-    } catch (err: any) {
-      toast(err.message || 'Error compiling dashboard statistics.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error compiling dashboard statistics.';
+      toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
@@ -169,10 +171,10 @@ export default function DashboardPage() {
       {/* Dynamic Welcome Heading */}
       <div className="flex flex-col gap-1">
         <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-light-text-primary dark:text-dark-text-primary">
-          Wealth Workspace Dashboard
+          Dasbor Keuangan
         </h2>
         <p className="text-xs md:text-sm text-light-text-secondary dark:text-dark-text-secondary">
-          Live financial summary and smart budget analytics for this billing cycle
+          Ringkasan keuangan langsung dan analisis anggaran cerdas untuk siklus ini
         </p>
       </div>
 
@@ -226,7 +228,7 @@ export default function DashboardPage() {
                 1. Kelola Dompet (Wallets)
               </h4>
               <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                Buka menu <strong>Dompet</strong>, klik <strong>Tambah Dompet</strong>. Buat dompet seperti "Cash", "BCA", atau "GoPay" dan masukkan saldo awalnya. Seluruh saldo dompet dikalkulasi sebagai aset bersih Anda.
+                Buka menu <strong>Dompet</strong>, klik <strong>Tambah Dompet</strong>. Buat dompet seperti &quot;Cash&quot;, &quot;BCA&quot;, atau &quot;GoPay&quot; dan masukkan saldo awalnya. Seluruh saldo dompet dikalkulasi sebagai aset bersih Anda.
               </p>
             </div>
 
@@ -324,10 +326,10 @@ export default function DashboardPage() {
           <Card className="p-5 flex items-center justify-between border-light-border dark:border-dark-border shadow-sm">
             <div className="space-y-1">
               <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-                Monthly Income
+                Pemasukan Bulan Ini
               </span>
               <h4 className="text-2xl font-extrabold text-success tracking-tight">
-                +${stats.income.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                +{formatRupiah(stats.income)}
               </h4>
             </div>
             <div className="w-10 h-10 rounded-xl bg-success/15 flex items-center justify-center text-success">
@@ -338,10 +340,10 @@ export default function DashboardPage() {
           <Card className="p-5 flex items-center justify-between border-light-border dark:border-dark-border shadow-sm">
             <div className="space-y-1">
               <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-                Monthly Expenses
+                Pengeluaran Bulan Ini
               </span>
               <h4 className="text-2xl font-extrabold text-danger tracking-tight">
-                -${stats.expense.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                -{formatRupiah(stats.expense)}
               </h4>
             </div>
             <div className="w-10 h-10 rounded-xl bg-danger/15 flex items-center justify-center text-danger">
@@ -352,10 +354,10 @@ export default function DashboardPage() {
           <Card className="p-5 flex items-center justify-between border-light-border dark:border-dark-border shadow-sm">
             <div className="space-y-1">
               <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-                Net Savings Pool
+                Sisa Tabungan Bersih
               </span>
               <h4 className={`text-2xl font-extrabold tracking-tight ${stats.savings >= 0 ? 'text-primary' : 'text-danger'}`}>
-                {stats.savings >= 0 ? '+' : '-'}${Math.abs(stats.savings).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                {stats.savings >= 0 ? '+' : '-'}{formatRupiah(Math.abs(stats.savings))}
               </h4>
             </div>
             <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
@@ -367,7 +369,7 @@ export default function DashboardPage() {
           <Card className="p-5 flex items-center justify-between border-light-border dark:border-dark-border shadow-sm">
             <div className="space-y-1">
               <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-                Health Score
+                Skor Kesehatan
               </span>
               <h4 className="text-2xl font-extrabold text-light-text-primary dark:text-dark-text-primary tracking-tight">
                 {stats.score}/100
@@ -402,11 +404,11 @@ export default function DashboardPage() {
         <Card className="p-5 lg:col-span-2 space-y-4 shadow-sm border-light-border dark:border-dark-border">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5">
-              Daily Spending Trends
+              Tren Pengeluaran Harian
             </h3>
             <div className="flex items-center gap-2">
               <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full tracking-wider">
-                Last 7 Days
+                7 Hari Terakhir
               </span>
               <button
                 onClick={() => setIsTrendsExpanded(true)}
@@ -428,7 +430,7 @@ export default function DashboardPage() {
         <Card className="p-5 space-y-4 shadow-sm border-light-border dark:border-dark-border">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">
-              Category Concentration
+              Konsentrasi Kategori
             </h3>
             <button
               onClick={() => setIsPieExpanded(true)}
@@ -445,7 +447,7 @@ export default function DashboardPage() {
               <div className="w-10 h-10 rounded-xl bg-light-border/40 dark:bg-dark-border/40 flex items-center justify-center mb-2 text-light-text-secondary">
                 <Info className="w-5 h-5" />
               </div>
-              <p className="text-xs text-light-text-secondary font-medium">No expenses logged yet for categories overview.</p>
+              <p className="text-xs text-light-text-secondary font-medium">Belum ada pengeluaran yang dicatat.</p>
             </div>
           ) : (
             <CategoryPieChart data={pieData} />
@@ -459,7 +461,7 @@ export default function DashboardPage() {
         <Card className="p-5 space-y-4 shadow-sm border-light-border dark:border-dark-border lg:col-span-1">
           <div className="flex items-center gap-1.5 text-light-text-primary dark:text-dark-text-primary font-bold text-sm">
             <Sparkles className="w-4 h-4 text-primary" />
-            Dynamic Wealth Insights
+            Analisis Keuangan Pintar
           </div>
           <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1">
             {loading ? (
@@ -467,7 +469,7 @@ export default function DashboardPage() {
             ) : insights.length === 0 ? (
               <div className="flex items-center gap-2 p-3.5 rounded-xl border border-light-border dark:border-dark-border text-xs text-light-text-secondary font-medium">
                 <Info className="w-4 h-4 text-primary shrink-0" />
-                All clear! No financial alerts detected this cycle.
+                Semua aman! Tidak ada peringatan finansial terdeteksi siklus ini.
               </div>
             ) : (
               insights.map((ins, index) => (
@@ -488,7 +490,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5">
               <Calendar className="w-4.5 h-4.5 text-primary" />
-              Recent Ledger Ledger Activity
+              Aktivitas Keuangan Terbaru
             </h3>
           </div>
           <div className="divide-y divide-light-border/40 dark:divide-dark-border/40">
@@ -496,7 +498,7 @@ export default function DashboardPage() {
               [1, 2, 3].map((n) => <div key={n} className="h-12 rounded-xl shimmer my-2" />)
             ) : recentTxs.length === 0 ? (
               <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary py-8 text-center font-medium">
-                No recent transaction transactions compiled yet.
+                Belum ada transaksi terbaru.
               </p>
             ) : (
               recentTxs.map((tx) => (
@@ -509,17 +511,17 @@ export default function DashboardPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="font-extrabold text-light-text-primary dark:text-dark-text-primary truncate">
-                        {tx.note || (tx.type === 'transfer' ? 'Wallet Transfer' : 'Expense ledger')}
+                        {tx.note || (tx.type === 'transfer' ? 'Transfer Dompet' : 'Catatan Pengeluaran')}
                       </p>
                       <p className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary font-medium tracking-tight mt-0.5">
-                        {tx.wallets?.name} • {new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {tx.wallets?.name} • {new Date(tx.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}
                       </p>
                     </div>
                   </div>
                   <span className={`font-bold tracking-tight shrink-0 ${
                     tx.type === 'income' ? 'text-success' : tx.type === 'expense' ? 'text-danger' : 'text-info'
                   }`}>
-                    {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}${Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatRupiah(Number(tx.amount))}
                   </span>
                 </div>
               ))
@@ -557,7 +559,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <span className="font-extrabold text-light-text-primary dark:text-dark-text-primary">
-                      ${item.value.toLocaleString('en-US', { minimumFractionDigits: 2 })} ({pct}%)
+                      {formatRupiah(item.value)} ({pct}%)
                     </span>
                   </div>
                 );
@@ -591,7 +593,7 @@ export default function DashboardPage() {
                     {item.date}
                   </span>
                   <span className="font-extrabold text-danger">
-                    -${item.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    -{formatRupiah(item.amount)}
                   </span>
                 </div>
               ))}

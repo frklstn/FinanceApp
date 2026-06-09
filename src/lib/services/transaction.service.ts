@@ -37,6 +37,7 @@ export interface TransactionFilters {
   startDate?: string;
   endDate?: string;
   search?: string;
+  tag?: string;
   limit?: number;
   offset?: number;
 }
@@ -74,6 +75,9 @@ export const transactionService = {
     }
     if (filters.search) {
       query = query.ilike('note', `%${filters.search}%`);
+    }
+    if (filters.tag) {
+      query = query.contains('tags', [filters.tag]);
     }
 
     // Sorting

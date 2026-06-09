@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { transactionService } from '@/lib/services/transaction.service';
+import { formatRupiah } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -120,8 +121,9 @@ export default function ReportsPage() {
 
       setCategorySpendings(catRankings);
 
-    } catch (err: any) {
-      toast(err.message || 'Failed to assemble reports', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to assemble reports';
+      toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
@@ -154,25 +156,25 @@ export default function ReportsPage() {
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
             <BarChart3 className="w-5.5 h-5.5 text-primary" />
-            Financial Reports & Tax Planner
+            Laporan Keuangan & Estimasi Pajak
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            Analyze spending categories concentration, margins, and savings performance
+            Analisis konsentrasi kategori pengeluaran, margin, dan kinerja tabungan Anda
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <Select
             options={[
-              { value: 'month', label: 'Current Month' },
-              { value: 'last_month', label: 'Previous Month' },
-              { value: 'ytd', label: 'Year to Date' },
+              { value: 'month', label: 'Bulan Ini' },
+              { value: 'last_month', label: 'Bulan Lalu' },
+              { value: 'ytd', label: 'Tahun ke Tanggal (YTD)' },
             ]}
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
           />
           <Button variant="outline" className="flex items-center gap-1.5 cursor-pointer" onClick={handleExportData}>
             <Download className="w-4 h-4" />
-            Export Ledger
+            Ekspor Buku Besar
           </Button>
         </div>
       </div>
@@ -188,7 +190,7 @@ export default function ReportsPage() {
           }`}
         >
           <BarChart3 className="w-4.5 h-4.5" />
-          Analytics Breakdown
+          Analisis Pengeluaran
         </button>
         <button
           onClick={() => setActiveSubTab('tax')}
@@ -199,7 +201,7 @@ export default function ReportsPage() {
           }`}
         >
           <Scale className="w-4.5 h-4.5" />
-          Tax Estimation Planner
+          Estimasi Perencanaan Pajak
         </button>
       </div>
 
@@ -216,24 +218,24 @@ export default function ReportsPage() {
             <Card className="p-5 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
                 <TrendingUpDown className="w-4.5 h-4.5 text-primary" />
-                Net Cash Flow
+                Aliran Kas Bersih
               </h3>
               
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-xs font-semibold">
-                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Total Inflow</span>
-                  <span className="text-success">+${reportStats.income.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Total Pemasukan</span>
+                  <span className="text-success">+{formatRupiah(reportStats.income)}</span>
                 </div>
                 <div className="flex justify-between items-center text-xs font-semibold">
-                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Total Outflow</span>
-                  <span className="text-danger">-${reportStats.expense.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Total Pengeluaran</span>
+                  <span className="text-danger">-{formatRupiah(reportStats.expense)}</span>
                 </div>
                 <div className="h-px bg-light-border/40 dark:bg-dark-border/40 my-2" />
                 
                 <div className="flex justify-between items-center text-sm font-extrabold">
-                  <span className="text-light-text-primary dark:text-dark-text-primary">Net Margin</span>
+                  <span className="text-light-text-primary dark:text-dark-text-primary">Margin Bersih</span>
                   <span className={reportStats.savings >= 0 ? 'text-primary' : 'text-danger'}>
-                    {reportStats.savings >= 0 ? '+' : '-'}${Math.abs(reportStats.savings).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {reportStats.savings >= 0 ? '+' : '-'}{formatRupiah(Math.abs(reportStats.savings))}
                   </span>
                 </div>
               </div>
@@ -242,14 +244,14 @@ export default function ReportsPage() {
             {/* Savings Rate Card */}
             <Card className="p-5 space-y-3">
               <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-                Monthly Savings Rate
+                Rasio Menabung Bulanan
               </span>
               <h4 className="text-2xl font-extrabold text-primary dark:text-white">
                 {reportStats.savingsRate}%
               </h4>
               <Progress value={reportStats.savingsRate} variant="primary" />
               <p className="text-[10.5px] font-medium text-light-text-secondary dark:text-dark-text-secondary/60 leading-relaxed pt-1">
-                You saved ${reportStats.savings.toFixed(0)} out of your ${reportStats.income.toFixed(0)} cash receipts this cycle.
+                Anda menyisihkan {formatRupiah(reportStats.savings)} dari total pemasukan {formatRupiah(reportStats.income)} pada siklus ini.
               </p>
             </Card>
           </div>
@@ -259,7 +261,7 @@ export default function ReportsPage() {
             <Card className="p-6 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
                 <BarChart3 className="w-4.5 h-4.5 text-primary" />
-                Category Spending Rankings
+                Peringkat Pengeluaran Kategori
               </h3>
               
               {categorySpendings.length === 0 ? (
@@ -268,7 +270,7 @@ export default function ReportsPage() {
                     <Info className="w-5 h-5" />
                   </div>
                   <p className="text-xs text-light-text-secondary font-medium">
-                    No outbound transactional data parsed for the selected billing duration.
+                    Tidak ada data transaksi pengeluaran untuk jangka waktu yang dipilih.
                   </p>
                 </div>
               ) : (
@@ -286,7 +288,7 @@ export default function ReportsPage() {
                           </span>
                         </div>
                         <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                          ${cat.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} ({cat.percentage}%)
+                          {formatRupiah(cat.amount)} ({cat.percentage}%)
                         </span>
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-light-border dark:bg-dark-border overflow-hidden">
@@ -313,13 +315,13 @@ export default function ReportsPage() {
             <Card className="p-5 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
                 <Percent className="w-4.5 h-4.5 text-primary" />
-                Tax Bracket Variables
+                Variabel Tarif Pajak
               </h3>
               
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1">
-                    Estimated Tax Bracket ({taxRate}%)
+                    Estimasi Golongan Pajak ({taxRate}%)
                   </label>
                   <input
                     type="range"
@@ -330,14 +332,14 @@ export default function ReportsPage() {
                     className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-primary"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">
-                    <span>5% (Low)</span>
-                    <span>45% (High)</span>
+                    <span>5% (Rendah)</span>
+                    <span>45% (Tinggi)</span>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1">
-                    Deductible Expenses ({deductiblesRatio}%)
+                    Pengeluaran Bebas Pajak ({deductiblesRatio}%)
                   </label>
                   <input
                     type="range"
@@ -348,8 +350,8 @@ export default function ReportsPage() {
                     className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-primary"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">
-                    <span>0% (None)</span>
-                    <span>100% (All)</span>
+                    <span>0% (Nihil)</span>
+                    <span>100% (Semua)</span>
                   </div>
                 </div>
               </div>
@@ -361,7 +363,7 @@ export default function ReportsPage() {
             <Card className="p-6 space-y-6">
               <div>
                 <h3 className="text-base font-extrabold text-light-text-primary dark:text-dark-text-primary">
-                  Income Tax Projection Statement
+                  Pernyataan Proyeksi Pajak Penghasilan
                 </h3>
                 <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
                   Proyeksi pajak berdasarkan pemasukan dan pengeluaran periode aktif.
@@ -370,36 +372,36 @@ export default function ReportsPage() {
 
               <div className="divide-y divide-light-border/40 dark:divide-dark-border/40 text-xs font-semibold space-y-3.5">
                 <div className="flex justify-between items-center pt-3.5">
-                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Gross Receipts (Total Inflows)</span>
+                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Pendapatan Kotor (Total Pemasukan)</span>
                   <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                    ${grossIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {formatRupiah(grossIncome)}
                   </span>
                 </div>
                 
                 <div className="flex justify-between items-center pt-3.5">
                   <div className="space-y-0.5">
-                    <span className="text-light-text-secondary dark:text-dark-text-secondary">Deductible Write-offs</span>
-                    <p className="text-[10px] text-light-text-secondary/60 font-medium">Assumes {deductiblesRatio}% of monthly expenses are write-offs</p>
+                    <span className="text-light-text-secondary dark:text-dark-text-secondary">Pengurangan Pajak Pengeluaran</span>
+                    <p className="text-[10px] text-light-text-secondary/60 font-medium">Mengasumsikan {deductiblesRatio}% dari pengeluaran bulanan dapat dikurangkan dari pajak</p>
                   </div>
                   <span className="text-success font-bold">
-                    -${totalDeductibles.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    -{formatRupiah(totalDeductibles)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center pt-3.5">
-                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Adjusted Net Taxable Income</span>
+                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Penghasilan Kena Pajak Bersih Disesuaikan</span>
                   <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                    ${taxableIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {formatRupiah(taxableIncome)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center pt-3.5 border-t-2 border-primary/20">
                   <div className="space-y-0.5">
-                    <span className="text-sm font-extrabold text-primary">Projected Estimated Tax</span>
-                    <p className="text-[10px] text-light-text-secondary/60 font-medium">Applying {taxRate}% estimated aggregate bracket rate</p>
+                    <span className="text-sm font-extrabold text-primary">Estimasi Proyeksi Pajak</span>
+                    <p className="text-[10px] text-light-text-secondary/60 font-medium">Menerapkan perkiraan tarif pajak sebesar {taxRate}%</p>
                   </div>
                   <span className="text-lg font-extrabold text-danger">
-                    ${estimatedTax.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {formatRupiah(estimatedTax)}
                   </span>
                 </div>
               </div>
@@ -407,7 +409,7 @@ export default function ReportsPage() {
               <div className="flex items-start gap-2.5 p-3.5 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/40 dark:bg-dark-bg/25">
                 <Info className="w-4.5 h-4.5 text-primary shrink-0 mt-0.5" />
                 <p className="text-[10.5px] font-medium text-light-text-secondary leading-relaxed">
-                  Disclaimer: This projection is generated purely for planning convenience and budgeting clarity. It does not constitute professional tax advice. Consult a Certified Public Accountant (CPA) to finalize official declarations.
+                  Disclaimer: Proyeksi ini dibuat murni untuk kemudahan perencanaan dan kejelasan anggaran. Ini tidak merupakan saran pajak profesional. Konsultasikan dengan Akuntan Pajak resmi untuk pelaporan SPT formal Anda.
                 </p>
               </div>
             </Card>

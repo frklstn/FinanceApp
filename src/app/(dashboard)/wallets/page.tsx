@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { type Wallet, walletService } from '@/lib/services/wallet.service';
+import { formatRupiah } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -56,8 +57,9 @@ export default function WalletsPage() {
       setLoading(true);
       const list = await walletService.getWallets(accountId);
       setWallets(list);
-    } catch (err: any) {
-      toast(err.message || 'Failed to load wallets', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load wallets';
+      toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
@@ -124,8 +126,9 @@ export default function WalletsPage() {
       setIsWalletModalOpen(false);
       resetForm();
       fetchWallets();
-    } catch (err: any) {
-      toast(err.message || 'Failed to save wallet', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save wallet';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -137,8 +140,9 @@ export default function WalletsPage() {
       await walletService.deleteWallet(id);
       toast('Wallet deleted successfully.', 'success');
       fetchWallets();
-    } catch (err: any) {
-      toast(err.message || 'Failed to delete wallet', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete wallet';
+      toast(msg, 'danger');
     }
   };
 
@@ -168,8 +172,9 @@ export default function WalletsPage() {
       setTransferAmount('');
       setTransferNote('');
       fetchWallets();
-    } catch (err: any) {
-      toast(err.message || 'Transfer failed.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Transfer failed.';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -202,20 +207,20 @@ export default function WalletsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary">
-            Kantong & Wallets
+            Dompet & Rekening
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            Manage your financial accounts, liquid assets, and deposits
+            Kelola akun keuangan, aset likuid, dan simpanan Anda
           </p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" className="flex items-center gap-2 cursor-pointer" onClick={() => setIsTransferModalOpen(true)}>
             <ArrowRightLeft className="w-4 h-4" />
-            Transfer Funds
+            Transfer Dana
           </Button>
           <Button className="flex items-center gap-2 cursor-pointer" onClick={handleOpenCreateModal}>
             <Plus className="w-4 h-4" />
-            New Wallet
+            Dompet Baru
           </Button>
         </div>
       </div>
@@ -224,10 +229,10 @@ export default function WalletsPage() {
       <Card className="p-6 bg-gradient-to-r from-primary/10 to-info/10 dark:from-primary/20 dark:to-info/20 border-primary/20 dark:border-primary/30 flex items-center justify-between">
         <div>
           <span className="text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-            Aggregate Balance
+            Total Saldo Gabungan
           </span>
           <h3 className="text-3xl font-extrabold tracking-tight text-primary dark:text-white mt-1">
-            ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatRupiah(totalBalance)}
           </h3>
         </div>
         <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary dark:text-white">
@@ -247,13 +252,13 @@ export default function WalletsPage() {
           <div className="w-16 h-16 rounded-2xl bg-light-border/40 dark:bg-dark-border/40 flex items-center justify-center mb-4 text-light-text-secondary dark:text-dark-text-secondary">
             <WalletIcon className="w-8 h-8" />
           </div>
-          <h3 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">No Wallets Configured</h3>
+          <h3 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">Belum Ada Dompet</h3>
           <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary max-w-sm mb-4">
-            Create your first cash, bank account, or digital e-wallet to start tracking balances and cash flows
+            Buat dompet pertama Anda seperti kas, rekening bank, atau e-wallet untuk mulai mencatat saldo dan transaksi.
           </p>
           <Button size="sm" onClick={handleOpenCreateModal}>
             <Plus className="w-4 h-4 mr-1.5" />
-            Add Wallet
+            Tambah Dompet
           </Button>
         </div>
       ) : (
@@ -295,10 +300,10 @@ export default function WalletsPage() {
 
               <div className="mt-8">
                 <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-                  Available Balance
+                  Saldo Tersedia
                 </span>
                 <h4 className="text-2xl font-extrabold tracking-tight mt-0.5 text-light-text-primary dark:text-dark-text-primary">
-                  ${Number(wallet.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatRupiah(Number(wallet.balance))}
                 </h4>
               </div>
             </Card>
@@ -307,25 +312,25 @@ export default function WalletsPage() {
       )}
 
       {/* Add / Edit Wallet Modal */}
-      <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} title={editingWallet ? 'Edit Wallet' : 'Create New Wallet'}>
+      <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} title={editingWallet ? 'Edit Dompet' : 'Buat Dompet Baru'}>
         <form onSubmit={handleSaveWallet} className="space-y-4">
           <Input
-            label="Wallet Name"
-            placeholder="e.g. Chase Bank, Pocket Cash"
+            label="Nama Dompet"
+            placeholder="misal: Dompet Utama, Bank Mandiri"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
             disabled={submitting}
           />
           <Select
-            label="Wallet Type"
+            label="Tipe Dompet"
             options={[
-              { value: 'cash', label: 'Cash / Dompet' },
-              { value: 'bank', label: 'Bank Account' },
-              { value: 'e-wallet', label: 'E-Wallet / Digital' },
-              { value: 'crypto', label: 'Crypto Asset' },
-              { value: 'savings', label: 'Savings Deposit' },
-              { value: 'other', label: 'Other Type' },
+              { value: 'cash', label: 'Uang Tunai / Cash' },
+              { value: 'bank', label: 'Rekening Bank' },
+              { value: 'e-wallet', label: 'E-Wallet / Dompet Digital' },
+              { value: 'crypto', label: 'Aset Kripto' },
+              { value: 'savings', label: 'Deposito Tabungan' },
+              { value: 'other', label: 'Lainnya' },
             ]}
             value={type}
             onChange={(e) => setType(e.target.value)}
@@ -333,9 +338,8 @@ export default function WalletsPage() {
           />
           {!editingWallet && (
             <Input
-              label="Starting Balance"
+              label="Saldo Awal"
               type="number"
-              step="0.01"
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
               required
@@ -346,7 +350,7 @@ export default function WalletsPage() {
           {/* Color & Icon select grids */}
           <div>
             <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1.5">
-              Wallet Theme Color
+              Warna Tema Dompet
             </label>
             <div className="flex gap-2.5">
               {['#4F46E5', '#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444'].map((col) => (
@@ -370,23 +374,23 @@ export default function WalletsPage() {
               onClick={() => setIsWalletModalOpen(false)}
               disabled={submitting}
             >
-              Cancel
+              Batal
             </Button>
             <Button type="submit" loading={submitting}>
-              {editingWallet ? 'Update Wallet' : 'Create Wallet'}
+              {editingWallet ? 'Simpan Perubahan' : 'Buat Dompet'}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Transfer Funds Modal */}
-      <Modal isOpen={isTransferModalOpen} onClose={() => setIsTransferModalOpen(false)} title="Transfer Funds">
+      <Modal isOpen={isTransferModalOpen} onClose={() => setIsTransferModalOpen(false)} title="Transfer Dana">
         <form onSubmit={handleTransfer} className="space-y-4">
           <Select
-            label="Source Wallet"
+            label="Dompet Asal"
             options={[
-              { value: '', label: '-- Select Sender --' },
-              ...wallets.map((w) => ({ value: w.id, label: `${w.name} ($${Number(w.balance).toFixed(2)})` })),
+              { value: '', label: '-- Pilih Pengirim --' },
+              ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
             ]}
             value={sourceId}
             onChange={(e) => setSourceId(e.target.value)}
@@ -394,10 +398,10 @@ export default function WalletsPage() {
             disabled={submitting}
           />
           <Select
-            label="Destination Wallet"
+            label="Dompet Tujuan"
             options={[
-              { value: '', label: '-- Select Receiver --' },
-              ...wallets.map((w) => ({ value: w.id, label: `${w.name} ($${Number(w.balance).toFixed(2)})` })),
+              { value: '', label: '-- Pilih Penerima --' },
+              ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
             ]}
             value={destId}
             onChange={(e) => setDestId(e.target.value)}
@@ -405,18 +409,17 @@ export default function WalletsPage() {
             disabled={submitting}
           />
           <Input
-            label="Transfer Amount"
+            label="Jumlah Transfer"
             type="number"
-            step="0.01"
-            placeholder="0.00"
+            placeholder="0"
             value={transferAmount}
             onChange={(e) => setTransferAmount(e.target.value)}
             required
             disabled={submitting}
           />
           <Input
-            label="Transfer Note"
-            placeholder="e.g. Weekly savings target sweep"
+            label="Catatan Transfer"
+            placeholder="misal: Pindahan saldo bulanan"
             value={transferNote}
             onChange={(e) => setTransferNote(e.target.value)}
             disabled={submitting}
@@ -429,10 +432,10 @@ export default function WalletsPage() {
               onClick={() => setIsTransferModalOpen(false)}
               disabled={submitting}
             >
-              Cancel
+              Batal
             </Button>
             <Button type="submit" loading={submitting}>
-              Execute Transfer
+              Kirim Transfer
             </Button>
           </div>
         </form>
