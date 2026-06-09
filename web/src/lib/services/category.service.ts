@@ -28,7 +28,23 @@ export const categoryService = {
       console.error('Error fetching categories:', error);
       throw new Error(error.message);
     }
-    return data || [];
+
+    const categories = data || [];
+
+    // Filter out locally hidden system categories
+    if (typeof window !== 'undefined') {
+      const hiddenStr = localStorage.getItem('finance_app_hidden_system_categories');
+      if (hiddenStr) {
+        try {
+          const hiddenIds = JSON.parse(hiddenStr) as string[];
+          return categories.filter((cat) => !hiddenIds.includes(cat.id));
+        } catch (e) {
+          console.error('Error parsing hidden categories:', e);
+        }
+      }
+    }
+
+    return categories;
   },
 
   /**
@@ -65,6 +81,7 @@ export const categoryService = {
 
   /**
    * Updates an existing custom category.
+   * If the category is a system category, we hide it and clone it under the user's workspace.
    */
   async updateCategory(
     id: string,
@@ -72,9 +89,37 @@ export const categoryService = {
     icon: string,
     color: string,
     type: 'income' | 'expense' | 'transfer',
+    workspaceId: string,
     parentId: string | null = null
   ): Promise<Category> {
     const supabase = createClient();
+
+    // Check if we are updating a system category (workspace_id is null)
+    const { data: checkCat } = await supabase
+      .from('categories')
+      .select('workspace_id')
+      .eq('id', id)
+      .single();
+
+    if (checkCat && checkCat.workspace_id === null) {
+      // 1. Hide the system category locally
+      if (typeof window !== 'undefined') {
+        const hiddenStr = localStorage.getItem('finance_app_hidden_system_categories') || '[]';
+        try {
+          const hiddenIds = JSON.parse(hiddenStr) as string[];
+          if (!hiddenIds.includes(id)) {
+            hiddenIds.push(id);
+            localStorage.setItem('finance_app_hidden_system_categories', JSON.stringify(hiddenIds));
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // 2. Clone it as a custom workspace-specific category
+      return await this.createCategory(workspaceId, name, icon, color, type, parentId);
+    }
+
     const { data, error } = await supabase
       .from('categories')
       .update({
@@ -97,9 +142,35 @@ export const categoryService = {
 
   /**
    * Deletes a custom category.
+   * If the category is a system category, we hide it locally.
    */
   async deleteCategory(id: string): Promise<void> {
     const supabase = createClient();
+
+    // Check if we are deleting a system category (workspace_id is null)
+    const { data: checkCat } = await supabase
+      .from('categories')
+      .select('workspace_id')
+      .eq('id', id)
+      .single();
+
+    if (checkCat && checkCat.workspace_id === null) {
+      // Hide the system category locally
+      if (typeof window !== 'undefined') {
+        const hiddenStr = localStorage.getItem('finance_app_hidden_system_categories') || '[]';
+        try {
+          const hiddenIds = JSON.parse(hiddenStr) as string[];
+          if (!hiddenIds.includes(id)) {
+            hiddenIds.push(id);
+            localStorage.setItem('finance_app_hidden_system_categories', JSON.stringify(hiddenIds));
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      return;
+    }
+
     const { error } = await supabase.from('categories').delete().eq('id', id);
     if (error) {
       console.error('Error deleting category:', error);

@@ -172,7 +172,8 @@ export default function SettingsPage() {
           catName.trim(),
           catIcon,
           catColor,
-          catType
+          catType,
+          accountId
         );
         toast('Kategori berhasil diperbarui!', 'success');
       } else {
@@ -459,54 +460,127 @@ export default function SettingsPage() {
             </Button>
           </div>
 
-          <Card className="p-6">
-            {categoriesList.length === 0 ? (
-              <p className="text-center text-xs text-light-text-secondary py-8">Belum ada kategori yang dikonfigurasi.</p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {categoriesList.map((cat) => (
-                  <div key={cat.id} className="flex items-center justify-between p-3.5 rounded-xl border border-light-border/40 dark:border-dark-border/40 hover:bg-light-bg/30 dark:hover:bg-dark-bg/20 transition-all duration-150">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                      <div>
-                        <h4 className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary">
-                          {cat.name}
-                        </h4>
-                        <span className="text-[9px] uppercase tracking-wider font-semibold text-light-text-secondary">
-                          {cat.type === 'income' ? 'Pemasukan' : cat.type === 'expense' ? 'Pengeluaran' : 'Transfer'}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {cat.workspace_id ? (
-                        <>
+          <div className="space-y-6">
+            {/* Section: Pengeluaran */}
+            <Card className="p-6 space-y-4">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-danger flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-danger" />
+                Kategori Pengeluaran (Expenses)
+              </h4>
+              {categoriesList.filter((c) => c.type === 'expense').length === 0 ? (
+                <p className="text-center text-xs text-light-text-secondary py-8">
+                  Belum ada kategori pengeluaran yang dikonfigurasi.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {categoriesList
+                    .filter((c) => c.type === 'expense')
+                    .map((cat) => (
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between p-3.5 rounded-xl border border-light-border/40 dark:border-dark-border/40 hover:bg-light-bg/30 dark:hover:bg-dark-bg/20 transition-all duration-150"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary">
+                                {cat.name}
+                              </h4>
+                              {cat.workspace_id === null && (
+                                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-light-bg dark:bg-dark-bg/60 text-light-text-secondary/60 select-none">
+                                  Bawaan
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[9px] uppercase tracking-wider font-semibold text-light-text-secondary">
+                              Pengeluaran
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1">
                           <button
                             onClick={() => handleOpenEditCategory(cat)}
-                            className="p-1 text-light-text-secondary hover:text-primary transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg hover:bg-primary/10 text-light-text-secondary hover:text-primary transition-colors cursor-pointer"
                             title="Edit Kategori"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(cat.id)}
-                            className="p-1 text-light-text-secondary hover:text-danger transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg hover:bg-danger/10 text-light-text-secondary hover:text-danger transition-colors cursor-pointer"
                             title="Hapus Kategori"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
-                        </>
-                      ) : (
-                        <span className="text-[9px] font-bold text-light-text-secondary/50 dark:text-dark-text-secondary/40 select-none">
-                          Bawaan Sistem
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </Card>
+
+            {/* Section: Pemasukan */}
+            <Card className="p-6 space-y-4">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-success flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-success" />
+                Kategori Pemasukan (Incomes)
+              </h4>
+              {categoriesList.filter((c) => c.type === 'income').length === 0 ? (
+                <p className="text-center text-xs text-light-text-secondary py-8">
+                  Belum ada kategori pemasukan yang dikonfigurasi.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {categoriesList
+                    .filter((c) => c.type === 'income')
+                    .map((cat) => (
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between p-3.5 rounded-xl border border-light-border/40 dark:border-dark-border/40 hover:bg-light-bg/30 dark:hover:bg-dark-bg/20 transition-all duration-150"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary">
+                                {cat.name}
+                              </h4>
+                              {cat.workspace_id === null && (
+                                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-light-bg dark:bg-dark-bg/60 text-light-text-secondary/60 select-none">
+                                  Bawaan
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[9px] uppercase tracking-wider font-semibold text-light-text-secondary">
+                              Pemasukan
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleOpenEditCategory(cat)}
+                            className="p-1.5 rounded-lg hover:bg-primary/10 text-light-text-secondary hover:text-primary transition-colors cursor-pointer"
+                            title="Edit Kategori"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(cat.id)}
+                            className="p-1.5 rounded-lg hover:bg-danger/10 text-light-text-secondary hover:text-danger transition-colors cursor-pointer"
+                            title="Hapus Kategori"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </Card>
+          </div>
         </div>
       ) : (
         /* Data Tab */
