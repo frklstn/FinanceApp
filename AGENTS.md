@@ -92,6 +92,8 @@ Folder `mobile/` berisi proyek Flutter yang membungkus web app Next.js (deploy d
 
 **URL Target:** `https://frklstn.vercel.app` — ubah di `kAppUrl` dan `kAppDomain` di `main.dart`.
 
+**⚠️ Catatan Kotlin Gradle Plugin:** App sudah dimigrasikan ke `id("org.jetbrains.kotlin.android")` di `app/build.gradle.kts`. Jangan kembali menggunakan `id("kotlin-android")` (legacy, akan deprecated).
+
 **Build APK:**
 ```bash
 cd mobile
