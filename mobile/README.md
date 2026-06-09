@@ -209,8 +209,8 @@ git push
 Untuk mengubah URL target, edit di `lib/main.dart`:
 
 ```dart
-const String kAppUrl = 'https://financeapp-projects.vercel.app';
-const String kAppDomain = 'financeapp-projects.vercel.app';
+const String kAppUrl = 'https://frklstn.vercel.app';
+const String kAppDomain = 'frklstn.vercel.app';
 ```
 
 ---

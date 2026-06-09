@@ -90,7 +90,7 @@ Folder `mobile/` berisi proyek Flutter yang membungkus web app Next.js (deploy d
 *   `mobile/android/app/proguard-rules.pro` : ProGuard rules untuk WebView dan url_launcher.
 *   `mobile/pubspec.yaml` : Dependensi `webview_flutter: ^4.13.1` + `url_launcher: ^6.3.1`.
 
-**URL Target:** `https://financeapp-projects.vercel.app` — ubah di `kAppUrl` dan `kAppDomain` di `main.dart`.
+**URL Target:** `https://frklstn.vercel.app` — ubah di `kAppUrl` dan `kAppDomain` di `main.dart`.
 
 **Build APK:**
 ```bash

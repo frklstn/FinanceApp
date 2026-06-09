@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 /// FinanceApp Mobile — Production WebView wrapper for the Next.js web app
-/// deployed on Vercel at https://financeapp-projects.vercel.app
+/// deployed on Vercel at https://frklstn.vercel.app
 ///
 /// Features:
 ///   - Full-screen WebView with JavaScript enabled
@@ -20,8 +20,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 ///   - Status bar theming
 
 // ─── Configuration ───────────────────────────────────────────────────────
-const String kAppUrl = 'https://financeapp-projects.vercel.app';
-const String kAppDomain = 'financeapp-projects.vercel.app';
+const String kAppUrl = 'https://frklstn.vercel.app';
+const String kAppDomain = 'frklstn.vercel.app';
 const String kAppTitle = 'FinanceApp';
 const int kTimeoutSeconds = 30;
 
