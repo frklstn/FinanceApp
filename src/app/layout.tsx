@@ -14,6 +14,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'FinanceApp - Premium Personal Finance Platform',
   description: 'Aplikasi keuangan pribadi untuk dompet, transaksi, anggaran, tabungan, dan utang.',
+  verification: {
+    google: 'o-TXeHkwALXfn5qnQJSsXWWMKKyeaLecgAq7e5dfymI',
+  },
 };
 
 export default function RootLayout({
