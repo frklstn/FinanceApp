@@ -110,7 +110,7 @@ Memiliki banyak aplikasi pinjol aktif menurunkan fokus manajemen keuangan:
 ### Langkah 1: Kloning & Instal Dependensi
 ```bash
 # Klon repositori proyek
-git clone <repository-url>
+git clone https://github.com/frklstn/FinanceApp.git
 cd FinanceApp
 
 # Instal paket modul Node.js
