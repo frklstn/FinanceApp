@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# ─── Node.js / Next.js ───────────────────────────────────────────────────
 /node_modules
 /.pnp
 .pnp.*
@@ -20,24 +20,56 @@
 # production
 /build
 
-# misc
-.DS_Store
+# ─── Environment & Secrets ───────────────────────────────────────────────
+.env*
+!.env.example
 *.pem
+*.jks
+*.keystore
+key.properties
 
-# debug
+# ─── Vercel ──────────────────────────────────────────────────────────────
+.vercel
+
+# ─── TypeScript ──────────────────────────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
+
+# ─── Flutter / Mobile ────────────────────────────────────────────────────
+mobile/build/
+mobile/.dart_tool/
+mobile/.idea/
+mobile/.pub-cache/
+mobile/.pub/
+mobile/.flutter-plugins-dependencies
+mobile/*.iml
+mobile/android/.gradle/
+mobile/android/.kotlin/
+mobile/android/local.properties
+mobile/android/*.iml
+mobile/android/app/debug/
+mobile/android/app/profile/
+mobile/android/app/release/
+
+# ─── OS Files ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE ─────────────────────────────────────────────────────────────────
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+
+# ─── Debug Logs ──────────────────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-.vercel
+# ─── Firebase (if added later) ───────────────────────────────────────────
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart

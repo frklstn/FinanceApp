@@ -68,3 +68,56 @@ Database menggunakan **PostgreSQL** (Supabase) dengan aturan Row Level Security 
 4.  **Integritas Supabase**:
     Pastikan query API selalu memetakan filter `workspace_id` (diakses via `accountId`) agar data antar pengguna tidak tercampur (menghormati arsitektur multi-tenancy RLS).
 
+---
+
+## 📱 Flutter Mobile Wrapper (Production-Ready)
+
+Folder `mobile/` berisi proyek Flutter yang membungkus web app Next.js (deploy di Vercel) menggunakan **WebView**. Arsitekturnya:
+
+*   `mobile/lib/main.dart` : Entry point + WebView wrapper dengan:
+    - Splash screen premium dengan fade animation
+    - Progress bar loading
+    - Pull-to-refresh
+    - Back navigation (riwayat WebView)
+    - Offline fallback dengan pesan error kontekstual
+    - **Timeout handling** (30 detik)
+    - **Retry strategy** (3x retry → fresh load)
+    - **Domain whitelist** (FinanceApp, Supabase, Vercel)
+    - **External URL** dibuka via system browser (`url_launcher`)
+    - **Security**: blokir javascript: scheme & redirect berbahaya
+*   `mobile/android/app/src/main/AndroidManifest.xml` : Izin `INTERNET`, `usesCleartextTraffic`, query intents untuk `url_launcher`.
+*   `mobile/android/app/build.gradle.kts` : `minSdk = 23`, R8 + ProGuard aktif (`isMinifyEnabled`, `isShrinkResources`).
+*   `mobile/android/app/proguard-rules.pro` : ProGuard rules untuk WebView dan url_launcher.
+*   `mobile/pubspec.yaml` : Dependensi `webview_flutter: ^4.13.1` + `url_launcher: ^6.3.1`.
+
+**URL Target:** `https://financeapp-projects.vercel.app` — ubah di `kAppUrl` dan `kAppDomain` di `main.dart`.
+
+**Build APK:**
+```bash
+cd mobile
+flutter pub get
+flutter build apk --release
+```
+
+**Build AAB (Google Play Store):**
+```bash
+flutter build appbundle --release
+```
+
+---
+
+## 🔄 CI/CD (GitHub Actions)
+
+File `.github/workflows/android-release.yml` menyediakan:
+*   Build APK + AAB otomatis pada push ke `main`.
+*   Auto-create GitHub Release dengan APK/AAB saat push tag `v*`.
+*   Validasi kode via `flutter analyze` pada setiap PR.
+
+---
+
+## 📄 Dokumentasi Proyek
+
+*   `read.html` (root) dan `public/read.html` : Halaman dokumentasi HTML interaktif bergaya GitHub dengan dark mode toggle, sidebar navigasi, tabel fitur, diagram Mermaid, dan formula KaTeX.
+*   `read.md` dan `README.md` : Versi Markdown dari dokumentasi yang sama.
+*   `mobile/README.md` : Dokumentasi lengkap Flutter mobile termasuk panduan signing, CI/CD, dan troubleshooting.
+
