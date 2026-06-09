@@ -311,19 +311,8 @@ class _WebViewScreenState extends State<WebViewScreen>
             children: [
               // ─── WebView Layer ───────────────────────────────────
               if (!_hasError)
-                RefreshIndicator(
-                  onRefresh: _reload,
-                  color: kPrimary,
-                  backgroundColor: kSurface,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: SizedBox(
-                      height:
-                          MediaQuery.of(context).size.height -
-                          MediaQuery.of(context).padding.top,
-                      child: WebViewWidget(controller: _controller),
-                    ),
-                  ),
+                Positioned.fill(
+                  child: WebViewWidget(controller: _controller),
                 ),
 
               // ─── Error Fallback ──────────────────────────────────
