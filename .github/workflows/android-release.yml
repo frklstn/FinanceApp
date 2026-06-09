@@ -34,8 +34,26 @@ jobs:
           channel: stable
           cache: true
 
-      - name: 📋 Flutter info
-        run: flutter doctor -v
+      # Cache pub dependencies for faster subsequent builds
+      - name: 📦 Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('mobile/pubspec.lock') }}
+          restore-keys: |
+            pub-${{ runner.os }}-
+
+      # Cache Gradle for faster Android builds
+      - name: 🐘 Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('mobile/android/**/*.gradle*', 'mobile/android/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: 📦 Install dependencies
         run: flutter pub get
