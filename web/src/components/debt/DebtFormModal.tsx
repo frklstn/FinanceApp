@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import type { LoanCategory } from '@/lib/debt-planner/types';
 import { calcRemainingMonths, calcEndDate, LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
 import type { CreateLoanTrackerInput } from '@/lib/services/loan-tracker.service';
@@ -167,12 +168,10 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
             disabled={submitting}
             description="Tanggal jatuh tempo setiap bulan"
           />
-          <Input
+          <DatePicker
             label="Tanggal Mulai"
-            type="date"
             value={form.start_date}
-            onChange={(e) => handleChange('start_date', e.target.value)}
-            required
+            onChange={(val) => handleChange('start_date', val)}
             disabled={submitting}
           />
         </div>

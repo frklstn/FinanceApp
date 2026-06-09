@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
+import { DatePicker } from '@/components/ui/date-picker';
 import {
   Plus,
   Filter,
@@ -288,21 +289,19 @@ export default function TransactionsPage() {
             }}
           />
           <div className="sm:col-span-2 grid grid-cols-2 gap-4">
-            <Input
-              type="date"
+            <DatePicker
               label="Tanggal Mulai"
               value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
+              onChange={(val) => {
+                setStartDate(val);
                 setPage(1);
               }}
             />
-            <Input
-              type="date"
+            <DatePicker
               label="Tanggal Akhir"
               value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
+              onChange={(val) => {
+                setEndDate(val);
                 setPage(1);
               }}
             />
@@ -466,12 +465,11 @@ export default function TransactionsPage() {
               required
               disabled={submitting}
             />
-            <Input
+            <DatePicker
               label="Tanggal Transaksi"
-              type="datetime-local"
+              showTime={true}
               value={txDate}
-              onChange={(e) => setTxDate(e.target.value)}
-              required
+              onChange={(val) => setTxDate(val)}
               disabled={submitting}
             />
           </div>

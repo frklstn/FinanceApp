@@ -12,6 +12,7 @@ import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Target, Plus, PiggyBank, Trash2, Calendar, Coins, ShieldCheck } from 'lucide-react';
 
 export default function SavingsPage() {
@@ -281,11 +282,10 @@ export default function SavingsPage() {
               disabled={submitting}
             />
           </div>
-          <Input
+          <DatePicker
             label="Tanggal Batas Waktu / Tenggat"
-            type="date"
             value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
+            onChange={(val) => setDeadline(val)}
             disabled={submitting}
           />
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Wallet, Trash2 } from 'lucide-react';
 import type { IncomeTimelineEntry } from '@/lib/debt-planner/types';
 import { formatRupiah } from '@/lib/debt-planner/format';
@@ -97,12 +98,10 @@ export function IncomeProjectionPanel({
       </div>
 
       <form onSubmit={handleAddIncome} className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
-        <Input
+        <DatePicker
           label="Efektif dari"
-          type="date"
           value={effectiveDate}
-          onChange={(e) => setEffectiveDate(e.target.value)}
-          required
+          onChange={(val) => setEffectiveDate(val)}
           disabled={disabled || saving}
         />
         <Input

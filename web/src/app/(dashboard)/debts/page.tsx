@@ -12,6 +12,7 @@ import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
+import { DatePicker } from '@/components/ui/date-picker';
 import { HandCoins, Plus, Landmark, Trash2, Calendar, Coins, User, ShieldCheck } from 'lucide-react';
 
 export default function DebtsPage() {
@@ -417,11 +418,10 @@ export default function DebtsPage() {
               required
               disabled={submitting}
             />
-            <Input
+            <DatePicker
               label="Tanggal Jatuh Tempo"
-              type="date"
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              onChange={(val) => setDueDate(val)}
               disabled={submitting}
             />
           </div>
