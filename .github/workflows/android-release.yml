@@ -46,21 +46,11 @@ jobs:
       - name: 🏗️ Build Release APK
         run: flutter build apk --release
 
-      - name: 🏗️ Build Release App Bundle (AAB)
-        run: flutter build appbundle --release
-
       - name: 📤 Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: FinanceApp-Release-APK
           path: mobile/build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
-
-      - name: 📤 Upload AAB artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: FinanceApp-Release-AAB
-          path: mobile/build/app/outputs/bundle/release/app-release.aab
           retention-days: 30
 
   # Auto-create GitHub Release when a version tag is pushed
@@ -82,12 +72,6 @@ jobs:
           name: FinanceApp-Release-APK
           path: ./artifacts/
 
-      - name: 📥 Download AAB artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: FinanceApp-Release-AAB
-          path: ./artifacts/
-
       - name: 🏷️ Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -97,12 +81,10 @@ jobs:
 
             ### 📱 Download
             - **APK** — Install langsung ke perangkat Android
-            - **AAB** — Upload ke Google Play Store
 
             ### 📋 Changelog
             Lihat commit log untuk detail perubahan.
           files: |
             artifacts/app-release.apk
-            artifacts/app-release.aab
           draft: false
           prerelease: false
