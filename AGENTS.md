@@ -67,6 +67,8 @@ Database menggunakan **PostgreSQL** (Supabase) dengan aturan Row Level Security 
     Setiap grafik di dashboard harus memiliki tombol ekspansi modal (`Maximize2` icon) agar pengguna dapat melihat grafik resolusi tinggi beserta tabel datanya. Komponen grafik Pie Chart harus mempertahankan efek scale-up hover pada sel (`Cell`) agar interaktif.
 4.  **Integritas Supabase**:
     Pastikan query API selalu memetakan filter `workspace_id` (diakses via `accountId`) agar data antar pengguna tidak tercampur (menghormati arsitektur multi-tenancy RLS).
+5.  **Bahasa Komunikasi & Implementasi**:
+    Selalu gunakan Bahasa Indonesia dalam percakapan chat (prompting) dan implementasi antarmuka/teks pengguna. Bahasa Inggris hanya digunakan untuk penulisan kode program (nama variabel, fungsi, logic, tipe data, komentar kode, dan log sistem).
 
 ---
 
