@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: hsl(245, 80%, 60%);
+  --color-primary-hover: hsl(245, 80%, 50%);
+  --color-success: hsl(155, 75%, 45%);
+  --color-danger: hsl(355, 75%, 55%);
+  --color-warning: hsl(35, 90%, 55%);
+  --color-info: hsl(200, 80%, 55%);
+  
+  --color-dark-bg: hsl(225, 25%, 8%);
+  --color-dark-card: hsl(225, 20%, 12%);
+  --color-dark-border: hsl(225, 15%, 18%);
+  --color-dark-text-primary: hsl(220, 20%, 97%);
+  --color-dark-text-secondary: hsl(220, 10%, 65%);
+  
+  --color-light-bg: hsl(220, 20%, 97%);
+  --color-light-card: hsl(0, 0%, 100%);
+  --color-light-border: hsl(220, 15%, 90%);
+  --color-light-text-primary: hsl(220, 25%, 10%);
+  --color-light-text-secondary: hsl(220, 15%, 45%);
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --animate-scale-up: scale-up 0.2s ease-out forwards;
+}
+
+@keyframes scale-up {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+:root {
+  /* Enforce Premium dark theme everywhere */
+  --bg-primary: var(--color-dark-bg);
+  --bg-card: var(--color-dark-card);
+  --border-color: var(--color-dark-border);
+  --text-primary: var(--color-dark-text-primary);
+  --text-secondary: var(--color-dark-text-secondary);
+  --glass-bg: rgba(13, 17, 28, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Base body styles */
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Premium glassmorphism effects */
+.glass-effect {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-premium);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-premium);
+  border-radius: 1rem;
+}
+
+/* Smooth transitions */
+.transition-all-300 {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Financial score gauge styling */
+.score-gradient {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-info));
+}
+
+/* Shimmer animation for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-primary) 50%, var(--border-color) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}

@@ -1,0 +1,129 @@
+.forecast-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.forecast-period-card {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.forecast-period-card--danger {
+  border-color: rgba(220, 38, 38, 0.25);
+  background: rgba(220, 38, 38, 0.04);
+}
+
+.forecast-period-card--heavy {
+  border-color: rgba(249, 115, 22, 0.25);
+  background: rgba(249, 115, 22, 0.04);
+}
+
+.forecast-period-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.forecast-period-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.forecast-period-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .forecast-period-metrics {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.forecast-metric-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  opacity: 0.75;
+}
+
+.forecast-metric-value {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 0.15rem;
+}
+
+.forecast-period-warnings {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.forecast-period-warning {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(355, 75%, 60%);
+}
+
+.forecast-income-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.forecast-income-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  font-size: 0.8rem;
+}
+
+.forecast-analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .forecast-analytics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.forecast-analytics-item {
+  padding: 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+.forecast-analytics-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.forecast-analytics-value {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
