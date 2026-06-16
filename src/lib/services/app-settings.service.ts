@@ -1,13 +1,7 @@
 import { createClient } from '@/lib/supabase/client';
+import type { Database } from '@/types/database.types';
 
-export interface AppSettings {
-  id: number;
-  app_name: string;
-  app_logo_url: string | null;
-  document_title: string;
-  updated_at: string;
-  updated_by: string | null;
-}
+export type AppSettings = Database['public']['Tables']['app_settings']['Row'];
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   id: 1,

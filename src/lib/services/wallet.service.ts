@@ -29,7 +29,7 @@ export const walletService = {
       console.error('Error fetching wallets:', error);
       throw new Error(error.message);
     }
-    return data || [];
+    return (data as unknown as Wallet[]) || [];
   },
 
   /**
@@ -75,7 +75,7 @@ export const walletService = {
       if (tError) console.error('Error recording initial balance transaction:', tError);
     }
 
-    return data;
+    return data as unknown as Wallet;
   },
 
   /**
@@ -107,7 +107,7 @@ export const walletService = {
       console.error('Error updating wallet:', error);
       throw new Error(error.message);
     }
-    return data;
+    return data as unknown as Wallet;
   },
 
   /**

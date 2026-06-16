@@ -85,6 +85,14 @@ export const budgetService = {
     const supabase = createClient();
     const period = periodString || new Date().toISOString().substring(0, 7);
 
+    const startOfMonth = new Date(`${period}-01T00:00:00`);
+    const endOfMonth = new Date(startOfMonth);
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+    endOfMonth.setMilliseconds(endOfMonth.getMilliseconds() - 1);
+
+    const start_date = startOfMonth.toISOString();
+    const end_date = endOfMonth.toISOString();
+
     // Check if budget already exists for this category/period
     const { data: existing } = await supabase
       .from('budgets')
@@ -103,7 +111,7 @@ export const budgetService = {
         .select()
         .single();
       if (error) throw new Error(error.message);
-      return data;
+      return { ...data, spent: 0 };
     }
 
     const { data, error } = await supabase
@@ -113,6 +121,8 @@ export const budgetService = {
         category_id: categoryId,
         amount,
         period,
+        start_date,
+        end_date,
       })
       .select()
       .single();
@@ -122,7 +132,7 @@ export const budgetService = {
       throw new Error(error.message);
     }
 
-    return data;
+    return { ...data, spent: 0 };
   },
 
   /**

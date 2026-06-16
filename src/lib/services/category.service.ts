@@ -29,7 +29,7 @@ export const categoryService = {
       throw new Error(error.message);
     }
 
-    const categories = data || [];
+    const categories = (data as unknown as Category[]) || [];
 
     // Filter out locally hidden system categories
     if (typeof window !== 'undefined') {
@@ -76,7 +76,7 @@ export const categoryService = {
       console.error('Error creating category:', error);
       throw new Error(error.message);
     }
-    return data;
+    return data as unknown as Category;
   },
 
   /**
@@ -137,7 +137,7 @@ export const categoryService = {
       console.error('Error updating category:', error);
       throw new Error(error.message);
     }
-    return data;
+    return data as unknown as Category;
   },
 
   /**

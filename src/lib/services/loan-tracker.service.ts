@@ -45,7 +45,7 @@ export const loanTrackerService = {
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
-    return data || [];
+    return (data as unknown as LoanTracker[]) || [];
   },
 
   async createLoanTracker(
@@ -66,7 +66,7 @@ export const loanTrackerService = {
       .single();
 
     if (error) throw new Error(error.message);
-    return data;
+    return data as unknown as LoanTracker;
   },
 
   async updateLoanStatus(id: string, status: LoanStatus): Promise<void> {

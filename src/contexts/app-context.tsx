@@ -18,8 +18,8 @@ export interface UserProfile {
   email: string;
   full_name: string | null;
   avatar_url: string | null;
-  is_suspended?: boolean;
-  language?: string;
+  is_suspended?: boolean | null;
+  language?: string | null;
 }
 
 interface AppContextType {

@@ -30,7 +30,7 @@ export const debtService = {
       console.error('Error fetching debts:', error);
       throw new Error(error.message);
     }
-    return data || [];
+    return (data as unknown as Debt[]) || [];
   },
 
   /**
@@ -64,7 +64,7 @@ export const debtService = {
       console.error('Error creating debt:', error);
       throw new Error(error.message);
     }
-    return data;
+    return data as unknown as Debt;
   },
 
   /**

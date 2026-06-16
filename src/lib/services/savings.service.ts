@@ -28,7 +28,7 @@ export const savingsService = {
       console.error('Error fetching savings goals:', error);
       throw new Error(error.message);
     }
-    return data || [];
+    return (data as unknown as SavingsGoal[]) || [];
   },
 
   /**
@@ -59,7 +59,7 @@ export const savingsService = {
       console.error('Error creating savings goal:', error);
       throw new Error(error.message);
     }
-    return data;
+    return data as unknown as SavingsGoal;
   },
 
   /**

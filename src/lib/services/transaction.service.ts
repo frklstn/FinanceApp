@@ -96,7 +96,7 @@ export const transactionService = {
     }
 
     return {
-      data: data || [],
+      data: (data as unknown as PopulatedTransaction[]) || [],
       count: count || 0,
     };
   },
@@ -185,7 +185,7 @@ export const transactionService = {
       throw new Error(error.message);
     }
 
-    return data;
+    return data as unknown as Transaction;
   },
 
   /**
@@ -316,6 +316,6 @@ export const transactionService = {
       throw new Error(error.message);
     }
 
-    return data;
+    return data as unknown as Transaction;
   },
 };
