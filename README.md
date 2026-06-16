@@ -134,18 +134,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 ### Langkah 3: Eksekusi Migrasi Database (Supabase SQL)
-Database schema dan tabel utama sudah terkonfigurasi pada Supabase project. Untuk melakukan inisialisasi atau modifikasi migrasi secara otomatis, Anda dapat menjalankan script:
+Database schema dan tabel utama sudah terkonfigurasi pada Supabase project. Untuk melakukan inisialisasi atau modifikasi migrasi secara otomatis menggunakan schema tunggal, Anda dapat menjalankan script:
 ```bash
 # Set token akses Supabase Anda terlebih dahulu
 $env:SUPABASE_ACCESS_TOKEN="sbp_your_token"
 node scripts/apply-remote-migrations.js
 ```
-Atau Anda dapat mengeksekusi skrip SQL secara manual melalui **SQL Editor** di Supabase Dashboard secara berurutan:
-1.  `001_initial_schema.sql` (Skema Tabel Utama, Dompet, Transaksi, Anggaran, Tabungan, Utang, Pelacak Pinjol, Proyeksi Gaji, dan Pengaturan Branding Global)
-2.  `002_user_plan_and_branding.sql` (Skema kolom Plan user, Branding per-user, dan Link Kontak WhatsApp Admin di tabel profiles)
-3.  `003_fix_profile_trigger.sql` (Perbaikan trigger otomatis saat registrasi user baru)
-4.  `004_fix_missing_columns.sql` (Penyesuaian kolom is_suspended pada profil)
-5.  `005_profiles_read_policy.sql` (Perbaikan kebijakan akses/RLS SELECT tabel profiles)
+Atau Anda dapat mengeksekusi skrip SQL secara manual dengan menyalin seluruh isi file `supabase/schema.sql` ke dalam **SQL Editor** di Supabase Dashboard dan menjalankannya.
 
 ### Langkah 4: Registrasi Akun SuperAdmin
 Untuk menguji panel Admin Portal, jalankan skrip pembuatan superadmin. Anda dapat mengubah detail email/password di dalam file `create-superadmin.js` terlebih dahulu sebelum dieksekusi:
@@ -171,7 +166,7 @@ Buka browser Anda dan navigasikan ke alamat [http://localhost:3000](http://local
     *   Tentukan tanggal gajian tetap Anda (misalnya tanggal 25) pada panel proyeksi pendapatan, serta masukkan estimasi gaji bersih Anda.
     *   Tambahkan data pinjaman baru (jumlah terima, nominal pengembalian, tenor bulan, tanggal mulai, dan tanggal jatuh tempo bulanan).
     *   Perhatikan hasil kalkulasi *Survival Score*, grafik forecast 12 periode, serta pemetaan jatuh tempo di dalam tab *Timeline JT* dan *Kalender*.
-5.  **Unduh Laporan Bulanan:** Masuk ke halaman **Laporan** untuk melihat diagram ringkasan dan klik tombol **Ekspor ke Excel** untuk mengunduh arsip transaksi.
+5.  **Unduh Laporan Bulanan:** Masuk ke halaman **Laporan** untuk melihat diagram ringkasan dan klik tombol **Ekspor ke Excel** untuk mengunduh arus transaksi.
 
 > [!IMPORTANT]
 > Fitur **Admin Portal** hanya akan muncul di bilah navigasi kiri/bawah apabila Anda masuk menggunakan akun yang memiliki metadata `is_admin = true` (dibuat menggunakan skrip `create-superadmin.js`).

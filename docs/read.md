@@ -134,18 +134,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 ### Langkah 3: Eksekusi Migrasi Database (Supabase SQL)
-Database schema dan tabel utama sudah terkonfigurasi pada Supabase project. Untuk melakukan inisialisasi atau modifikasi migrasi secara otomatis, Anda dapat menjalankan script:
+Database schema dan tabel utama sudah terkonfigurasi pada Supabase project. Untuk melakukan inisialisasi atau modifikasi migrasi secara otomatis menggunakan schema tunggal, Anda dapat menjalankan script:
 ```bash
 # Set token akses Supabase Anda terlebih dahulu
 $env:SUPABASE_ACCESS_TOKEN="sbp_your_token"
 node scripts/apply-remote-migrations.js
 ```
-Atau Anda dapat mengeksekusi skrip SQL secara manual melalui **SQL Editor** di Supabase Dashboard secara berurutan:
-1.  `001_initial_schema.sql` (Skema Tabel Utama, Dompet, Transaksi, Anggaran, Tabungan, Utang, Pelacak Pinjol, Proyeksi Gaji, dan Pengaturan Branding Global)
-2.  `002_user_plan_and_branding.sql` (Skema kolom Plan user, Branding per-user, dan Link Kontak WhatsApp Admin di tabel profiles)
-3.  `003_fix_profile_trigger.sql` (Perbaikan trigger otomatis saat registrasi user baru)
-4.  `004_fix_missing_columns.sql` (Penyesuaian kolom is_suspended pada profil)
-5.  `005_profiles_read_policy.sql` (Perbaikan kebijakan akses/RLS SELECT tabel profiles)
+Atau Anda dapat mengeksekusi skrip SQL secara manual dengan menyalin seluruh isi file `supabase/schema.sql` ke dalam **SQL Editor** di Supabase Dashboard dan menjalankannya.
 
 ### Langkah 4: Registrasi Akun SuperAdmin
 Untuk menguji panel Admin Portal, jalankan skrip pembuatan superadmin. Anda dapat mengubah detail email/password di dalam file `create-superadmin.js` terlebih dahulu sebelum dieksekusi:

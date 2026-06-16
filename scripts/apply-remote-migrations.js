@@ -9,13 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'kortbujyuafwdiqxsiok';
-const MIGRATION_FILES = [
-  '001_initial_schema.sql',
-  '002_user_plan_and_branding.sql',
-  '003_fix_profile_trigger.sql',
-  '004_fix_missing_columns.sql',
-  '005_profiles_read_policy.sql',
-];
+const SCHEMA_FILE = 'schema.sql';
 
 function request(query) {
   const accessToken = process.env.SUPABASE_ACCESS_TOKEN;
@@ -51,29 +45,27 @@ function request(query) {
 }
 
 async function main() {
-  for (const file of MIGRATION_FILES) {
-    const filePath = path.join(__dirname, '..', '..', 'supabase', 'migrations', file);
-    if (!fs.existsSync(filePath)) {
-      console.warn(`Skip missing file: ${file}`);
-      continue;
-    }
-    const sql = fs.readFileSync(filePath, 'utf8');
-    console.log(`Applying ${file}...`);
-    const result = await request(sql);
-    console.log(`  Status: ${result.status}`);
-    if (result.status !== 200 && result.status !== 201) {
-      console.error(`  Response: ${result.body}`);
-      const bodyJson = JSON.parse(result.body || '{}');
-      const msg = bodyJson.message || '';
-      if (msg.toLowerCase().includes('already exists')) {
-        console.warn(`  ⚠️ Skip: relation/column already exists.`);
-        continue;
-      }
+  const filePath = path.join(__dirname, '..', 'supabase', SCHEMA_FILE);
+  if (!fs.existsSync(filePath)) {
+    console.error(`Error: Schema file not found at ${filePath}`);
+    process.exit(1);
+  }
+  
+  const sql = fs.readFileSync(filePath, 'utf8');
+  console.log(`Applying database schema from ${SCHEMA_FILE}...`);
+  const result = await request(sql);
+  console.log(`  Status: ${result.status}`);
+  if (result.status !== 200 && result.status !== 201) {
+    console.error(`  Response: ${result.body}`);
+    const bodyJson = JSON.parse(result.body || '{}');
+    const msg = bodyJson.message || '';
+    if (msg.toLowerCase().includes('already exists')) {
+      console.warn(`  ⚠️ Warning: relations/columns might already exist.`);
+    } else {
       process.exit(1);
     }
-    console.log(`  OK`);
   }
-  console.log('All migrations applied.');
+  console.log('Database schema applied successfully.');
 }
 
 main().catch((err) => {
