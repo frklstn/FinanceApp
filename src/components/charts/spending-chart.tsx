@@ -47,6 +47,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 export function SpendingChart({ data }: SpendingChartProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

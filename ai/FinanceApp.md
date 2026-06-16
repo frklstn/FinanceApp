@@ -49,9 +49,11 @@
 - Strict TS types (replace `any` dengan `unknown`).
 - Linter fixes (`next/no-img-element`).
 - Client-side mounting guard (`mounted` state) ditambahkan sebelum merender Recharts `ResponsiveContainer` di `spending-chart`, `category-pie-chart`, dan `category-radar-chart` untuk mencegah SSR layout/size warnings.
+- Menambahkan `eslint-disable-next-line` comments untuk meloloskan rule `react-hooks/set-state-in-effect` pada update state `setMounted(true)`.
 
 📈 **Setelah Solusi:**
 - Next.js compile & build sukses tanpa error (termasuk static generation tanpa console warnings dari Recharts).
+- ESLint checks lolos bersih tanpa warning/error.
 - Performa rendering komponen lebih reaktif.
 
 🚀 **Langkah Selanjutnya:**

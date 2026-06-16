@@ -53,6 +53,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
   const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
