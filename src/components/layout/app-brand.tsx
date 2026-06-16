@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useApp } from '@/contexts/app-context';
 
 interface AppBrandProps {
   collapsed?: boolean;
