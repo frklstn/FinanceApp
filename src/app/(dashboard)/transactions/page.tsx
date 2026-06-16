@@ -121,12 +121,6 @@ export default function TransactionsPage() {
   }, [accountId, fetchFiltersData]);
 
   useEffect(() => {
-    if (accountId && page !== 1) {
-      Promise.resolve().then(() => setPage(1));
-    }
-  }, [accountId, page, filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, filterTag]);
-
-  useEffect(() => {
     if (accountId) {
       Promise.resolve().then(fetchTransactions);
     }

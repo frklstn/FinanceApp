@@ -30,7 +30,7 @@ Setiap akhir sesi, agent wajib menulis laporan dengan format berikut:
 ✅ **Sudah ada:**
 - item 1
 
-❌ **Belum ada atau error terdeteksi:**
+❌ **Belum ada, problem yang ditemukan, dan error terdeteksi:**
 - item 1
 
 ⚠️ **Perlu perhatian:**

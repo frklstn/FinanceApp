@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { accountService } from '@/lib/services/account.service';
@@ -57,6 +57,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     app_title: string | null;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const bootstrapInProgress = useRef(false);
 
   const loadAppSettings = useCallback(async () => {
     const settings = await appSettingsService.getSettings();
@@ -119,6 +121,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const bootstrap = useCallback(async () => {
+    if (bootstrapInProgress.current) return;
+    bootstrapInProgress.current = true;
     setIsLoading(true);
     try {
       await Promise.all([loadSession(), loadAppSettings()]);
@@ -126,6 +130,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       console.error('App bootstrap failed:', err);
     } finally {
       setIsLoading(false);
+      bootstrapInProgress.current = false;
     }
   }, [loadSession, loadAppSettings]);
 

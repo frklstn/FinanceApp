@@ -29,7 +29,7 @@
 
 ---
 
-## 📋 Audit — Initial Audit
+## 📋 Audit — Initial Audit & Sync Optimization
 
 ✅ **Sudah ada:**
 - Next.js 16 (Turbopack) → Compile & build sukses lokal & remote.
@@ -37,6 +37,8 @@
 - DB Supabase: 17 tabel (schema public) active.
 - Kode tersinkronisasi aman di remote branch `main`.
 - Recharts console warning fix diintegrasikan ke semua grafik.
+- ESLint checks lolos bersih 100% tanpa error/warning.
+- Optimasi concurrency bootstrap context & reduksi redundansi filter request.
 
 ❌ **Belum ada atau error terdeteksi:**
 - Nihil.
@@ -50,11 +52,14 @@
 - Linter fixes (`next/no-img-element`).
 - Client-side mounting guard (`mounted` state) ditambahkan sebelum merender Recharts `ResponsiveContainer` di `spending-chart`, `category-pie-chart`, dan `category-radar-chart` untuk mencegah SSR layout/size warnings.
 - Menambahkan `eslint-disable-next-line` comments untuk meloloskan rule `react-hooks/set-state-in-effect` pada update state `setMounted(true)`.
+- Menggunakan `useRef` lock (`bootstrapInProgress`) di `AppProvider` (`app-context.tsx`) untuk mencegah pemanggilan `bootstrap` ganda secara paralel pada saat inisialisasi aplikasi (double mount & auth state change event).
+- Menghapus `useEffect` redundan di `TransactionsPage` (`transactions/page.tsx`) yang melakukan sinkronisasi reset halaman (`setPage(1)`) ketika filter berubah, karena semua event handlers filter input di UI sudah secara eksplisit memanggil `setPage(1)`. Hal ini menghentikan trigger double fetch transaksi.
 
 📈 **Setelah Solusi:**
 - Next.js compile & build sukses tanpa error (termasuk static generation tanpa console warnings dari Recharts).
 - ESLint checks lolos bersih tanpa warning/error.
-- Performa rendering komponen lebih reaktif.
+- Beban request startup berkurang drastis (tidak ada redundant auth/session/settings fetches di background).
+- Pergantian filter transaksi berjalan reaktif dan memicu tepat 1x API request ke database (tidak ada double-fetch dengan page parameter yang usang).
 
 🚀 **Langkah Selanjutnya:**
 - Audit & perbaikan detail UI, fitur, dan tombol dashboard di Fase 10.
