@@ -391,14 +391,20 @@ export default function DashboardPage() {
       {/* Row 2: 4 Stats Widgets - Compact */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
         {[
-          { label: 'Pemasukan', val: financialStats.income, diff: financialStats.incomeDiff, col: '#28D17C', icon: TrendingUp, path: '/transactions?add=true&type=income' },
-          { label: 'Pengeluaran', val: financialStats.expense, diff: financialStats.expenseDiff, col: '#FF4B5C', icon: TrendingDown, path: '/transactions?add=true&type=expense' },
+          { label: 'Pemasukan', val: financialStats.income, diff: financialStats.incomeDiff, col: '#28D17C', icon: TrendingUp, type: 'income' },
+          { label: 'Pengeluaran', val: financialStats.expense, diff: financialStats.expenseDiff, col: '#FF4B5C', icon: TrendingDown, type: 'expense' },
           { label: 'Sisa Tabungan', val: financialStats.savings, diff: financialStats.savingsDiff, col: '#6E5CFF', icon: Wallet, path: '/savings' },
           { label: 'Utang Aktif', val: financialStats.activeDebt, desc: `${financialStats.activeLoansCount} aktif`, col: '#FFB347', icon: ShieldAlert, path: '/pinjol' },
-        ].map((s, i) => (
+        ].map((s: any, i) => (
           <button 
             key={i}
-            onClick={() => router.push(s.path)}
+            onClick={() => {
+              if (s.type) {
+                setQuickAdd({ open: true, type: s.type });
+              } else if (s.path) {
+                router.push(s.path);
+              }
+            }}
             className="p-4 pt-8 rounded-[20px] bg-[#0A1028]/95 border border-white/5 space-y-1 relative overflow-hidden group hover:border-white/20 transition-all text-left"
           >
             <div className="absolute top-3 left-3 w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-white/80 border border-white/10 group-hover:bg-white/10 transition-colors" style={{ color: s.col }}>

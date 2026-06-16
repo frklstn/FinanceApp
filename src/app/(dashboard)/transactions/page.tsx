@@ -648,8 +648,7 @@ export default function TransactionsPage() {
       <CategoryManagerModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
-        accountId={accountId || ''}
-        onSuccess={fetchFiltersData}
+        workspaceId={accountId || ''}
       />
     </div>
   );
