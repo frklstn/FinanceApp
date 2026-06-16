@@ -645,6 +645,12 @@ export default function TransactionsPage() {
           </div>
         </form>
       </Modal>
+      <CategoryManagerModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        accountId={accountId || ''}
+        onSuccess={fetchFiltersData}
+      />
     </div>
   );
 }
