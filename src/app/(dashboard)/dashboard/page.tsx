@@ -331,7 +331,7 @@ export default function DashboardPage() {
   const q2_y = (1 - tParam) * (1 - tParam) * p0[1] + 2 * (1 - tParam) * tParam * p1[1] + tParam * tParam * p2[1];
 
   return (
-    <div className="space-y-10 max-w-[1600px] mx-auto p-4 md:p-10 flex flex-col pb-32">
+    <div className="space-y-6 max-w-[1600px] mx-auto p-4 md:p-10 md:pt-6 flex flex-col pb-32">
       {/* Dynamic Keyframes for Waving Flag */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes flag-wave {
@@ -346,21 +346,21 @@ export default function DashboardPage() {
       ` }} />
 
       {/* Header Greeting */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 shrink-0">
-        <div className="space-y-1.5">
-          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tighter">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 shrink-0">
+        <div className="space-y-0.5">
+          <h1 className="text-2xl md:text-3xl font-black text-white tracking-tighter">
             Halo, {profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Majesti'} 👋
           </h1>
-          <p className="text-[13px] text-[#6F7A9E] font-medium tracking-wide opacity-80">
+          <p className="text-[11px] text-[#6F7A9E] font-medium tracking-wide opacity-80 uppercase tracking-widest">
             Monitor ekosistem finansial Anda dengan intelijen real-time.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className="relative group">
-            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-[11px] font-bold text-[#A7B0D1] cursor-pointer hover:bg-white/10 transition-all shadow-lg active:scale-95">
-              <Calendar className="w-4 h-4 text-indigo-400" />
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold text-[#A7B0D1] cursor-pointer hover:bg-white/10 transition-all shadow-lg active:scale-95">
+              <Calendar className="w-3.5 h-3.5 text-indigo-400" />
               <span>{dateFilter}</span>
-              <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+              <ChevronDown className="w-3 h-3 opacity-50" />
             </div>
             {/* Simple Date Dropdown Placeholder */}
             <div className="absolute right-0 top-full mt-2 w-48 bg-[#0D122B] border border-white/10 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transition-all z-[60] p-2">
@@ -374,10 +374,10 @@ export default function DashboardPage() {
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[#6F7A9E] hover:text-white hover:bg-white/10 transition-all relative shadow-lg active:scale-95"
+              className="p-2 rounded-xl bg-white/5 border border-white/10 text-[#6F7A9E] hover:text-white hover:bg-white/10 transition-all relative shadow-lg active:scale-95"
             >
-              <Bell className="w-5 h-5" />
-              <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-[#0a0a0c] animate-pulse" />
+              <Bell className="w-4.5 h-4.5" />
+              <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-indigo-500 rounded-full border-2 border-[#0a0a0c] animate-pulse" />
             </button>
             {showNotifications && (
               <div className="absolute right-0 top-full mt-2 w-80 bg-[#0D122B]/95 backdrop-blur-xl border border-white/10 rounded-[24px] shadow-2xl z-[60] p-4 animate-in fade-in slide-in-from-top-2">
