@@ -4,12 +4,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { createClient } from '@/lib/supabase/client';
 import { transactionService } from '@/lib/services/transaction.service';
-import { categoryService, type Category } from '@/lib/services/category.service';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
 import * as XLSX from 'xlsx';
 import {
@@ -17,10 +15,6 @@ import {
   Settings,
   Database,
   Download,
-  Plus,
-  Pencil,
-  Trash2,
-  Tag,
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -30,7 +24,6 @@ export default function SettingsPage() {
 
   const [activeTab, setActiveTab] = useState<'profile' | 'data'>('profile');
   const [loading, setLoading] = useState(true);
-
   const [submitting, setSubmitting] = useState(false);
 
   // Profile preferences fields
@@ -38,7 +31,6 @@ export default function SettingsPage() {
   const [email, setEmail] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
   // Predefined premium avatar presets
   const PRESET_AVATARS = [
@@ -49,7 +41,6 @@ export default function SettingsPage() {
     { name: 'Crypto Adventurer', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Trader' },
   ];
 
-
   const fetchProfile = useCallback(async () => {
     try {
       setLoading(true);
@@ -59,7 +50,6 @@ export default function SettingsPage() {
         setFullName(user.user_metadata?.full_name || 'User');
         setCurrency(user.user_metadata?.currency || 'IDR');
         
-        // Fetch current custom profile details from profiles table
         const { data: profile } = await supabase
           .from('profiles')
           .select('avatar_url')
@@ -79,20 +69,14 @@ export default function SettingsPage() {
 
   useEffect(() => {
     Promise.resolve().then(fetchProfile);
-    if (accountId) {
-      Promise.resolve().then(fetchCategories);
-    }
-    // Query param tab select check
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab');
       if (tabParam === 'data') {
-        Promise.resolve().then(() => setActiveTab('data'));
-      } else if (tabParam === 'categories') {
-        Promise.resolve().then(() => setActiveTab('categories'));
+        setActiveTab('data');
       }
     }
-  }, [fetchProfile, fetchCategories, accountId]);
+  }, [fetchProfile]);
 
   useEffect(() => {
     if (fullName && appSettings?.document_title) {
@@ -107,7 +91,6 @@ export default function SettingsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Pengguna tidak terotentikasi');
 
-      // 1. Update user metadata
       const { error: authError } = await supabase.auth.updateUser({
         data: {
           full_name: fullName,
@@ -117,7 +100,6 @@ export default function SettingsPage() {
       });
       if (authError) throw authError;
 
-      // 2. Update profiles table
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -129,7 +111,6 @@ export default function SettingsPage() {
 
       toast('Profil dan avatar berhasil diperbarui!', 'success');
       
-      // Instantly update tab title
       if (appSettings?.document_title) {
         document.title = `${appSettings.document_title} - ${fullName}`;
       }
@@ -141,73 +122,11 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSaveCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accountId || !catName.trim()) return;
-    setCatLoading(true);
-    try {
-      if (editingCategory) {
-        await categoryService.updateCategory(
-          editingCategory.id,
-          catName.trim(),
-          catIcon,
-          catColor,
-          catType,
-          accountId
-        );
-        toast('Kategori berhasil diperbarui!', 'success');
-      } else {
-        await categoryService.createCategory(
-          accountId,
-          catName.trim(),
-          catIcon,
-          catColor,
-          catType
-        );
-        toast('Kategori berhasil ditambahkan!', 'success');
-      }
-      setCatModalOpen(false);
-      setCatName('');
-      setCatIcon('tag');
-      setCatColor('#6366f1');
-      setCatType('expense');
-      setEditingCategory(null);
-      fetchCategories();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal menyimpan kategori';
-      toast(msg, 'danger');
-    } finally {
-      setCatLoading(false);
-    }
-  };
-
-  const handleDeleteCategory = async (catId: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus kategori ini? Transaksi yang menggunakan kategori ini akan kehilangan relasinya.')) return;
-    try {
-      await categoryService.deleteCategory(catId);
-      toast('Kategori berhasil dihapus.', 'success');
-      fetchCategories();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal menghapus kategori';
-      toast(msg, 'danger');
-    }
-  };
-
-  const handleOpenEditCategory = (cat: Category) => {
-    setEditingCategory(cat);
-    setCatName(cat.name);
-    setCatType(cat.type);
-    setCatIcon(cat.icon || 'tag');
-    setCatColor(cat.color || '#6366f1');
-    setCatModalOpen(true);
-  };
-
   const handleExcelExport = async () => {
     if (!accountId) return;
     toast('Mengambil seluruh data transaksi...', 'info');
 
     try {
-      // 1. Fetch ALL transactions inside workspace
       const { data: allTxs } = await transactionService.getTransactions(accountId, {
         limit: 10000,
       });
@@ -217,7 +136,6 @@ export default function SettingsPage() {
         return;
       }
 
-      // 2. Map items to neat headers
       const rows = allTxs.map((tx) => ({
         ID: tx.id,
         Tanggal: new Date(tx.date).toLocaleDateString('id-ID'),
@@ -229,25 +147,16 @@ export default function SettingsPage() {
         Tag: tx.tags?.join(', ') || '',
       }));
 
-      // 3. Create SheetJS sheet & workbook
       const worksheet = XLSX.utils.json_to_sheet(rows);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan Keuangan');
 
-      // Autofit widths
       const colWidths = [
-        { wch: 25 }, // ID
-        { wch: 12 }, // Tanggal
-        { wch: 12 }, // Tipe
-        { wch: 15 }, // Nominal
-        { wch: 15 }, // Dompet
-        { wch: 15 }, // Kategori
-        { wch: 30 }, // Catatan
-        { wch: 20 }, // Tag
+        { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, 
+        { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 20 },
       ];
       worksheet['!cols'] = colWidths;
 
-      // 4. Save file
       const fileName = `${appSettings.app_name.replace(/\s+/g, '_')}_Buku_Besar.xlsx`;
       XLSX.writeFile(workbook, fileName);
       toast('Buku besar berhasil diekspor ke Excel!', 'success');
@@ -267,7 +176,7 @@ export default function SettingsPage() {
           Preferensi & Pengaturan Sistem
         </h2>
         <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-          Atur informasi profil, mata uang utama, kategori keuangan, serta ekspor laporan transaksi.
+          Atur informasi profil, mata uang utama, serta ekspor laporan transaksi.
         </p>
       </div>
 
@@ -300,7 +209,6 @@ export default function SettingsPage() {
       {loading ? (
         <div className="h-64 rounded-2xl border border-light-border dark:border-dark-border shimmer" />
       ) : activeTab === 'profile' ? (
-        /* Profile tab */
         <Card className="p-6">
           <form onSubmit={handleUpdateProfile} className="space-y-6">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
@@ -339,14 +247,12 @@ export default function SettingsPage() {
               />
             </div>
 
-            {/* Premium User Avatar Customizer Section */}
             <div className="space-y-4 pt-4 border-t border-light-border/40 dark:border-dark-border/40">
               <label className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
                 Avatar Profil
               </label>
               
               <div className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-2xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/20 dark:bg-dark-bg/10">
-                {/* Live Preview Avatar Circle */}
                 <div className="relative w-20 h-20 rounded-full border-2 border-primary/45 bg-light-card dark:bg-dark-card flex items-center justify-center overflow-hidden shadow-md shrink-0">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
@@ -367,7 +273,6 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              {/* Predefined Avatars Picker Grid */}
               <div className="space-y-2">
                 <p className="text-[10px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
                   Pilih Preset Avatar Premium:
@@ -405,7 +310,6 @@ export default function SettingsPage() {
           </form>
         </Card>
       ) : (
-        /* Data Tab */
         <div className="space-y-6">
           <Card className="p-6 space-y-4">
             <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
@@ -423,84 +327,6 @@ export default function SettingsPage() {
           </Card>
         </div>
       )}
-
-      {/* Category CRUD Modal */}
-      <Modal isOpen={catModalOpen} onClose={() => setCatModalOpen(false)} title={editingCategory ? 'Edit Kategori' : 'Tambah Kategori Baru'}>
-        <form onSubmit={handleSaveCategory} className="space-y-4">
-          <Input
-            label="Nama Kategori"
-            placeholder="misal: Makan Siang, Transportasi"
-            value={catName}
-            onChange={(e) => setCatName(e.target.value)}
-            required
-            disabled={catLoading}
-          />
-          
-          <Select
-            label="Tipe Kategori"
-            options={[
-              { value: 'expense', label: 'Pengeluaran (Expense)' },
-              { value: 'income', label: 'Pemasukan (Income)' },
-            ]}
-            value={catType}
-            onChange={(e) => setCatType(e.target.value as 'income' | 'expense' | 'transfer')}
-            disabled={catLoading}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Ikon Kategori"
-              options={[
-                { value: 'tag', label: 'Tag' },
-                { value: 'coffee', label: 'Kopi / Makanan' },
-                { value: 'shopping-bag', label: 'Belanja' },
-                { value: 'home', label: 'Rumah / Kost' },
-                { value: 'car', label: 'Kendaraan' },
-                { value: 'gift', label: 'Hadiah' },
-                { value: 'wallet', label: 'Dompet' },
-                { value: 'heart', label: 'Kesehatan' },
-                { value: 'book', label: 'Pendidikan' },
-              ]}
-              value={catIcon}
-              onChange={(e) => setCatIcon(e.target.value)}
-              disabled={catLoading}
-            />
-
-            <div>
-              <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1.5">
-                Warna Tema Kategori
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {['#6366f1', '#22c55e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6'].map((col) => (
-                  <button
-                    key={col}
-                    type="button"
-                    onClick={() => setCatColor(col)}
-                    className={`w-6 h-6 rounded-full border cursor-pointer transition-all duration-150 ${
-                      catColor === col ? 'scale-110 ring-2 ring-primary/20 border-white' : 'border-transparent'
-                    }`}
-                    style={{ backgroundColor: col }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setCatModalOpen(false)}
-              disabled={catLoading}
-            >
-              Batal
-            </Button>
-            <Button type="submit" loading={catLoading}>
-              Simpan Kategori
-            </Button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 }

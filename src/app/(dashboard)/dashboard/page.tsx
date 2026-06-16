@@ -310,38 +310,36 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="space-y-6 max-w-[1600px] mx-auto p-4 md:p-6 h-screen flex flex-col overflow-hidden">
+    <div className="space-y-4 max-w-[1600px] mx-auto p-4 md:p-5 h-screen flex flex-col overflow-hidden">
       {/* Header Greeting */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-black text-white tracking-[-0.03em]">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 shrink-0">
+        <div className="space-y-0.5">
+          <h1 className="text-xl font-black text-white tracking-[-0.03em]">
             Halo, {profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Pengguna'} 👋
           </h1>
-          <p className="text-sm text-[#6F7A9E] font-semibold tracking-[-0.01em]">
+          <p className="text-[11px] text-[#6F7A9E] font-semibold tracking-[-0.01em]">
             Kelola keuanganmu dengan bijak hari ini.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/5 bg-white/5 text-[10px] font-bold text-[#A7B0D1] cursor-pointer hover:bg-white/10 transition-colors">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/5 bg-white/5 text-[9px] font-bold text-[#A7B0D1] cursor-pointer hover:bg-white/10 transition-colors">
             <Calendar className="w-3 h-3" />
             <span>12 Mei - 12 Jun 2024</span>
             <ChevronDown className="w-3 h-3" />
           </div>
-          <button className="p-2 rounded-xl bg-white/5 border border-white/5 text-[#6F7A9E] hover:text-white hover:bg-white/10 transition-all">
-            <Bell className="w-5 h-5" />
+          <button className="p-1.5 rounded-lg bg-white/5 border border-white/5 text-[#6F7A9E] hover:text-white hover:bg-white/10 transition-all">
+            <Bell className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-
-
       {/* Hero Section: Financial Health Banner */}
       <Card 
         onClick={() => router.push('/wallets')}
-        className="p-8 relative overflow-visible bg-gradient-to-br from-[#1a0533] via-[#0d1a3a] to-[#050816] rounded-[32px] border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-center justify-between gap-8 group hover:border-white/10 transition-all duration-500 cursor-pointer shrink-0"
+        className="p-5 relative overflow-hidden bg-gradient-to-br from-[#1a0533] via-[#0d1a3a] to-[#050816] rounded-[24px] border border-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-center justify-between gap-4 group hover:border-white/10 transition-all duration-500 cursor-pointer shrink-0"
       >
-        {/* Background Illustration: Siluet Jalan/Path */}
-        <div className="absolute inset-0 z-0 overflow-hidden rounded-[32px] pointer-events-none">
+        {/* Background Illustration */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <svg viewBox="0 0 800 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute right-0 bottom-0 w-full h-full opacity-10">
             <path d="M0 200 Q200 180 400 120 T800 40" stroke="url(#pathGradient)" strokeWidth="4" fill="none" strokeDasharray="12 8" />
             <path d="M780 20 L800 40 L780 60 Z" fill="#8B7CFF" />
@@ -355,381 +353,212 @@ export default function DashboardPage() {
         </div>
 
         {/* Left Side: Labels & Message */}
-        <div className="relative z-10 flex-1 space-y-6">
-          <div className="space-y-1">
-             <span className="text-[10px] uppercase font-bold text-[#A7B0D1] tracking-[0.3em] opacity-80">Total Saldo</span>
-             <h3 className="text-5xl font-black text-white tracking-[-0.05em] drop-shadow-2xl">
+        <div className="relative z-10 flex-1 flex flex-row items-center gap-8">
+          <div className="space-y-0.5">
+             <span className="text-[9px] uppercase font-bold text-[#A7B0D1] tracking-[0.2em] opacity-80">Total Saldo</span>
+             <h3 className="text-3xl font-black text-white tracking-[-0.04em] drop-shadow-2xl">
                 {formatRupiah(financialStats.totalBalance)}
              </h3>
           </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-bold text-white/95 leading-tight tracking-[-0.02em]">
-              Kamu berada di <span className="text-[#8B7CFF] drop-shadow-[0_0_10px_rgba(139,124,255,0.4)]">jalur yang baik.</span>
+          <div className="hidden lg:block h-8 w-px bg-white/10 mx-2" />
+          <div className="space-y-0.5 hidden sm:block">
+            <h2 className="text-sm font-bold text-white/95 leading-tight tracking-[-0.02em]">
+              Kamu berada di <span className="text-[#8B7CFF]">jalur yang baik.</span>
             </h2>
-            <p className="text-xs text-[#6F7A9E] font-semibold leading-relaxed max-w-xs tracking-[-0.01em]">
-              Terus pertahankan pola ini untuk masa depan yang lebih aman dan terencana.
+            <p className="text-[10px] text-[#6F7A9E] font-semibold tracking-[-0.01em]">
+              Pola keuanganmu stabil dan terencana.
             </p>
           </div>
         </div>
 
-        {/* Right Side: Simple Score Indicator (No progress ring as per spec) */}
-        <div className="relative z-10 flex flex-col items-center gap-3 bg-white/5 backdrop-blur-md p-6 rounded-[28px] border border-white/5 min-w-[180px]">
-          <span className="text-[10px] uppercase font-bold text-[#6F7A9E] tracking-widest">Financial Health</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-5xl font-black text-white tracking-tighter">92</span>
-            <span className="text-sm font-bold text-[#6F7A9E]">/ 100</span>
+        {/* Right Side: Score indicator compact */}
+        <div className="relative z-10 flex items-center gap-4 bg-white/5 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/5">
+          <div className="flex flex-col items-center">
+            <span className="text-[8px] uppercase font-bold text-[#6F7A9E] tracking-wider">Health</span>
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-xl font-black text-white">92</span>
+              <span className="text-[10px] font-bold text-[#6F7A9E]">/100</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#28D17C]/10 border border-[#28D17C]/20">
-            <div className="w-2 h-2 rounded-full bg-[#28D17C] animate-pulse shadow-[0_0_8px_#28D17C]" />
-            <span className="text-[10px] font-bold text-[#28D17C] uppercase tracking-wider">Sangat Baik</span>
+          <div className="w-px h-6 bg-white/10" />
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#28D17C]/10 border border-[#28D17C]/20">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#28D17C] shadow-[0_0_8px_#28D17C]" />
+            <span className="text-[8px] font-bold text-[#28D17C] uppercase tracking-wider">Sangat Baik</span>
           </div>
         </div>
       </Card>
 
-      {/* Collapsible Short Guide */}
-      {showGuide && (
-        <Card className="p-5 md:p-6 border-light-border dark:border-dark-border shadow-sm space-y-6 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-light-border/40 dark:border-dark-border/40">
-            <h3 className="text-xs font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 uppercase tracking-wider">
-              <BookOpen className="w-4 h-4 text-primary" />
-              Panduan Penggunaan Fitur FinanceApp
-            </h3>
-            <span className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary">
-              Pelajari cara kerja setiap modul aplikasi di bawah ini
-            </span>
+      {/* Row 2: 4 Stats Widgets - Compact */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
+        {[
+          { label: 'Pemasukan', val: financialStats.income, diff: financialStats.incomeDiff, col: '#28D17C', icon: TrendingUp, path: '/transactions/new?type=income' },
+          { label: 'Pengeluaran', val: financialStats.expense, diff: financialStats.expenseDiff, col: '#FF4B5C', icon: TrendingDown, path: '/transactions/new?type=expense' },
+          { label: 'Sisa Tabungan', val: financialStats.savings, diff: financialStats.savingsDiff, col: '#6E5CFF', icon: Wallet, path: '/savings' },
+          { label: 'Utang Aktif', val: financialStats.activeDebt, desc: `${financialStats.activeLoansCount} aktif`, col: '#FFB347', icon: ShieldAlert, path: '/pinjol' },
+        ].map((s, i) => (
+          <button 
+            key={i}
+            onClick={() => router.push(s.path)}
+            className="p-4 pt-8 rounded-[20px] bg-[#0A1028]/95 border border-white/5 space-y-1 relative overflow-hidden group hover:border-white/20 transition-all text-left"
+          >
+            <div className="absolute top-3 left-3 w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-white/80 border border-white/10 group-hover:bg-white/10 transition-colors" style={{ color: s.col }}>
+              <s.icon className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-[9px] font-bold text-[#6F7A9E] tracking-widest uppercase block">{s.label}</span>
+            <div className="space-y-0.5">
+              <h4 className="text-sm font-bold text-white">{i === 1 ? '-' : '+'}{formatRupiah(s.val)}</h4>
+              {s.diff !== undefined ? (
+                <p className="text-[9px] font-bold" style={{ color: s.col }}>{s.diff >= 0 ? '+' : ''}{s.diff.toFixed(1)}%</p>
+              ) : (
+                <p className="text-[9px] font-bold text-[#6F7A9E]">{s.desc}</p>
+              )}
+            </div>
+            <div className="absolute bottom-0 left-0 w-full opacity-30 h-6">
+               {i < 3 && <Sparkline data={i === 0 ? financialStats.incomeSparkline : i === 1 ? financialStats.expenseSparkline : financialStats.savingsSparkline} color={s.col} />}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Row 3: 3 Main Widgets Grid - Optimized height */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
+        {/* Daily Spending Graph */}
+        <div className="lg:col-span-5 p-5 rounded-[24px] bg-[#0A1028]/95 border border-white/5 space-y-4 flex flex-col group hover:border-white/10 transition-all min-h-0">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <h3 className="text-[12px] font-bold text-white tracking-tight">Tren Pengeluaran</h3>
+              <p className="text-[9px] text-[#6F7A9E] font-medium uppercase tracking-wider">7 Hari Terakhir</p>
+            </div>
+            <div className="flex items-center bg-white/5 p-1 rounded-lg border border-white/5">
+              {['Harian', 'Mingguan'].map((range) => (
+                <button 
+                  key={range}
+                  className={`px-2 py-1 rounded-md text-[8px] font-bold transition-all ${
+                    range === 'Harian' ? 'bg-[#6E5CFF] text-white' : 'text-[#6F7A9E] hover:text-[#A7B0D1]'
+                  }`}
+                >
+                  {range}
+                </button>
+              ))}
+            </div>
           </div>
+          <div className="flex-1 min-h-0 pt-2">
+            <SpendingChart data={chartData} />
+          </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
-            {/* Wallet Guide */}
-            <div className="p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/10 dark:bg-dark-bg/15 space-y-1.5">
-              <h4 className="font-extrabold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-                <Wallet className="w-4 h-4 text-primary shrink-0" />
-                1. Kelola Dompet (Wallets)
-              </h4>
-              <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                Buka menu <strong>Dompet</strong>, klik <strong>Tambah Dompet</strong>. Buat dompet seperti &quot;Cash&quot;, &quot;BCA&quot;, atau &quot;GoPay&quot; dan masukkan saldo awalnya. Seluruh saldo dompet dikalkulasi sebagai aset bersih Anda.
-              </p>
-            </div>
+        {/* Category Breakdown */}
+        <div className="lg:col-span-4 p-5 rounded-[24px] bg-[#0A1028]/90 border border-white/5 space-y-4 flex flex-col min-h-0">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[12px] font-bold text-white">Kategori Pengeluaran</h3>
+            <button onClick={() => setIsPieExpanded(true)} className="text-[9px] text-[#6E5CFF] font-bold uppercase hover:underline">Detail</button>
+          </div>
+          <div className="space-y-3.5 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+            {pieData.slice(0, 6).map((item, idx) => {
+              const percentage = Math.min((item.value / (financialStats.expense || 1)) * 100, 100);
+              return (
+                <div key={idx} className="space-y-1.5">
+                  <div className="flex justify-between text-[10px] font-bold">
+                    <span className="text-[#A7B0D1]">{translateCategory(item.name)}</span>
+                    <span className="text-white">{formatRupiah(item.value)}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <div 
+                      className="h-full rounded-full transition-all duration-1000 ease-out" 
+                      style={{ 
+                        width: `${percentage}%`, 
+                        backgroundColor: item.color,
+                        boxShadow: `0 0 8px ${item.color}30`
+                      }} 
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-            {/* Transactions Guide */}
-            <div className="p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/10 dark:bg-dark-bg/15 space-y-1.5">
-              <h4 className="font-extrabold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-                <ArrowRightLeft className="w-4 h-4 text-primary shrink-0" />
-                2. Catat Transaksi (Transactions)
-              </h4>
-              <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                Buka menu <strong>Transaksi</strong>, lalu pilih <strong>Pemasukan</strong>, <strong>Pengeluaran</strong>, atau <strong>Transfer</strong>. Isi nominal, pilih kategori &amp; dompet yang sesuai, lalu simpan. Saldo dompet akan otomatis berubah.
-              </p>
-            </div>
-
-            {/* Budgets Guide */}
-            <div className="p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/10 dark:bg-dark-bg/15 space-y-1.5">
-              <h4 className="font-extrabold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-primary shrink-0" />
-                3. Anggaran Belanja (Budgets)
-              </h4>
-              <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                Buka menu <strong>Anggaran</strong>, klik <strong>Buat Anggaran Baru</strong>. Pilih kategori belanja yang ingin dibatasi dan masukkan nominal batasnya. Indikator bar akan memperingatkan jika Anda hampir melampauinya.
-              </p>
-            </div>
-
-            {/* Savings Guide */}
-            <div className="p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/10 dark:bg-dark-bg/15 space-y-1.5">
-              <h4 className="font-extrabold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-                <Target className="w-4 h-4 text-primary shrink-0" />
-                4. Rencana Tabungan (Savings Goals)
-              </h4>
-              <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                Buka menu <strong>Tabungan</strong>, klik <strong>Tambah Target</strong>. Masukkan nama impian, target nominal, dan tenggat waktu. Setor tabungan secara berkala untuk memantau kemajuan menabung Anda.
-              </p>
-            </div>
-
-            {/* Debts Guide */}
-            <div className="p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/10 dark:bg-dark-bg/15 space-y-1.5">
-              <h4 className="font-extrabold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-                <HandCoins className="w-4 h-4 text-primary shrink-0" />
-                5. Utang &amp; Piutang (Debts &amp; Loans)
-              </h4>
-              <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                Buka menu <strong>Utang &amp; Piutang</strong> untuk mencatat pinjam-meminjam uang tradisional ke perorangan. Tentukan siapa yang meminjam dana dan kapan tanggal pelunasan yang disepakati.
-              </p>
-            </div>
-
-            {/* Reports Guide */}
-            <div className="p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/10 dark:bg-dark-bg/15 space-y-1.5">
-              <h4 className="font-extrabold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-primary shrink-0" />
-                6. Laporan Bulanan (Reports)
-              </h4>
-              <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                Buka menu <strong>Laporan</strong> untuk menganalisis pengeluaran kategori bulanan Anda. Klik tombol ekspor untuk mengunduh seluruh transaksi Anda dalam format Excel (.xlsx) secara instan.
-              </p>
-            </div>
-
-            {/* Pinjol Guide (Full span) */}
-            <div className="p-4 rounded-xl border border-primary/10 bg-primary/5 dark:bg-primary/10 md:col-span-2 space-y-1.5">
-              <h4 className="font-extrabold text-primary flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-warning shrink-0" />
-                7. Debt Survival Planner / Pinjol Tracker (Fitur Unggulan)
-              </h4>
-              <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                Buka menu <strong>Pinjol Tracker</strong>. Atur tanggal gajian bulanan dan daftarkan nominal proyeksi gaji Anda. Catat seluruh pinjaman online aktif Anda. Sistem akan memproyeksikan sisa uang kas Anda selama 12 bulan mendatang, mendeteksi penumpukan jatuh tempo (*due-date clustering*), serta merangkum saran keuangan dinamis beserta skor bertahan hidup (*Survival Score*).
-              </p>
-            </div>
-
-            {/* Admin Guide (Only shown if isSuperAdmin is true!) */}
-            {isSuperAdmin && (
-              <div className="p-4 rounded-xl border border-danger/10 bg-danger/5 dark:bg-danger/10 md:col-span-2 space-y-1.5 animate-in fade-in duration-200">
-                <h4 className="font-extrabold text-danger flex items-center gap-2">
-                  <ShieldAlert className="w-4 h-4 text-danger shrink-0" />
-                  🛡️ Portal Admin (Khusus SuperAdmin)
-                </h4>
-                <p className="text-light-text-secondary dark:text-dark-text-secondary leading-relaxed font-medium">
-                  Buka menu <strong>Admin</strong>. Anda dapat mengkustomisasi nama aplikasi secara global, mengunggah logo kustom melalui URL gambar, dan mengubah judul tab browser di seluruh sesi browser pengguna.
-                </p>
+        {/* Month Summary */}
+        <div className="lg:col-span-3 p-5 rounded-[24px] bg-[#0A1028]/90 border border-white/5 space-y-4 flex flex-col shrink-0">
+          <h3 className="text-[12px] font-bold text-white">Ringkasan Bulan Ini</h3>
+          <div className="space-y-2.5 flex-1">
+            {[
+              { label: 'Pemasukan', val: financialStats.income, col: '#28D17C', sign: '+' },
+              { label: 'Pengeluaran', val: financialStats.expense, col: '#FF4B5C', sign: '-' },
+            ].map((s, i) => (
+              <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
+                <span className="text-[9px] text-[#6F7A9E] font-bold uppercase">{s.label}</span>
+                <p className="text-sm font-bold" style={{ color: s.col }}>{s.sign}{formatRupiah(s.val)}</p>
               </div>
+            ))}
+            <div className="p-3 rounded-xl bg-[#6E5CFF]/10 border border-[#6E5CFF]/20 space-y-0.5">
+              <span className="text-[9px] text-[#6E5CFF] font-bold uppercase">Sisa Kas</span>
+              <p className="text-sm font-bold text-white">{formatRupiah(financialStats.savings)}</p>
+            </div>
+            <div className="pt-1">
+               <button 
+                onClick={() => router.push('/reports')}
+                className="w-full py-2.5 rounded-lg bg-white/5 border border-white/5 text-[9px] font-bold text-[#A7B0D1] uppercase tracking-widest hover:bg-white/10 transition-all"
+               >
+                Laporan Detail
+               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent transaction rows - Scrollable below the main grid if content exceeds */}
+      <div className="shrink-0 pt-2 pb-4 overflow-y-auto max-h-48 custom-scrollbar">
+        <Card className="p-5 space-y-4 shadow-sm border-light-border dark:border-dark-border">
+          <div className="flex items-center justify-between pb-1">
+            <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5">
+              <Calendar className="w-4.5 h-4.5 text-primary" />
+              Transaksi Terbaru
+            </h3>
+            <button
+              onClick={() => router.push('/transactions')}
+              className="text-xs font-bold text-primary hover:underline cursor-pointer"
+            >
+              Lihat Semua
+            </button>
+          </div>
+          <div className="flex flex-col gap-4">
+            {loading ? (
+              [1, 2, 3].map((n) => <div key={n} className="h-12 rounded-xl shimmer my-2" />)
+            ) : recentTxs.length === 0 ? (
+              <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary py-8 text-center font-medium">
+                {t("dashboard.insights.noRecent", "Belum ada transaksi terbaru.")}
+              </p>
+            ) : (
+              recentTxs.map((tx) => (
+                <div key={tx.id} className="flex items-center justify-between py-1 gap-4 text-xs font-semibold">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                      tx.type === 'income' ? 'text-success bg-success/15' : tx.type === 'expense' ? 'text-danger bg-danger/15' : 'text-info bg-info/15'
+                    }`}>
+                      {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : tx.type === 'expense' ? <TrendingDown className="w-4 h-4" /> : <ArrowRightLeft className="w-4.5 h-4.5" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-extrabold text-light-text-primary dark:text-dark-text-primary truncate">
+                        {tx.note || (tx.type === 'transfer' ? 'Transfer Dompet' : 'Catatan Pengeluaran')}
+                      </p>
+                      <p className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary font-medium mt-0.5">
+                        {tx.wallets?.name} • {new Date(tx.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`font-bold tracking-tight shrink-0 text-sm ${
+                    tx.type === 'income' ? 'text-success' : tx.type === 'expense' ? 'text-danger' : 'text-info'
+                  }`}>
+                    {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatRupiah(Number(tx.amount))}
+                  </span>
+                </div>
+              ))
             )}
           </div>
         </Card>
-      )}
+      </div>
 
-      {loading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((n) => (
-            <div key={n} className="h-32 rounded-2xl border border-light-border/40 dark:border-dark-border/40 shimmer" />
-          ))}
-        </div>
-      ) : (
-        <>
-          {/* Row 2: 4 Stats Widgets */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 shrink-0">
-            {/* Pemasukan */}
-            <button 
-              onClick={() => router.push('/transactions/new?type=income')}
-              className="p-6 pt-10 rounded-[24px] bg-[#0A1028]/95 border border-white/5 space-y-3 relative overflow-hidden group hover:border-[#28D17C]/30 transition-all text-left"
-            >
-              <div className="absolute top-4 left-4 w-8 h-8 rounded-lg bg-[#28D17C]/10 flex items-center justify-center text-[#28D17C] border border-[#28D17C]/20">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-              <div className="pt-2">
-                <span className="text-[10px] font-bold text-[#6F7A9E] tracking-widest uppercase">Pemasukan</span>
-                <div className="space-y-1">
-                  <h4 className="text-xl font-bold text-white">+{formatRupiah(financialStats.income)}</h4>
-                  <p className="text-[10px] font-bold text-[#28D17C]">+{financialStats.incomeDiff.toFixed(1)}%</p>
-                </div>
-              </div>
-              <div className="absolute bottom-1 left-0 w-full opacity-40 px-1">
-                <Sparkline data={financialStats.incomeSparkline} color="#28D17C" />
-              </div>
-            </button>
-
-            {/* Pengeluaran */}
-            <button 
-              onClick={() => router.push('/transactions/new?type=expense')}
-              className="p-6 pt-10 rounded-[24px] bg-[#0A1028]/95 border border-white/5 space-y-3 relative overflow-hidden group hover:border-[#FF4B5C]/30 transition-all text-left"
-            >
-              <div className="absolute top-4 left-4 w-8 h-8 rounded-lg bg-[#FF4B5C]/10 flex items-center justify-center text-[#FF4B5C] border border-[#FF4B5C]/20">
-                <TrendingDown className="w-4 h-4" />
-              </div>
-              <div className="pt-2">
-                <span className="text-[10px] font-bold text-[#6F7A9E] tracking-widest uppercase">Pengeluaran</span>
-                <div className="space-y-1">
-                  <h4 className="text-xl font-bold text-white">-{formatRupiah(financialStats.expense)}</h4>
-                  <p className="text-[10px] font-bold text-[#FF4B5C]">+{financialStats.expenseDiff.toFixed(1)}%</p>
-                </div>
-              </div>
-              <div className="absolute bottom-1 left-0 w-full opacity-40 px-1">
-                <Sparkline data={financialStats.expenseSparkline} color="#FF4B5C" />
-              </div>
-            </button>
-
-            {/* Sisa Tabungan */}
-            <button 
-              onClick={() => router.push('/savings')}
-              className="p-6 pt-10 rounded-[24px] bg-[#0A1028]/95 border border-white/5 space-y-3 relative overflow-hidden group hover:border-[#6E5CFF]/30 transition-all text-left"
-            >
-              <div className="absolute top-4 left-4 w-8 h-8 rounded-lg bg-[#6E5CFF]/10 flex items-center justify-center text-[#6E5CFF] border border-[#6E5CFF]/20">
-                <Wallet className="w-4 h-4" />
-              </div>
-              <div className="pt-2">
-                <span className="text-[10px] font-bold text-[#6F7A9E] tracking-widest uppercase">Sisa Tabungan</span>
-                <div className="space-y-1">
-                  <h4 className="text-xl font-bold text-white">+{formatRupiah(financialStats.savings)}</h4>
-                  <p className="text-[10px] font-bold text-[#6E5CFF]">+{financialStats.savingsDiff.toFixed(1)}%</p>
-                </div>
-              </div>
-              <div className="absolute bottom-1 left-0 w-full opacity-40 px-1">
-                <Sparkline data={financialStats.savingsSparkline} color="#6E5CFF" />
-              </div>
-            </button>
-
-            {/* Utang Aktif */}
-            <button 
-              onClick={() => router.push('/pinjol')}
-              className="p-6 pt-10 rounded-[24px] bg-[#0A1028]/95 border border-white/5 space-y-3 relative overflow-hidden group hover:border-[#FFB347]/30 transition-all text-left"
-            >
-              <div className="absolute top-4 left-4 w-8 h-8 rounded-lg bg-[#FFB347]/10 flex items-center justify-center text-[#FFB347] border border-[#FFB347]/20">
-                <ShieldAlert className="w-4 h-4" />
-              </div>
-              <div className="pt-2">
-                <span className="text-[10px] font-bold text-[#6F7A9E] tracking-widest uppercase">Utang Aktif</span>
-                <div className="space-y-1">
-                  <h4 className="text-xl font-bold text-white">{formatRupiah(financialStats.activeDebt)}</h4>
-                  <p className="text-[10px] font-bold text-[#6F7A9E]">{financialStats.activeLoansCount} pinjaman aktif</p>
-                </div>
-              </div>
-              <div className="absolute bottom-1 left-0 w-full px-4 pb-1">
-                <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#FFB347]" style={{ width: '40%' }} />
-                </div>
-              </div>
-            </button>
-          </div>
-
-          {/* Row 3: 3 Main Widgets Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0 overflow-hidden">
-            {/* Daily Spending Graph */}
-            <div className="lg:col-span-5 p-8 rounded-[32px] bg-[#0A1028]/95 border border-white/5 space-y-6 flex flex-col group hover:border-white/10 transition-all">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-white tracking-tight">Tren Pengeluaran</h3>
-                  <p className="text-[10px] text-[#6F7A9E] font-medium uppercase tracking-wider">Arus Kas Keluar</p>
-                </div>
-                <div className="flex items-center bg-white/5 p-1 rounded-xl border border-white/5">
-                  {['Harian', 'Mingguan', 'Bulanan'].map((range) => (
-                    <button 
-                      key={range}
-                      className={`px-3 py-1.5 rounded-lg text-[9px] font-bold transition-all ${
-                        range === 'Harian' ? 'bg-[#6E5CFF] text-white shadow-lg shadow-[#6E5CFF]/20' : 'text-[#6F7A9E] hover:text-[#A7B0D1]'
-                      }`}
-                    >
-                      {range}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="h-64 pt-2">
-                <SpendingChart data={chartData} />
-              </div>
-            </div>
-
-            {/* Category Breakdown (Horizontal Progress Bars as per spec) */}
-            <div className="lg:col-span-4 p-8 rounded-[32px] bg-[#0A1028]/90 border border-white/5 space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white">Kategori Pengeluaran</h3>
-                <button onClick={() => setIsPieExpanded(true)} className="text-[10px] text-[#6E5CFF] font-bold uppercase hover:underline">Lihat Semua</button>
-              </div>
-              <div className="space-y-5">
-                {pieData.slice(0, 5).map((item, idx) => {
-                  const percentage = Math.min((item.value / (financialStats.expense || 1)) * 100, 100);
-                  return (
-                    <div key={idx} className="space-y-2">
-                      <div className="flex justify-between text-[11px] font-bold">
-                        <span className="text-[#A7B0D1]">{translateCategory(item.name)}</span>
-                        <span className="text-white">{formatRupiah(item.value)}</span>
-                      </div>
-                      <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                        <div 
-                          className="h-full rounded-full transition-all duration-1000 ease-out" 
-                          style={{ 
-                            width: `${percentage}%`, 
-                            backgroundColor: item.color,
-                            boxShadow: `0 0 10px ${item.color}40`
-                          }} 
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-                {pieData.length === 0 && (
-                   <div className="flex flex-col items-center justify-center py-8 text-center space-y-2 opacity-50">
-                      <HandCoins className="w-8 h-8 text-[#6F7A9E]" />
-                      <p className="text-[10px] text-[#6F7A9E] font-medium uppercase tracking-wider">Belum ada data kategori</p>
-                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Month Summary (Restored according to spec) */}
-            <div className="lg:col-span-3 p-8 rounded-[32px] bg-[#0A1028]/90 border border-white/5 space-y-6">
-              <h3 className="text-sm font-bold text-white">Ringkasan Bulan Ini</h3>
-              <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-                  <span className="text-[10px] text-[#6F7A9E] font-bold uppercase">Total Pemasukan</span>
-                  <p className="text-lg font-bold text-[#28D17C]">+{formatRupiah(financialStats.income)}</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-                  <span className="text-[10px] text-[#6F7A9E] font-bold uppercase">Total Pengeluaran</span>
-                  <p className="text-lg font-bold text-[#FF4B5C]">-{formatRupiah(financialStats.expense)}</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-[#6E5CFF]/10 border border-[#6E5CFF]/20 space-y-1">
-                  <span className="text-[10px] text-[#6E5CFF] font-bold uppercase">Sisa Kas Bulan Ini</span>
-                  <p className="text-lg font-bold text-white">{formatRupiah(financialStats.savings)}</p>
-                </div>
-                <div className="pt-2">
-                   <button 
-                    onClick={() => router.push('/reports')}
-                    className="w-full py-3 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-[#A7B0D1] uppercase tracking-widest hover:bg-white/10 transition-all"
-                   >
-                    Lihat Laporan Detail
-                   </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Recent transaction rows (Full Width Layout below the grid) */}
-      {/* Transaksi Terbaru */}
-      <Card className="p-5 space-y-4 shadow-sm border-light-border dark:border-dark-border">
-        <div className="flex items-center justify-between pb-1">
-          <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5">
-            <Calendar className="w-4.5 h-4.5 text-primary" />
-            Transaksi Terbaru
-          </h3>
-          <button
-            onClick={() => router.push('/transactions')}
-            className="text-xs font-bold text-primary hover:underline cursor-pointer"
-          >
-            Lihat Semua
-          </button>
-        </div>
-        <div className="flex flex-col gap-4">
-          {loading ? (
-            [1, 2, 3].map((n) => <div key={n} className="h-12 rounded-xl shimmer my-2" />)
-          ) : recentTxs.length === 0 ? (
-            <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary py-8 text-center font-medium">
-              {t("dashboard.insights.noRecent", "Belum ada transaksi terbaru.")}
-            </p>
-          ) : (
-            recentTxs.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between py-1 gap-4 text-xs font-semibold">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                    tx.type === 'income' ? 'text-success bg-success/15' : tx.type === 'expense' ? 'text-danger bg-danger/15' : 'text-info bg-info/15'
-                  }`}>
-                    {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : tx.type === 'expense' ? <TrendingDown className="w-4 h-4" /> : <ArrowRightLeft className="w-4.5 h-4.5" />}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-extrabold text-light-text-primary dark:text-dark-text-primary truncate">
-                      {tx.note || (tx.type === 'transfer' ? 'Transfer Dompet' : 'Catatan Pengeluaran')}
-                    </p>
-                    <p className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary font-medium mt-0.5">
-                      {tx.wallets?.name} • {new Date(tx.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}
-                    </p>
-                  </div>
-                </div>
-                <span className={`font-bold tracking-tight shrink-0 text-sm ${
-                  tx.type === 'income' ? 'text-success' : tx.type === 'expense' ? 'text-danger' : 'text-info'
-                }`}>
-                  {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatRupiah(Number(tx.amount))}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </Card>
       {/* Expanded Category Pie Chart Modal */}
       <Modal
         isOpen={isPieExpanded}

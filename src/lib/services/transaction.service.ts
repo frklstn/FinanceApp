@@ -234,4 +234,88 @@ export const transactionService = {
       throw new Error(error.message);
     }
   },
+
+  /**
+   * Updates an existing transaction and adjusts wallet balances accordingly.
+   */
+  async updateTransaction(
+    id: string,
+    tx: Partial<Omit<Transaction, 'id' | 'created_at' | 'updated_at'>>
+  ): Promise<Transaction> {
+    const supabase = createClient();
+
+    // 1. Fetch current transaction record
+    const { data: oldTx, error: tErr } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (tErr || !oldTx) throw new Error('Transaction not found');
+
+    // 2. Rollback old balance impact
+    if (oldTx.type === 'income') {
+      const { data: wallet } = await supabase.from('wallets').select('balance').eq('id', oldTx.wallet_id).single();
+      if (wallet) {
+        await supabase.from('wallets').update({ balance: Number(wallet.balance) - Number(oldTx.amount) }).eq('id', oldTx.wallet_id);
+      }
+    } else if (oldTx.type === 'expense') {
+      const { data: wallet } = await supabase.from('wallets').select('balance').eq('id', oldTx.wallet_id).single();
+      if (wallet) {
+        await supabase.from('wallets').update({ balance: Number(wallet.balance) + Number(oldTx.amount) }).eq('id', oldTx.wallet_id);
+      }
+    } else if (oldTx.type === 'transfer' && oldTx.destination_wallet_id) {
+      const { data: source } = await supabase.from('wallets').select('balance').eq('id', oldTx.wallet_id).single();
+      const { data: dest } = await supabase.from('wallets').select('balance').eq('id', oldTx.destination_wallet_id).single();
+      if (source) await supabase.from('wallets').update({ balance: Number(source.balance) + Number(oldTx.amount) }).eq('id', oldTx.wallet_id);
+      if (dest) await supabase.from('wallets').update({ balance: Number(dest.balance) - Number(oldTx.amount) }).eq('id', oldTx.destination_wallet_id);
+    }
+
+    // 3. Apply new transaction data and calculate new impact
+    const updatedTx = { ...oldTx, ...tx };
+    const amountNum = Number(updatedTx.amount);
+
+    if (updatedTx.type === 'income') {
+      const { data: wallet } = await supabase.from('wallets').select('balance').eq('id', updatedTx.wallet_id).single();
+      if (wallet) {
+        await supabase.from('wallets').update({ balance: Number(wallet.balance) + amountNum }).eq('id', updatedTx.wallet_id);
+      }
+    } else if (updatedTx.type === 'expense') {
+      const { data: wallet } = await supabase.from('wallets').select('balance').eq('id', updatedTx.wallet_id).single();
+      if (wallet) {
+        await supabase.from('wallets').update({ balance: Number(wallet.balance) - amountNum }).eq('id', updatedTx.wallet_id);
+      }
+    } else if (updatedTx.type === 'transfer' && updatedTx.destination_wallet_id) {
+      const { data: source } = await supabase.from('wallets').select('balance').eq('id', updatedTx.wallet_id).single();
+      const { data: dest } = await supabase.from('wallets').select('balance').eq('id', updatedTx.destination_wallet_id).single();
+      if (source) await supabase.from('wallets').update({ balance: Number(source.balance) - amountNum }).eq('id', updatedTx.wallet_id);
+      if (dest) await supabase.from('wallets').update({ balance: Number(dest.balance) + amountNum }).eq('id', updatedTx.destination_wallet_id);
+    }
+
+    // 4. Update transaction record
+    const { data, error } = await supabase
+      .from('transactions')
+      .update({
+        wallet_id: updatedTx.wallet_id,
+        category_id: updatedTx.category_id,
+        amount: updatedTx.amount,
+        type: updatedTx.type,
+        destination_wallet_id: updatedTx.destination_wallet_id,
+        note: updatedTx.note,
+        date: updatedTx.date,
+        tags: updatedTx.tags,
+        attachment_url: updatedTx.attachment_url,
+        is_recurring: updatedTx.is_recurring,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating transaction:', error);
+      throw new Error(error.message);
+    }
+
+    return data;
+  },
 };

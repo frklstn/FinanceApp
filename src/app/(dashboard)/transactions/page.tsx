@@ -17,6 +17,15 @@ import {
   Info,
   Edit2,
   Tags,
+  Filter,
+  Plus,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  TrendingDown,
+  ArrowRightLeft,
+  Calendar,
 } from 'lucide-react';
 import { CategoryManagerModal } from '@/components/transaction/category-manager-modal';
 
@@ -107,9 +116,15 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (accountId) {
-      Promise.resolve().then(fetchFiltersData);
+      fetchFiltersData();
     }
   }, [accountId, fetchFiltersData]);
+
+  useEffect(() => {
+    if (accountId) {
+      setPage(1);
+    }
+  }, [filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, filterTag]);
 
   useEffect(() => {
     if (accountId) {
@@ -242,7 +257,7 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6 pb-24">
+    <div className="space-y-4 max-w-6xl mx-auto p-4 md:p-5 pb-24">
       {/* Title & Floating Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

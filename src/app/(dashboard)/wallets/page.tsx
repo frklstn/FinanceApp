@@ -202,7 +202,7 @@ export default function WalletsPage() {
   const totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6 pb-24">
+    <div className="space-y-4 max-w-6xl mx-auto p-4 md:p-5 pb-24">
       {/* Header Summary Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
