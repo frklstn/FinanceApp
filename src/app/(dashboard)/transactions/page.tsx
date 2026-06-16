@@ -137,11 +137,17 @@ export default function TransactionsPage() {
       const params = new URLSearchParams(window.location.search);
       const add = params.get('add');
       const type = params.get('type');
+      const manageCats = params.get('manage_categories');
+
       if (add === 'true') {
         setIsModalOpen(true);
         if (type === 'income' || type === 'expense' || type === 'transfer') {
           setTxType(type);
         }
+      }
+
+      if (manageCats === 'true') {
+        setIsCategoryModalOpen(true);
       }
     }
   }, []);

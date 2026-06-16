@@ -391,8 +391,8 @@ export default function DashboardPage() {
       {/* Row 2: 4 Stats Widgets - Compact */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
         {[
-          { label: 'Pemasukan', val: financialStats.income, diff: financialStats.incomeDiff, col: '#28D17C', icon: TrendingUp, path: '/transactions/new?type=income' },
-          { label: 'Pengeluaran', val: financialStats.expense, diff: financialStats.expenseDiff, col: '#FF4B5C', icon: TrendingDown, path: '/transactions/new?type=expense' },
+          { label: 'Pemasukan', val: financialStats.income, diff: financialStats.incomeDiff, col: '#28D17C', icon: TrendingUp, path: '/transactions?add=true&type=income' },
+          { label: 'Pengeluaran', val: financialStats.expense, diff: financialStats.expenseDiff, col: '#FF4B5C', icon: TrendingDown, path: '/transactions?add=true&type=expense' },
           { label: 'Sisa Tabungan', val: financialStats.savings, diff: financialStats.savingsDiff, col: '#6E5CFF', icon: Wallet, path: '/savings' },
           { label: 'Utang Aktif', val: financialStats.activeDebt, desc: `${financialStats.activeLoansCount} aktif`, col: '#FFB347', icon: ShieldAlert, path: '/pinjol' },
         ].map((s, i) => (
@@ -565,15 +565,15 @@ export default function DashboardPage() {
         onClose={() => setIsPieExpanded(false)}
         title="Detail Konsentrasi Pengeluaran"
       >
-        <div className="space-y-6">
-          <div className="flex justify-center p-4 bg-light-bg/5 dark:bg-dark-bg/10 rounded-2xl border border-light-border/40 dark:border-dark-border/40">
+        <div className="space-y-4">
+          <div className="flex justify-center p-2 bg-light-bg/5 dark:bg-dark-bg/10 rounded-2xl border border-light-border/40 dark:border-dark-border/40">
             <div className="w-full max-w-[360px]">
               <CategoryRadarChart data={pieData} />
             </div>
           </div>
           
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
+          <div className="space-y-2">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
               Rincian Kategori Pengeluaran
             </h4>
             <div className="divide-y divide-light-border/30 dark:divide-dark-border/30 border border-light-border/40 dark:border-dark-border/40 rounded-xl overflow-hidden bg-light-bg/5 dark:bg-dark-bg/5">
@@ -581,9 +581,9 @@ export default function DashboardPage() {
                 const totalAmount = pieData.reduce((sum, i) => sum + i.value, 0);
                 const pct = totalAmount > 0 ? ((item.value / totalAmount) * 100).toFixed(1) : '0';
                 return (
-                  <div key={index} className="flex items-center justify-between p-3.5 text-xs">
+                  <div key={index} className="flex items-center justify-between p-3 text-[11px]">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                       <span className="font-bold text-light-text-primary dark:text-dark-text-primary">
                         {translateCategory(item.name)}
                       </span>
@@ -605,20 +605,20 @@ export default function DashboardPage() {
         onClose={() => setIsTrendsExpanded(false)}
         title="Tren Pengeluaran Harian"
       >
-        <div className="space-y-6">
-          <div className="p-4 bg-light-bg/5 dark:bg-dark-bg/10 rounded-2xl border border-light-border/40 dark:border-dark-border/40">
-            <div className="h-64">
+        <div className="space-y-4">
+          <div className="p-2 bg-light-bg/5 dark:bg-dark-bg/10 rounded-2xl border border-light-border/40 dark:border-dark-border/40">
+            <div className="h-48">
               <SpendingChart data={chartData} />
             </div>
           </div>
           
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
+          <div className="space-y-2">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
               Riwayat Pengeluaran Harian
             </h4>
-            <div className="divide-y divide-light-border/30 dark:divide-dark-border/30 border border-light-border/40 dark:border-dark-border/40 rounded-xl overflow-hidden bg-light-bg/5 dark:bg-dark-bg/5 max-h-48 overflow-y-auto">
+            <div className="divide-y divide-light-border/30 dark:divide-dark-border/30 border border-light-border/40 dark:border-dark-border/40 rounded-xl overflow-hidden bg-light-bg/5 dark:bg-dark-bg/5 max-h-40 overflow-y-auto">
               {chartData.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3.5 text-xs">
+                <div key={index} className="flex items-center justify-between p-3 text-[11px]">
                   <span className="font-bold text-light-text-primary dark:text-dark-text-primary">
                     {item.date}
                   </span>
@@ -627,6 +627,11 @@ export default function DashboardPage() {
                   </span>
                 </div>
               ))}
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full rounded-full object-cover aspect-square" />
+              ) : (
+                <span>{(profile?.full_name || user?.email || 'U')[0].toUpperCase()}</span>
+              )}
             </div>
           </div>
         </div>
