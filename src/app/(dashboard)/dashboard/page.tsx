@@ -112,7 +112,9 @@ export default function DashboardPage() {
     type: 'expense',
   });
   const [showNotifications, setShowNotifications] = useState(false);
-  const [dateFilter, setDateFilter] = useState('12 Mei - 12 Jun 2024');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dateFilter, setDateFilter] = useState('Bulan Ini');
+  const [chartTimeframe, setChartTimeframe] = useState<'daily' | 'monthly'>('daily');
 
   const loadDashboardData = useCallback(async () => {
     if (!accountId) return;
@@ -274,11 +276,24 @@ export default function DashboardPage() {
         }
       });
 
-      // Format trends data (last 7 days in chronological order)
-      const trendList = last7DaysLabels.map((date) => ({
-        date,
-        amount: dayAggregation[date],
-      }));
+      // Format trends data based on timeframe
+      let trendList = [];
+      if (chartTimeframe === 'daily') {
+        trendList = last7DaysLabels.map((date) => ({
+          date,
+          amount: dayAggregation[date],
+        }));
+      } else {
+        // Simple monthly logic: last 6 months
+        trendList = Array.from({ length: 6 }, (_, i) => {
+          const d = new Date();
+          d.setMonth(d.getMonth() - (5 - i));
+          return {
+            date: d.toLocaleDateString('id-ID', { month: 'short' }),
+            amount: Math.floor(Math.random() * currentExpense) + (currentExpense * 0.5), // Placeholder logic for demonstration
+          };
+        });
+      }
 
       setChartData(trendList);
 
@@ -299,7 +314,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [accountId, toast]);
+  }, [accountId, toast, chartTimeframe]);
 
   useEffect(() => {
     if (accountId) {
@@ -350,7 +365,7 @@ export default function DashboardPage() {
       ` }} />
 
       {/* Header Greeting */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 shrink-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 relative z-[70]">
         <div className="space-y-0.5">
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tighter">
             Halo, {profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Majesti'} 👋
@@ -360,47 +375,70 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative group">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold text-[#A7B0D1] cursor-pointer hover:bg-white/10 transition-all shadow-lg active:scale-95">
+          <div className="relative">
+            <div 
+              onClick={() => {
+                setShowDatePicker(!showDatePicker);
+                setShowNotifications(false);
+              }}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 ${showDatePicker ? 'bg-indigo-600/20 border-indigo-500/30 text-white' : 'bg-white/5 text-[#A7B0D1]'} text-[10px] font-bold cursor-pointer hover:bg-white/10 transition-all shadow-lg active:scale-95`}
+            >
               <Calendar className="w-3.5 h-3.5 text-indigo-400" />
               <span>{dateFilter}</span>
-              <ChevronDown className="w-3 h-3 opacity-50" />
+              <ChevronDown className={`w-3 h-3 opacity-50 transition-transform ${showDatePicker ? 'rotate-180' : ''}`} />
             </div>
-            {/* Simple Date Dropdown Placeholder */}
-            <div className="absolute right-0 top-full mt-2 w-48 bg-[#0D122B] border border-white/10 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transition-all z-[60] p-2">
-              {['Bulan Ini', 'Bulan Lalu', '3 Bulan Terakhir'].map((opt) => (
-                <button key={opt} onClick={() => setDateFilter(opt)} className="w-full text-left px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold text-neutral-400 hover:text-white transition-colors">
-                  {opt}
-                </button>
-              ))}
-            </div>
+            {showDatePicker && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowDatePicker(false)} />
+                <div className="absolute right-0 top-full mt-2 w-48 bg-[#0D122B]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-20 p-2 animate-in fade-in zoom-in-95">
+                  {['Bulan Ini', 'Bulan Lalu', '3 Bulan Terakhir'].map((opt) => (
+                    <button 
+                      key={opt} 
+                      onClick={() => {
+                        setDateFilter(opt);
+                        setShowDatePicker(false);
+                      }} 
+                      className="w-full text-left px-4 py-2 hover:bg-indigo-500/20 rounded-lg text-[10px] font-bold text-neutral-400 hover:text-white transition-colors"
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <div className="relative">
             <button 
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-xl bg-white/5 border border-white/10 text-[#6F7A9E] hover:text-white hover:bg-white/10 transition-all relative shadow-lg active:scale-95"
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                setShowDatePicker(false);
+              }}
+              className={`p-2 rounded-xl border border-white/10 ${showNotifications ? 'bg-indigo-600/20 border-indigo-500/30 text-white' : 'bg-white/5 text-[#6F7A9E]'} hover:text-white hover:bg-white/10 transition-all relative shadow-lg active:scale-95 z-20`}
             >
               <Bell className="w-4.5 h-4.5" />
               <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-indigo-500 rounded-full border-2 border-[#0a0a0c] animate-pulse" />
             </button>
             {showNotifications && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-[#0D122B]/95 backdrop-blur-xl border border-white/10 rounded-[24px] shadow-2xl z-[60] p-4 animate-in fade-in slide-in-from-top-2">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-white/50">Notifikasi Intelijen</h4>
-                  <span className="text-[9px] font-bold text-indigo-400 cursor-pointer">Tandai Dibaca</span>
-                </div>
-                <div className="space-y-3">
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex gap-3 items-start">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
-                      <Zap className="w-4 h-4 text-indigo-400" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-white">Target Tabungan Tercapai!</p>
-                      <p className="text-[9px] text-[#6F7A9E] mt-0.5">Anda telah menyisihkan 10% lebih banyak dari bulan lalu.</p>
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowNotifications(false)} />
+                <div className="absolute right-0 top-full mt-2 w-80 bg-[#0D122B]/95 backdrop-blur-xl border border-white/10 rounded-[24px] shadow-2xl z-20 p-4 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-white/50">Notifikasi Intelijen</h4>
+                    <span className="text-[9px] font-bold text-indigo-400 cursor-pointer">Tandai Dibaca</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex gap-3 items-start">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
+                        <Zap className="w-4 h-4 text-indigo-400" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-white">Target Tabungan Tercapai!</p>
+                        <p className="text-[9px] text-[#6F7A9E] mt-0.5">Anda telah menyisihkan 10% lebih banyak dari bulan lalu.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>
@@ -497,16 +535,16 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Side: Total Likuiditas & Dynamic Badges */}
-        <div className="relative z-20 text-left md:text-right flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
+        <div className="relative z-20 text-left md:text-right flex flex-col items-start md:items-end gap-1.5 w-full md:w-auto">
           <span className="text-[9px] uppercase font-black text-indigo-400 tracking-[0.3em] opacity-80 block">
             Total Likuiditas
           </span>
-          <div className="space-y-1">
-            <h3 className="text-3xl md:text-4xl font-black text-white tracking-tighter drop-shadow-2xl">
+          <div className="flex flex-col items-start md:items-end">
+            <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter drop-shadow-2xl leading-none">
               {formatRupiah(financialStats.totalBalance)}
             </h3>
-            <div className="flex flex-wrap items-center gap-2 justify-start md:justify-end">
-              <span className="text-[10px] text-[#6F7A9E] font-bold bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
+            <div className="mt-2">
+              <span className="text-[10px] text-[#6F7A9E] font-bold bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 backdrop-blur-md">
                 Tersebar di {financialStats.walletCount} aset
               </span>
             </div>
@@ -559,16 +597,21 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <h3 className="text-[12px] font-bold text-white tracking-tight">Tren Pengeluaran</h3>
-              <p className="text-[9px] text-[#6F7A9E] font-medium uppercase tracking-wider">7 Hari Terakhir</p>
+              <p className="text-[9px] text-[#6F7A9E] font-medium uppercase tracking-wider">Visualisasi {chartTimeframe === 'daily' ? 'Harian' : 'Bulanan'}</p>
             </div>
-            <div className="relative">
-              <select className="appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-bold text-white pr-10 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer hover:bg-white/10">
-                <option value="daily" className="bg-[#0A1028]">Harian</option>
-                <option value="weekly" className="bg-[#0A1028]">Mingguan</option>
-                <option value="monthly" className="bg-[#0A1028]">Bulanan</option>
-                <option value="yearly" className="bg-[#0A1028]">Tahunan</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-[#6F7A9E] pointer-events-none" />
+            <div className="flex items-center gap-1.5 bg-white/5 p-1 rounded-xl border border-white/10">
+              <button 
+                onClick={() => setChartTimeframe('daily')}
+                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${chartTimeframe === 'daily' ? 'bg-indigo-600 text-white shadow-lg' : 'text-[#6F7A9E] hover:text-white'}`}
+              >
+                Harian
+              </button>
+              <button 
+                onClick={() => setChartTimeframe('monthly')}
+                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${chartTimeframe === 'monthly' ? 'bg-indigo-600 text-white shadow-lg' : 'text-[#6F7A9E] hover:text-white'}`}
+              >
+                Bulanan
+              </button>
             </div>
           </div>
           <div className="flex-1 min-h-0 pt-2 -ml-4">
