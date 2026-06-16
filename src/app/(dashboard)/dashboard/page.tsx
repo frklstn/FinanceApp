@@ -305,8 +305,46 @@ export default function DashboardPage() {
 
 
 
+  // Score-dependent banner status variables
+  const score = financialStats.score;
+  const statusLabel = score >= 80 ? 'Sangat Baik' : score >= 50 ? 'Cukup Baik' : 'Perlu Perbaikan';
+  const statusTextColor = score >= 80 ? 'text-emerald-400' : score >= 50 ? 'text-indigo-400' : 'text-rose-400';
+  const statusBgColor = score >= 80 ? 'bg-emerald-400' : score >= 50 ? 'bg-indigo-400' : 'bg-rose-400';
+  const statusDesc = score >= 80 
+    ? 'Keuangan Anda berada di level elit. Jalur bebas hambatan.' 
+    : score >= 50 
+      ? 'Keuangan Anda stabil. Menuju posisi aman.' 
+      : 'Keuangan Anda kritis. Restrukturisasi diperlukan segera.';
+  const statusNeon = score >= 80 ? 'Tanpa Hambatan' : 'Progress Ke Aman';
+
+  // Quadratic Bezier Calculation: P0=(150, 90), P1=(500, 90), P2=(850, 30)
+  const tParam = Math.min(Math.max(score / 100, 0.05), 1);
+  const p0 = [150, 90];
+  const p1 = [500, 90];
+  const p2 = [850, 30];
+
+  const q1 = [
+    (1 - tParam) * p0[0] + tParam * p1[0],
+    (1 - tParam) * p0[1] + tParam * p1[1]
+  ];
+  const q2_x = (1 - tParam) * (1 - tParam) * p0[0] + 2 * (1 - tParam) * tParam * p1[0] + tParam * tParam * p2[0];
+  const q2_y = (1 - tParam) * (1 - tParam) * p0[1] + 2 * (1 - tParam) * tParam * p1[1] + tParam * tParam * p2[1];
+
   return (
     <div className="space-y-10 max-w-[1600px] mx-auto p-4 md:p-10 flex flex-col pb-32">
+      {/* Dynamic Keyframes for Waving Flag */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes flag-wave {
+          0% { transform: scaleX(1) skewY(0deg); }
+          50% { transform: scaleX(0.95) skewY(4deg); }
+          100% { transform: scaleX(1) skewY(0deg); }
+        }
+        .waving-flag {
+          animation: flag-wave 1.5s ease-in-out infinite;
+          transform-origin: left center;
+        }
+      ` }} />
+
       {/* Header Greeting */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 shrink-0">
         <div className="space-y-1.5">
@@ -364,46 +402,117 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Hero Section: Financial Health Banner */}
+      {/* Hero Section: Financial Health Compact Banner */}
       <Card 
         onClick={() => router.push('/wallets')}
-        className="py-10 px-12 relative overflow-hidden bg-gradient-to-br from-[#12042a] via-[#09112a] to-[#050816] rounded-[48px] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.8)] flex flex-col lg:row items-center justify-between gap-12 group hover:shadow-indigo-500/10 transition-all duration-1000 cursor-pointer shrink-0"
+        className="py-6 px-8 md:px-12 relative overflow-hidden bg-gradient-to-br from-[#12042a] via-[#09112a] to-[#050816] rounded-[32px] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group hover:shadow-indigo-500/10 transition-all duration-1000 cursor-pointer shrink-0"
       >
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5" />
         
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-12 w-full lg:w-auto">
-          <div className="space-y-3 text-center md:text-left">
-             <span className="text-[10px] uppercase font-black text-indigo-400 tracking-[0.5em] opacity-80">Total Likuiditas</span>
-             <h3 className="text-5xl md:text-7xl font-black text-white tracking-tighter drop-shadow-2xl">
-                {formatRupiah(financialStats.totalBalance)}
-             </h3>
-             <div className="flex items-center gap-3 justify-center md:justify-start">
-               <div className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-widest">+12.5% vs MoM</div>
-               <div className="h-4 w-px bg-white/10" />
-               <p className="text-xs text-[#6F7A9E] font-bold">Tersebar di {financialStats.activeLoansCount + 2} aset</p>
-             </div>
+        {/* Live Progress Path SVG Background */}
+        <svg 
+          className="absolute inset-0 w-full h-full pointer-events-none select-none"
+          viewBox="0 0 1000 120" 
+          preserveAspectRatio="none"
+        >
+          {/* Base journey path */}
+          <path 
+            d="M 150 90 Q 500 90, 850 30" 
+            fill="none" 
+            stroke="rgba(255, 255, 255, 0.05)" 
+            strokeWidth="3" 
+            strokeLinecap="round"
+          />
+          {/* Active glowing path representing user's score */}
+          <path 
+            d={`M 150 90 Q ${q1[0]} ${q1[1]}, ${q2_x} ${q2_y}`} 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="3.5" 
+            strokeLinecap="round"
+            className={`transition-all duration-1000 ${statusTextColor} drop-shadow-[0_0_6px_currentColor]`}
+          />
+        </svg>
+
+        {/* Live Progress Flag at the Peak */}
+        <div 
+          className="absolute z-10 pointer-events-none transition-all duration-1000"
+          style={{ left: '85%', top: '25%', transform: 'translate(-5px, -100%)' }}
+        >
+          {/* Flagpole */}
+          <div className="w-[2px] h-6 bg-white/20 rounded-full relative">
+            {/* Flag banner */}
+            <div className="absolute top-0 left-[2px] flex items-center transition-all duration-1000">
+              <svg width="24" height="16" viewBox="0 0 24 16" className={`${statusTextColor} fill-current/20 waving-flag`}>
+                <path d="M 0 0 C 8 2, 12 -2, 20 0 L 20 10 C 12 8, 8 12, 0 10 Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
         </div>
 
-        <div className="relative z-10 flex items-center gap-8 bg-white/[0.03] backdrop-blur-3xl px-8 py-6 rounded-[32px] border border-white/10 shadow-2xl">
-          <div className="relative w-20 h-20 flex items-center justify-center">
-             <svg className="w-full h-full -rotate-90">
-               <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-white/5" />
-               <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" strokeDasharray="226.2" strokeDashoffset={226.2 - (226.2 * financialStats.score / 100)} className="text-indigo-500 drop-shadow-[0_0_8px_#6366f1]" strokeLinecap="round" />
+        {/* Neon Status Banner Text above the Peak */}
+        <div 
+          className="absolute z-10 pointer-events-none transition-all duration-1000 select-none"
+          style={{ left: '85%', top: '25%', transform: 'translate(-50%, -180%)' }}
+        >
+          <span className={`text-[8px] font-black tracking-widest uppercase ${statusTextColor} drop-shadow-[0_0_8px_currentColor] bg-[#0a0f26]/80 px-2.5 py-1 rounded-full border border-white/5 backdrop-blur-sm`}>
+            {statusNeon}
+          </span>
+        </div>
+
+        {/* Glowing Indicator Dot along the path */}
+        <div 
+          className="absolute z-10 pointer-events-none transition-all duration-1000"
+          style={{ left: `${(q2_x / 10).toFixed(2)}%`, top: `${(q2_y / 1.2).toFixed(2)}%`, transform: 'translate(-50%, -50%)' }}
+        >
+          <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center relative">
+            <div className={`absolute inset-0 rounded-full animate-ping opacity-40 ${statusBgColor}`} />
+            <div className={`w-2 h-2 rounded-full relative z-10 ${statusBgColor} shadow-[0_0_8px_currentColor]`} />
+          </div>
+        </div>
+
+        {/* Left Side: Score & Narrative */}
+        <div className="relative z-20 flex items-center gap-6">
+          <div className="relative w-16 h-16 flex items-center justify-center shrink-0 bg-white/[0.03] backdrop-blur-3xl rounded-2xl border border-white/10 shadow-2xl">
+             <svg className="w-full h-full -rotate-90 p-1">
+               <circle cx="32" cy="32" r="26" stroke="currentColor" strokeWidth="4.5" fill="transparent" className="text-white/5" />
+               <circle cx="32" cy="32" r="26" stroke="currentColor" strokeWidth="4.5" fill="transparent" strokeDasharray="163.4" strokeDashoffset={163.4 - (163.4 * score / 100)} className="text-indigo-500 drop-shadow-[0_0_6px_#6366f1]" strokeLinecap="round" />
              </svg>
              <div className="absolute inset-0 flex flex-col items-center justify-center">
-               <span className="text-2xl font-black text-white">{financialStats.score}</span>
-               <span className="text-[8px] font-bold text-[#6F7A9E] uppercase">Health</span>
+               <span className="text-xl font-black text-white">{score}</span>
+               <span className="text-[7px] font-bold text-[#6F7A9E] uppercase">Health</span>
              </div>
           </div>
           <div className="space-y-1">
              <div className="flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-[#28D17C] animate-pulse" />
-               <span className="text-[10px] font-black text-[#28D17C] uppercase tracking-widest">Sangat Baik</span>
+               <div className={`w-2 h-2 rounded-full animate-pulse ${statusBgColor}`} />
+               <span className={`text-[10px] font-black uppercase tracking-widest ${statusTextColor}`}>
+                 {statusLabel}
+               </span>
              </div>
-             <p className="text-xs font-bold text-white/90 leading-tight max-w-[140px]">
-               Keuangan Anda berada di level elit. <span className="text-indigo-400">Jalur bebas hambatan.</span>
+             <p className="text-xs font-bold text-white/90 leading-tight max-w-[280px]">
+               {statusDesc}
              </p>
+          </div>
+        </div>
+
+        {/* Right Side: Total Likuiditas & Badges */}
+        <div className="relative z-20 text-left md:text-right space-y-1 md:space-y-1.5 w-full md:w-auto">
+          <span className="text-[9px] uppercase font-black text-indigo-400 tracking-[0.3em] opacity-80 block">
+            Total Likuiditas
+          </span>
+          <div className="flex flex-col md:flex-row md:items-baseline justify-start md:justify-end gap-x-4 gap-y-1">
+            <h3 className="text-3xl md:text-4xl font-black text-white tracking-tighter drop-shadow-2xl">
+              {formatRupiah(financialStats.totalBalance)}
+            </h3>
+            <div className="flex items-center gap-2 justify-start md:justify-end">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-wider">
+                +12.5% vs MoM
+              </span>
+              <span className="text-[10px] text-[#6F7A9E] font-bold">
+                Tersebar di {financialStats.activeLoansCount + 2} aset
+              </span>
+            </div>
           </div>
         </div>
       </Card>
