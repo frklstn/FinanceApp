@@ -5,6 +5,7 @@ MANDATORY: Semua agent/sesi yang baru masuk ke project ini WAJIB membaca file in
 ## 1. Tahap Audit (Pre-Build)
 Sebelum menulis kode atau menjalankan tool modifikasi:
 - **Scan `/ai`**: Baca [PROTOCOLS.md](./PROTOCOLS.md) dan [FinanceApp.md](./FinanceApp.md) untuk context roadmap.
+- **Graphify**: WAJIB menjalankan `/graphify` atau `graphify query` untuk memahami arsitektur dan relasi file sebelum melakukan modifikasi kode.
 - **MCP Validation**: Jalankan `mcp_supabase_list_tables` untuk sinkronisasi state database.
 - **Disk Reality**: Gunakan `ls` atau `dir` untuk memverifikasi struktur file. DILARANG berasumsi file ada berdasarkan memori sesi sebelumnya.
 
