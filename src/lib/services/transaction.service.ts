@@ -1,0 +1,237 @@
+import { createClient } from '@/lib/supabase/client';
+
+export interface Transaction {
+  id: string;
+  workspace_id: string;
+  wallet_id: string;
+  category_id: string | null;
+  amount: number;
+  type: 'income' | 'expense' | 'transfer';
+  destination_wallet_id: string | null;
+  note: string | null;
+  date: string;
+  tags: string[];
+  attachment_url: string | null;
+  is_recurring: boolean;
+  recurring_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PopulatedTransaction extends Transaction {
+  wallets: {
+    name: string;
+    color: string;
+  } | null;
+  categories: {
+    name: string;
+    icon: string | null;
+    color: string;
+  } | null;
+}
+
+export interface TransactionFilters {
+  walletId?: string;
+  categoryId?: string;
+  type?: string;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+  tag?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export const transactionService = {
+  /**
+   * Fetches transactions for a workspace matching advanced filters.
+   */
+  async getTransactions(
+    workspaceId: string,
+    filters: TransactionFilters = {}
+  ): Promise<{ data: PopulatedTransaction[]; count: number }> {
+    const supabase = createClient();
+    
+    let query = supabase
+      .from('transactions')
+      .select('*, wallets!transactions_wallet_id_fkey(name, color), categories(name, icon, color)', { count: 'exact' })
+      .eq('workspace_id', workspaceId);
+
+    // Apply filters
+    if (filters.walletId) {
+      query = query.eq('wallet_id', filters.walletId);
+    }
+    if (filters.categoryId) {
+      query = query.eq('category_id', filters.categoryId);
+    }
+    if (filters.type) {
+      query = query.eq('type', filters.type);
+    }
+    if (filters.startDate) {
+      query = query.gte('date', filters.startDate);
+    }
+    if (filters.endDate) {
+      query = query.lte('date', filters.endDate);
+    }
+    if (filters.search) {
+      query = query.ilike('note', `%${filters.search}%`);
+    }
+    if (filters.tag) {
+      query = query.contains('tags', [filters.tag]);
+    }
+
+    // Sorting
+    query = query.order('date', { ascending: false }).order('created_at', { ascending: false });
+
+    // Pagination
+    const limit = filters.limit ?? 20;
+    const offset = filters.offset ?? 0;
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.error('Error fetching transactions:', error);
+      throw new Error(error.message);
+    }
+
+    return {
+      data: data || [],
+      count: count || 0,
+    };
+  },
+
+  /**
+   * Records a new transaction (income, expense, or transfer) and automatically updates wallet balances.
+   */
+  async createTransaction(
+    workspaceId: string,
+    tx: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Transaction> {
+    const supabase = createClient();
+
+    // 1. Fetch current wallet balance
+    const { data: wallet, error: wErr } = await supabase
+      .from('wallets')
+      .select('balance')
+      .eq('id', tx.wallet_id)
+      .single();
+    if (wErr) throw new Error('Wallet not found');
+
+    const amountNum = Number(tx.amount);
+    let newBalance = Number(wallet.balance);
+
+    if (tx.type === 'income') {
+      newBalance += amountNum;
+    } else if (tx.type === 'expense') {
+      newBalance -= amountNum;
+    }
+
+    // 2. Perform updates for standard Income/Expense
+    if (tx.type !== 'transfer') {
+      const { error: wUpdErr } = await supabase
+        .from('wallets')
+        .update({ balance: newBalance })
+        .eq('id', tx.wallet_id);
+      if (wUpdErr) throw new Error('Failed to update wallet balance');
+    } else {
+      // It's a Transfer, update destination wallet as well
+      if (!tx.destination_wallet_id) throw new Error('Destination wallet required for transfers');
+      
+      const { data: destWallet, error: dErr } = await supabase
+        .from('wallets')
+        .select('balance')
+        .eq('id', tx.destination_wallet_id)
+        .single();
+      if (dErr) throw new Error('Destination wallet not found');
+
+      const sourceNewBalance = Number(wallet.balance) - amountNum;
+      const destNewBalance = Number(destWallet.balance) + amountNum;
+
+      const { error: sUpdErr } = await supabase
+        .from('wallets')
+        .update({ balance: sourceNewBalance })
+        .eq('id', tx.wallet_id);
+
+      const { error: dUpdErr } = await supabase
+        .from('wallets')
+        .update({ balance: destNewBalance })
+        .eq('id', tx.destination_wallet_id);
+
+      if (sUpdErr || dUpdErr) throw new Error('Failed to update transfer balances');
+    }
+
+    // 3. Insert transaction
+    const { data, error } = await supabase
+      .from('transactions')
+      .insert({
+        workspace_id: workspaceId,
+        wallet_id: tx.wallet_id,
+        category_id: tx.category_id,
+        amount: tx.amount,
+        type: tx.type,
+        destination_wallet_id: tx.destination_wallet_id,
+        note: tx.note,
+        date: tx.date || new Date().toISOString(),
+        tags: tx.tags || [],
+        attachment_url: tx.attachment_url,
+        is_recurring: tx.is_recurring || false,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error inserting transaction:', error);
+      throw new Error(error.message);
+    }
+
+    return data;
+  },
+
+  /**
+   * Deletes a transaction and rolls back the balance mutation in wallets.
+   */
+  async deleteTransaction(id: string): Promise<void> {
+    const supabase = createClient();
+
+    // 1. Fetch transaction details
+    const { data: tx, error: tErr } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (tErr) throw new Error('Transaction not found');
+
+    const amountNum = Number(tx.amount);
+
+    // 2. Rollback wallet balances
+    if (tx.type === 'income') {
+      const { data: wallet } = await supabase.from('wallets').select('balance').eq('id', tx.wallet_id).single();
+      if (wallet) {
+        await supabase.from('wallets').update({ balance: Number(wallet.balance) - amountNum }).eq('id', tx.wallet_id);
+      }
+    } else if (tx.type === 'expense') {
+      const { data: wallet } = await supabase.from('wallets').select('balance').eq('id', tx.wallet_id).single();
+      if (wallet) {
+        await supabase.from('wallets').update({ balance: Number(wallet.balance) + amountNum }).eq('id', tx.wallet_id);
+      }
+    } else if (tx.type === 'transfer' && tx.destination_wallet_id) {
+      const { data: source } = await supabase.from('wallets').select('balance').eq('id', tx.wallet_id).single();
+      const { data: dest } = await supabase.from('wallets').select('balance').eq('id', tx.destination_wallet_id).single();
+
+      if (source) {
+        await supabase.from('wallets').update({ balance: Number(source.balance) + amountNum }).eq('id', tx.wallet_id);
+      }
+      if (dest) {
+        await supabase.from('wallets').update({ balance: Number(dest.balance) - amountNum }).eq('id', tx.destination_wallet_id);
+      }
+    }
+
+    // 3. Delete transaction record
+    const { error } = await supabase.from('transactions').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting transaction:', error);
+      throw new Error(error.message);
+    }
+  },
+};

@@ -1,0 +1,19 @@
+@reference "../../styles/global.css";
+
+.chartContainer {
+  @apply w-full h-64;
+}
+
+.tooltip {
+  @apply glass-effect p-3 rounded-xl border text-xs font-bold space-y-1;
+  border-color: var(--glass-border);
+  color: var(--text-primary);
+}
+
+.tooltipLabel {
+  @apply opacity-60;
+}
+
+.tooltipValue {
+  @apply text-primary dark:text-white text-sm font-extrabold;
+}

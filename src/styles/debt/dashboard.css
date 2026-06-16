@@ -1,0 +1,90 @@
+.debt-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .debt-dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .debt-dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.debt-dashboard-grid--six {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) {
+  .debt-dashboard-grid--six {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.debt-score-card {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .debt-score-card {
+    grid-column: span 3;
+  }
+}
+
+.debt-score-ring {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.debt-score-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.debt-score-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.debt-health-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.debt-health-pill--safe {
+  background: rgba(16, 185, 129, 0.12);
+  color: hsl(155, 75%, 45%);
+}
+
+.debt-health-pill--caution {
+  background: rgba(245, 158, 11, 0.12);
+  color: hsl(35, 90%, 55%);
+}
+
+.debt-health-pill--heavy {
+  background: rgba(249, 115, 22, 0.12);
+  color: hsl(25, 90%, 55%);
+}
+
+.debt-health-pill--danger {
+  background: rgba(220, 38, 38, 0.12);
+  color: hsl(355, 75%, 60%);
+}

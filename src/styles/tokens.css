@@ -1,0 +1,88 @@
+@theme {
+  --color-primary: #6E5CFF;
+  --color-primary-dim: #4C3BFF;
+  --color-primary-hover: #7F6FFF;
+
+  --color-success: #28D17C;
+  --color-danger: #FF4B5C;
+  --color-warning: #FFB347;
+  --color-info: #8B7CFF;
+
+  --color-surface-1: #050816;
+  --color-surface-2: #0A1028;
+  --color-surface-3: #111733;
+  --color-surface-4: #151C3A;
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A7B0D1;
+  --color-text-muted: #6F7A9E;
+
+  /* Compatibility aliases */
+  --color-light-bg: #050816;
+  --color-light-card: #0A1028;
+  --color-light-border: rgba(255,255,255,0.05);
+  --color-light-text-primary: #FFFFFF;
+  --color-light-text-secondary: #A7B0D1;
+
+  --color-dark-bg: #050816;
+  --color-dark-card: #0A1028;
+  --color-dark-border: rgba(255,255,255,0.05);
+  --color-dark-text-primary: #FFFFFF;
+  --color-dark-text-secondary: #A7B0D1;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+
+  --animate-scale-up: scale-up 0.2s ease-out forwards;
+
+  @keyframes scale-up {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+:root {
+  --bg-main: #050816;
+  --bg-sidebar: #070B1B;
+  --bg-card: #0A1028;
+  --bg-surface: #111733;
+  
+  --primary: #6E5CFF;
+  --primary-glow: rgba(110, 92, 255, 0.4);
+  --success: #28D17C;
+  --danger: #FF4B5C;
+  --warning: #FFB347;
+  
+  --text-primary: #FFFFFF;
+  --text-secondary: #A7B0D1;
+  --text-muted: #6F7A9E;
+  
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  
+  --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --shadow-neon: 0 0 20px var(--primary-glow);
+
+  /* Glass Effects */
+  --glass-bg: rgba(10, 16, 40, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(12px);
+
+  /* Premium Gradients */
+  --grad-primary: linear-gradient(135deg, #6E5CFF 0%, #8B7CFF 100%);
+  --grad-surface: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+  --grad-dark: linear-gradient(180deg, #0A1028 0%, #050816 100%);
+}

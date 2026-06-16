@@ -1,0 +1,27 @@
+@reference "../../styles/global.css";
+
+.bottomNav {
+  @apply md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-lg border-t px-2 py-1.5 flex items-center justify-around shadow-2xl safe-bottom;
+  background: var(--color-surface-2);
+  border-color: var(--color-surface-3);
+}
+
+.navItem {
+  @apply flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-150;
+  color: var(--color-text-muted);
+}
+
+.navItemActive {
+  @apply text-primary font-bold scale-105;
+}
+
+.drawer {
+  @apply fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl border-t rounded-t-3xl p-6 shadow-2xl transition-all duration-300 ease-out transform max-h-[80vh] overflow-y-auto pb-28;
+  background: var(--color-surface-2);
+  border-color: var(--color-surface-3);
+}
+
+.drawerOpen { @apply translate-y-0; }
+.drawerClosed { @apply translate-y-full; }
+
+
