@@ -1,11 +1,19 @@
+/* Hide scrollbars globally */
+*::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 body {
-  background: radial-gradient(circle at top right, #111733, #050816 60%);
+  @apply bg-[#050816] text-white selection:bg-primary/30 min-h-screen overflow-x-hidden;
+  font-family: var(--font-sans);
+  background: radial-gradient(circle at top right, #0a1028 0%, #050816 100%);
   background-attachment: fixed;
-  color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   letter-spacing: -0.02em;
   transition: background-color 0.3s ease, color 0.3s ease;
-  overflow-x: hidden;
 }
 
 ::selection {
