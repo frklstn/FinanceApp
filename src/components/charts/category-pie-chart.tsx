@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PieChart,
   Pie,
@@ -35,7 +35,7 @@ const CustomTooltip = ({ active, payload, total }: CustomTooltipProps) => {
     return (
       <div className="glass-effect p-3 rounded-xl border border-light-border/40 dark:border-dark-border/40 text-light-text-primary dark:text-dark-text-primary text-xs font-bold space-y-1">
         <p className="flex items-center gap-1.5 font-bold">
-          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
           {item.name}
         </p>
         <p className="text-sm font-extrabold">
@@ -50,6 +50,12 @@ const CustomTooltip = ({ active, payload, total }: CustomTooltipProps) => {
 
 export function CategoryPieChart({ data }: CategoryPieChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   const onPieEnter = (_: unknown, index: number) => {
@@ -64,7 +70,8 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
     <div className="w-full flex flex-col items-center gap-5">
       {/* Chart wrapper - relative height, square proportions for a perfect circle */}
       <div className="relative w-full max-w-[200px] h-44 flex items-center justify-center">
-        <ResponsiveContainer width="100%" height="100%">
+        {mounted ? (
+          <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Tooltip content={<CustomTooltip total={total} />} />
             <Pie
@@ -99,6 +106,9 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
             </Pie>
           </PieChart>
         </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full bg-transparent" />
+        )}
       </div>
 
       {/* Legend list */}

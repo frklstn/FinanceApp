@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Radar,
   RadarChart,
@@ -47,13 +47,20 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 };
 
 export function CategoryRadarChart({ data, showLegend = false }: CategoryRadarChartProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   // If there's no data or only 1-2 categories, radar can look sparse, but it's highly readable with the legend.
   return (
     <div className="w-full flex flex-col items-center gap-5">
       <div className="relative w-full h-64 flex items-center justify-center">
-        <ResponsiveContainer width="100%" height="100%">
+        {mounted ? (
+          <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
             <PolarGrid stroke="var(--text-secondary)" opacity={0.2} />
             <PolarAngleAxis 
@@ -78,6 +85,9 @@ export function CategoryRadarChart({ data, showLegend = false }: CategoryRadarCh
             />
           </RadarChart>
         </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full bg-transparent" />
+        )}
       </div>
 
       {/* Legend list */}

@@ -1,4 +1,5 @@
 
+import React, { useState, useEffect } from 'react';
 import {
   AreaChart,
   Area,
@@ -44,6 +45,15 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 };
 
 export function SpendingChart({ data }: SpendingChartProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="w-full h-64 bg-transparent" />;
+  }
+
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">

@@ -36,9 +36,10 @@
 - Graphify `graph.json` & `.graphify_python` active.
 - DB Supabase: 17 tabel (schema public) active.
 - Kode tersinkronisasi aman di remote branch `main`.
+- Recharts console warning fix diintegrasikan ke semua grafik.
 
 ❌ **Belum ada atau error terdeteksi:**
-- Recharts console warning: `width(-1) and height(-1) of chart should be greater than 0`.
+- Nihil.
 
 ⚠️ **Perlu perhatian:**
 - Masih di Fase 10 (tidak lanjut ke Fase 11) karena masih banyak UI, fitur, dan tombol dashboard yang harus di-fix.
@@ -47,9 +48,10 @@
 - Optimasi React lifecycle (state update guard replace `useEffect` di `DatePicker`/`QuickAddModal`).
 - Strict TS types (replace `any` dengan `unknown`).
 - Linter fixes (`next/no-img-element`).
+- Client-side mounting guard (`mounted` state) ditambahkan sebelum merender Recharts `ResponsiveContainer` di `spending-chart`, `category-pie-chart`, dan `category-radar-chart` untuk mencegah SSR layout/size warnings.
 
 📈 **Setelah Solusi:**
-- Next.js compile & build sukses tanpa error.
+- Next.js compile & build sukses tanpa error (termasuk static generation tanpa console warnings dari Recharts).
 - Performa rendering komponen lebih reaktif.
 
 🚀 **Langkah Selanjutnya:**
