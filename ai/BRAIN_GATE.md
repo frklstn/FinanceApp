@@ -23,3 +23,11 @@ Sebelum menulis kode atau menjalankan tool modifikasi:
 Setiap akhir sesi, agent harus memastikan:
 - Dokumentasi di `/ai/FinanceApp.md` mencerminkan status terakhir.
 - Git sudah di-push ke `origin main`.
+
+## 5. Kapan Harus Memulai Sesi Baru (New Chat)
+Untuk menghindari bloat context dan looping agent, USER & Agent WAJIB memulai chat baru jika:
+1. **Fase Selesai**: Transisi fase roadmap selesai (misal: Fase 10 -> Fase 11) dan git status bersih.
+2. **Error Selesai**: Masalah build, lint, atau environment sudah solved & committed.
+3. **Looping**: Agent mulai mengulang perintah/perbaikan yang sama > 2 kali.
+4. **Context Berat**: Durasi respon melambat atau token history > 60k.
+
