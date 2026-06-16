@@ -73,7 +73,7 @@ export function UpgradeGate({ children }: UpgradeGateProps) {
             rel="noopener noreferrer"
             className="w-full inline-block"
           >
-            <Button variant="primary" className="w-full flex items-center justify-center gap-2 py-3 cursor-pointer">
+            <Button variant="default" className="w-full flex items-center justify-center gap-2 py-3 cursor-pointer">
               <MessageCircle className="w-4 h-4 shrink-0" />
               <span>Hubungi Admin via WhatsApp</span>
             </Button>
