@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { LogOut } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -135,7 +136,13 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary text-sm font-black border border-primary/20 shadow-lg shrink-0 overflow-hidden">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                <Image 
+                  src={profile.avatar_url} 
+                  alt="Avatar" 
+                  width={40} 
+                  height={40} 
+                  className="w-full h-full object-cover" 
+                />
               ) : (
                 <span>{(profile?.full_name || user?.email || 'U')[0].toUpperCase()}</span>
               )}
