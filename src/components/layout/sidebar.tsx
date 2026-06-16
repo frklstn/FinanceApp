@@ -73,7 +73,9 @@ export default function Sidebar() {
               title={collapsed ? item.name : undefined}
             >
               <Icon className="w-5 h-5 shrink-0" />
-              {!collapsed && <span>{item.name}</span>}
+              <span className={`${styles.navLabel} ${collapsed ? styles.hidden : styles.visible}`}>
+                {item.name}
+              </span>
             </Link>
           );
         })}
@@ -121,24 +123,22 @@ export default function Sidebar() {
                 <span>{(profile?.full_name || user?.email || 'U')[0].toUpperCase()}</span>
               )}
             </div>
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <div className="space-y-0.5">
-                  <span className="block text-xs font-bold text-white truncate group-hover:text-primary transition-colors">
-                    {profile?.full_name || user?.email || 'Pengguna'}
-                  </span>
-                  <span className="block text-[10px] text-[#6F7A9E] font-medium truncate">
-                    {isProPlan ? 'Premium Plan' : 'Free Plan'}
-                  </span>
-                </div>
-                {showAdmin && (
-                  <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-text-muted hover:text-primary transition-colors uppercase tracking-wider">
-                    <ShieldAlert className="w-2.5 h-2.5" />
-                    Portal Admin
-                  </div>
-                )}
+            <div className={`${styles.userMeta} ${collapsed ? styles.hidden : styles.visible}`}>
+              <div className="space-y-0.5">
+                <span className="block text-xs font-bold text-white truncate group-hover:text-primary transition-colors">
+                  {profile?.full_name || user?.email || 'Pengguna'}
+                </span>
+                <span className="block text-[10px] text-[#6F7A9E] font-medium truncate">
+                  {isProPlan ? 'Premium Plan' : 'Free Plan'}
+                </span>
               </div>
-            )}
+              {showAdmin && (
+                <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-text-muted hover:text-primary transition-colors uppercase tracking-wider">
+                  <ShieldAlert className="w-2.5 h-2.5" />
+                  Portal Admin
+                </div>
+              )}
+            </div>
           </div>
           {!collapsed && (
             <button
