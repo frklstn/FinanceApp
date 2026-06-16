@@ -18,11 +18,25 @@ Sebelum menulis kode atau menjalankan tool modifikasi:
 - Terse, teknis, pattern-based.
 - Laporkan fakta (X -> Y), bukan narasi.
 - Jika menemukan inkonsistensi antara dokumentasi dan disk, prioritaskan DISK dan update dokumentasi segera.
+- **Sensitivitas Error**: Deteksi error sekecil apapun (warning compiler, linter, typos, unused-vars) dan sebutkan di kesimpulan.
 
 ## 4. Handover State
-Setiap akhir sesi, agent harus memastikan:
-- Dokumentasi di `/ai/FinanceApp.md` mencerminkan status terakhir.
-- Git sudah di-push ke `origin main`.
+Setiap akhir sesi, agent wajib menulis laporan dengan format berikut:
+
+```markdown
+## 📋 Audit — [nama task]
+
+✅ **Sudah ada:**
+- item 1
+
+❌ **Belum ada atau error terdeteksi:**
+- item 1
+
+⚠️ **Perlu perhatian:**
+- catatan jika ada
+```
+
+Pastikan dokumentasi di `/ai/FinanceApp.md` mencerminkan status terakhir, dan Git sudah di-push ke `origin main`.
 
 ## 5. Kapan Harus Memulai Sesi Baru (New Chat)
 USER & Agent WAJIB memulai chat baru jika:
