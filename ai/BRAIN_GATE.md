@@ -45,6 +45,14 @@ USER & Agent WAJIB memulai chat baru jika:
 3. **Looping**: Agent mulai mengulang perintah/perbaikan yang sama > 2 kali.
 4. **Context Berat**: Respon melambat atau token history > 60k.
 
+## 7. Status Eksekusi Agent (Session Status Markers)
+Untuk menghilangkan ambiguitas apakah agent masih bekerja atau sudah selesai, agent WAJIB mencantumkan salah satu status ini di **BARIS PALING AKHIR** responnya:
+- **`[STATUS: RUNNING]`**: Agent masih memproses file/perintah dan akan memanggil tool lagi. USER dilarang memberikan input baru.
+- **`[STATUS: DONE]`**: Task selesai. Tidak ada pemanggilan tool lagi di turn ini. Agent menunggu instruksi/feedback baru dari USER.
+- **`[STATUS: HANDOVER]`**: Seluruh rangkaian task/fase selesai. Sesi ini ditutup. USER harus memulai sesi/chat baru.
+- Jika status **`DONE`** atau **`HANDOVER`** dideklarasikan, agent **DILARANG** memanggil tool apapun setelahnya di turn tersebut.
+
+
 ## 6. Kapan Agent Harus Membaca Ulang (Re-read) Folder `/ai`
 Agent wajib melakukan `view_file` ulang pada seluruh file di `/ai` jika:
 1. **Pindah Sesi / Handover**: Terjadi pergantian agent dari 9Router (Check-in awal).
