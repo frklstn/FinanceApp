@@ -372,54 +372,43 @@ export default function DashboardPage() {
       {/* Hero Section: Financial Health Banner */}
       <Card 
         onClick={() => router.push('/wallets')}
-        className="py-12 px-12 relative overflow-hidden bg-gradient-to-br from-[#1a0533] via-[#0d1a3a] to-[#050816] rounded-[40px] border border-white/5 shadow-[0_25px_60px_rgba(0,0,0,0.7)] flex flex-col md:flex-row items-center justify-between gap-10 group hover:border-white/10 transition-all duration-700 cursor-pointer shrink-0"
+        className="py-10 px-12 relative overflow-hidden bg-gradient-to-br from-[#12042a] via-[#09112a] to-[#050816] rounded-[48px] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.8)] flex flex-col lg:row items-center justify-between gap-12 group hover:shadow-indigo-500/10 transition-all duration-1000 cursor-pointer shrink-0"
       >
-        {/* Background Illustration */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <svg viewBox="0 0 800 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute right-0 bottom-0 w-full h-full opacity-10">
-            <path d="M0 200 Q200 180 400 120 T800 40" stroke="url(#pathGradient)" strokeWidth="4" fill="none" strokeDasharray="12 8" />
-            <path d="M780 20 L800 40 L780 60 Z" fill="#8B7CFF" />
-            <defs>
-              <linearGradient id="pathGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#6E5CFF" stopOpacity="0" />
-                <stop offset="100%" stopColor="#8B7CFF" stopOpacity="1" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-
-        {/* Left Side: Labels & Message */}
-        <div className="relative z-10 flex-1 flex flex-row items-center gap-8">
-          <div className="space-y-2">
-             <span className="text-[11px] uppercase font-bold text-[#A7B0D1] tracking-[0.4em] opacity-50">Total Likuiditas</span>
-             <h3 className="text-5xl md:text-6xl font-black text-white tracking-tighter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-12 w-full lg:w-auto">
+          <div className="space-y-3 text-center md:text-left">
+             <span className="text-[10px] uppercase font-black text-indigo-400 tracking-[0.5em] opacity-80">Total Likuiditas</span>
+             <h3 className="text-5xl md:text-7xl font-black text-white tracking-tighter drop-shadow-2xl">
                 {formatRupiah(financialStats.totalBalance)}
              </h3>
-          </div>
-          <div className="hidden lg:block h-8 w-px bg-white/10 mx-2" />
-          <div className="space-y-0.5 hidden sm:block">
-            <h2 className="text-sm font-bold text-white/95 leading-tight tracking-[-0.02em]">
-              Kamu berada di <span className="text-[#8B7CFF]">jalur yang baik.</span>
-            </h2>
-            <p className="text-[10px] text-[#6F7A9E] font-semibold tracking-[-0.01em]">
-              Pola keuanganmu stabil dan terencana.
-            </p>
+             <div className="flex items-center gap-3 justify-center md:justify-start">
+               <div className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-widest">+12.5% vs MoM</div>
+               <div className="h-4 w-px bg-white/10" />
+               <p className="text-xs text-[#6F7A9E] font-bold">Tersebar di {financialStats.activeLoansCount + 2} aset</p>
+             </div>
           </div>
         </div>
 
-        {/* Right Side: Score indicator compact */}
-        <div className="relative z-10 flex items-center gap-4 bg-white/5 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/5">
-          <div className="flex flex-col items-center">
-            <span className="text-[8px] uppercase font-bold text-[#6F7A9E] tracking-wider">Health</span>
-            <div className="flex items-baseline gap-0.5">
-              <span className="text-xl font-black text-white">92</span>
-              <span className="text-[10px] font-bold text-[#6F7A9E]">/100</span>
-            </div>
+        <div className="relative z-10 flex items-center gap-8 bg-white/[0.03] backdrop-blur-3xl px-8 py-6 rounded-[32px] border border-white/10 shadow-2xl">
+          <div className="relative w-20 h-20 flex items-center justify-center">
+             <svg className="w-full h-full -rotate-90">
+               <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-white/5" />
+               <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" strokeDasharray="226.2" strokeDashoffset={226.2 - (226.2 * financialStats.score / 100)} className="text-indigo-500 drop-shadow-[0_0_8px_#6366f1]" strokeLinecap="round" />
+             </svg>
+             <div className="absolute inset-0 flex flex-col items-center justify-center">
+               <span className="text-2xl font-black text-white">{financialStats.score}</span>
+               <span className="text-[8px] font-bold text-[#6F7A9E] uppercase">Health</span>
+             </div>
           </div>
-          <div className="w-px h-6 bg-white/10" />
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#28D17C]/10 border border-[#28D17C]/20">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#28D17C] shadow-[0_0_8px_#28D17C]" />
-            <span className="text-[8px] font-bold text-[#28D17C] uppercase tracking-wider">Sangat Baik</span>
+          <div className="space-y-1">
+             <div className="flex items-center gap-2">
+               <div className="w-2 h-2 rounded-full bg-[#28D17C] animate-pulse" />
+               <span className="text-[10px] font-black text-[#28D17C] uppercase tracking-widest">Sangat Baik</span>
+             </div>
+             <p className="text-xs font-bold text-white/90 leading-tight max-w-[140px]">
+               Keuangan Anda berada di level elit. <span className="text-indigo-400">Jalur bebas hambatan.</span>
+             </p>
           </div>
         </div>
       </Card>
@@ -621,37 +610,61 @@ export default function DashboardPage() {
       <Modal
         isOpen={isPieExpanded}
         onClose={() => setIsPieExpanded(false)}
-        title="Detail Konsentrasi Pengeluaran"
+        title="Intelijen Distribusi Pengeluaran"
       >
-        <div className="space-y-4">
-          <div className="flex justify-center p-2 bg-light-bg/5 dark:bg-dark-bg/10 rounded-2xl border border-light-border/40 dark:border-dark-border/40">
-            <div className="w-full max-w-[360px]">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center p-6 bg-white/[0.02] rounded-[32px] border border-white/5">
+            <div className="relative aspect-square flex items-center justify-center">
+              {/* Replacing Radar with clean visualization or keeping radar but with better styling if needed */}
               <CategoryRadarChart data={pieData} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                 <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Total</p>
+                 <p className="text-lg font-black text-white">{formatRupiah(financialStats.expense)}</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400">Dominasi Kategori</h4>
+              <div className="space-y-3">
+                {pieData.slice(0, 4).map((item, idx) => {
+                  const pct = ((item.value / (financialStats.expense || 1)) * 100).toFixed(1);
+                  return (
+                    <div key={idx} className="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between group hover:bg-indigo-500/10 transition-all cursor-default">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ color: item.color, backgroundColor: item.color }} />
+                        <span className="text-[11px] font-bold text-white/80">{translateCategory(item.name)}</span>
+                      </div>
+                      <span className="text-[11px] font-black text-white">{pct}%</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
-              Rincian Kategori Pengeluaran
-            </h4>
-            <div className="divide-y divide-light-border/30 dark:divide-dark-border/30 border border-light-border/40 dark:border-dark-border/40 rounded-xl overflow-hidden bg-light-bg/5 dark:bg-dark-bg/5">
-              {pieData.map((item, index) => {
-                const totalAmount = pieData.reduce((sum, i) => sum + i.value, 0);
-                const pct = totalAmount > 0 ? ((item.value / totalAmount) * 100).toFixed(1) : '0';
-                return (
-                  <div key={index} className="flex items-center justify-between p-3 text-[11px]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                      <span className="font-bold text-light-text-primary dark:text-dark-text-primary">
-                        {translateCategory(item.name)}
-                      </span>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between px-2">
+               <h4 className="text-[10px] font-black uppercase tracking-widest text-white/30">Daftar Lengkap Ekosistem</h4>
+               <span className="text-[9px] font-bold text-[#6F7A9E]">{pieData.length} Kategori Terdeteksi</span>
+            </div>
+            <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar divide-y divide-white/5 border border-white/5 rounded-3xl bg-[#050816]/50">
+              {pieData.map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10" style={{ color: item.color }}>
+                      <PieChart className="w-5 h-5" />
                     </div>
-                    <span className="font-extrabold text-light-text-primary dark:text-dark-text-primary">
-                      {formatRupiah(item.value)} ({pct}%)
-                    </span>
+                    <div>
+                      <p className="text-xs font-black text-white">{translateCategory(item.name)}</p>
+                      <p className="text-[10px] text-[#6F7A9E] font-bold uppercase tracking-tight">Kategori Aktif</p>
+                    </div>
                   </div>
-                );
-              })}
+                  <div className="text-right">
+                    <p className="text-xs font-black text-white">{formatRupiah(item.value)}</p>
+                    <p className="text-[10px] text-emerald-400 font-bold">{((item.value / (financialStats.expense || 1)) * 100).toFixed(1)}%</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -116,7 +116,7 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (accountId) {
-      fetchFiltersData();
+      void fetchFiltersData();
     }
   }, [accountId, fetchFiltersData]);
 
@@ -124,7 +124,7 @@ export default function TransactionsPage() {
     if (accountId) {
       setPage(1);
     }
-  }, [filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, filterTag]);
+  }, [accountId, filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, filterTag]);
 
   useEffect(() => {
     if (accountId) {
@@ -142,7 +142,7 @@ export default function TransactionsPage() {
       if (add === 'true') {
         setIsModalOpen(true);
         if (type === 'income' || type === 'expense' || type === 'transfer') {
-          setTxType(type);
+          setTxType(type as 'income' | 'expense' | 'transfer');
         }
       }
 
@@ -460,7 +460,7 @@ export default function TransactionsPage() {
                       onClick={() => {
                         setIsEditing(true);
                         setEditingId(tx.id);
-                        setTxType(tx.type as any);
+                        setTxType(tx.type as 'income' | 'expense' | 'transfer');
                         setTxAmount(tx.amount.toString());
                         setTxNote(tx.note || '');
                         setTxTagsString((tx.tags || []).join(', '));

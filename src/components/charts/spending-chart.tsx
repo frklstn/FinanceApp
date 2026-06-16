@@ -74,18 +74,19 @@ export function SpendingChart({ data }: SpendingChartProps) {
           />
           <Tooltip content={<CustomTooltip />} />
           <Area
-            type="monotone"
+            type="basis" // Smoother curves
             dataKey="amount"
-            stroke="#7B61FF"
-            strokeWidth={2}
+            stroke="#8B7CFF"
+            strokeWidth={4}
             fillOpacity={1}
             fill="url(#spendingGrad)"
+            animationDuration={2000}
             activeDot={{ 
-              r: 5, 
-              fill: '#7B61FF', 
+              r: 6, 
+              fill: '#8B7CFF', 
               stroke: '#050816', 
-              strokeWidth: 2,
-              style: { filter: 'drop-shadow(0 0 8px #7B61FF)' } 
+              strokeWidth: 3,
+              style: { filter: 'drop-shadow(0 0 12px #8B7CFF)' } 
             }}
           />
         </AreaChart>

@@ -68,7 +68,8 @@ export default function SettingsPage() {
   }, [supabase]);
 
   useEffect(() => {
-    Promise.resolve().then(fetchProfile);
+    void fetchProfile();
+    
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab');
@@ -255,6 +256,7 @@ export default function SettingsPage() {
               <div className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-2xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/20 dark:bg-dark-bg/10">
                 <div className="relative w-20 h-20 rounded-full border-2 border-primary/45 bg-light-card dark:bg-dark-card flex items-center justify-center overflow-hidden shadow-md shrink-0">
                   {avatarUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
                   ) : (
                     <User className="w-10 h-10 text-light-text-secondary" />
@@ -290,6 +292,7 @@ export default function SettingsPage() {
                       }`}
                       title={av.name}
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={av.url} alt={av.name} className="w-full h-full object-contain" />
                       {avatarUrl === av.url && (
                         <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center text-[8px] text-white font-extrabold shadow-sm border border-light-bg dark:border-dark-bg">
