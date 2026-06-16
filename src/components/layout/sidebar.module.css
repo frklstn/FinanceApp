@@ -6,7 +6,7 @@
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
 }
 
-.collapsed { width: 80px; }
+.collapsed { width: 72px; }
 .expanded { width: 260px; }
 
 .toggleBtn {
@@ -25,26 +25,12 @@
   color: var(--text-secondary);
 }
 
-.navLabel {
-  @apply transition-all duration-300 ease-in-out;
-}
-
-.hidden {
-  @apply opacity-0 invisible pointer-events-none w-0;
-}
-
-.visible {
-  @apply opacity-100 visible pointer-events-auto;
-}
-
 .navLinkActive {
-  background: linear-gradient(90deg, rgba(110, 92, 255, 0.20), rgba(110, 92, 255, 0.05));
+  background: linear-gradient(90deg, rgba(110, 92, 255, 0.15), rgba(110, 92, 255, 0.05));
   color: white;
-  border: 1px solid rgba(110, 92, 255, 0.3);
-  box-shadow: var(--glow-purple);
+  border: 1px solid rgba(110, 92, 255, 0.25);
+  box-shadow: 0 0 15px rgba(110, 92, 255, 0.1);
   font-weight: 700;
-  border-radius: 14px;
-  margin: 0 12px;
 }
 
 .navLink:not(.navLinkActive):hover {
