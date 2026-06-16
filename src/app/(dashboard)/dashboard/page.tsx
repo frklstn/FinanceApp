@@ -310,7 +310,7 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="space-y-4 max-w-[1600px] mx-auto p-4 md:p-5 h-screen flex flex-col overflow-hidden">
+    <div className="space-y-6 max-w-[1600px] mx-auto p-2 md:p-4 flex flex-col">
       {/* Header Greeting */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 shrink-0">
         <div className="space-y-0.5">
@@ -336,7 +336,7 @@ export default function DashboardPage() {
       {/* Hero Section: Financial Health Banner */}
       <Card 
         onClick={() => router.push('/wallets')}
-        className="p-5 relative overflow-hidden bg-gradient-to-br from-[#1a0533] via-[#0d1a3a] to-[#050816] rounded-[24px] border border-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-center justify-between gap-4 group hover:border-white/10 transition-all duration-500 cursor-pointer shrink-0"
+        className="py-3 px-5 relative overflow-hidden bg-gradient-to-br from-[#1a0533] via-[#0d1a3a] to-[#050816] rounded-[24px] border border-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-center justify-between gap-4 group hover:border-white/10 transition-all duration-500 cursor-pointer shrink-0"
       >
         {/* Background Illustration */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -423,7 +423,7 @@ export default function DashboardPage() {
       {/* Row 3: 3 Main Widgets Grid - Optimized height */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
         {/* Daily Spending Graph */}
-        <div className="lg:col-span-5 p-5 rounded-[24px] bg-[#0A1028]/95 border border-white/5 space-y-4 flex flex-col group hover:border-white/10 transition-all min-h-0">
+        <div className="lg:col-span-5 p-5 rounded-[24px] bg-[#0A1028]/95 border border-white/5 space-y-4 flex flex-col group hover:border-white/10 transition-all min-h-[320px]">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <h3 className="text-[12px] font-bold text-white tracking-tight">Tren Pengeluaran</h3>
@@ -442,19 +442,19 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-          <div className="flex-1 min-h-0 pt-2">
+          <div className="flex-1 min-h-0 pt-2 -ml-4">
             <SpendingChart data={chartData} />
           </div>
         </div>
 
         {/* Category Breakdown */}
-        <div className="lg:col-span-4 p-5 rounded-[24px] bg-[#0A1028]/90 border border-white/5 space-y-4 flex flex-col min-h-0">
+        <div className="lg:col-span-4 p-5 rounded-[24px] bg-[#0A1028]/90 border border-white/5 space-y-4 flex flex-col min-h-[320px]">
           <div className="flex items-center justify-between">
             <h3 className="text-[12px] font-bold text-white">Kategori Pengeluaran</h3>
             <button onClick={() => setIsPieExpanded(true)} className="text-[9px] text-[#6E5CFF] font-bold uppercase hover:underline">Detail</button>
           </div>
-          <div className="space-y-3.5 flex-1 overflow-y-auto pr-1 custom-scrollbar">
-            {pieData.slice(0, 6).map((item, idx) => {
+          <div className="space-y-3.5 flex-1 pr-1">
+            {pieData.slice(0, 5).map((item, idx) => {
               const percentage = Math.min((item.value / (financialStats.expense || 1)) * 100, 100);
               return (
                 <div key={idx} className="space-y-1.5">
@@ -507,11 +507,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent transaction rows - Scrollable below the main grid if content exceeds */}
-      <div className="shrink-0 pt-2 pb-4 overflow-y-auto max-h-48 custom-scrollbar">
-        <Card className="p-5 space-y-4 shadow-sm border-light-border dark:border-dark-border">
+      {/* Recent transaction rows - Always at the bottom */}
+      <div className="pt-2 pb-8">
+        <Card className="p-5 space-y-4 shadow-sm border-white/5 bg-[#0A1028]/90 rounded-[24px]">
           <div className="flex items-center justify-between pb-1">
-            <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5">
+            <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
               <Calendar className="w-4.5 h-4.5 text-primary" />
               Transaksi Terbaru
             </h3>
@@ -522,27 +522,27 @@ export default function DashboardPage() {
               Lihat Semua
             </button>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
             {loading ? (
-              [1, 2, 3].map((n) => <div key={n} className="h-12 rounded-xl shimmer my-2" />)
+              [1, 2, 3, 4].map((n) => <div key={n} className="h-12 rounded-xl shimmer my-2" />)
             ) : recentTxs.length === 0 ? (
-              <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary py-8 text-center font-medium">
+              <p className="col-span-2 text-xs text-[#6F7A9E] py-8 text-center font-medium">
                 {t("dashboard.insights.noRecent", "Belum ada transaksi terbaru.")}
               </p>
             ) : (
               recentTxs.map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between py-1 gap-4 text-xs font-semibold">
+                <div key={tx.id} className="flex items-center justify-between py-2 border-b border-white/5 gap-4 text-xs font-semibold hover:bg-white/5 px-2 rounded-lg transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                      tx.type === 'income' ? 'text-success bg-success/15' : tx.type === 'expense' ? 'text-danger bg-danger/15' : 'text-info bg-info/15'
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                      tx.type === 'income' ? 'text-success bg-success/10' : tx.type === 'expense' ? 'text-danger bg-danger/10' : 'text-info bg-info/10'
                     }`}>
-                      {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : tx.type === 'expense' ? <TrendingDown className="w-4 h-4" /> : <ArrowRightLeft className="w-4.5 h-4.5" />}
+                      {tx.type === 'income' ? <TrendingUp className="w-3.5 h-3.5" /> : tx.type === 'expense' ? <TrendingDown className="w-3.5 h-3.5" /> : <ArrowRightLeft className="w-4 h-4" />}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-extrabold text-light-text-primary dark:text-dark-text-primary truncate">
+                      <p className="font-bold text-white truncate">
                         {tx.note || (tx.type === 'transfer' ? 'Transfer Dompet' : 'Catatan Pengeluaran')}
                       </p>
-                      <p className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary font-medium mt-0.5">
+                      <p className="text-[10px] text-[#6F7A9E] font-medium mt-0.5">
                         {tx.wallets?.name} • {new Date(tx.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}
                       </p>
                     </div>
