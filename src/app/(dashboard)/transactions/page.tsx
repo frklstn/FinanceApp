@@ -14,17 +14,11 @@ import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
 import { DatePicker } from '@/components/ui/date-picker';
 import {
-  Plus,
-  Filter,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  ArrowRightLeft,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
   Info,
+  Edit2,
+  Tags,
 } from 'lucide-react';
+import { CategoryManagerModal } from '@/components/transaction/category-manager-modal';
 
 export default function TransactionsPage() {
   const { accountId } = useApp();
@@ -63,6 +57,13 @@ export default function TransactionsPage() {
   const [txNote, setTxNote] = useState('');
   const [txDate, setTxDate] = useState(new Date().toISOString().substring(0, 16)); // YYYY-MM-DDTHH:MM
   const [txTagsString, setTxTagsString] = useState('');
+  
+  // Edit States
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Category Management State
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const fetchFiltersData = useCallback(async () => {
     if (!accountId) return;
@@ -152,23 +153,39 @@ export default function TransactionsPage() {
 
     setSubmitting(true);
     try {
-      await transactionService.createTransaction(accountId, {
-        workspace_id: accountId,
-        wallet_id: txWalletId,
-        category_id: txType !== 'transfer' ? txCategoryId || null : null,
-        amount: amountNum,
-        type: txType,
-        destination_wallet_id: txType === 'transfer' ? txDestWalletId : null,
-        note: txNote.trim() || null,
-        date: new Date(txDate).toISOString(),
-        tags: txTagsString ? txTagsString.split(',').map((t) => t.trim()).filter((t) => t) : [],
-        attachment_url: null,
-        is_recurring: false,
-        recurring_id: null,
-      });
+      if (isEditing && editingId) {
+        await transactionService.updateTransaction(editingId, {
+          wallet_id: txWalletId,
+          category_id: txType !== 'transfer' ? txCategoryId || null : null,
+          amount: amountNum,
+          type: txType,
+          destination_wallet_id: txType === 'transfer' ? txDestWalletId : null,
+          note: txNote.trim() || null,
+          date: new Date(txDate).toISOString(),
+          tags: txTagsString ? txTagsString.split(',').map((t) => t.trim()).filter((t) => t) : [],
+        });
+        toast('Transaksi berhasil diperbarui!', 'success');
+      } else {
+        await transactionService.createTransaction(accountId, {
+          workspace_id: accountId,
+          wallet_id: txWalletId,
+          category_id: txType !== 'transfer' ? txCategoryId || null : null,
+          amount: amountNum,
+          type: txType,
+          destination_wallet_id: txType === 'transfer' ? txDestWalletId : null,
+          note: txNote.trim() || null,
+          date: new Date(txDate).toISOString(),
+          tags: txTagsString ? txTagsString.split(',').map((t) => t.trim()).filter((t) => t) : [],
+          attachment_url: null,
+          is_recurring: false,
+          recurring_id: null,
+        });
+        toast('Transaksi berhasil dicatat!', 'success');
+      }
 
-      toast('Transaksi berhasil dicatat!', 'success');
       setIsModalOpen(false);
+      setIsEditing(false);
+      setEditingId(null);
       
       // Reset Form fields
       setTxAmount('');
@@ -178,7 +195,7 @@ export default function TransactionsPage() {
       setTxWalletId('');
       setTxDestWalletId('');
       
-      setPage(1); // Return to first page
+      setPage(1); 
       fetchTransactions();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gagal menyimpan catatan transaksi.';
@@ -236,10 +253,31 @@ export default function TransactionsPage() {
             Lihat, filter, dan lacak seluruh aliran masuk dan keluar uang Anda
           </p>
         </div>
-        <Button className="flex items-center gap-2 cursor-pointer" onClick={() => setIsModalOpen(true)}>
-          <Plus className="w-4 h-4" />
-          Tambah Transaksi
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="secondary" 
+            className="flex items-center gap-2 cursor-pointer" 
+            onClick={() => setIsCategoryModalOpen(true)}
+          >
+            <Tags className="w-4 h-4" />
+            Kelola Kategori
+          </Button>
+          <Button className="flex items-center gap-2 cursor-pointer" onClick={() => {
+            setIsEditing(false);
+            setEditingId(null);
+            setIsModalOpen(true);
+            // Reset form
+            setTxAmount('');
+            setTxNote('');
+            setTxTagsString('');
+            setTxCategoryId('');
+            setTxWalletId('');
+            setTxDestWalletId('');
+          }}>
+            <Plus className="w-4 h-4" />
+            Tambah Transaksi
+          </Button>
+        </div>
       </div>
 
       {/* Advanced Filter Panel */}
@@ -398,6 +436,25 @@ export default function TransactionsPage() {
                       {details.sign}{formatRupiah(Number(tx.amount))}
                     </span>
                     <button
+                      onClick={() => {
+                        setIsEditing(true);
+                        setEditingId(tx.id);
+                        setTxType(tx.type as any);
+                        setTxAmount(tx.amount.toString());
+                        setTxNote(tx.note || '');
+                        setTxTagsString((tx.tags || []).join(', '));
+                        setTxCategoryId(tx.category_id || '');
+                        setTxWalletId(tx.wallet_id);
+                        setTxDestWalletId(tx.destination_wallet_id || '');
+                        setTxDate(new Date(tx.date).toISOString().substring(0, 16));
+                        setIsModalOpen(true);
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-primary/10 text-light-text-secondary hover:text-primary cursor-pointer transition-all duration-150"
+                      title="Ubah Transaksi"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => handleDeleteTransaction(tx.id)}
                       className="p-1.5 rounded-lg hover:bg-danger/10 text-light-text-secondary hover:text-danger cursor-pointer transition-all duration-150"
                       title="Hapus Transaksi"
@@ -441,8 +498,15 @@ export default function TransactionsPage() {
         )}
       </Card>
 
-      {/* Quick Add Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Catat Transaksi Baru">
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => {
+          setIsModalOpen(false);
+          setIsEditing(false);
+          setEditingId(null);
+        }} 
+        title={isEditing ? "Ubah Transaksi" : "Catat Transaksi Baru"}
+      >
         <form onSubmit={handleAddTransaction} className="space-y-4">
           {/* Type Tab Selection */}
           <div className="grid grid-cols-3 gap-2 bg-light-bg dark:bg-dark-bg/60 p-1 rounded-xl border border-light-border/40 dark:border-dark-border/40">

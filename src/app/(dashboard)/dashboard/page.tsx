@@ -589,14 +589,26 @@ export default function DashboardPage() {
           {/* Row 3: 3 Main Widgets Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0 overflow-hidden">
             {/* Daily Spending Graph */}
-            <div className="lg:col-span-5 p-6 rounded-[32px] bg-[#0A1028]/95 border border-white/5 space-y-4 flex flex-col">
+            <div className="lg:col-span-5 p-8 rounded-[32px] bg-[#0A1028]/95 border border-white/5 space-y-6 flex flex-col group hover:border-white/10 transition-all">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white">Tren Pengeluaran</h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[#6F7A9E] font-bold uppercase tracking-wider">7 Hari Terakhir</span>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-white tracking-tight">Tren Pengeluaran</h3>
+                  <p className="text-[10px] text-[#6F7A9E] font-medium uppercase tracking-wider">Arus Kas Keluar</p>
+                </div>
+                <div className="flex items-center bg-white/5 p-1 rounded-xl border border-white/5">
+                  {['Harian', 'Mingguan', 'Bulanan'].map((range) => (
+                    <button 
+                      key={range}
+                      className={`px-3 py-1.5 rounded-lg text-[9px] font-bold transition-all ${
+                        range === 'Harian' ? 'bg-[#6E5CFF] text-white shadow-lg shadow-[#6E5CFF]/20' : 'text-[#6F7A9E] hover:text-[#A7B0D1]'
+                      }`}
+                    >
+                      {range}
+                    </button>
+                  ))}
                 </div>
               </div>
-              <div className="h-64">
+              <div className="h-64 pt-2">
                 <SpendingChart data={chartData} />
               </div>
             </div>

@@ -23,7 +23,7 @@ export default function Sidebar() {
   const { toast } = useToast();
   const { isSuperAdmin: showAdmin, profile, user, isPro } = useApp();
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [waLink, setWaLink] = useState<string | null>(null);
 
   const isProPlan = isPro();
@@ -53,14 +53,9 @@ export default function Sidebar() {
   return (
     <aside
       className={`${styles.sidebar} ${collapsed ? styles.collapsed : styles.expanded} ${collapsed ? 'w-20' : 'w-64'}`}
+      onMouseEnter={() => setCollapsed(false)}
+      onMouseLeave={() => setCollapsed(true)}
     >
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className={styles.toggleBtn}
-        type="button"
-      >
-        {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-      </button>
 
       <div className={`p-5 ${collapsed ? 'flex justify-center' : ''}`}>
         <AppBrand collapsed={collapsed} />
