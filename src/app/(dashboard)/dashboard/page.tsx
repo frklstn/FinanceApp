@@ -321,7 +321,7 @@ export default function DashboardPage() {
   const tParam = Math.min(Math.max(score / 100, 0.05), 1);
   const p0 = [150, 90];
   const p1 = [500, 90];
-  const p2 = [850, 30];
+  const p2 = [850, 60];
 
   const q1 = [
     (1 - tParam) * p0[0] + tParam * p1[0],
@@ -417,7 +417,7 @@ export default function DashboardPage() {
         >
           {/* Base journey path */}
           <path 
-            d="M 150 90 Q 500 90, 850 30" 
+            d="M 150 90 Q 500 90, 850 60" 
             fill="none" 
             stroke="rgba(255, 255, 255, 0.05)" 
             strokeWidth="3" 
@@ -437,13 +437,13 @@ export default function DashboardPage() {
         {/* Live Progress Flag at the Peak */}
         <div 
           className="absolute z-10 pointer-events-none transition-all duration-1000"
-          style={{ left: '85%', top: '25%', transform: 'translate(-5px, -100%)' }}
+          style={{ left: '85%', top: '50%', transform: 'translate(-5px, -100%)' }}
         >
           {/* Flagpole */}
-          <div className="w-[2px] h-6 bg-white/20 rounded-full relative">
+          <div className="w-[2px] h-5 bg-white/20 rounded-full relative">
             {/* Flag banner */}
             <div className="absolute top-0 left-[2px] flex items-center transition-all duration-1000">
-              <svg width="24" height="16" viewBox="0 0 24 16" className={`${statusTextColor} fill-current/20 waving-flag`}>
+              <svg width="24" height="14" viewBox="0 0 24 16" className={`${statusTextColor} fill-current/20 waving-flag`}>
                 <path d="M 0 0 C 8 2, 12 -2, 20 0 L 20 10 C 12 8, 8 12, 0 10 Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
@@ -453,7 +453,7 @@ export default function DashboardPage() {
         {/* Neon Status Banner Text above the Peak */}
         <div 
           className="absolute z-10 pointer-events-none transition-all duration-1000 select-none"
-          style={{ left: '85%', top: '25%', transform: 'translate(-50%, -180%)' }}
+          style={{ left: '85%', top: '50%', transform: 'translate(-50%, -150%)' }}
         >
           <span className={`text-[8px] font-black tracking-widest uppercase ${statusTextColor} drop-shadow-[0_0_8px_currentColor] bg-[#0a0f26]/80 px-2.5 py-1 rounded-full border border-white/5 backdrop-blur-sm`}>
             {statusNeon}
@@ -463,7 +463,7 @@ export default function DashboardPage() {
         {/* Glowing Indicator Dot along the path */}
         <div 
           className="absolute z-10 pointer-events-none transition-all duration-1000"
-          style={{ left: `${(q2_x / 10).toFixed(2)}%`, top: `${(q2_y / 1.2).toFixed(2)}%`, transform: 'translate(-50%, -50%)' }}
+          style={{ left: `${(q2_x / 10).toFixed(2)}%`, top: `${(q2_y / 1.05).toFixed(2)}%`, transform: 'translate(-50%, -50%)' }}
         >
           <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center relative">
             <div className={`absolute inset-0 rounded-full animate-ping opacity-40 ${statusBgColor}`} />
@@ -474,10 +474,6 @@ export default function DashboardPage() {
         {/* Left Side: Score & Narrative */}
         <div className="relative z-20 flex items-center gap-6">
           <div className="relative w-16 h-16 flex items-center justify-center shrink-0 bg-white/[0.03] backdrop-blur-3xl rounded-2xl border border-white/10 shadow-2xl">
-             <svg className="w-full h-full -rotate-90 p-1">
-               <circle cx="32" cy="32" r="26" stroke="currentColor" strokeWidth="4.5" fill="transparent" className="text-white/5" />
-               <circle cx="32" cy="32" r="26" stroke="currentColor" strokeWidth="4.5" fill="transparent" strokeDasharray="163.4" strokeDashoffset={163.4 - (163.4 * score / 100)} className="text-indigo-500 drop-shadow-[0_0_6px_#6366f1]" strokeLinecap="round" />
-             </svg>
              <div className="absolute inset-0 flex flex-col items-center justify-center">
                <span className="text-xl font-black text-white">{score}</span>
                <span className="text-[7px] font-bold text-[#6F7A9E] uppercase">Health</span>
