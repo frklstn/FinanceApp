@@ -633,11 +633,6 @@ export default function DashboardPage() {
                   </span>
                 </div>
               ))}
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full rounded-full object-cover aspect-square" />
-              ) : (
-                <span>{(profile?.full_name || user?.email || 'U')[0].toUpperCase()}</span>
-              )}
             </div>
           </div>
         </div>
