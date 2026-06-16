@@ -90,6 +90,7 @@ export default function DashboardPage() {
     savings: 0,
     activeDebt: 0,
     activeLoansCount: 0,
+    walletCount: 0,
     totalBalance: 0,
     incomeDiff: 0,
     expenseDiff: 0,
@@ -182,9 +183,11 @@ export default function DashboardPage() {
 
       // 3.5. Fetch wallets to calculate total balance
       let totalBalance = 0;
+      let walletCount = 0;
       try {
         const wallets = await walletService.getWallets(accountId);
         totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
+        walletCount = wallets.length;
       } catch (err) {
         console.error('Failed to load wallets for stats:', err);
       }
@@ -223,6 +226,7 @@ export default function DashboardPage() {
         savings: currentSavings,
         activeDebt: totalActiveDebt,
         activeLoansCount,
+        walletCount,
         totalBalance,
         incomeDiff,
         expenseDiff,
@@ -492,21 +496,18 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right Side: Total Likuiditas & Badges */}
-        <div className="relative z-20 text-left md:text-right space-y-1 md:space-y-1.5 w-full md:w-auto">
+        {/* Right Side: Total Likuiditas & Dynamic Badges */}
+        <div className="relative z-20 text-left md:text-right flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
           <span className="text-[9px] uppercase font-black text-indigo-400 tracking-[0.3em] opacity-80 block">
             Total Likuiditas
           </span>
-          <div className="flex flex-col md:flex-row md:items-baseline justify-start md:justify-end gap-x-4 gap-y-1">
+          <div className="space-y-1">
             <h3 className="text-3xl md:text-4xl font-black text-white tracking-tighter drop-shadow-2xl">
               {formatRupiah(financialStats.totalBalance)}
             </h3>
-            <div className="flex items-center gap-2 justify-start md:justify-end">
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-wider">
-                +12.5% vs MoM
-              </span>
-              <span className="text-[10px] text-[#6F7A9E] font-bold">
-                Tersebar di {financialStats.activeLoansCount + 2} aset
+            <div className="flex flex-wrap items-center gap-2 justify-start md:justify-end">
+              <span className="text-[10px] text-[#6F7A9E] font-bold bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
+                Tersebar di {financialStats.walletCount} aset
               </span>
             </div>
           </div>

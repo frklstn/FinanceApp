@@ -12,7 +12,7 @@
 ## 2. Flow Pekerjaan
 1. **Audit**: Periksa eksistensi file/data sebelum modifikasi.
 2. **Execute**: Gunakan `npx` atau context path yang tepat (Windows-friendly).
-3. **Verify**: Jalankan count/list setelah perubahan untuk memastikan realitas sesuai harapan.
+3. **Verify**: fix error first lalu jalankan count/list setelah perubahan untuk memastikan realitas sesuai harapan.
 
 ## 3. Zero Hallucination
 - Jika file tidak ditemukan di disk, laporkan sebagai "Mati/Hilang", jangan berhalusinasi file tersebut ada di memori.
