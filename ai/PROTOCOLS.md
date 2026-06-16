@@ -48,3 +48,20 @@
 - **Shadcn Fintech**: Pola alur kerja finansial profesional.
 - **Crypgo**: Interface manajemen aset & kripto.
 - **Horizon UI (Shadcn Edition)**: Manajemen data besar/admin panel.
+
+### 2. Required Components List (Fintech UI)
+| Kategori | Komponen & Library | Fungsi Utama |
+| :--- | :--- | :--- |
+| **Visualisasi Data** | Tremor & Recharts | Bar, Area, Donut Chart untuk analitik. |
+| **Data Management** | Table (shadcn) | Riwayat transaksi (filter & sort). |
+| **Keamanan** | Input OTP (shadcn) | Verifikasi transaksi 2FA (4-6 digit). |
+| **Struktur Utama** | Dashboard Shell | Navigasi sidebar, header, layout responsif. |
+| **Animasi** | Framer Motion | Transisi halaman & mikro-animasi saldo. |
+| **Aset Visual** | Lucide React | Ikon standar minimalis kategori keuangan. |
+
+### 3. Modern UI References
+- **Layout Style**: Gunakan **Bento Grid** untuk menyusun kartu saldo, pemasukan, dan pengeluaran secara asimetris.
+- **Premium Effects**: Gunakan **Aceternity UI** atau **Magic UI** untuk efek glassmorphism dan latar belakang futuristik.
+- **Tips Pengembang**:
+  - `shadcn/ui`: Pendekatan "copy-to-own" memberikan kontrol penuh modifikasi di `@/components/ui/`.
+  - **Tremor Blocks**: Gunakan sebagai inspirasi desain dasbor profesional.
