@@ -75,7 +75,7 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
         "ml-auto",
         className
       )}
-      ...props
+      {...props}
     />
   )
 }

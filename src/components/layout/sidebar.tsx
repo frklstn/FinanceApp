@@ -1,5 +1,16 @@
+"use client"
+
+import React, { useState, useEffect } from "react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { LogOut } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+
+import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/components/ui/toast"
+import { useApp } from "@/contexts/app-context"
 import { AppBrand } from "@/components/layout/app-brand"
+import { Button } from "@/components/ui/button"
 import { navigationItems } from "@/config/navigation"
 import { profileService } from "@/lib/services/profile.service"
 import { cn } from "@/lib/utils"
@@ -149,6 +160,4 @@ export default function Sidebar() {
       </div>
     </motion.aside>
   )
-}
-  );
 }
