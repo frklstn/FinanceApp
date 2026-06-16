@@ -113,9 +113,10 @@ export default function DashboardPage() {
   const [isPieExpanded, setIsPieExpanded] = useState(false);
   const [isTrendsExpanded, setIsTrendsExpanded] = useState(false);
   const [quickAdd, setQuickAdd] = useState<{ open: boolean; type: 'income' | 'expense' | 'transfer' }>({
-    open: false,
     type: 'expense'
   });
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [dateFilter, setDateFilter] = useState('12 Mei - 12 Jun 2024');
 
   const loadDashboardData = useCallback(async () => {
     if (!accountId) return;
@@ -310,33 +311,68 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="space-y-6 max-w-[1600px] mx-auto p-2 md:p-4 flex flex-col">
+    <div className="space-y-10 max-w-[1600px] mx-auto p-4 md:p-10 flex flex-col pb-32">
       {/* Header Greeting */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 shrink-0">
-        <div className="space-y-0.5">
-          <h1 className="text-xl font-black text-white tracking-[-0.03em]">
-            Halo, {profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Pengguna'} 👋
+        <div className="space-y-1.5">
+          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tighter">
+            Halo, {profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Majesti'} 👋
           </h1>
-          <p className="text-[11px] text-[#6F7A9E] font-semibold tracking-[-0.01em]">
-            Kelola keuanganmu dengan bijak hari ini.
+          <p className="text-[13px] text-[#6F7A9E] font-medium tracking-wide opacity-80">
+            Monitor ekosistem finansial Anda dengan intelijen real-time.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/5 bg-white/5 text-[9px] font-bold text-[#A7B0D1] cursor-pointer hover:bg-white/10 transition-colors">
-            <Calendar className="w-3 h-3" />
-            <span>12 Mei - 12 Jun 2024</span>
-            <ChevronDown className="w-3 h-3" />
+        <div className="flex items-center gap-3">
+          <div className="relative group">
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-[11px] font-bold text-[#A7B0D1] cursor-pointer hover:bg-white/10 transition-all shadow-lg active:scale-95">
+              <Calendar className="w-4 h-4 text-indigo-400" />
+              <span>{dateFilter}</span>
+              <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+            </div>
+            {/* Simple Date Dropdown Placeholder */}
+            <div className="absolute right-0 top-full mt-2 w-48 bg-[#0D122B] border border-white/10 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transition-all z-[60] p-2">
+              {['Bulan Ini', 'Bulan Lalu', '3 Bulan Terakhir'].map((opt) => (
+                <button key={opt} onClick={() => setDateFilter(opt)} className="w-full text-left px-4 py-2 hover:bg-white/5 rounded-lg text-[10px] font-bold text-neutral-400 hover:text-white transition-colors">
+                  {opt}
+                </button>
+              ))}
+            </div>
           </div>
-          <button className="p-1.5 rounded-lg bg-white/5 border border-white/5 text-[#6F7A9E] hover:text-white hover:bg-white/10 transition-all">
-            <Bell className="w-4 h-4" />
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[#6F7A9E] hover:text-white hover:bg-white/10 transition-all relative shadow-lg active:scale-95"
+            >
+              <Bell className="w-5 h-5" />
+              <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-[#0a0a0c] animate-pulse" />
+            </button>
+            {showNotifications && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-[#0D122B]/95 backdrop-blur-xl border border-white/10 rounded-[24px] shadow-2xl z-[60] p-4 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-white/50">Notifikasi Intelijen</h4>
+                  <span className="text-[9px] font-bold text-indigo-400 cursor-pointer">Tandai Dibaca</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex gap-3 items-start">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
+                      <Zap className="w-4 h-4 text-indigo-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-white">Target Tabungan Tercapai!</p>
+                      <p className="text-[9px] text-[#6F7A9E] mt-0.5">Anda telah menyisihkan 10% lebih banyak dari bulan lalu.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Hero Section: Financial Health Banner */}
       <Card 
         onClick={() => router.push('/wallets')}
-        className="py-3 px-5 relative overflow-hidden bg-gradient-to-br from-[#1a0533] via-[#0d1a3a] to-[#050816] rounded-[24px] border border-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-center justify-between gap-4 group hover:border-white/10 transition-all duration-500 cursor-pointer shrink-0"
+        className="py-12 px-12 relative overflow-hidden bg-gradient-to-br from-[#1a0533] via-[#0d1a3a] to-[#050816] rounded-[40px] border border-white/5 shadow-[0_25px_60px_rgba(0,0,0,0.7)] flex flex-col md:flex-row items-center justify-between gap-10 group hover:border-white/10 transition-all duration-700 cursor-pointer shrink-0"
       >
         {/* Background Illustration */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -354,9 +390,9 @@ export default function DashboardPage() {
 
         {/* Left Side: Labels & Message */}
         <div className="relative z-10 flex-1 flex flex-row items-center gap-8">
-          <div className="space-y-0.5">
-             <span className="text-[9px] uppercase font-bold text-[#A7B0D1] tracking-[0.2em] opacity-80">Total Saldo</span>
-             <h3 className="text-3xl font-black text-white tracking-[-0.04em] drop-shadow-2xl">
+          <div className="space-y-2">
+             <span className="text-[11px] uppercase font-bold text-[#A7B0D1] tracking-[0.4em] opacity-50">Total Likuiditas</span>
+             <h3 className="text-5xl md:text-6xl font-black text-white tracking-tighter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
                 {formatRupiah(financialStats.totalBalance)}
              </h3>
           </div>
@@ -435,17 +471,14 @@ export default function DashboardPage() {
               <h3 className="text-[12px] font-bold text-white tracking-tight">Tren Pengeluaran</h3>
               <p className="text-[9px] text-[#6F7A9E] font-medium uppercase tracking-wider">7 Hari Terakhir</p>
             </div>
-            <div className="flex items-center bg-white/5 p-1 rounded-lg border border-white/5">
-              {['Harian', 'Mingguan'].map((range) => (
-                <button 
-                  key={range}
-                  className={`px-2 py-1 rounded-md text-[8px] font-bold transition-all ${
-                    range === 'Harian' ? 'bg-[#6E5CFF] text-white' : 'text-[#6F7A9E] hover:text-[#A7B0D1]'
-                  }`}
-                >
-                  {range}
-                </button>
-              ))}
+            <div className="relative">
+              <select className="appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-bold text-white pr-10 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer hover:bg-white/10">
+                <option value="daily" className="bg-[#0A1028]">Harian</option>
+                <option value="weekly" className="bg-[#0A1028]">Mingguan</option>
+                <option value="monthly" className="bg-[#0A1028]">Bulanan</option>
+                <option value="yearly" className="bg-[#0A1028]">Tahunan</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-[#6F7A9E] pointer-events-none" />
             </div>
           </div>
           <div className="flex-1 min-h-0 pt-2 -ml-4">
@@ -468,15 +501,21 @@ export default function DashboardPage() {
                     <span className="text-[#A7B0D1]">{translateCategory(item.name)}</span>
                     <span className="text-white">{formatRupiah(item.value)}</span>
                   </div>
-                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                  <div className="w-full h-4 bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner relative group/bar">
                     <div 
-                      className="h-full rounded-full transition-all duration-1000 ease-out" 
+                      className="h-full rounded-full transition-all duration-1000 ease-out relative" 
                       style={{ 
                         width: `${percentage}%`, 
                         backgroundColor: item.color,
-                        boxShadow: `0 0 8px ${item.color}30`
+                        boxShadow: `0 0 20px ${item.color}50`
                       }} 
-                    />
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    </div>
+                    {/* Percentage Tooltip/Indicator */}
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-black text-white/90">
+                      {percentage.toFixed(0)}%
+                    </div>
                   </div>
                 </div>
               );
@@ -485,29 +524,42 @@ export default function DashboardPage() {
         </div>
 
         {/* Month Summary */}
-        <div className="lg:col-span-3 p-5 rounded-[24px] bg-[#0A1028]/90 border border-white/5 space-y-4 flex flex-col shrink-0">
-          <h3 className="text-[12px] font-bold text-white">Ringkasan Bulan Ini</h3>
-          <div className="space-y-2.5 flex-1">
-            {[
-              { label: 'Pemasukan', val: financialStats.income, col: '#28D17C', sign: '+' },
-              { label: 'Pengeluaran', val: financialStats.expense, col: '#FF4B5C', sign: '-' },
-            ].map((s, i) => (
-              <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
-                <span className="text-[9px] text-[#6F7A9E] font-bold uppercase">{s.label}</span>
-                <p className="text-sm font-bold" style={{ color: s.col }}>{s.sign}{formatRupiah(s.val)}</p>
+        <div className="lg:col-span-3 p-6 rounded-[32px] bg-gradient-to-b from-[#0A1028] to-[#050816] border border-white/5 space-y-5 flex flex-col shadow-2xl">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-[12px] font-black uppercase tracking-widest text-white/50">Financial Intelligence</h3>
+          </div>
+          
+          <div className="flex-1 space-y-4">
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-2 opacity-10">
+                <TrendingUp className="w-12 h-12" />
               </div>
-            ))}
-            <div className="p-3 rounded-xl bg-[#6E5CFF]/10 border border-[#6E5CFF]/20 space-y-0.5">
-              <span className="text-[9px] text-[#6E5CFF] font-bold uppercase">Sisa Kas</span>
-              <p className="text-sm font-bold text-white">{formatRupiah(financialStats.savings)}</p>
+              <p className="text-[11px] text-neutral-300 leading-relaxed font-medium">
+                Kesehatan finansial Anda berada di level <span className="text-emerald-400 font-bold">Prima</span>. 
+                Rasio tabungan meningkat {financialStats.savingsDiff.toFixed(1)}% periode ini. 
+                Pertahankan pola pengeluaran di kategori <span className="text-indigo-400">Utilitas</span> untuk efisiensi maksimal.
+              </p>
             </div>
-            <div className="pt-1">
-               <button 
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                <span className="text-[8px] font-bold text-emerald-400/70 uppercase">Inflow</span>
+                <p className="text-xs font-black text-white">+{formatRupiah(financialStats.income)}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/10">
+                <span className="text-[8px] font-bold text-rose-400/70 uppercase">Outflow</span>
+                <p className="text-xs font-black text-white">-{formatRupiah(financialStats.expense)}</p>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button 
                 onClick={() => router.push('/reports')}
-                className="w-full py-2.5 rounded-lg bg-white/5 border border-white/5 text-[9px] font-bold text-[#A7B0D1] uppercase tracking-widest hover:bg-white/10 transition-all"
-               >
-                Laporan Detail
-               </button>
+                className="w-full py-3 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-lg active:scale-95"
+              >
+                Analisis Mendalam
+              </button>
             </div>
           </div>
         </div>
