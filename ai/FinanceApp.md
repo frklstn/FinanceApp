@@ -3,10 +3,13 @@
 ## Kondisi Aktif (2026-06-17)
 - **Tech Stack**: Next.js 15 (App Router), Supabase, Tailwind CSS, Lucide React.
 - **Deployment**: Vercel (Produksi), GitHub Actions (CI Aktif).
-- **Build Status**: Sukses dikompilasi lokal setelah perbaikan:
+- **Build Status**: Sukses dikompilasi lokal setelah perbaikan & refaktorisasi terbaru:
   - Pembetulan import path `@/contexts/app-context` dan pembungkusan dengan `AppProvider` di landing page (`src/app/page.tsx`).
   - Pembetulan type error default state `quickAdd` dan import ikon `Zap`, `ShieldCheck` di `src/app/(dashboard)/dashboard/page.tsx`.
   - Sinkronisasi properti branding `.WALLET` -> `.app_name`.
+  - Refaktorisasi modularitas UI: Pemisahan `ActiveDebtCard` dari `ActiveDebtList`.
+  - Type Safety: Integrasi Supabase typed client dengan database schema types (`database.types.ts`).
+  - Graphify: Pemasangan otomatisasi git post-commit hook untuk auto-rebuild graph.
 - **Database**: 17 Tabel di Supabase (Public).
   - `app_settings` berisi branding.
   - `categories` saat ini KOSONG (Perlu Seed).
