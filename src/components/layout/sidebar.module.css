@@ -1,9 +1,10 @@
 @reference "../../styles/global.css";
 
 .sidebar {
-  @apply hidden md:flex flex-col h-screen transition-[width] duration-300 linear relative shrink-0 overflow-hidden;
+  @apply hidden md:flex flex-col h-screen transition-[width] duration-300 linear relative shrink-0;
   background: var(--bg-sidebar);
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+  overflow: hidden !important;
 }
 
 .collapsed { width: 72px; }
@@ -84,4 +85,15 @@
 
 .adminBtn {
   @apply w-full flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-bold text-danger bg-danger/5 hover:bg-danger/10 border border-danger/10 transition-colors cursor-pointer;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.sidebar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
