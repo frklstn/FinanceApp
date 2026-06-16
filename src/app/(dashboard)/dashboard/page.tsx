@@ -31,6 +31,8 @@ import {
   Maximize2,
   Bell,
   ChevronDown,
+  Zap,
+  ShieldCheck,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import { QuickAddModal } from '@/components/transaction/quick-add-modal';
@@ -113,7 +115,8 @@ export default function DashboardPage() {
   const [isPieExpanded, setIsPieExpanded] = useState(false);
   const [isTrendsExpanded, setIsTrendsExpanded] = useState(false);
   const [quickAdd, setQuickAdd] = useState<{ open: boolean; type: 'income' | 'expense' | 'transfer' }>({
-    type: 'expense'
+    open: false,
+    type: 'expense',
   });
   const [showNotifications, setShowNotifications] = useState(false);
   const [dateFilter, setDateFilter] = useState('12 Mei - 12 Jun 2024');

@@ -2,10 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
-import { useApp } from "@/context/app-context";
+import { AppProvider, useApp } from "@/contexts/app-context";
 import { ArrowRight, BarChart3, ShieldCheck, Zap } from "lucide-react";
 
-export default function LandingPage() {
+function LandingPageContent() {
   const { appSettings } = useApp();
 
   return (
@@ -22,8 +22,13 @@ export default function LandingPage() {
               <BarChart3 className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight">
-              {appSettings?.WALLET || "Finance"}
-              <span className="text-indigo-400">App</span>
+              {appSettings?.app_name === 'FinanceApp' ? (
+                <>
+                  FRKL<span className="text-indigo-400 font-extrabold">STN</span>
+                </>
+              ) : (
+                appSettings?.app_name || "FRKLSTN"
+              )}
             </span>
           </div>
           <Link
@@ -104,7 +109,7 @@ export default function LandingPage() {
       <footer className="py-12 px-6 border-t border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:row items-center justify-between gap-6">
           <div className="text-neutral-500 text-sm">
-            © 2026 {appSettings?.WALLET || "FinanceApp"}. All rights reserved.
+            © 2026 {appSettings?.app_name || "FinanceApp"}. All rights reserved.
           </div>
           <div className="flex gap-8 text-sm text-neutral-400 font-medium">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
@@ -114,5 +119,13 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <AppProvider>
+      <LandingPageContent />
+    </AppProvider>
   );
 }
