@@ -111,42 +111,48 @@ export default function Sidebar() {
         )}
 
         {/* User Info & Quick Logout */}
-        <div className={styles.userInfo}>
-          <div className={styles.userAvatar}>
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" />
-            ) : (
-              <span>{(profile?.full_name || user?.email || 'U')[0].toUpperCase()}</span>
+        <Link 
+          href="/settings"
+          className="group flex items-center justify-between gap-3 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <span>{(profile?.full_name || user?.email || 'U')[0].toUpperCase()}</span>
+              )}
+            </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <div className="space-y-0.5">
+                  <span className="block text-xs font-bold text-white truncate group-hover:text-primary transition-colors">
+                    {profile?.full_name || user?.email || 'Pengguna'}
+                  </span>
+                  <span className="block text-[10px] text-[#6F7A9E] font-medium truncate">
+                    {isProPlan ? 'Premium Plan' : 'Free Plan'}
+                  </span>
+                </div>
+                {showAdmin && (
+                  <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-text-muted hover:text-primary transition-colors uppercase tracking-wider">
+                    <ShieldAlert className="w-2.5 h-2.5" />
+                    Portal Admin
+                  </div>
+                )}
+              </div>
             )}
           </div>
           {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <div className={styles.userMeta}>
-                <span className={styles.userName}>{profile?.full_name || user?.email || 'Pengguna'}</span>
-                <span className={styles.userPlan}>{isProPlan ? 'Premium Plan' : 'Free Plan'}</span>
-              </div>
-              {showAdmin && (
-                <Link 
-                  href="/admin" 
-                  className="mt-1 flex items-center gap-1 text-[9px] font-bold text-text-muted hover:text-primary transition-colors uppercase tracking-wider"
-                >
-                  <ShieldAlert className="w-2.5 h-2.5" />
-                  Portal Admin
-                </Link>
-              )}
-            </div>
-          )}
-          {!collapsed && (
             <button
               onClick={handleLogout}
-              className="p-1 text-text-secondary hover:text-danger transition-colors cursor-pointer"
+              className="p-1 text-text-secondary hover:text-danger transition-colors cursor-pointer shrink-0"
               title="Keluar"
               type="button"
             >
               <LogOut className="w-4 h-4" />
             </button>
           )}
-        </div>
+        </Link>
       </div>
     </aside>
   );

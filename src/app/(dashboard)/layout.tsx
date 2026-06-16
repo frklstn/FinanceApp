@@ -31,9 +31,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <DocumentTitle />
           <div className="flex h-screen overflow-hidden bg-gradient p-4 md:p-6 gap-6 text-text-primary transition-all duration-300">
             <Sidebar />
-            <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative glass-card border-none shadow-none bg-transparent">
-              <Navbar />
-              <main className="flex-1 overflow-y-auto focus:outline-none p-4 md:p-6 scroll-smooth">
+            <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative">
+              <main className="flex-1 overflow-y-auto focus:outline-none p-4 md:p-8 scroll-smooth">
                 <div className="max-w-[1440px] mx-auto space-y-8">
                   {children}
                 </div>

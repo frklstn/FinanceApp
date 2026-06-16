@@ -314,10 +314,10 @@ export default function DashboardPage() {
       {/* Header Greeting */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-black text-white tracking-[-0.03em]">
             Halo, {profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Pengguna'} 👋
           </h1>
-          <p className="text-sm text-[#6F7A9E] font-medium">
+          <p className="text-sm text-[#6F7A9E] font-semibold tracking-[-0.01em]">
             Kelola keuanganmu dengan bijak hari ini.
           </p>
         </div>
@@ -357,16 +357,16 @@ export default function DashboardPage() {
         {/* Left Side: Labels & Message */}
         <div className="relative z-10 flex-1 space-y-6">
           <div className="space-y-1">
-             <span className="text-[10px] uppercase font-bold text-[#A7B0D1] tracking-[0.2em]">Total Saldo</span>
-             <h3 className="text-4xl font-extrabold text-white tracking-tighter">
+             <span className="text-[10px] uppercase font-bold text-[#A7B0D1] tracking-[0.3em] opacity-80">Total Saldo</span>
+             <h3 className="text-5xl font-black text-white tracking-[-0.05em] drop-shadow-2xl">
                 {formatRupiah(financialStats.totalBalance)}
              </h3>
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-bold text-white/90 leading-tight">
-              Kamu berada di <span className="text-[#8B7CFF]">jalur yang baik.</span>
+            <h2 className="text-xl font-bold text-white/95 leading-tight tracking-[-0.02em]">
+              Kamu berada di <span className="text-[#8B7CFF] drop-shadow-[0_0_10px_rgba(139,124,255,0.4)]">jalur yang baik.</span>
             </h2>
-            <p className="text-xs text-[#6F7A9E] font-medium leading-relaxed max-w-xs">
+            <p className="text-xs text-[#6F7A9E] font-semibold leading-relaxed max-w-xs tracking-[-0.01em]">
               Terus pertahankan pola ini untuk masa depan yang lebih aman dan terencana.
             </p>
           </div>

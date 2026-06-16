@@ -30,7 +30,7 @@ export const navigationItems: NavigationItem[] = [
   { name: 'Tracker Pinjol', path: '/pinjol', icon: AlertTriangle },
   { name: 'Laporan Analisis', path: '/reports', icon: BarChart3 },
   { name: 'Insight Keuangan', path: '/insights', icon: Sparkles },
-  { name: 'Pengaturan', path: '/settings', icon: Settings },
+  { name: 'Pengaturan', path: '/settings', icon: Settings, hideFromSidebar: true },
   { name: 'Dompet Saya', path: '/wallets', icon: Wallet, hideFromSidebar: true },
   { name: 'Portal Admin', path: '/admin', icon: ShieldAlert, isAdmin: true, hideFromSidebar: true },
 ];

@@ -32,10 +32,7 @@ export default function Navbar() {
 
   return (
     <header className="navbar">
-      <div className="navbar-title-container">
-        <h1 className="navbar-title">{pageTitle}</h1>
-        <p className="navbar-subtitle">{appSettings.app_name}</p>
-      </div>
+      <div className="flex-1" />
 
       <div className="navbar-right-area">
         <div className="navbar-quick-actions">
