@@ -19,6 +19,7 @@ Sebelum menulis kode atau menjalankan tool modifikasi:
 - Laporkan fakta (X -> Y), bukan narasi.
 - Jika menemukan inkonsistensi antara dokumentasi dan disk, prioritaskan DISK dan update dokumentasi segera.
 - **Sensitivitas Error**: Deteksi error sekecil apapun (warning compiler, linter, typos, unused-vars) dan sebutkan di kesimpulan.
+- **FIX FIRST**: Prioritaskan fix error yang ada sebelum melanjutkan tugas.
 
 ## 4. Handover State
 Setiap akhir sesi, agent wajib menulis laporan dengan format berikut:
