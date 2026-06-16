@@ -29,7 +29,9 @@
 
 ---
 
-## 📋 Audit — Initial Audit & Sync Optimization
+## 📋 Audit — Schema Consolidation & Doc Update
+
+`Kondisi Aktif (2026-06-17)` diperbarui. Tech Stack: Next.js 16 & React 19.
 
 ✅ **Sudah ada:**
 - Next.js 16 (Turbopack) → Compile & build sukses lokal & remote.
@@ -39,6 +41,9 @@
 - Recharts console warning fix diintegrasikan ke semua grafik.
 - ESLint checks lolos bersih 100% tanpa error/warning.
 - Optimasi concurrency bootstrap context & reduksi redundansi filter request.
+- File `supabase/schema.sql` baru berisi seluruh skema database 17 tabel terkonsolidasi.
+- Script `scripts/apply-remote-migrations.js` diperbarui untuk membaca & mengeksekusi `schema.sql` secara tunggal.
+- Dokumentasi `docs/read.md` dan `README.md` root disesuaikan dengan skema database tunggal dan Tech Stack ter-update.
 
 ❌ **Belum ada atau error terdeteksi:**
 - Nihil.
@@ -47,19 +52,15 @@
 - Masih di Fase 10 (tidak lanjut ke Fase 11) karena masih banyak UI, fitur, dan tombol dashboard yang harus di-fix.
 
 🔧 **Solusi:**
-- Optimasi React lifecycle (state update guard replace `useEffect` di `DatePicker`/`QuickAddModal`).
-- Strict TS types (replace `any` dengan `unknown`).
-- Linter fixes (`next/no-img-element`).
-- Client-side mounting guard (`mounted` state) ditambahkan sebelum merender Recharts `ResponsiveContainer` di `spending-chart`, `category-pie-chart`, dan `category-radar-chart` untuk mencegah SSR layout/size warnings.
-- Menambahkan `eslint-disable-next-line` comments untuk meloloskan rule `react-hooks/set-state-in-effect` pada update state `setMounted(true)`.
-- Menggunakan `useRef` lock (`bootstrapInProgress`) di `AppProvider` (`app-context.tsx`) untuk mencegah pemanggilan `bootstrap` ganda secara paralel pada saat inisialisasi aplikasi (double mount & auth state change event).
-- Menghapus `useEffect` redundan di `TransactionsPage` (`transactions/page.tsx`) yang melakukan sinkronisasi reset halaman (`setPage(1)`) ketika filter berubah, karena semua event handlers filter input di UI sudah secara eksplisit memanggil `setPage(1)`. Hal ini menghentikan trigger double fetch transaksi.
+- Menggabungkan data catalog PostgreSQL dari Supabase remote ke dalam satu file `supabase/schema.sql`.
+- Mengarahkan script migrasi Supabase ke `schema.sql` menggantikan 5 file migrasi SQL yang sebelumnya absen di disk lokal.
+- Menyalin isi `docs/read.md` ke `README.md` pada root project setelah dilakukan update informasi instalasi migrasi database.
 
 📈 **Setelah Solusi:**
-- Next.js compile & build sukses tanpa error (termasuk static generation tanpa console warnings dari Recharts).
-- ESLint checks lolos bersih tanpa warning/error.
-- Beban request startup berkurang drastis (tidak ada redundant auth/session/settings fetches di background).
-- Pergantian filter transaksi berjalan reaktif dan memicu tepat 1x API request ke database (tidak ada double-fetch dengan page parameter yang usang).
+- Dokumentasi dan struktur kode migrasi database menjadi sinkron dengan realitas database Supabase aktif.
+- Setup environment baru lebih mudah & andal menggunakan satu file schema tunggal.
+- GitHub repository page menampilkan `README.md` dengan informasi proyek terkini.
+- `working tree clean` and remote synchronized.
 
 🚀 **Langkah Selanjutnya:**
 - Audit & perbaikan detail UI, fitur, dan tombol dashboard di Fase 10.
