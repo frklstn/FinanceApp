@@ -2,7 +2,7 @@
 
 .sidebar {
   @apply hidden md:flex flex-col h-screen transition-all duration-300 relative shrink-0;
-  background: #070B1B;
+  background: var(--bg-sidebar);
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
 }
 
