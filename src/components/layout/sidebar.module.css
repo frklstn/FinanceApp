@@ -1,7 +1,8 @@
 @reference "../../styles/global.css";
 
 .sidebar {
-  @apply hidden md:flex flex-col h-screen transition-[width] duration-300 linear relative shrink-0;
+  @apply hidden md:flex flex-col h-screen transition-[width] duration-300 relative shrink-0;
+  transition-timing-function: linear;
   background: var(--bg-sidebar);
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
   overflow: hidden !important;
