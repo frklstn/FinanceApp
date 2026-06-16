@@ -130,7 +130,7 @@ export default function TransactionsPage() {
     if (accountId) {
       Promise.resolve().then(fetchTransactions);
     }
-  }, [accountId, page, fetchTransactions]);
+  }, [accountId, page, filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, filterTag, fetchTransactions]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
