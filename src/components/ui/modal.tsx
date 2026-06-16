@@ -17,25 +17,6 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     }
     return () => {
       document.body.style.overflow = 'unset';
-import React, { useEffect } from 'react';
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-}
-
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
 
