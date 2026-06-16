@@ -34,15 +34,6 @@ Setiap akhir sesi, agent wajib menulis laporan dengan format berikut:
 
 ⚠️ **Perlu perhatian:**
 - catatan jika ada
-
-🔧 **Solusi:**
-- deskripsi solusi yang diterapkan
-
-📈 **Setelah Solusi:**
-- apa yang terjadi setelah solusi (dampak/efek)
-
-🚀 **Langkah Selanjutnya:**
-- apa yang harus dilakukan selanjutnya
 ```
 
 Pastikan dokumentasi di `/ai/FinanceApp.md` mencerminkan status terakhir, dan Git sudah di-push ke `origin main`.
