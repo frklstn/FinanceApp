@@ -68,15 +68,17 @@ export default function SettingsPage() {
   }, [supabase]);
 
   useEffect(() => {
-    void fetchProfile();
-    
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tabParam = urlParams.get('tab');
-      if (tabParam === 'data') {
-        setActiveTab('data');
+    Promise.resolve().then(() => {
+      void fetchProfile();
+      
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        if (tabParam === 'data') {
+          setActiveTab('data');
+        }
       }
-    }
+    });
   }, [fetchProfile]);
 
   useEffect(() => {

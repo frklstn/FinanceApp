@@ -39,8 +39,10 @@ export function DatePicker({
   const [selectedHour, setSelectedHour] = useState(new Date().getHours());
   const [selectedMinute, setSelectedMinute] = useState(new Date().getMinutes());
 
-  // Parse initial value
-  useEffect(() => {
+  const [prevValue, setPrevValue] = useState(value);
+
+  if (value !== prevValue) {
+    setPrevValue(value);
     if (value) {
       const parsedDate = new Date(value);
       if (!isNaN(parsedDate.getTime())) {
@@ -55,7 +57,7 @@ export function DatePicker({
         setViewMonth(parsedDate.getMonth());
       }
     }
-  }, [value]);
+  }
 
   // Click outside listener
   useEffect(() => {

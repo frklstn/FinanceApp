@@ -12,7 +12,7 @@
   - Graphify: Pemasangan otomatisasi git post-commit hook untuk auto-rebuild graph.
 - **Database**: 17 Tabel di Supabase (Public).
   - `app_settings` berisi branding.
-  - `categories` saat ini KOSONG (Perlu Seed).
+  - `categories` berisi 6 data hasil seeding.
   - `transactions` berisi 4 data testing.
 
 ## Roadmap Status

@@ -2,7 +2,6 @@
 
 import React, { useEffect } from 'react';
 import Sidebar from '@/components/layout/sidebar';
-import Navbar from '@/components/layout/navbar';
 import MobileNav from '@/components/layout/mobile-nav';
 import { ThemeProvider } from '@/contexts/theme-context';
 import { AppProvider, useApp } from '@/contexts/app-context';

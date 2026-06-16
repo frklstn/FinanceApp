@@ -14,13 +14,12 @@ interface UpgradeGateProps {
 export function UpgradeGate({ children }: UpgradeGateProps) {
   const { isPro } = useApp();
   const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!isPro());
 
   const isProUser = isPro();
 
   useEffect(() => {
     if (isProUser) {
-      setLoading(false);
       return;
     }
 

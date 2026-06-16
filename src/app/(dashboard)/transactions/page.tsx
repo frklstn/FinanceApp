@@ -116,15 +116,15 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (accountId) {
-      void fetchFiltersData();
+      Promise.resolve().then(() => fetchFiltersData());
     }
   }, [accountId, fetchFiltersData]);
 
   useEffect(() => {
-    if (accountId) {
-      setPage(1);
+    if (accountId && page !== 1) {
+      Promise.resolve().then(() => setPage(1));
     }
-  }, [accountId, filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, filterTag]);
+  }, [accountId, page, filterWallet, filterCategory, filterType, startDate, endDate, searchTerm, filterTag]);
 
   useEffect(() => {
     if (accountId) {
@@ -134,21 +134,23 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const add = params.get('add');
-      const type = params.get('type');
-      const manageCats = params.get('manage_categories');
+      Promise.resolve().then(() => {
+        const params = new URLSearchParams(window.location.search);
+        const add = params.get('add');
+        const type = params.get('type');
+        const manageCats = params.get('manage_categories');
 
-      if (add === 'true') {
-        setIsModalOpen(true);
-        if (type === 'income' || type === 'expense' || type === 'transfer') {
-          setTxType(type as 'income' | 'expense' | 'transfer');
+        if (add === 'true') {
+          setIsModalOpen(true);
+          if (type === 'income' || type === 'expense' || type === 'transfer') {
+            setTxType(type as 'income' | 'expense' | 'transfer');
+          }
         }
-      }
 
-      if (manageCats === 'true') {
-        setIsCategoryModalOpen(true);
-      }
+        if (manageCats === 'true') {
+          setIsCategoryModalOpen(true);
+        }
+      });
     }
   }, []);
 

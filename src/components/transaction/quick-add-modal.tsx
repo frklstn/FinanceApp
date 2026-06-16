@@ -34,9 +34,16 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
   const [destWalletId, setDestWalletId] = useState('');
   const [categoryId, setCategoryId] = useState('');
 
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setType(initialType);
+    }
+  }
+
   useEffect(() => {
     if (isOpen && accountId) {
-      setType(initialType);
       const fetchData = async () => {
         try {
           const [wList, cList] = await Promise.all([
@@ -51,7 +58,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
       };
       fetchData();
     }
-  }, [isOpen, accountId, initialType]);
+  }, [isOpen, accountId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,8 +91,9 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
       setWalletId('');
       onSuccess?.();
       onClose();
-    } catch (err: any) {
-      toast(err.message || 'Gagal menyimpan transaksi.', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menyimpan transaksi.';
+      toast(msg, 'danger');
     } finally {
       setLoading(false);
     }

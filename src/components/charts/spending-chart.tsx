@@ -1,4 +1,4 @@
-import styles from './spending-chart.module.css';
+
 import {
   AreaChart,
   Area,

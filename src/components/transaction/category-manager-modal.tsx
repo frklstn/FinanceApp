@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import { categoryService, type Category } from '@/lib/services/category.service';
-import { Plus, Pencil, Trash2, Tag } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface CategoryManagerModalProps {
   isOpen: boolean;
@@ -40,7 +40,9 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
   }, [workspaceId]);
 
   useEffect(() => {
-    if (isOpen) fetchCategories();
+    if (isOpen) {
+      Promise.resolve().then(() => fetchCategories());
+    }
   }, [isOpen, fetchCategories]);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -58,7 +60,7 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
       setName('');
       setEditingCategory(null);
       fetchCategories();
-    } catch (err) {
+    } catch {
       toast('Gagal menyimpan kategori', 'danger');
     } finally {
       setSubmitting(false);
@@ -71,7 +73,7 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
       await categoryService.deleteCategory(id);
       toast('Kategori dihapus', 'success');
       fetchCategories();
-    } catch (err) {
+    } catch {
       toast('Gagal menghapus', 'danger');
     }
   };
@@ -85,7 +87,7 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
             <Select 
               label="Tipe" 
               value={type} 
-              onChange={(e) => setType(e.target.value as any)}
+              onChange={(e) => setType(e.target.value as 'income' | 'expense')}
               options={[{value: 'expense', label: 'Pengeluaran'}, {value: 'income', label: 'Pemasukan'}]} 
             />
           </div>
@@ -114,7 +116,7 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
                 <span className="text-[10px] uppercase font-bold text-[#6F7A9E] opacity-50">{cat.type}</span>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => { setEditingCategory(cat); setName(cat.name); setType(cat.type as any); setColor(cat.color || '#6366f1'); }} className="p-1.5 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
+                <button onClick={() => { setEditingCategory(cat); setName(cat.name); setType(cat.type as 'income' | 'expense'); setColor(cat.color || '#6366f1'); }} className="p-1.5 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
                 <button onClick={() => handleDelete(cat.id)} className="p-1.5 hover:text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             </div>

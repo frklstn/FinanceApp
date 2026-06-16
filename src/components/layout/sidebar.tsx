@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -5,8 +6,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LogOut,
-  ChevronLeft,
-  ChevronRight,
   ShieldAlert,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -113,7 +112,11 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full rounded-full object-cover" />
+                <img
+                  src={profile.avatar_url}
+                  alt="Avatar"
+                  className="w-full h-full rounded-full object-cover"
+                />
               ) : (
                 <span>{(profile?.full_name || user?.email || 'U')[0].toUpperCase()}</span>
               )}

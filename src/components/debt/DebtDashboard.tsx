@@ -13,7 +13,7 @@ import {
 import type { PeriodForecast, SurvivalScore } from '@/lib/debt-planner/types';
 import { HEALTH_STATUS_LABELS } from '@/lib/debt-planner/calculations';
 import { formatRupiah, formatDateId } from '@/lib/debt-planner/format';
-import styles from './DebtDashboard.module.css';
+
 
 interface DebtDashboardProps {
   currentForecast: PeriodForecast;

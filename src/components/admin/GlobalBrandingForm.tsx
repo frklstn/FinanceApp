@@ -76,6 +76,7 @@ export function GlobalBrandingForm() {
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-light-text-secondary">Preview:</span>
             <div className="w-10 h-10 rounded-xl border border-light-border/40 overflow-hidden bg-white p-1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={appLogoUrl} alt="Logo" className="w-full h-full object-contain" />
             </div>
           </div>

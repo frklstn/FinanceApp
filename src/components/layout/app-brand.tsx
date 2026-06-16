@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '@/contexts/app-context';
 
 interface AppBrandProps {
@@ -21,14 +21,18 @@ export function AppBrand({ collapsed = false, showSubtitle = false }: AppBrandPr
     ? userBranding.app_icon_url
     : appSettings.app_logo_url;
 
-  useEffect(() => {
+  const [prevLogoUrl, setPrevLogoUrl] = useState(app_logo_url);
+
+  if (app_logo_url !== prevLogoUrl) {
+    setPrevLogoUrl(app_logo_url);
     setImgError(false);
-  }, [app_logo_url]);
+  }
 
   return (
     <div className={`flex items-center gap-2.5 ${collapsed ? 'justify-center' : ''}`}>
       {app_logo_url && !imgError ? (
         <div className="w-9 h-9 rounded-xl border border-light-border/40 dark:border-dark-border/40 overflow-hidden flex items-center justify-center shrink-0 bg-white dark:bg-transparent">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={app_logo_url}
             alt={app_name}

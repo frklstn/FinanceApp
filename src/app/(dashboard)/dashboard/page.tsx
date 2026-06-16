@@ -5,7 +5,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/contexts/app-context';
-import { insightsService } from '@/lib/services/insights.service';
+import { insightsService, type FinancialInsight } from '@/lib/services/insights.service';
 import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
 import { loanTrackerService } from '@/lib/services/loan-tracker.service';
 import { walletService } from '@/lib/services/wallet.service';
@@ -19,16 +19,9 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowRightLeft,
-  AlertTriangle,
-  Info,
   Calendar,
-  BookOpen,
   PieChart,
-  Target,
-  HandCoins,
-  BarChart3,
   ShieldAlert,
-  Maximize2,
   Bell,
   ChevronDown,
   Zap,
@@ -85,7 +78,7 @@ function translateCategory(name: string) {
 }
 
 export default function DashboardPage() {
-  const { accountId, isSuperAdmin, user, profile, t } = useApp();
+  const { accountId, user, profile, t } = useApp();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -105,13 +98,12 @@ export default function DashboardPage() {
     expenseSparkline: [] as number[],
     savingsSparkline: [] as number[],
     debtSparkline: [] as number[],
-    insights: [] as any[],
+    insights: [] as FinancialInsight[],
   });
 
   const [recentTxs, setRecentTxs] = useState<PopulatedTransaction[]>([]);
   const [chartData, setChartData] = useState<{ date: string; amount: number }[]>([]);
   const [pieData, setPieData] = useState<{ name: string; value: number; color: string }[]>([]);
-  const [showGuide, setShowGuide] = useState(false);
   const [isPieExpanded, setIsPieExpanded] = useState(false);
   const [isTrendsExpanded, setIsTrendsExpanded] = useState(false);
   const [quickAdd, setQuickAdd] = useState<{ open: boolean; type: 'income' | 'expense' | 'transfer' }>({
@@ -419,11 +411,11 @@ export default function DashboardPage() {
       {/* Row 2: 4 Stats Widgets - Compact */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
         {[
-          { label: 'Pemasukan', val: financialStats.income, diff: financialStats.incomeDiff, col: '#28D17C', icon: TrendingUp, type: 'income' },
-          { label: 'Pengeluaran', val: financialStats.expense, diff: financialStats.expenseDiff, col: '#FF4B5C', icon: TrendingDown, type: 'expense' },
+          { label: 'Pemasukan', val: financialStats.income, diff: financialStats.incomeDiff, col: '#28D17C', icon: TrendingUp, type: 'income' as const },
+          { label: 'Pengeluaran', val: financialStats.expense, diff: financialStats.expenseDiff, col: '#FF4B5C', icon: TrendingDown, type: 'expense' as const },
           { label: 'Sisa Tabungan', val: financialStats.savings, diff: financialStats.savingsDiff, col: '#6E5CFF', icon: Wallet, path: '/savings' },
           { label: 'Utang Aktif', val: financialStats.activeDebt, desc: `${financialStats.activeLoansCount} aktif`, col: '#FFB347', icon: ShieldAlert, path: '/pinjol' },
-        ].map((s: any, i) => (
+        ].map((s, i) => (
           <button 
             key={i}
             onClick={() => {

@@ -1,31 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
 import { useApp } from '@/contexts/app-context';
 import '@/styles/components/layout/navbar.css';
 
-const PAGE_TITLES: Record<string, string> = {
-  dashboard: 'Overview',
-  transactions: 'Transaksi',
-  wallets: 'Dompet',
-  budgets: 'Anggaran',
-  savings: 'Tabungan',
-  debts: 'Pinjam & Utang',
-  pinjol: 'Debt Survival',
-  reports: 'Laporan',
-  settings: 'Pengaturan',
-  admin: 'Superadmin',
-};
-
 export default function Navbar() {
-  const pathname = usePathname();
-  const { profile, appSettings } = useApp();
+  const { profile } = useApp();
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const pathKey = pathname.split('/')[1] || 'dashboard';
-  const pageTitle = PAGE_TITLES[pathKey] ?? appSettings.app_name;
 
   const userName = profile?.full_name || 'User';
   const avatarUrl = profile?.avatar_url || '';
@@ -79,6 +61,7 @@ export default function Navbar() {
           </div>
           {avatarUrl ? (
             <div className="navbar-avatar-image">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={avatarUrl} alt={userName} />
             </div>
           ) : (
