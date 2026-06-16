@@ -1,7 +1,7 @@
 # FinanceApp - Source of Truth
 
 ## Kondisi Aktif (2026-06-17)
-- **Tech Stack**: Next.js 15 (App Router), Supabase, Tailwind CSS, Lucide React.
+- **Tech Stack**: Next.js 16 (App Router / Turbopack), React 19, Supabase, Tailwind CSS, Lucide React.
 - **Deployment**: Vercel (Produksi), GitHub Actions (CI Aktif).
 - **Build Status**: Sukses dikompilasi lokal setelah perbaikan & refaktorisasi terbaru:
   - Pembetulan import path `@/contexts/app-context` dan pembungkusan dengan `AppProvider` di landing page (`src/app/page.tsx`).
