@@ -11,10 +11,11 @@ Sebelum menulis kode atau menjalankan tool modifikasi:
 
 ## 2. Penggunaan Tool & MCP
 - **MCP Supabase**: Rujukan tunggal skema DB. Dilarang hardcode query tanpa verifikasi skema.
-- **Design MD**: Gunakan untuk download design kit jika melakukan UI refactor.
+- **Canva**: Gunakan `canva-dev` untuk integrasi desain dan aset saat melakukan UI refactor.
 - **Impeccable Context**: Selalu sertakan `Cwd` yang tepat. Gunakan `npx` jika menjalankan script di Windows environment.
 
 ## 3. Komunikasi & Gaya (Caveman)
+- Selalu gunakan bahasa indonesia
 - Terse, teknis, pattern-based.
 - Laporkan fakta (X -> Y), bukan narasi.
 - Jika menemukan inkonsistensi antara dokumentasi dan disk, prioritaskan DISK dan update dokumentasi segera.
