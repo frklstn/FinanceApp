@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
 import { walletService, type Wallet } from '@/lib/services/wallet.service';
@@ -33,7 +33,7 @@ import {
 import { CategoryManagerModal } from '@/components/transaction/category-manager-modal';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function TransactionsPage() {
+function TransactionsContent() {
   const { accountId } = useApp();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -380,5 +380,17 @@ export default function TransactionsPage() {
       </Modal>
       <CategoryManagerModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} workspaceId={accountId || ''} />
     </div>
+  );
+}
+
+export default function TransactionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+      </div>
+    }>
+      <TransactionsContent />
+    </Suspense>
   );
 }
