@@ -118,7 +118,7 @@ export const budgetService = {
       throw new Error(error.message || 'Unknown database error');
     }
 
-    return { ...data, spent: 0 };
+    return { ...data, currency: data.currency ?? 'IDR', spent: 0 };
   },
 
   /**
