@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function InsightsPage() {
-  const { accountId } = useApp();
+  const { accountId, appSettings } = useApp();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -79,7 +79,7 @@ export default function InsightsPage() {
       case 'danger':
         return <AlertTriangle className="w-5 h-5 text-danger shrink-0" />;
       default:
-        return <Info className="w-5 h-5 text-primary shrink-0" />;
+        return <Info className="w-5 h-5 text-emerald-500 shrink-0" />;
     }
   };
 
@@ -92,18 +92,18 @@ export default function InsightsPage() {
       case 'danger':
         return 'bg-danger/5 border-danger/15 text-light-text-primary dark:text-dark-text-primary';
       default:
-        return 'bg-primary/5 border-primary/15 text-light-text-primary dark:text-dark-text-primary';
+        return 'bg-emerald-500/5 border-emerald-500/15 text-light-text-primary dark:text-dark-text-primary';
     }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto p-4 md:p-6 pb-24">
+    <div className="space-y-8">
       <UpgradeGate>
         {/* Title */}
         <div>
-          <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-primary" />
-            Insight &amp; Analisis Finansial
+          <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2 uppercase">
+            <Sparkles className="w-6 h-6 text-emerald-500" />
+            Intelijen Finansial
           </h2>
           <p className="text-xs md:text-sm text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
             Rangkuman skor kesehatan finansial, analisis anggaran belanja, dan rekomendasi dinamis untuk Anda.
@@ -120,8 +120,8 @@ export default function InsightsPage() {
             {/* Health Score Banner */}
             <Card className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-3 text-center md:text-left">
-                <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full tracking-wider">
-                  Financial Health Score
+                <span className="text-[10px] uppercase font-black text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full tracking-[0.2em] border border-emerald-500/20">
+                  Skor Kesehatan {appSettings.app_name || 'FinanceApp'}
                 </span>
                 <h3 className="text-2xl font-extrabold text-light-text-primary dark:text-dark-text-primary">
                   {stats.score >= 80 ? (
@@ -143,14 +143,14 @@ export default function InsightsPage() {
 
               {/* Score Display (no progress ring, only score container) */}
               <div className="flex flex-col items-center justify-center shrink-0">
-                <div className="p-5 rounded-2xl bg-primary/10 border border-primary/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg backdrop-blur-md">
-                  <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-widest mb-0.5">
+                <div className="nexus-panel p-5 border-emerald-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-emerald-500/5">
+                  <span className="text-[9px] uppercase font-bold text-white/40 tracking-widest mb-0.5">
                     Skor
                   </span>
-                  <span className="text-4xl font-black text-primary tracking-tight">
+                  <span className="text-4xl font-black text-emerald-400 tracking-tighter">
                     {stats.score}
                   </span>
-                  <span className="text-[10px] font-bold text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
+                  <span className="text-[10px] font-bold text-white/40 mt-0.5">
                     / 100
                   </span>
                 </div>
@@ -176,25 +176,25 @@ export default function InsightsPage() {
               <Card className="p-4 flex items-center justify-between">
                 <div className="space-y-1">
                   <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">Sisa Tabungan Bersih</span>
-                  <p className={`text-lg font-bold ${stats.savings >= 0 ? 'text-primary' : 'text-danger'}`}>
+                  <p className={`text-lg font-bold ${stats.savings >= 0 ? 'text-emerald-500' : 'text-danger'}`}>
                     {stats.savings >= 0 ? '+' : '-'}{formatRupiah(Math.abs(stats.savings))}
                   </p>
                 </div>
-                <Wallet className="w-5 h-5 text-primary/70" />
+                <Wallet className="w-5 h-5 text-emerald-400/70" />
               </Card>
             </div>
 
             {/* Detailed list of insights */}
             <Card className="p-6 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary uppercase tracking-wider flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
+                <Sparkles className="w-4 h-4 text-emerald-500" />
                 Rekomendasi &amp; Peringatan Sistem
               </h3>
 
               <div className="space-y-4">
                 {insights.length === 0 ? (
                   <div className="flex items-center gap-3 p-4 rounded-xl border border-light-border dark:border-dark-border text-xs text-light-text-secondary font-medium">
-                    <Info className="w-5 h-5 text-primary shrink-0" />
+                    <Info className="w-5 h-5 text-emerald-500 shrink-0" />
                     Semua sistem aman! Kami tidak mendeteksi kebiasaan buruk atau peringatan keuangan pada siklus ini.
                   </div>
                 ) : (

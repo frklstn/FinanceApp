@@ -28,12 +28,12 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-[#050816]/80 backdrop-blur-md transition-opacity duration-500 ease-out cursor-pointer"
+        className="absolute inset-0 bg-[#050507]/90 backdrop-blur-xl transition-opacity duration-500 ease-out cursor-pointer"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="bg-[#0A1028]/95 backdrop-blur-[32px] w-full max-w-2xl overflow-hidden border border-white/10 text-white relative animate-in fade-in zoom-in-95 duration-300 rounded-[32px] shadow-[0_30px_60px_rgba(0,0,0,0.6)]">
+      <div className="nexus-popup w-full max-w-2xl overflow-hidden text-white relative animate-in fade-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="flex justify-between items-center px-8 py-6 border-b border-white/5 bg-white/2">
           <h3 className="text-lg font-bold tracking-tight text-white">{title}</h3>

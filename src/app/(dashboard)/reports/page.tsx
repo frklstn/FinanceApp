@@ -150,12 +150,12 @@ export default function ReportsPage() {
   const estimatedTax = (taxableIncome * taxRate) / 100;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6 pb-24">
+    <div className="space-y-8">
       {/* Title Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-            <BarChart3 className="w-5.5 h-5.5 text-primary" />
+            <BarChart3 className="w-5.5 h-5.5 text-emerald-500" />
             Laporan Keuangan & Estimasi Pajak
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
@@ -173,7 +173,7 @@ export default function ReportsPage() {
             onChange={(e) => setPeriod(e.target.value)}
           />
           <Button variant="outline" className="flex items-center gap-1.5 cursor-pointer" onClick={handleExportData}>
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 mr-2" />
             Ekspor Buku Besar
           </Button>
         </div>
@@ -185,18 +185,18 @@ export default function ReportsPage() {
           onClick={() => setActiveSubTab('analytics')}
           className={`flex items-center gap-2 pb-2 text-xs font-bold uppercase transition-all duration-150 cursor-pointer ${
             activeSubTab === 'analytics'
-              ? 'border-b-2 border-primary text-primary'
+              ? 'border-b-2 border-emerald-500 text-emerald-500'
               : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
           }`}
         >
-          <BarChart3 className="w-4.5 h-4.5" />
+          <BarChart3 className="w-4.5 h-4.5 text-emerald-400" />
           Analisis Pengeluaran
         </button>
         <button
           onClick={() => setActiveSubTab('tax')}
           className={`flex items-center gap-2 pb-2 text-xs font-bold uppercase transition-all duration-150 cursor-pointer ${
             activeSubTab === 'tax'
-              ? 'border-b-2 border-primary text-primary'
+              ? 'border-b-2 border-emerald-500 text-emerald-500'
               : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
           }`}
         >
@@ -217,7 +217,7 @@ export default function ReportsPage() {
           <div className="space-y-6 md:col-span-1">
             <Card className="p-5 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
-                <TrendingUpDown className="w-4.5 h-4.5 text-primary" />
+                <TrendingUpDown className="w-4.5 h-4.5 text-emerald-500" />
                 Aliran Kas Bersih
               </h3>
               
@@ -234,7 +234,7 @@ export default function ReportsPage() {
                 
                 <div className="flex justify-between items-center text-sm font-extrabold">
                   <span className="text-light-text-primary dark:text-dark-text-primary">Margin Bersih</span>
-                  <span className={reportStats.savings >= 0 ? 'text-primary' : 'text-danger'}>
+                  <span className={reportStats.savings >= 0 ? 'text-emerald-500' : 'text-danger'}>
                     {reportStats.savings >= 0 ? '+' : '-'}{formatRupiah(Math.abs(reportStats.savings))}
                   </span>
                 </div>
@@ -246,10 +246,10 @@ export default function ReportsPage() {
               <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
                 Rasio Menabung Bulanan
               </span>
-              <h4 className="text-2xl font-extrabold text-primary dark:text-white">
+              <h4 className="text-2xl font-extrabold text-emerald-500 dark:text-white">
                 {reportStats.savingsRate}%
               </h4>
-              <Progress value={reportStats.savingsRate} variant="primary" />
+              <Progress value={reportStats.savingsRate} className="bg-emerald-500" />
               <p className="text-[10.5px] font-medium text-light-text-secondary dark:text-dark-text-secondary/60 leading-relaxed pt-1">
                 Anda menyisihkan {formatRupiah(reportStats.savings)} dari total pemasukan {formatRupiah(reportStats.income)} pada siklus ini.
               </p>
@@ -260,7 +260,7 @@ export default function ReportsPage() {
           <div className="md:col-span-2">
             <Card className="p-6 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
-                <BarChart3 className="w-4.5 h-4.5 text-primary" />
+                <BarChart3 className="w-4.5 h-4.5 text-emerald-500" />
                 Peringkat Pengeluaran Kategori
               </h3>
               
@@ -314,7 +314,7 @@ export default function ReportsPage() {
           <div className="md:col-span-1 space-y-6">
             <Card className="p-5 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
-                <Percent className="w-4.5 h-4.5 text-primary" />
+                <Percent className="w-4.5 h-4.5 text-emerald-500" />
                 Variabel Tarif Pajak
               </h3>
               
@@ -329,7 +329,7 @@ export default function ReportsPage() {
                     max="45"
                     value={taxRate}
                     onChange={(e) => setTaxRate(Number(e.target.value))}
-                    className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-primary"
+                    className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-emerald-500"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">
                     <span>5% (Rendah)</span>
@@ -347,7 +347,7 @@ export default function ReportsPage() {
                     max="100"
                     value={deductiblesRatio}
                     onChange={(e) => setDeductiblesRatio(Number(e.target.value))}
-                    className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-primary"
+                    className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-emerald-500"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">
                     <span>0% (Nihil)</span>
@@ -397,7 +397,7 @@ export default function ReportsPage() {
 
                 <div className="flex justify-between items-center pt-3.5 border-t-2 border-primary/20">
                   <div className="space-y-0.5">
-                    <span className="text-sm font-extrabold text-primary">Estimasi Proyeksi Pajak</span>
+                    <span className="text-sm font-extrabold text-emerald-500">Estimasi Proyeksi Pajak</span>
                     <p className="text-[10px] text-light-text-secondary/60 font-medium">Menerapkan perkiraan tarif pajak sebesar {taxRate}%</p>
                   </div>
                   <span className="text-lg font-extrabold text-danger">
@@ -407,7 +407,7 @@ export default function ReportsPage() {
               </div>
 
               <div className="flex items-start gap-2.5 p-3.5 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/40 dark:bg-dark-bg/25">
-                <Info className="w-4.5 h-4.5 text-primary shrink-0 mt-0.5" />
+                <Info className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
                 <p className="text-[10.5px] font-medium text-light-text-secondary leading-relaxed">
                   Disclaimer: Proyeksi ini dibuat murni untuk kemudahan perencanaan dan kejelasan anggaran. Ini tidak merupakan saran pajak profesional. Konsultasikan dengan Akuntan Pajak resmi untuk pelaporan SPT formal Anda.
                 </p>

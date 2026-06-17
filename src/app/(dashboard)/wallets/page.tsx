@@ -32,7 +32,7 @@ import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function WalletsPage() {
-  const { accountId } = useApp();
+  const { accountId, appSettings } = useApp();
   const { toast } = useToast();
 
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -108,7 +108,7 @@ export default function WalletsPage() {
   const totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
 
   return (
-    <div className="min-h-screen bg-[#050816] py-6 md:py-10 px-4 md:px-8 space-y-8 md:space-y-12 no-scrollbar">
+    <div className="space-y-8 no-scrollbar">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
           <motion.h1 
@@ -116,9 +116,9 @@ export default function WalletsPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
           >
-            Vault <span className="text-indigo-500">Nexus</span>
+            Brankas <span className="text-emerald-500">{appSettings.app_name || 'Nexus'}</span>
           </motion.h1>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Asset Allocation Infrastructure • v2.0</p>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Infrastruktur Alokasi Aset • v2.0</p>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Button 
@@ -126,13 +126,14 @@ export default function WalletsPage() {
             className="flex-1 md:flex-none rounded-[24px] border-white/5 bg-white/[0.03] backdrop-blur-3xl px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest"
             onClick={() => setIsTransferModalOpen(true)}
           >
-            <ArrowRightLeft className="w-4 h-4 mr-2 text-indigo-400" /> Relocate
+            <ArrowRightLeft className="w-4 h-4 mr-2 text-emerald-400" /> Pindahkan
           </Button>
           <Button 
-            className="flex-1 md:flex-none rounded-[24px] shadow-[0_0_30px_rgba(99,102,241,0.2)] bg-indigo-500 hover:bg-indigo-600 border-none px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest"
+            variant="nexus-emerald"
+            className="flex-1 md:flex-none px-8 py-6 h-auto"
             onClick={() => { setEditingWallet(null); setName(''); setBalance('0'); setIsWalletModalOpen(true); }}
           >
-            <Plus className="w-5 h-5 mr-2" /> New Asset
+            <Plus className="w-5 h-5 mr-2" /> Aset Baru
           </Button>
         </div>
       </header>
@@ -188,7 +189,7 @@ export default function WalletsPage() {
                     {getWalletIcon(wallet.type, wallet.color)}
                   </div>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-[-10px] group-hover:translate-y-0">
-                    <button onClick={() => { setEditingWallet(wallet); setName(wallet.name); setType(wallet.type); setBalance(wallet.balance.toString()); setColor(wallet.color); setIcon(wallet.icon); setIsWalletModalOpen(true); }} className="p-3 rounded-2xl bg-white/5 hover:bg-indigo-500/20 text-white/40 hover:text-white transition-all shadow-xl"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => { setEditingWallet(wallet); setName(wallet.name); setType(wallet.type); setBalance(wallet.balance.toString()); setColor(wallet.color); setIcon(wallet.icon); setIsWalletModalOpen(true); }} className="p-3 rounded-2xl bg-white/5 hover:bg-emerald-500/20 text-white/40 hover:text-white transition-all shadow-xl"><Pencil className="w-4 h-4" /></button>
                     <button onClick={() => walletService.deleteWallet(wallet.id).then(() => fetchWallets())} className="p-3 rounded-2xl bg-white/5 hover:bg-rose-500/20 text-white/40 hover:text-white transition-all shadow-xl"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>

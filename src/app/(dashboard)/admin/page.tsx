@@ -205,7 +205,7 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6 pb-24">
+      <div className="space-y-8">
         <div className="h-16 w-1/3 rounded-xl shimmer" />
         <div className="h-96 rounded-2xl border border-light-border dark:border-dark-border shimmer" />
       </div>
@@ -217,12 +217,12 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6 pb-24">
+    <div className="space-y-8">
       {/* Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-            <ShieldAlert className="w-5.5 h-5.5 text-danger animate-pulse" />
+            <ShieldAlert className="w-5.5 h-5.5 text-rose-500 animate-pulse" />
             Panel Manajemen Pengguna
           </h2>
           <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
@@ -235,13 +235,13 @@ export default function AdminPage() {
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-light-text-secondary dark:text-dark-text-secondary">
             <Search className="w-4 h-4" />
           </span>
-          <input
-            type="text"
-            placeholder="Cari nama atau email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-card dark:bg-dark-card text-light-text-primary dark:text-dark-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-150"
-          />
+            <input
+              type="text"
+              placeholder="Cari nama atau email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-[16px] border border-white/5 bg-white/[0.03] text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-150"
+            />
         </div>
       </div>
 

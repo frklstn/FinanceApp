@@ -171,7 +171,7 @@ export default function DebtsPage() {
   const netPosition = totalLend - totalOwe;
 
   return (
-    <div className="min-h-screen bg-[#050816] py-6 md:py-10 px-4 md:px-8 space-y-8 md:space-y-12 no-scrollbar">
+    <div className="space-y-8 no-scrollbar">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
           <motion.h1 
@@ -179,18 +179,17 @@ export default function DebtsPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
           >
-            Liability <span className="text-rose-500">Terminal</span>
+            Liabilitas <span className="text-rose-500">Terminal</span>
           </motion.h1>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Debt & Credit Audit Infrastructure • v2.0</p>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Infrastruktur Audit Utang & Piutang • v2.0</p>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Button 
-            className="flex-1 md:flex-none rounded-[24px] shadow-[0_0_30px_rgba(244,63,94,0.2)] bg-rose-500 hover:bg-rose-600 border-none px-8 py-6 h-auto"
+            className="flex-1 md:flex-none bg-rose-500 hover:bg-rose-600 px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-rose-500/10 border-none"
             onClick={() => setIsDebtModalOpen(true)}
           >
-            <Plus className="w-5 h-5 mr-2" /> 
-            <span className="text-[11px] font-black uppercase tracking-widest">Initialize Protocol</span>
+            <Plus className="w-5 h-5 mr-2" /> Inisialisasi Protokol
           </Button>
           <button className="p-4 rounded-[24px] bg-white/[0.03] backdrop-blur-3xl border border-white/5 text-white hover:bg-white/[0.08] transition-all relative">
             <Bell className="w-5 h-5" />
@@ -207,12 +206,12 @@ export default function DebtsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
             <div className="space-y-8">
               <div className="space-y-2">
-                <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em]">Net Exposure Position</p>
+                <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em]">Posisi Eksposur Bersih</p>
                 <div className="flex items-baseline gap-3">
                   <span className={`text-5xl md:text-8xl font-black tracking-tighter ${netPosition >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
                     <NumberTicker value={Math.abs(netPosition)} formatter={formatRupiah} />
                   </span>
-                  <span className="text-xs font-black text-white/20 uppercase tracking-widest">{netPosition >= 0 ? 'Surplus' : 'Deficit'}</span>
+                  <span className="text-xs font-black text-white/20 uppercase tracking-widest">{netPosition >= 0 ? 'Surplus' : 'Defisit'}</span>
                 </div>
               </div>
               
@@ -220,13 +219,13 @@ export default function DebtsPage() {
                 <div className="px-6 py-3 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
                   <TrendingDown className="w-4 h-4 text-rose-400" />
                   <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest">
-                    Payable: <NumberTicker value={totalOwe} formatter={formatRupiah} />
+                    Bayar: <NumberTicker value={totalOwe} formatter={formatRupiah} />
                   </span>
                 </div>
                 <div className="px-6 py-3 rounded-[24px] bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
                   <HandCoins className="w-4 h-4 text-emerald-400" />
                   <span className="text-[11px] font-black text-emerald-400 uppercase tracking-widest">
-                    Receivable: <NumberTicker value={totalLend} formatter={formatRupiah} />
+                    Terima: <NumberTicker value={totalLend} formatter={formatRupiah} />
                   </span>
                 </div>
               </div>
@@ -239,12 +238,12 @@ export default function DebtsPage() {
                     <ShieldAlert className="w-7 h-7 text-rose-400" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-white uppercase tracking-tight">Liability Audit</h4>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">System Monitoring</p>
+                    <h4 className="text-sm font-black text-white uppercase tracking-tight">Audit Liabilitas</h4>
+                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Pemantauan Sistem</p>
                   </div>
                 </div>
                 <div className="text-4xl font-black text-white italic tracking-tighter">
-                  {debts.length} <span className="text-xs not-italic text-white/20">Units</span>
+                  {debts.length} <span className="text-xs not-italic text-white/20">Unit</span>
                 </div>
               </div>
               <div className="space-y-3">
@@ -288,7 +287,7 @@ export default function DebtsPage() {
               ) : debts.filter(d => d.type === 'owe').length === 0 ? (
                 <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-4">
                   <ShieldCheck className="w-12 h-12 text-white/10" />
-                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">No Liability Detected</p>
+                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Tidak Ada Liabilitas Terdeteksi</p>
                 </div>
               ) : (
                 debts.filter(d => d.type === 'owe').map((debt, i) => {
@@ -552,7 +551,7 @@ export default function DebtsPage() {
             <Button 
               type="submit" 
               loading={submitting}
-              className="flex-1 rounded-[24px] bg-indigo-500 hover:bg-indigo-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none"
+              className="flex-1 rounded-[24px] bg-emerald-500 hover:bg-emerald-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 border-none"
             >
               Authorize Protocol
             </Button>

@@ -110,14 +110,14 @@ export default function SavingsPage() {
   const totalTarget = goals.reduce((sum, g) => sum + Number(g.target_amount), 0);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] py-10 px-8 space-y-10">
+    <div className="space-y-10">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Treasury <span className="text-indigo-500">Forge</span></h1>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.3em]">Capital Growth Infrastructure • v2.0</p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Penempaan <span className="text-emerald-500">Kas</span></h1>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.3em]">Infrastruktur Pertumbuhan Kapital • v2.0</p>
         </div>
-        <Button className="rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.3)]" onClick={() => setIsGoalModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" /> Initialize Target
+        <Button className="rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-emerald-500 hover:bg-emerald-600 border-none" onClick={() => setIsGoalModalOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" /> Inisialisasi Target
         </Button>
       </header>
 
@@ -137,7 +137,7 @@ export default function SavingsPage() {
                 <Target className="w-3.5 h-3.5" /> Objective: {formatRupiah(totalTarget)}
               </div>
             </div>
-            <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-indigo-400 shadow-2xl">
+            <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xl">
               <PiggyBank className="w-10 h-10" />
             </div>
           </div>

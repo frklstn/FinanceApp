@@ -33,7 +33,7 @@ import { CategoryManagerModal } from '@/components/transaction/category-manager-
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TransactionsPage() {
-  const { accountId } = useApp();
+  const { accountId, appSettings } = useApp();
   const { toast } = useToast();
 
   const [transactions, setTransactions] = useState<PopulatedTransaction[]>([]);
@@ -145,7 +145,7 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050816] py-6 md:py-10 px-4 md:px-8 space-y-8 md:space-y-12 no-scrollbar">
+    <div className="space-y-8 no-scrollbar">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
           <motion.h1 
@@ -153,9 +153,9 @@ export default function TransactionsPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
           >
-            Ledger <span className="text-indigo-500">Terminal</span>
+            Terminal <span className="text-emerald-500">Catatan</span>
           </motion.h1>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Cryptographic Transaction Registry • v2.0</p>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Registri Transaksi Kriptografis • v2.0</p>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Button 
@@ -163,13 +163,13 @@ export default function TransactionsPage() {
             className="flex-1 md:flex-none rounded-[24px] border-white/5 bg-white/[0.03] backdrop-blur-3xl px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest"
             onClick={() => setIsCategoryModalOpen(true)}
           >
-            <Tags className="w-4 h-4 mr-2 text-indigo-400" /> Classifications
+            <Tags className="w-4 h-4 mr-2 text-emerald-400" /> Klasifikasi
           </Button>
           <Button 
-            className="flex-1 md:flex-none rounded-[24px] shadow-[0_0_30px_rgba(99,102,241,0.2)] bg-indigo-500 hover:bg-indigo-600 border-none px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest"
+            className="flex-1 md:flex-none rounded-[24px] shadow-[0_0_30px_rgba(16,185,129,0.2)] bg-emerald-500 hover:bg-emerald-600 border-none px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest"
             onClick={() => { setIsEditing(false); setIsModalOpen(true); }}
           >
-            <Plus className="w-5 h-5 mr-2" /> New Entry
+            <Plus className="w-5 h-5 mr-2" /> Entri Baru
           </Button>
         </div>
       </header>
@@ -182,23 +182,23 @@ export default function TransactionsPage() {
             <div className="w-10 h-10 rounded-[12px] bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
               <Filter className="w-5 h-5 text-indigo-400" />
             </div>
-            <h3 className="text-sm font-black uppercase tracking-widest text-white">Nexus Query</h3>
+            <h3 className="text-sm font-black uppercase tracking-widest text-white">{appSettings.app_name || 'FinanceApp'} Kueri</h3>
           </div>
           <div className="space-y-6 relative z-10">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Search Description</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Cari Deskripsi</label>
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                <Input placeholder="Query entries..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-white/[0.03] border-white/5 pl-12 rounded-[16px] py-6 h-auto" />
+                <Input placeholder="Cari entri..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-white/[0.03] border-white/5 pl-12 rounded-[16px] py-6 h-auto" />
               </div>
             </div>
-            <Select label="Entry Type" options={[{value: '', label: 'All Protocols'}, {value: 'income', label: 'Inflow'}, {value: 'expense', label: 'Outflow'}, {value: 'transfer', label: 'Internal Transfer'}]} value={filterType} onChange={(e) => setFilterType(e.target.value)} className="rounded-[16px] bg-white/[0.03] border-white/5 h-auto py-3" />
-            <Select label="Asset Account" options={[{value: '', label: 'All Nodes'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => setFilterWallet(e.target.value)} className="rounded-[16px] bg-white/[0.03] border-white/5 h-auto py-3" />
+            <Select label="Tipe Entri" options={[{value: '', label: 'Semua Protokol'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer Internal'}]} value={filterType} onChange={(e) => setFilterType(e.target.value)} className="rounded-[16px] bg-white/[0.03] border-white/5 h-auto py-3" />
+            <Select label="Akun Aset" options={[{value: '', label: 'Semua Node'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => setFilterWallet(e.target.value)} className="rounded-[16px] bg-white/[0.03] border-white/5 h-auto py-3" />
           </div>
           <div className="pt-6 border-t border-white/5 space-y-4">
             <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-white/30">
-              <span>Sync Status</span>
-              <span className="text-emerald-400">Live</span>
+              <span>Status Sinkron</span>
+              <span className="text-emerald-400">Aktif</span>
             </div>
             <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
               <motion.div initial={{ x: '-100%' }} animate={{ x: '100%' }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} className="w-1/3 h-full bg-indigo-500/50" />
@@ -212,11 +212,11 @@ export default function TransactionsPage() {
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="border-b border-white/5 bg-white/[0.02]">
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Timestamp</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Identification</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Protocol Node</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40 text-right">Magnitude</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40 text-center">Protocol Actions</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Stempel Waktu</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Identifikasi</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Node Protokol</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40 text-right">Besaran</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/40 text-center">Aksi Protokol</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -247,7 +247,7 @@ export default function TransactionsPage() {
                       </td>
                       <td className="px-8 py-6">
                         <div className="min-w-[200px] space-y-1">
-                          <p className="text-[14px] font-black text-white tracking-tight uppercase truncate leading-none">{tx.note || 'UNLABELED ENTRY'}</p>
+                          <p className="text-[14px] font-black text-white tracking-tight uppercase truncate leading-none">{tx.note || 'ENTRI TANPA LABEL'}</p>
                           <div className="flex items-center gap-2">
                             <Database className="w-3 h-3 text-indigo-500/50" />
                             <span className="text-[9px] font-black text-indigo-400/60 uppercase tracking-[0.2em]">{tx.categories?.name || 'GEN-PROTOCOL'}</span>
@@ -287,10 +287,10 @@ export default function TransactionsPage() {
               </div>
               <div className="flex gap-4">
                 <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(p-1, 1))} disabled={page === 1} className="rounded-[16px] border-white/5 text-[10px] font-black uppercase px-8 py-5 h-auto">
-                  <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+                  <ChevronLeft className="w-4 h-4 mr-2" /> Sebelumnya
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setPage(p => p*limit < count ? p+1 : p)} disabled={page*limit >= count} className="rounded-[16px] border-white/5 text-[10px] font-black uppercase px-8 py-5 h-auto">
-                  Next <ChevronRight className="w-4 h-4 ml-2" />
+                  Berikutnya <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             </div>
@@ -299,7 +299,7 @@ export default function TransactionsPage() {
       </section>
 
       {/* Modern Terminal Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? "Modify Transaction Record" : "Authorize Ledger Entry"}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? "Modifikasi Catatan Transaksi" : "Otorisasi Entri Buku Besar"}>
         <form onSubmit={handleAddTransaction} className="space-y-8 p-2">
           <div className="grid grid-cols-3 gap-3 p-2 bg-white/[0.02] rounded-[24px] border border-white/5 shadow-inner">
             {(['expense', 'income', 'transfer'] as const).map((t) => (
@@ -316,30 +316,30 @@ export default function TransactionsPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Entry Magnitude (IDR)</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Besaran Entri (IDR)</label>
               <div className="relative">
                 <Activity className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500/50" />
                 <Input type="number" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} required className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-xl font-black tracking-tighter h-auto" />
               </div>
             </div>
-            <DatePicker label="Temporal Chronology" showTime value={txDate} onChange={setTxDate} />
+            <DatePicker label="Kronologi Temporal" showTime value={txDate} onChange={setTxDate} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Select label="Origin Asset Node" options={[{value: '', label: '-- Select Asset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txWalletId} onChange={(e) => setTxWalletId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+            <Select label="Node Aset Asal" options={[{value: '', label: '-- Pilih Aset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txWalletId} onChange={(e) => setTxWalletId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
             {txType === 'transfer' ? (
-              <Select label="Target Destination Node" options={[{value: '', label: '-- Select Asset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txDestWalletId} onChange={(e) => setTxDestWalletId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+              <Select label="Node Aset Tujuan" options={[{value: '', label: '-- Pilih Aset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txDestWalletId} onChange={(e) => setTxDestWalletId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
             ) : (
-              <Select label="Protocol Classification" options={[{value: '', label: '-- General Entry --'}, ...categories.filter(c => c.type === txType).map(c => ({value: c.id, label: c.name}))]} value={txCategoryId} onChange={(e) => setTxCategoryId(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+              <Select label="Klasifikasi Protokol" options={[{value: '', label: '-- Entri Umum --'}, ...categories.filter(c => c.type === txType).map(c => ({value: c.id, label: c.name}))]} value={txCategoryId} onChange={(e) => setTxCategoryId(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
             )}
           </div>
 
-          <Input label="Registry Annotation" placeholder="Nature of entry..." value={txNote} onChange={(e) => setTxNote(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-6 h-auto" />
+          <Input label="Anotasi Registri" placeholder="Keterangan entri..." value={txNote} onChange={(e) => setTxNote(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-6 h-auto" />
           
           <div className="flex gap-4 pt-4">
-            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsModalOpen(false)}>Batal</Button>
             <Button type="submit" loading={submitting} className="flex-1 rounded-[24px] bg-indigo-500 hover:bg-indigo-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none">
-              Authorize Entry
+              Otorisasi Entri
             </Button>
           </div>
         </form>

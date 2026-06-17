@@ -27,7 +27,7 @@ import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function BudgetsPage() {
-  const { accountId } = useApp();
+  const { accountId, appSettings } = useApp();
   const { toast } = useToast();
 
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -88,14 +88,14 @@ export default function BudgetsPage() {
   const totalRemaining = totalBudget - totalSpent;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] py-10 px-8 space-y-10">
+    <div className="space-y-10">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Limit <span className="text-indigo-500">Nexus</span></h1>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.3em]">Operational Margin Control • v2.0</p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Batas <span className="text-emerald-500">{appSettings.app_name || 'Nexus'}</span></h1>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.3em]">Kontrol Margin Operasional • v2.0</p>
         </div>
-        <Button className="rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.3)]" onClick={() => setIsModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" /> Configure Boundary
+        <Button variant="nexus-emerald" className="rounded-2xl" onClick={() => setIsModalOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" /> Konfigurasi Batasan
         </Button>
       </header>
 
@@ -105,8 +105,8 @@ export default function BudgetsPage() {
           <div className="flex items-center justify-between relative z-10">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-white/50">Cumulative Margin</h3>
+                <PieChart className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-white/50">Margin Kumulatif</h3>
               </div>
               <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">
                 <NumberTicker value={totalSpent} formatter={(v) => formatRupiah(v)} />
@@ -115,7 +115,7 @@ export default function BudgetsPage() {
                 <Target className="w-3.5 h-3.5" /> Threshold: {formatRupiah(totalBudget)}
               </div>
             </div>
-            <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-indigo-400 shadow-2xl">
+            <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xl">
               <TrendingDown className="w-10 h-10" />
             </div>
           </div>
@@ -249,7 +249,7 @@ export default function BudgetsPage() {
             disabled={submitting}
           />
 
-          <Button type="submit" loading={submitting} className="w-full h-14 font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/10">Authorize Margin</Button>
+          <Button type="submit" loading={submitting} className="w-full h-14 font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/10 bg-emerald-500 hover:bg-emerald-600 border-none">Authorize Margin</Button>
         </form>
       </Modal>
     </div>

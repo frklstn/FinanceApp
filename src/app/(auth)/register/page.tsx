@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, ShieldCheck, ArrowRight, Activity, Terminal } from 'lucide-react';
+import { User, Mail, Lock, ShieldCheck, ArrowRight, Activity, Terminal, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -162,12 +163,12 @@ export default function RegisterPage() {
               <div className="relative group">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   disabled={loading}
-                  className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto"
+                  className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto"
                   required
                 />
               </div>
@@ -178,14 +179,21 @@ export default function RegisterPage() {
               <div className="relative group">
                 <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   disabled={loading}
-                  className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto"
+                  className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 hover:text-emerald-500 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           </div>

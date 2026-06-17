@@ -119,11 +119,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             onClick={() => !props.disabled && setIsOpen(!isOpen)}
             disabled={props.disabled}
             className={cn(
-              "w-full flex items-center justify-between px-5 py-3 rounded-2xl bg-[#0A1028]/50 backdrop-blur-md border text-sm text-white text-left focus:outline-none transition-all duration-300 group-hover:bg-[#0A1028]/80 cursor-pointer",
+              "w-full flex items-center justify-between px-5 py-3 rounded-2xl bg-[#050507]/50 backdrop-blur-md border text-sm text-white text-left focus:outline-none transition-all duration-300 hover:bg-[#050507]/80 cursor-pointer",
               error
                 ? "border-danger/60"
                 : isOpen
-                ? "border-indigo-500 ring-4 ring-indigo-500/10 shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                ? "border-emerald-500 ring-4 ring-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
                 : "border-white/5",
               props.disabled && "opacity-50 cursor-not-allowed",
               className
@@ -138,14 +138,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={cn("w-4 h-4 text-indigo-400 transition-transform duration-300", isOpen && "rotate-180")}
+              className={cn("w-4 h-4 text-emerald-400 transition-transform duration-300", isOpen && "rotate-180")}
             >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </button>
 
           {isOpen && !props.disabled && (
-            <div className="absolute left-0 right-0 z-[100] mt-2 w-full rounded-2xl bg-[#0D122B]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300 no-scrollbar">
+            <div className="absolute left-0 right-0 z-[100] mt-2 w-full rounded-2xl bg-[#0a0a0c]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300 no-scrollbar">
               {options.map((option) => {
                 const isSelected = option.value === currentValue;
                 return (
@@ -156,13 +156,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     className={cn(
                       "w-full px-5 py-3 text-xs text-left transition-all duration-200 flex items-center justify-between cursor-pointer group/opt",
                       isSelected
-                        ? "text-white font-black bg-indigo-500/10"
+                        ? "text-white font-black bg-emerald-500/10"
                         : "text-muted-foreground hover:bg-white/5 hover:text-white"
                     )}
                   >
                     <span className="truncate uppercase tracking-wider">{option.label}</span>
                     {isSelected && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)]" />
                     )}
                   </button>
                 );

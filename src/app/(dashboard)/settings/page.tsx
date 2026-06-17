@@ -171,11 +171,11 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto p-4 md:p-6 pb-24">
+    <div className="space-y-8">
       {/* Title */}
       <div>
         <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-          <Settings className="w-5.5 h-5.5 text-primary" />
+          <Settings className="w-5.5 h-5.5 text-emerald-500" />
           Preferensi & Pengaturan Sistem
         </h2>
         <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
@@ -189,7 +189,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab('profile')}
           className={`flex items-center gap-2 pb-2 text-xs font-bold uppercase transition-all duration-150 cursor-pointer ${
             activeTab === 'profile'
-              ? 'border-b-2 border-primary text-primary'
+              ? 'border-b-2 border-emerald-500 text-emerald-500'
               : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
           }`}
         >
@@ -200,7 +200,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab('data')}
           className={`flex items-center gap-2 pb-2 text-xs font-bold uppercase transition-all duration-150 cursor-pointer ${
             activeTab === 'data'
-              ? 'border-b-2 border-primary text-primary'
+              ? 'border-b-2 border-emerald-500 text-emerald-500'
               : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
           }`}
         >
@@ -307,8 +307,8 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="flex justify-end pt-4 border-t border-light-border/40 dark:border-dark-border/40">
-              <Button type="submit" loading={submitting}>
+            <div className="flex justify-end pt-4 border-t border-white/5">
+              <Button type="submit" variant="nexus-emerald" loading={submitting}>
                 Simpan Perubahan
               </Button>
             </div>

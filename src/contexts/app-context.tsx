@@ -100,7 +100,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         is_suspended: profileRow.is_suspended,
         language: profileRow.language ?? 'id',
       });
-      setUserPlan((profileRow.plan as 'free' | 'pro') ?? 'free');
+      // Force PRO plan for Demo account (Match bypass email)
+      const isDemo = authUser.email?.toLowerCase() === 'demo@frklstn.com' || profileRow.email?.toLowerCase() === 'demo@frklstn.com';
+      const finalPlan = isDemo ? 'pro' : (profileRow.plan as 'free' | 'pro' || 'free');
+      setUserPlan(finalPlan);
       setUserBranding({
         app_name: profileRow.app_name ?? null,
         app_icon_url: profileRow.app_icon_url ?? null,

@@ -69,8 +69,8 @@ export default function MobileNav() {
           onClick={() => setIsMoreOpen(!isMoreOpen)}
           className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-150 cursor-pointer ${
             isMoreOpen
-              ? 'text-primary font-bold scale-105'
-              : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary dark:hover:text-dark-text-primary'
+              ? 'text-emerald-400 font-bold scale-105'
+              : 'text-white/30 hover:text-white'
           }`}
         >
           <Menu className="w-5.5 h-5.5 shrink-0 mb-0.5" />

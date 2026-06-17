@@ -21,12 +21,6 @@
 - [x] Fase 9: Premium UI/UX Polish (Luxury Spacing & Radius).
 - [x] Fase 10: Landing Page (Modern Dark Glassmorphism).
 - [ ] Fase 11: Multi-Currency & Seed Data Categories.
-
-## Rujukan Desain
-- **Warna**: Dark Theme (#0a0a0c), Indigo-600 Primary.
-- **Radius**: 32px untuk Container Utama.
-- **Font**: Geist (San Serif).
-
 ---
 
 ## 📋 Audit — Schema Consolidation & Doc Update
