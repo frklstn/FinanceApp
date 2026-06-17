@@ -142,7 +142,7 @@ export const walletService = {
     // 1. Fetch current balances
     const { data: sourceWallet, error: sErr } = await supabase
       .from('wallets')
-      .select('balance')
+      .select('balance, currency')
       .eq('id', sourceId)
       .single();
 
