@@ -287,6 +287,30 @@ export type Database = {
           },
         ]
       }
+      exchange_rates: {
+        Row: {
+          from_currency: string
+          id: string
+          rate: number
+          to_currency: string
+          updated_at: string | null
+        }
+        Insert: {
+          from_currency: string
+          id?: string
+          rate: number
+          to_currency: string
+          updated_at?: string | null
+        }
+        Update: {
+          from_currency?: string
+          id?: string
+          rate?: number
+          to_currency?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       financial_insights: {
         Row: {
           created_at: string
@@ -332,6 +356,7 @@ export type Database = {
           id: string
           monthly_income: number
           workspace_id: string
+          currency: string | null
         }
         Insert: {
           created_at?: string
@@ -339,6 +364,7 @@ export type Database = {
           id?: string
           monthly_income: number
           workspace_id: string
+          currency?: string | null
         }
         Update: {
           created_at?: string
@@ -346,6 +372,7 @@ export type Database = {
           id?: string
           monthly_income?: number
           workspace_id?: string
+          currency?: string | null
         }
         Relationships: [
           {
@@ -379,6 +406,7 @@ export type Database = {
           total_repayment: number
           updated_at: string
           workspace_id: string
+          currency: string | null
         }
         Insert: {
           amount_received: number
@@ -401,6 +429,7 @@ export type Database = {
           total_repayment: number
           updated_at?: string
           workspace_id: string
+          currency?: string | null
         }
         Update: {
           amount_received?: number
@@ -423,6 +452,7 @@ export type Database = {
           total_repayment?: number
           updated_at?: string
           workspace_id?: string
+          currency?: string | null
         }
         Relationships: [
           {
