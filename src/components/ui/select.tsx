@@ -1,4 +1,7 @@
+'use client';
+
 import React, { forwardRef, useState, useRef, useEffect } from 'react';
+import { cn } from "@/lib/utils";
 
 interface SelectOption {
   value: string;
@@ -18,7 +21,6 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     const selectRef = useRef<HTMLSelectElement>(null);
 
-    // Sync external value or defaultValue with internal state
     const [currentValue, setCurrentValue] = useState<string>(
       String(props.value ?? props.defaultValue ?? '')
     );
@@ -29,7 +31,6 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       }
     }, [props.value]);
 
-    // Handle clicks outside the dropdown to close it
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
         if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -46,12 +47,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       setCurrentValue(value);
       setIsOpen(false);
 
-      // Trigger the native select onChange event to maintain 100% compatibility
       const targetSelect = selectRef.current;
       if (targetSelect) {
         targetSelect.value = value;
-        
-        // React tracks input values via value tracker. We need to trigger setter.
         const nativeSelectValueSetter = Object.getOwnPropertyDescriptor(
           HTMLSelectElement.prototype,
           'value'
@@ -65,7 +63,6 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         targetSelect.dispatchEvent(event);
 
         if (onChange) {
-          // Construct synthetic React change event
           const syntheticEvent = {
             target: targetSelect,
             currentTarget: targetSelect,
@@ -85,19 +82,17 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       }
     };
 
-    // Find active label to display on button
     const selectedOption = options.find((opt) => opt.value === currentValue);
     const displayLabel = selectedOption ? selectedOption.label : '-- Pilih --';
 
     return (
-      <div className="w-full relative" ref={containerRef}>
+      <div className="w-full space-y-1.5" ref={containerRef}>
         {label && (
-          <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1">
+          <label className="block text-xs font-bold text-[#A7B0D1] tracking-wide uppercase">
             {label}
           </label>
         )}
         
-        {/* Hidden native select for standard HTML forms and compatibility */}
         <select
           ref={(node) => {
             selectRef.current = node;
@@ -118,85 +113,71 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ))}
         </select>
 
-        {/* Custom Dropdown Trigger */}
-        <button
-          type="button"
-          onClick={() => !props.disabled && setIsOpen(!isOpen)}
-          disabled={props.disabled}
-          className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-light-card border text-sm text-light-text-primary dark:text-dark-text-primary text-left focus:outline-none transition-all duration-200 cursor-pointer dark:bg-dark-bg/40 
-            ${
+        <div className="relative group">
+          <button
+            type="button"
+            onClick={() => !props.disabled && setIsOpen(!isOpen)}
+            disabled={props.disabled}
+            className={cn(
+              "w-full flex items-center justify-between px-5 py-3 rounded-2xl bg-[#0A1028]/50 backdrop-blur-md border text-sm text-white text-left focus:outline-none transition-all duration-300 group-hover:bg-[#0A1028]/80 cursor-pointer",
               error
-                ? 'border-danger/60 focus:border-danger'
+                ? "border-danger/60"
                 : isOpen
-                ? 'border-primary ring-1 ring-primary/20 dark:border-primary'
-                : 'border-light-border hover:border-primary/50 dark:border-dark-border dark:hover:border-primary/40'
-            }
-            ${props.disabled ? 'opacity-50 cursor-not-allowed bg-light-bg/40 dark:bg-dark-bg/20' : ''}
-            ${className}`}
-        >
-          <span className="truncate">{displayLabel}</span>
-          
-          {/* Custom Chevron icon */}
-          <span className={`text-light-text-secondary dark:text-dark-text-secondary transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+                ? "border-indigo-500 ring-4 ring-indigo-500/10 shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                : "border-white/5",
+              props.disabled && "opacity-50 cursor-not-allowed",
+              className
+            )}
+          >
+            <span className="truncate font-medium">{displayLabel}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="w-4 h-4"
+              className={cn("w-4 h-4 text-indigo-400 transition-transform duration-300", isOpen && "rotate-180")}
             >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
-          </span>
-        </button>
+          </button>
 
-        {/* Custom Dropdown Options Popover */}
-        {isOpen && !props.disabled && (
-          <div className="absolute left-0 right-0 z-[100] mt-1 w-full rounded-xl bg-light-card border border-light-border/60 shadow-2xl dark:bg-dark-card dark:border-dark-border/60 py-1.5 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150 scrollbar-thin">
-            {options.map((option) => {
-              const isSelected = option.value === currentValue;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleOptionClick(option.value)}
-                  className={`w-full px-4 py-2 text-sm text-left transition-colors duration-150 flex items-center justify-between cursor-pointer ${
-                    isSelected
-                      ? 'text-primary font-bold bg-primary/5 dark:bg-primary/10'
-                      : 'text-light-text-primary dark:text-dark-text-secondary hover:bg-light-bg/80 dark:hover:bg-dark-bg/30 hover:text-light-text-primary dark:hover:text-dark-text-primary'
-                  }`}
-                >
-                  <span className="truncate">{option.label}</span>
-                  {isSelected && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="w-4 h-4 text-primary shrink-0"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
+          {isOpen && !props.disabled && (
+            <div className="absolute left-0 right-0 z-[100] mt-2 w-full rounded-2xl bg-[#0D122B]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300 no-scrollbar">
+              {options.map((option) => {
+                const isSelected = option.value === currentValue;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleOptionClick(option.value)}
+                    className={cn(
+                      "w-full px-5 py-3 text-xs text-left transition-all duration-200 flex items-center justify-between cursor-pointer group/opt",
+                      isSelected
+                        ? "text-white font-black bg-indigo-500/10"
+                        : "text-muted-foreground hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <span className="truncate uppercase tracking-wider">{option.label}</span>
+                    {isSelected && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {error && (
-          <p className="mt-1 text-xs text-danger font-medium flex items-center gap-1">
+          <p className="text-[10px] text-danger font-bold uppercase tracking-tight flex items-center gap-1.5">
             {error}
           </p>
         )}
         {!error && description && (
-          <p className="mt-1 text-xs text-light-text-secondary dark:text-dark-text-secondary/60">
+          <p className="text-[10px] text-[#6F7A9E] font-medium leading-relaxed">
             {description}
           </p>
         )}
