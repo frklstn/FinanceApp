@@ -8,7 +8,7 @@ import { loanTrackerService, type LoanTracker } from '@/lib/services/loan-tracke
 import { APP_TEXTS } from '@/config/branding';
 import { walletService } from '@/lib/services/wallet.service';
 import { currencyService } from '@/lib/services/currency.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
 import { SpendingChart } from '@/components/charts/spending-chart';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -612,10 +612,10 @@ export default function DashboardPage() {
                   financialStats.activeLoans.slice(0, 2).map((loan) => (
                     <div key={loan.id} className="p-3.5 rounded-[18px] bg-white/[0.03] border border-white/5 flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <p className="text-[10px] font-black text-white uppercase">{loan.provider_name || 'Pinjol'}</p>
-                        <p className="text-[9px] font-bold text-rose-400/60 uppercase">H-{(Math.ceil((new Date(loan.next_due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))} Menuju Jatuh Tempo</p>
+                        <p className="text-[10px] font-black text-white uppercase">{loan.app_name || 'Pinjol'}</p>
+                        <p className="text-[9px] font-bold text-rose-400/60 uppercase">Node Aktif • {loan.category.toUpperCase()}</p>
                       </div>
-                      <p className="text-[11px] font-black text-white">{formatRupiah(Number(loan.monthly_payment))}</p>
+                      <p className="text-[11px] font-black text-white">{formatCurrency(Number(loan.monthly_payment))}</p>
                     </div>
                   ))
                 ) : (
