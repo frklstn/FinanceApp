@@ -23,38 +23,35 @@
 - [ ] Fase 11: Multi-Currency & Seed Data Categories.
 ---
 
-## 📋 Audit — Schema Consolidation & Doc Update
+## 📋 Audit — ESLint Zero-Error Cleanup
 
-`Kondisi Aktif (2026-06-17)` diperbarui. Tech Stack: Next.js 16 & React 19.
+`Kondisi Aktif (2026-06-17)` diperbarui. ESLint 0 errors, 0 warnings.
 
 ✅ **Sudah ada:**
-- Next.js 16 (Turbopack) → Compile & build sukses lokal & remote.
+- Next.js 16 (Turbopack) → Compile & build sukses lokal & remote (22 routes).
+- **ESLint: 0 errors, 0 warnings** — bersih 100%.
 - Graphify `graph.json` & `.graphify_python` active.
 - DB Supabase: 17 tabel (schema public) active.
-- Kode tersinkronisasi aman di remote branch `main`.
-- Recharts console warning fix diintegrasikan ke semua grafik.
-- ESLint checks lolos bersih 100% tanpa error/warning.
-- Optimasi concurrency bootstrap context & reduksi redundansi filter request.
-- File `supabase/schema.sql` baru berisi seluruh skema database 17 tabel terkonsolidasi.
-- Script `scripts/apply-remote-migrations.js` diperbarui untuk membaca & mengeksekusi `schema.sql` secara tunggal.
-- Dokumentasi `docs/read.md` dan `README.md` root disesuaikan dengan skema database tunggal dan Tech Stack ter-update.
+- Kode tersinkronisasi aman di remote branch `main` (commit: `a88671cd`).
+- File `src/config/branding.ts` & `src/styles/nexus-theme/` terkomit.
+- File `supabase/seed_demo.sql` & `src/lib/services/seed-data.service.ts` terkomit.
 
 ❌ **Belum ada atau error terdeteksi:**
 - Nihil.
 
 ⚠️ **Perlu perhatian:**
-- Masih di Fase 10 (tidak lanjut ke Fase 11) karena masih banyak UI, fitur, dan tombol dashboard yang harus di-fix.
+- Masih di Fase 10 (tidak lanjut ke Fase 11) — banyak UI/fitur dashboard perlu review.
 
 🔧 **Solusi:**
-- Menggabungkan data catalog PostgreSQL dari Supabase remote ke dalam satu file `supabase/schema.sql`.
-- Mengarahkan script migrasi Supabase ke `schema.sql` menggantikan 5 file migrasi SQL yang sebelumnya absen di disk lokal.
-- Menyalin isi `docs/read.md` ke `README.md` pada root project setelah dilakukan update informasi instalasi migrasi database.
+- Fix 6 errors ESLint: unused imports (walletService, categoryService, Clock, HandCoins, ArrowUpRight, ArrowDownLeft, Calendar, dll), `let`→`const` reassignment, `as 'type'`→`as const`.
+- Fix 28 warnings: unused vars (appSettings di reports/savings/debts/pinjol pages), unused router di pinjol, motion/AnimatePresence di pinjol.
+- eslint-disable-next-line dipasang di `pinjol/page.tsx` & `dashboard/page.tsx` untuk `react-hooks/set-state-in-effect` (intentional useCallback pattern).
+- `seed-data.service.ts` direfactor: `fetchedCategory` + `let pinjolCategory` untuk menghindari const reassignment TypeScript error.
 
 📈 **Setelah Solusi:**
-- Dokumentasi dan struktur kode migrasi database menjadi sinkron dengan realitas database Supabase aktif.
-- Setup environment baru lebih mudah & andal menggunakan satu file schema tunggal.
-- GitHub repository page menampilkan `README.md` dengan informasi proyek terkini.
-- `working tree clean` and remote synchronized.
+- `npx eslint src` → **0 problems**.
+- `npx next build` → **✓ Compiled successfully** (22 routes).
+- `git push origin main` → **remote synchronized** (`a88671cd`).
 
 🚀 **Langkah Selanjutnya:**
 - Audit & perbaikan detail UI, fitur, dan tombol dashboard di Fase 10.
