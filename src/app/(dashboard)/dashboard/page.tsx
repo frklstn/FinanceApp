@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { insightsService, type FinancialInsight } from '@/lib/services/insights.service';
 import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
-import { loanTrackerService } from '@/lib/services/loan-tracker.service';
+import { loanTrackerService, type LoanTracker } from '@/lib/services/loan-tracker.service';
 import { APP_TEXTS } from '@/config/branding';
 import { walletService } from '@/lib/services/wallet.service';
 import { currencyService } from '@/lib/services/currency.service';
