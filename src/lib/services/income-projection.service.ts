@@ -17,7 +17,7 @@ export const incomeProjectionService = {
       .order('effective_date', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return data || [];
+    return (data || []).map(entry => ({ ...entry, currency: entry.currency ?? 'IDR' }));
   },
 
   async createEntry(

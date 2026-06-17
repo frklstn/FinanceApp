@@ -46,7 +46,7 @@ export const loanTrackerService = {
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
-    return (data as unknown as LoanTracker[]) || [];
+    return ((data as any[]) || []).map(l => ({ ...l, currency: l.currency ?? 'IDR' })) as LoanTracker[];
   },
 
   async createLoanTracker(
