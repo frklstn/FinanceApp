@@ -284,12 +284,14 @@ export default function PinjolPage() {
 
             {activeTab === 'overview' && (
               <div className="space-y-5">
-                <DebtDashboard
-                  currentForecast={forecast.currentForecast}
-                  survivalScore={forecast.survivalScore}
-                  activeDebtCount={forecast.activeLoans.length}
-                  nextDueDate={forecast.nextDueDate}
-                />
+                {forecast.currentForecast && forecast.survivalScore && (
+                  <DebtDashboard
+                    currentForecast={forecast.currentForecast}
+                    survivalScore={forecast.survivalScore}
+                    activeDebtCount={forecast.activeLoans.length}
+                    nextDueDate={forecast.nextDueDate}
+                  />
+                )}
 
                 {allWarnings.length > 0 && (
                   <div className="pinjol-warnings">
@@ -311,13 +313,17 @@ export default function PinjolPage() {
                   onAnalyze={forecast.requestSurvivalAnalysis}
                 />
 
-                <ForecastAnalyticsSummary analytics={forecast.analytics} />
+                {forecast.analytics && (
+                  <ForecastAnalyticsSummary analytics={forecast.analytics} />
+                )}
               </div>
             )}
 
             {activeTab === 'forecast' && (
               <div className="space-y-5">
-                <ForecastAnalyticsSummary analytics={forecast.analytics} />
+                {forecast.analytics && (
+                  <ForecastAnalyticsSummary analytics={forecast.analytics} />
+                )}
                 <h3 className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
                   Cashflow per Siklus Gaji
                 </h3>

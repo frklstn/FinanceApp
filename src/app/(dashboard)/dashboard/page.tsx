@@ -31,6 +31,7 @@ import {
 import { QuickAddModal } from '@/components/transaction/quick-add-modal';
 import { ProfileModal } from '@/components/profile/profile-modal';
 import { calcRemainingObligation, getNextDueDate } from '@/lib/debt-planner/calculations';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import NumberTicker from '@/components/ui/number-ticker';
 import { BentoGridItem } from '@/components/ui/bento-grid';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,7 +56,7 @@ export default function DashboardPage() {
     savingsDiff: 0,
     totalTarget: 0,
     insights: [] as FinancialInsight[],
-    activeLoans: [] as Record<string, unknown>[],
+    activeLoans: [] as LoanTracker[],
     totalRemainingDebt: 0,
     nextDueDate: null as Date | null,
   });
@@ -170,8 +171,8 @@ export default function DashboardPage() {
 
       const activeLoans = trackers.filter(l => l.status === 'active');
       const totalMonthlyDebtPayment = activeLoans.reduce((sum, l) => sum + Number(l.monthly_payment), 0);
-      const totalRemainingDebt = activeLoans.reduce((sum, l) => sum + calcRemainingObligation(l), 0);
-      const nextDue = getNextDueDate(activeLoans);
+      const totalRemainingDebt = activeLoans.reduce((sum, l) => sum + Number(l.total_remaining_balance || 0), 0);
+      const nextDue = activeLoans.length > 0 ? new Date(Math.min(...activeLoans.map(l => new Date(l.start_date).getTime()))) : null;
 
       let statusMsg = '';
       if (activeLoans.length > 0) {

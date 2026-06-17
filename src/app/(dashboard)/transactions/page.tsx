@@ -146,6 +146,8 @@ export default function TransactionsPage() {
         note: txNote.trim() || null,
         date: new Date(txDate).toISOString(),
         tags: [] as string[],
+        currency: 'IDR',
+        exchange_rate: 1
       };
 
       if (isEditing && editingId) {
@@ -158,6 +160,8 @@ export default function TransactionsPage() {
           attachment_url: null,
           is_recurring: false,
           recurring_id: null,
+          currency: 'IDR',
+          exchange_rate: 1,
         });
         toast('Entry Authorized', 'success');
       }
