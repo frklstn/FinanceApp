@@ -1,17 +1,17 @@
 @theme {
-  --color-primary: #6E5CFF;
-  --color-primary-dim: #4C3BFF;
-  --color-primary-hover: #7F6FFF;
+  --color-primary: #10B981;
+  --color-primary-dim: #059669;
+  --color-primary-hover: #34D399;
 
-  --color-success: #28D17C;
-  --color-danger: #FF4B5C;
-  --color-warning: #FFB347;
-  --color-info: #8B7CFF;
+  --color-success: #10B981;
+  --color-danger: #F43F5E;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
 
-  --color-surface-1: #050816;
-  --color-surface-2: #0A1028;
-  --color-surface-3: #111733;
-  --color-surface-4: #151C3A;
+  --color-surface-1: #09090B;
+  --color-surface-2: #18181B;
+  --color-surface-3: #27272A;
+  --color-surface-4: #3F3F46;
 
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #A7B0D1;
@@ -57,13 +57,13 @@
 }
 
 :root {
-  --bg-main: #050816;
-  --bg-sidebar: #070B1B;
-  --bg-card: #0A1028;
-  --bg-surface: #111733;
+  --bg-main: #09090B;
+  --bg-sidebar: #09090B;
+  --bg-card: #18181B;
+  --bg-surface: #27272A;
   
-  --primary: #6E5CFF;
-  --primary-glow: rgba(110, 92, 255, 0.4);
+  --primary: #10B981;
+  --primary-glow: rgba(16, 185, 129, 0.4);
   --success: #28D17C;
   --danger: #FF4B5C;
   --warning: #FFB347;
@@ -76,14 +76,14 @@
   --shadow-neon: 0 0 25px var(--primary-glow);
 
   /* Glass Effects (Impeccable Depth) */
-  --glass-bg: rgba(10, 16, 40, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(24, 24, 27, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: blur(24px);
 
   /* Premium Gradients */
-  --grad-primary: linear-gradient(135deg, #6E5CFF 0%, #8B7CFF 100%);
-  --grad-surface: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%);
-  --grad-dark: linear-gradient(180deg, #0A1028 0%, #050816 100%);
+  --grad-primary: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+  --grad-surface: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+  --grad-dark: linear-gradient(180deg, #18181B 0%, #09090B 100%);
 
   /* Impeccable Typography */
   --tracking-tightest: -0.05em;
