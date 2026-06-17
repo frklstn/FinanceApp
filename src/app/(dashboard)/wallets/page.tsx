@@ -32,7 +32,6 @@ export default function WalletsPage() {
   const { toast } = useToast();
 
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
@@ -53,17 +52,20 @@ export default function WalletsPage() {
   const fetchWallets = useCallback(async () => {
     if (!accountId) return;
     try {
-      setLoading(true);
       const list = await walletService.getWallets(accountId);
       setWallets(list);
-    } catch (err: any) {
-      toast(err.message, 'danger');
-    } finally {
-      setLoading(false);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast(message, 'danger');
     }
   }, [accountId, toast]);
 
-  useEffect(() => { fetchWallets(); }, [fetchWallets]);
+  useEffect(() => {
+    if (accountId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchWallets();
+    }
+  }, [accountId, fetchWallets]);
 
   const handleSaveWallet = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,8 +81,9 @@ export default function WalletsPage() {
       }
       setIsWalletModalOpen(false);
       fetchWallets();
-    } catch (err: any) {
-      toast(err.message, 'danger');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast(message, 'danger');
     } finally {
       setSubmitting(false);
     }

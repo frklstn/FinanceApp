@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { useApp } from '@/contexts/app-context';
 import { insightsService, type FinancialInsight } from '@/lib/services/insights.service';
 import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
@@ -32,11 +31,9 @@ import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
 import { motion } from 'framer-motion';
 
 export default function DashboardPage() {
-  const { accountId, profile, user, isPro, t } = useApp();
+  const { accountId } = useApp();
   const { toast } = useToast();
-  const router = useRouter();
 
-  const [loading, setLoading] = useState(true);
   const [financialStats, setFinancialStats] = useState({
     score: 0,
     income: 0,
@@ -54,17 +51,15 @@ export default function DashboardPage() {
 
   const [recentTxs, setRecentTxs] = useState<PopulatedTransaction[]>([]);
   const [chartData, setChartData] = useState<{ date: string; amount: number }[]>([]);
-  const [pieData, setPieData] = useState<{ name: string; value: number; color: string }[]>([]);
   const [quickAdd, setQuickAdd] = useState<{ open: boolean; type: 'income' | 'expense' | 'transfer' }>({
     open: false,
     type: 'expense',
   });
-  const [dateFilter, setDateFilter] = useState('Bulan Ini');
+  const [dateFilter] = useState('Bulan Ini');
 
   const loadDashboardData = useCallback(async () => {
     if (!accountId) return;
     try {
-      setLoading(true);
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
@@ -82,7 +77,8 @@ export default function DashboardPage() {
       const totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
       
       const trackers = await loanTrackerService.getLoanTrackers(accountId);
-      const totalActiveDebt = trackers.filter(l => l.status === 'active').reduce((sum, l) => sum + Number(l.total_repayment), 0);
+      const activeTrackers = trackers.filter(l => l.status === 'active');
+      const totalActiveDebt = activeTrackers.reduce((sum, l) => sum + Number(l.total_repayment), 0);
 
       setFinancialStats({
         score: insightData.score,
@@ -90,10 +86,10 @@ export default function DashboardPage() {
         expense: insightData.expense,
         savings: insightData.savings,
         activeDebt: totalActiveDebt,
-        activeLoansCount: trackers.filter(l => l.status === 'active').length,
+        activeLoansCount: activeTrackers.length,
         walletCount: wallets.length,
         totalBalance,
-        incomeDiff: 12.5, // Placeholder for trend
+        incomeDiff: 12.5,
         expenseDiff: -5.2,
         savingsDiff: 8.4,
         insights: insightData.insights,
@@ -101,7 +97,6 @@ export default function DashboardPage() {
 
       setRecentTxs(monthTxs.slice(0, 6));
 
-      // Chart Data aggregation (last 7 days)
       const dayAggregation: { [date: string]: number } = {};
       for (let i = 6; i >= 0; i--) {
         const d = new Date();
@@ -119,18 +114,19 @@ export default function DashboardPage() {
 
       setChartData(Object.entries(dayAggregation).map(([date, amount]) => ({ date, amount })));
 
-    } catch (err: any) {
-      toast(err.message, 'danger');
-    } finally {
-      setLoading(false);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast(message, 'danger');
     }
   }, [accountId, toast]);
 
-  useEffect(() => { loadDashboardData(); }, [loadDashboardData]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] py-10 px-8 space-y-10">
-      {/* Header with Glassmorphism */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
           <motion.h1 
@@ -158,7 +154,6 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Main Stats: High-End Glare Card */}
       <section>
         <Card glass className="p-10 relative group overflow-hidden border-indigo-500/20 shadow-[0_0_50px_rgba(99,102,241,0.1)]">
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-indigo-600/20" />
@@ -214,10 +209,8 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      {/* Bento Grid: Analytical Insights */}
       <section>
         <BentoGrid>
-          {/* Main Chart */}
           <BentoGridItem
             className="md:col-span-2"
             title="Spending Velocity"
@@ -226,7 +219,6 @@ export default function DashboardPage() {
             icon={<Zap className="w-4 h-4 text-indigo-400" />}
           />
 
-          {/* Quick Actions */}
           <BentoGridItem
             title="Nexus Terminal"
             description="Eksekusi transaksi instan"
@@ -251,7 +243,6 @@ export default function DashboardPage() {
             icon={<Target className="w-4 h-4 text-indigo-400" />}
           />
 
-          {/* Debt Pulse */}
           <BentoGridItem
             title="Active Liability"
             description="Monitor paparan pinjaman"
@@ -269,7 +260,6 @@ export default function DashboardPage() {
             icon={<ShieldAlert className="w-4 h-4 text-rose-400" />}
           />
 
-          {/* Recent Ledger */}
           <BentoGridItem
             className="md:col-span-2"
             title="Recent Ledger"
@@ -296,7 +286,6 @@ export default function DashboardPage() {
         </BentoGrid>
       </section>
 
-      {/* Quick Add Modal Integration */}
       {quickAdd.open && (
         <QuickAddModal 
           isOpen={quickAdd.open}

@@ -14,20 +14,14 @@ import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
 import { DatePicker } from '@/components/ui/date-picker';
 import {
-  Info,
   Edit2,
   Tags,
   Filter,
   Plus,
   Trash2,
-  ChevronLeft,
-  ChevronRight,
   TrendingUp,
   TrendingDown,
   ArrowRightLeft,
-  Calendar,
-  Search,
-  X,
 } from 'lucide-react';
 import { CategoryManagerModal } from '@/components/transaction/category-manager-modal';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,7 +33,6 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<PopulatedTransaction[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -70,13 +63,14 @@ export default function TransactionsPage() {
       ]);
       setWallets(wList);
       setCategories(cList);
-    } catch (err) { console.error(err); }
+    } catch (err: unknown) {
+      console.error(err);
+    }
   }, [accountId]);
 
   const fetchTransactions = useCallback(async () => {
     if (!accountId) return;
     try {
-      setLoading(true);
       const offset = (page - 1) * limit;
       const { data, count: total } = await transactionService.getTransactions(accountId, {
         walletId: filterWallet || undefined,
@@ -87,15 +81,25 @@ export default function TransactionsPage() {
       });
       setTransactions(data);
       setCount(total);
-    } catch (err: any) {
-      toast(err.message, 'danger');
-    } finally {
-      setLoading(false);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memuat transaksi.';
+      toast(message, 'danger');
     }
   }, [accountId, page, filterWallet, filterType, searchTerm, toast]);
 
-  useEffect(() => { if (accountId) fetchFiltersData(); }, [accountId, fetchFiltersData]);
-  useEffect(() => { if (accountId) fetchTransactions(); }, [accountId, page, filterWallet, filterType, searchTerm, fetchTransactions]);
+  useEffect(() => {
+    if (accountId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchFiltersData();
+    }
+  }, [accountId, fetchFiltersData]);
+
+  useEffect(() => {
+    if (accountId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchTransactions();
+    }
+  }, [accountId, page, filterWallet, filterType, searchTerm, fetchTransactions]);
 
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,20 +114,27 @@ export default function TransactionsPage() {
         destination_wallet_id: txType === 'transfer' ? txDestWalletId : null,
         note: txNote.trim() || null,
         date: new Date(txDate).toISOString(),
-        tags: [],
+        tags: [] as string[],
       };
 
       if (isEditing && editingId) {
         await transactionService.updateTransaction(editingId, payload);
         toast('Updated!', 'success');
       } else {
-        await transactionService.createTransaction(accountId, { ...payload, workspace_id: accountId, attachment_url: null, is_recurring: false, recurring_id: null });
+        await transactionService.createTransaction(accountId, {
+          ...payload,
+          workspace_id: accountId,
+          attachment_url: null,
+          is_recurring: false,
+          recurring_id: null,
+        });
         toast('Recorded!', 'success');
       }
       setIsModalOpen(false);
       fetchTransactions();
-    } catch (err: any) {
-      toast(err.message, 'danger');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast(message, 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -209,7 +220,7 @@ export default function TransactionsPage() {
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => { setIsEditing(true); setEditingId(tx.id); setTxType(tx.type as any); setTxAmount(tx.amount.toString()); setTxNote(tx.note || ''); setTxCategoryId(tx.category_id || ''); setTxWalletId(tx.wallet_id); setTxDate(new Date(tx.date).toISOString().substring(0, 16)); setIsModalOpen(true); }} className="p-2 rounded-lg bg-white/5 hover:bg-indigo-500/20 text-white transition-all"><Edit2 className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => { setIsEditing(true); setEditingId(tx.id); setTxType(tx.type as 'income' | 'expense' | 'transfer'); setTxAmount(tx.amount.toString()); setTxNote(tx.note || ''); setTxCategoryId(tx.category_id || ''); setTxWalletId(tx.wallet_id); setTxDate(new Date(tx.date).toISOString().substring(0, 16)); setIsModalOpen(true); }} className="p-2 rounded-lg bg-white/5 hover:bg-indigo-500/20 text-white transition-all"><Edit2 className="w-3.5 h-3.5" /></button>
                           <button onClick={() => transactionService.deleteTransaction(tx.id).then(() => fetchTransactions())} className="p-2 rounded-lg bg-white/5 hover:bg-rose-500/20 text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
                         </div>
                       </td>
