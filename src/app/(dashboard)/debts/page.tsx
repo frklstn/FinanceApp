@@ -13,7 +13,25 @@ import { Modal } from '@/components/ui/modal';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
 import { DatePicker } from '@/components/ui/date-picker';
-import { HandCoins, Plus, Landmark, Trash2, Calendar, Coins, User, ShieldCheck } from 'lucide-react';
+import { 
+  HandCoins, 
+  Plus, 
+  Landmark, 
+  Trash2, 
+  Calendar, 
+  Coins, 
+  User, 
+  ShieldCheck, 
+  ShieldAlert,
+  Zap,
+  TrendingDown,
+  ArrowRightLeft,
+  ChevronDown,
+  Bell,
+  Target
+} from 'lucide-react';
+import NumberTicker from '@/components/ui/number-ticker';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DebtsPage() {
   const { accountId } = useApp();
@@ -151,346 +169,459 @@ export default function DebtsPage() {
     }
   };
 
-  // Compile aggregations
   const totalOwe = debts.filter((d) => d.type === 'owe').reduce((sum, d) => sum + Number(d.remaining_amount), 0);
   const totalLend = debts.filter((d) => d.type === 'lend').reduce((sum, d) => sum + Number(d.remaining_amount), 0);
+  const netPosition = totalLend - totalOwe;
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto p-4 md:p-5 pb-24">
-      {/* Header Area */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-            <HandCoins className="w-5.5 h-5.5 text-primary" />
-            Buku Utang & Piutang
-          </h2>
-          <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            Pantau utang (uang yang harus Anda bayar) dan piutang (uang yang Anda pinjamkan)
-          </p>
+    <div className="min-h-screen bg-[#050816] py-6 md:py-10 px-4 md:px-8 space-y-8 md:space-y-12 no-scrollbar">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="space-y-1">
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
+          >
+            Liability <span className="text-rose-500">Terminal</span>
+          </motion.h1>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Debt & Credit Audit Infrastructure • v2.0</p>
         </div>
-        <Button className="flex items-center gap-2 cursor-pointer" onClick={() => setIsDebtModalOpen(true)}>
-          <Plus className="w-4 h-4" />
-          Tambah Utang / Piutang
-        </Button>
-      </div>
 
-      {/* Aggregate Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Card className="p-5 bg-gradient-to-r from-danger/5 to-danger/10 border-danger/20 flex items-center justify-between">
-          <div>
-            <span className="text-[10px] uppercase font-bold text-danger/80 tracking-wider">
-              Total Kewajiban (Utang Saya)
-            </span>
-            <h3 className="text-2xl font-extrabold text-danger mt-1">
-              {formatRupiah(totalOwe)}
-            </h3>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center text-danger">
-            <Landmark className="w-5 h-5" />
-          </div>
-        </Card>
-
-        <Card className="p-5 bg-gradient-to-r from-success/5 to-success/10 border-success/20 flex items-center justify-between">
-          <div>
-            <span className="text-[10px] uppercase font-bold text-success/80 tracking-wider">
-              Total Aset (Piutang Saya)
-            </span>
-            <h3 className="text-2xl font-extrabold text-success mt-1">
-              {formatRupiah(totalLend)}
-            </h3>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center text-success">
-            <HandCoins className="w-5 h-5" />
-          </div>
-        </Card>
-      </div>
-
-      {/* Debts Table list */}
-      {loading ? (
-        <div className="space-y-4">
-          {[1, 2].map((n) => (
-            <div key={n} className="h-28 rounded-2xl border border-light-border dark:border-dark-border shimmer" />
-          ))}
-        </div>
-      ) : debts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-light-border/40 dark:bg-dark-border/40 flex items-center justify-center mb-4 text-light-text-secondary">
-            <HandCoins className="w-6.5 h-6.5" />
-          </div>
-          <h4 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">
-            Belum ada catatan utang/piutang
-          </h4>
-          <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary max-w-sm mb-4">
-            Buat catatan saat Anda meminjam uang atau meminjamkan dana kepada orang lain agar keuangan Anda tetap tercatat dengan benar.
-          </p>
-          <Button size="sm" onClick={() => setIsDebtModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-1.5" />
-            Tambah Catatan Pertama
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Button 
+            className="flex-1 md:flex-none rounded-[24px] shadow-[0_0_30px_rgba(244,63,94,0.2)] bg-rose-500 hover:bg-rose-600 border-none px-8 py-6 h-auto"
+            onClick={() => setIsDebtModalOpen(true)}
+          >
+            <Plus className="w-5 h-5 mr-2" /> 
+            <span className="text-[11px] font-black uppercase tracking-widest">Initialize Protocol</span>
           </Button>
+          <button className="p-4 rounded-[24px] bg-white/[0.03] backdrop-blur-3xl border border-white/5 text-white hover:bg-white/[0.08] transition-all relative">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(244,63,94,1)]" />
+          </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Owe list */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary uppercase tracking-wider">
-              Utang Saya (Kewajiban)
-            </h3>
-            {debts.filter((d) => d.type === 'owe').length === 0 ? (
-              <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary py-4 font-semibold">
-                Tidak ada kewajiban aktif yang tercatat.
+      </header>
+
+      {/* Aggregate Hero Section */}
+      <section>
+        <Card glass className="p-8 md:p-12 relative group overflow-hidden border-white/5 shadow-2xl">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/5 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-rose-500/10" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+            <div className="space-y-8">
+              <div className="space-y-2">
+                <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em]">Net Exposure Position</p>
+                <div className="flex items-baseline gap-3">
+                  <span className={`text-5xl md:text-8xl font-black tracking-tighter ${netPosition >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
+                    <NumberTicker value={Math.abs(netPosition)} formatter={formatRupiah} />
+                  </span>
+                  <span className="text-xs font-black text-white/20 uppercase tracking-widest">{netPosition >= 0 ? 'Surplus' : 'Deficit'}</span>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-4">
+                <div className="px-6 py-3 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
+                  <TrendingDown className="w-4 h-4 text-rose-400" />
+                  <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest">
+                    Payable: <NumberTicker value={totalOwe} formatter={formatRupiah} />
+                  </span>
+                </div>
+                <div className="px-6 py-3 rounded-[24px] bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+                  <HandCoins className="w-4 h-4 text-emerald-400" />
+                  <span className="text-[11px] font-black text-emerald-400 uppercase tracking-widest">
+                    Receivable: <NumberTicker value={totalLend} formatter={formatRupiah} />
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/[0.02] backdrop-blur-3xl rounded-[40px] border border-white/5 p-8 md:p-10 space-y-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-[24px] bg-rose-500/10 flex items-center justify-center border border-rose-500/20 shadow-inner">
+                    <ShieldAlert className="w-7 h-7 text-rose-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white uppercase tracking-tight">Liability Audit</h4>
+                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">System Monitoring</p>
+                  </div>
+                </div>
+                <div className="text-4xl font-black text-white italic tracking-tighter">
+                  {debts.length} <span className="text-xs not-italic text-white/20">Units</span>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
+                  <span className="text-white/30">Repayment Ratio</span>
+                  <span className="text-white">Calculated</span>
+                </div>
+                <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(totalLend / (totalOwe + totalLend || 1)) * 100}%` }}
+                    className="h-full bg-gradient-to-r from-rose-600 to-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.4)]" 
+                  />
+                </div>
+              </div>
+              <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-tight">
+                Current audit identifies <span className="text-white">{debts.filter(d => d.type === 'owe').length} liability contracts</span> and <span className="text-white">{debts.filter(d => d.type === 'lend').length} asset receivables</span>. Risk level: <span className={netPosition >= 0 ? 'text-emerald-400' : 'text-rose-400'}>{netPosition >= 0 ? 'STABLE' : 'ELEVATED'}</span>.
               </p>
-            ) : (
-              debts.filter((d) => d.type === 'owe').map((debt) => {
-                const rem = Number(debt.remaining_amount);
-                const tot = Number(debt.amount);
-                const paid = tot - rem;
-                const percentage = tot > 0 ? (paid / tot) * 100 : 0;
-                const isPaid = rem <= 0;
+            </div>
+          </div>
+        </Card>
+      </section>
 
-                return (
-                  <Card key={debt.id} className="p-5 flex flex-col justify-between hover:shadow-lg transition-all duration-200">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h4 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">
-                            {debt.name}
-                          </h4>
-                          {debt.contact_info && (
-                            <span className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-1 font-semibold mt-0.5">
-                              <User className="w-3.5 h-3.5" /> {debt.contact_info}
-                            </span>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => handleDeleteDebt(debt.id)}
-                          className="p-1.5 rounded-lg hover:bg-danger/10 text-light-text-secondary hover:text-danger cursor-pointer transition-all duration-150"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      {/* Repayment Progress */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-end text-xs font-semibold">
-                          <span className="text-light-text-secondary dark:text-dark-text-secondary">Rasio Pelunasan</span>
-                          <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                            {formatRupiah(paid)} / {formatRupiah(tot)}
-                          </span>
-                        </div>
-                        <Progress value={percentage} variant="danger" />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-3 mt-6 pt-3 border-t border-light-border/40 dark:border-dark-border/40">
-                      <div className="flex items-center gap-1 text-[11px] font-semibold text-light-text-secondary dark:text-dark-text-secondary">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {debt.due_date ? `Jatuh tempo ${new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}` : 'Tanpa Tenggat'}
-                      </div>
-                      {isPaid ? (
-                        <span className="text-xs font-bold text-success flex items-center gap-1">
-                          <ShieldCheck className="w-4 h-4" /> Lunas
-                        </span>
-                      ) : (
-                        <Button size="sm" variant="outline" className="flex items-center gap-1 cursor-pointer" onClick={() => handleOpenPayment(debt)}>
-                          <Coins className="w-3 h-3" />
-                          Bayar Cicilan
-                        </Button>
-                      )}
-                    </div>
-                  </Card>
-                );
-              })
-            )}
+      {/* Debt & Credit Lists */}
+      <section className="grid grid-cols-1 xl:grid-cols-2 gap-8 md:gap-12">
+        {/* Owe - Liability Ledger */}
+        <div className="space-y-8">
+          <div className="flex items-center justify-between px-2">
+            <div className="space-y-1">
+              <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+                <Landmark className="w-6 h-6 text-rose-500" /> Liability Ledger
+              </h3>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Active Obligations</p>
+            </div>
           </div>
 
-          {/* Lend list */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary uppercase tracking-wider">
-              Piutang Saya (Aset)
-            </h3>
-            {debts.filter((d) => d.type === 'lend').length === 0 ? (
-              <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary py-4 font-semibold">
-                Tidak ada piutang aktif yang tercatat.
-              </p>
-            ) : (
-              debts.filter((d) => d.type === 'lend').map((debt) => {
-                const rem = Number(debt.remaining_amount);
-                const tot = Number(debt.amount);
-                const paid = tot - rem;
-                const percentage = tot > 0 ? (paid / tot) * 100 : 0;
-                const isPaid = rem <= 0;
+          <div className="grid grid-cols-1 gap-6">
+            <AnimatePresence mode="wait">
+              {loading ? (
+                [1, 2].map((n) => <div key={n} className="h-48 rounded-[32px] border border-white/5 bg-white/[0.02] animate-pulse" />)
+              ) : debts.filter(d => d.type === 'owe').length === 0 ? (
+                <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-4">
+                  <ShieldCheck className="w-12 h-12 text-white/10" />
+                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">No Liability Detected</p>
+                </div>
+              ) : (
+                debts.filter(d => d.type === 'owe').map((debt, i) => {
+                  const rem = Number(debt.remaining_amount);
+                  const tot = Number(debt.amount);
+                  const paid = tot - rem;
+                  const progress = Math.min((paid / tot) * 100, 100);
+                  const isPaid = rem <= 0;
 
-                return (
-                  <Card key={debt.id} className="p-5 flex flex-col justify-between hover:shadow-lg transition-all duration-200">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h4 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">
-                            {debt.name}
-                          </h4>
-                          {debt.contact_info && (
-                            <span className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-1 font-semibold mt-0.5">
-                              <User className="w-3.5 h-3.5" /> {debt.contact_info}
-                            </span>
-                          )}
+                  return (
+                    <motion.div
+                      key={debt.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                    >
+                      <Card glass className="p-8 md:p-10 border-white/5 hover:bg-white/[0.04] transition-all relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-rose-500/10 transition-all" />
+                        
+                        <div className="flex flex-col h-full justify-between space-y-8 relative z-10">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-2">
+                              <h4 className="text-lg font-black text-white uppercase tracking-tight">{debt.name}</h4>
+                              <div className="flex items-center gap-4">
+                                <span className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[9px] font-black text-rose-400 uppercase tracking-widest">Liability</span>
+                                {debt.contact_info && (
+                                  <span className="text-[10px] text-white/30 font-bold uppercase tracking-tight flex items-center gap-2">
+                                    <User className="w-3.5 h-3.5" /> {debt.contact_info}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => handleDeleteDebt(debt.id)}
+                              className="p-3 rounded-2xl bg-white/5 text-white/20 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.2em]">
+                              <span className="text-white/30">Repayment Audit</span>
+                              <span className="text-white">
+                                <NumberTicker value={paid} formatter={formatRupiah} /> / {formatRupiah(tot)}
+                              </span>
+                            </div>
+                            <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                              <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progress}%` }}
+                                className="h-full bg-gradient-to-r from-rose-600 to-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]" 
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                            <div className="flex items-center gap-3 text-[10px] font-black text-white/30 uppercase tracking-widest">
+                              <Calendar className="w-4 h-4" />
+                              {debt.due_date ? `Deadline: ${new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}` : 'Infinite Cycle'}
+                            </div>
+                            {isPaid ? (
+                              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                                <ShieldCheck className="w-4 h-4" /> Secured
+                              </div>
+                            ) : (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="rounded-2xl border-white/5 bg-white/[0.03] text-[9px] font-black uppercase tracking-[0.2em] px-6 py-5 h-auto hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all" 
+                                onClick={() => handleOpenPayment(debt)}
+                              >
+                                <Zap className="w-4 h-4 mr-2" /> Execute Payment
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                        <button
-                          onClick={() => handleDeleteDebt(debt.id)}
-                          className="p-1.5 rounded-lg hover:bg-danger/10 text-light-text-secondary hover:text-danger cursor-pointer transition-all duration-150"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      {/* Repayment Progress */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-end text-xs font-semibold">
-                          <span className="text-light-text-secondary dark:text-dark-text-secondary">Rasio Pengumpulan</span>
-                          <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                            {formatRupiah(paid)} / {formatRupiah(tot)}
-                          </span>
-                        </div>
-                        <Progress value={percentage} variant="success" />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-3 mt-6 pt-3 border-t border-light-border/40 dark:border-dark-border/40">
-                      <div className="flex items-center gap-1 text-[11px] font-semibold text-light-text-secondary dark:text-dark-text-secondary">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {debt.due_date ? `Jatuh tempo ${new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}` : 'Tanpa Tenggat'}
-                      </div>
-                      {isPaid ? (
-                        <span className="text-xs font-bold text-success flex items-center gap-1">
-                          <ShieldCheck className="w-4 h-4" /> Lunas
-                        </span>
-                      ) : (
-                        <Button size="sm" variant="outline" className="flex items-center gap-1 cursor-pointer" onClick={() => handleOpenPayment(debt)}>
-                          <Coins className="w-3 h-3" />
-                          Tagih Cicilan
-                        </Button>
-                      )}
-                    </div>
-                  </Card>
-                );
-              })
-            )}
+                      </Card>
+                    </motion.div>
+                  );
+                })
+              )}
+            </AnimatePresence>
           </div>
         </div>
-      )}
+
+        {/* Lend - Asset Receivable */}
+        <div className="space-y-8">
+          <div className="flex items-center justify-between px-2">
+            <div className="space-y-1">
+              <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+                <HandCoins className="w-6 h-6 text-emerald-500" /> Asset Receivable
+              </h3>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Active Credits</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6">
+            <AnimatePresence mode="wait">
+              {loading ? (
+                [1, 2].map((n) => <div key={n} className="h-48 rounded-[32px] border border-white/5 bg-white/[0.02] animate-pulse" />)
+              ) : debts.filter(d => d.type === 'lend').length === 0 ? (
+                <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-4">
+                  <Target className="w-12 h-12 text-white/10" />
+                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">No Receivables Active</p>
+                </div>
+              ) : (
+                debts.filter(d => d.type === 'lend').map((debt, i) => {
+                  const rem = Number(debt.remaining_amount);
+                  const tot = Number(debt.amount);
+                  const paid = tot - rem;
+                  const progress = Math.min((paid / tot) * 100, 100);
+                  const isPaid = rem <= 0;
+
+                  return (
+                    <motion.div
+                      key={debt.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                    >
+                      <Card glass className="p-8 md:p-10 border-white/5 hover:bg-white/[0.04] transition-all relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-all" />
+                        
+                        <div className="flex flex-col h-full justify-between space-y-8 relative z-10">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-2">
+                              <h4 className="text-lg font-black text-white uppercase tracking-tight">{debt.name}</h4>
+                              <div className="flex items-center gap-4">
+                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Asset</span>
+                                {debt.contact_info && (
+                                  <span className="text-[10px] text-white/30 font-bold uppercase tracking-tight flex items-center gap-2">
+                                    <User className="w-3.5 h-3.5" /> {debt.contact_info}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => handleDeleteDebt(debt.id)}
+                              className="p-3 rounded-2xl bg-white/5 text-white/20 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.2em]">
+                              <span className="text-white/30">Collection Audit</span>
+                              <span className="text-white">
+                                <NumberTicker value={paid} formatter={formatRupiah} /> / {formatRupiah(tot)}
+                              </span>
+                            </div>
+                            <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                              <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progress}%` }}
+                                className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.3)]" 
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                            <div className="flex items-center gap-3 text-[10px] font-black text-white/30 uppercase tracking-widest">
+                              <Calendar className="w-4 h-4" />
+                              {debt.due_date ? `Inflow: ${new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}` : 'Infinite Cycle'}
+                            </div>
+                            {isPaid ? (
+                              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                                <ShieldCheck className="w-4 h-4" /> Collected
+                              </div>
+                            ) : (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="rounded-2xl border-white/5 bg-white/[0.03] text-[9px] font-black uppercase tracking-[0.2em] px-6 py-5 h-auto hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-400 transition-all" 
+                                onClick={() => handleOpenPayment(debt)}
+                              >
+                                <ArrowRightLeft className="w-4 h-4 mr-2" /> Receive Inflow
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  );
+                })
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
 
       {/* Add Debt/Lend record modal */}
-      <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Daftarkan Catatan Utang / Piutang">
-        <form onSubmit={handleCreateDebt} className="space-y-4">
-          <div className="grid grid-cols-2 gap-2 bg-light-bg dark:bg-dark-bg/60 p-1 rounded-xl border border-light-border/40 dark:border-dark-border/40">
+      <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Initialize Ledger Protocol">
+        <form onSubmit={handleCreateDebt} className="space-y-8 p-2">
+          <div className="grid grid-cols-2 gap-3 bg-white/[0.02] p-2 rounded-[24px] border border-white/5 shadow-inner">
             {(['owe', 'lend'] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setDebtType(t)}
-                className={`py-1.5 rounded-lg text-xs font-bold uppercase transition-all duration-150 cursor-pointer ${
+                className={`py-4 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-xl ${
                   debtType === t
                     ? t === 'owe'
-                      ? 'bg-danger text-white'
-                      : 'bg-success text-white'
-                    : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
+                      ? 'bg-rose-500 text-white shadow-rose-500/20'
+                      : 'bg-emerald-500 text-white shadow-emerald-500/20'
+                    : 'text-white/30 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {t === 'owe' ? 'Utang Saya' : 'Piutang Saya'}
+                {t === 'owe' ? 'Liability' : 'Asset'}
               </button>
             ))}
           </div>
 
           <Input
-            label="Nama / Judul Catatan"
-            placeholder="misal: KPR Bank, Pinjaman Laptop ke Dave"
+            label="Protocol Label"
+            placeholder="e.g. Nexus Venture Capital, Personal Loan"
             value={debtName}
             onChange={(e) => setDebtName(e.target.value)}
             required
             disabled={submitting}
+            className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
-              label="Total Nominal (Rp)"
-              placeholder="1000000"
+              label="Magnitude (Rp)"
+              placeholder="0"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               disabled={submitting}
+              className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
             />
             <DatePicker
-              label="Tanggal Jatuh Tempo"
+              label="Chronological Deadline"
               value={dueDate}
               onChange={(val) => setDueDate(val)}
               disabled={submitting}
             />
           </div>
           <Input
-            label="Kontak / Catatan Tambahan"
-            placeholder="Dave (dave@email.com)"
+            label="Counterparty / Protocol Note"
+            placeholder="Entity Name or Identifier"
             value={contactInfo}
             onChange={(e) => setContactInfo(e.target.value)}
             disabled={submitting}
+            className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
           />
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex gap-4 pt-4">
             <Button
               type="button"
               variant="outline"
+              className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest"
               onClick={() => setIsDebtModalOpen(false)}
               disabled={submitting}
             >
-              Batal
+              Cancel
             </Button>
-            <Button type="submit" loading={submitting}>
-              Daftar Catatan
+            <Button 
+              type="submit" 
+              loading={submitting}
+              className="flex-1 rounded-[24px] bg-indigo-500 hover:bg-indigo-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none"
+            >
+              Authorize Protocol
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Pay Installment Modal */}
-      <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title={`Pembayaran Catatan: ${selectedDebt?.name}`}>
+      <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title="Execute Repayment Protocol">
         {selectedDebt && (
-          <form onSubmit={handlePaymentSubmit} className="space-y-4">
+          <form onSubmit={handlePaymentSubmit} className="space-y-8 p-2">
+            <div className="p-6 rounded-[24px] bg-white/[0.02] border border-white/5 space-y-2">
+              <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Target Entity</p>
+              <h4 className="text-xl font-black text-white uppercase tracking-tight">{selectedDebt.name}</h4>
+            </div>
+
             <Select
-              label={selectedDebt.type === 'owe' ? 'Sumber Dompet Pembayaran' : 'Dompet Penerima Pembayaran'}
+              label={selectedDebt.type === 'owe' ? 'Source Asset Account' : 'Destination Asset Account'}
               options={[
-                { value: '', label: '-- Pilih --' },
+                { value: '', label: '-- Select Asset --' },
                 ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
               ]}
               value={payWalletId}
               onChange={(e) => setPayWalletId(e.target.value)}
               required
               disabled={submitting}
+              className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto"
             />
             <Input
-              label="Nominal Cicilan (Rp)"
-              placeholder="100000"
+              label="Authorization Magnitude (Rp)"
+              placeholder="0"
               type="number"
               value={payAmount}
               onChange={(e) => setPayAmount(e.target.value)}
               required
               disabled={submitting}
+              className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
             />
             <Input
-              label="Catatan Pembayaran"
+              label="Transaction Log Note"
               value={payNote}
               onChange={(e) => setPayNote(e.target.value)}
               disabled={submitting}
+              className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
             />
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex gap-4 pt-4">
               <Button
                 type="button"
                 variant="outline"
+                className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest"
                 onClick={() => setIsPayModalOpen(false)}
                 disabled={submitting}
               >
-                Batal
+                Cancel
               </Button>
-              <Button type="submit" loading={submitting}>
-                {selectedDebt.type === 'owe' ? 'Bayar Cicilan' : 'Terima Pembayaran'}
+              <Button 
+                type="submit" 
+                loading={submitting}
+                className={`flex-1 rounded-[24px] py-8 text-[11px] font-black uppercase tracking-widest shadow-xl border-none ${
+                  selectedDebt.type === 'owe' 
+                    ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/20' 
+                    : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
+                }`}
+              >
+                {selectedDebt.type === 'owe' ? 'Authorize Payment' : 'Authorize Inflow'}
               </Button>
             </div>
           </form>

@@ -23,6 +23,12 @@ import {
   Trash2,
   Wallet as WalletIcon,
   Zap,
+  ChevronDown,
+  Bell,
+  Activity,
+  Database,
+  Terminal,
+  ShieldCheck
 } from 'lucide-react';
 import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -62,7 +68,6 @@ export default function WalletsPage() {
 
   useEffect(() => {
     if (accountId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchWallets();
     }
   }, [accountId, fetchWallets]);
@@ -74,10 +79,10 @@ export default function WalletsPage() {
     try {
       if (editingWallet) {
         await walletService.updateWallet(editingWallet.id, name, type, color, icon, editingWallet.is_active);
-        toast('Asset Updated', 'success');
+        toast('Asset Node Optimized', 'success');
       } else {
         await walletService.createWallet(accountId, name, type, Number(balance), color, icon);
-        toast('Asset Created', 'success');
+        toast('Asset Node Authorized', 'success');
       }
       setIsWalletModalOpen(false);
       fetchWallets();
@@ -90,7 +95,7 @@ export default function WalletsPage() {
   };
 
   const getWalletIcon = (wType: string, wColor: string) => {
-    const iconClass = 'w-6 h-6';
+    const iconClass = 'w-7 h-7';
     const style = { color: wColor };
     switch (wType) {
       case 'cash': return <Banknote className={iconClass} style={style} />;
@@ -105,69 +110,107 @@ export default function WalletsPage() {
   const totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] py-10 px-8 space-y-10">
+    <div className="min-h-screen bg-[#050816] py-6 md:py-10 px-4 md:px-8 space-y-8 md:space-y-12 no-scrollbar">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Vault <span className="text-indigo-500">Nexus</span></h1>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.3em]">Asset Infrastructure • v2.0</p>
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
+          >
+            Vault <span className="text-indigo-500">Nexus</span>
+          </motion.h1>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Asset Allocation Infrastructure • v2.0</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="secondary" className="rounded-2xl border-white/5 bg-white/[0.03] backdrop-blur-xl" onClick={() => setIsTransferModalOpen(true)}>
-            <ArrowRightLeft className="w-4 h-4 mr-2" /> Transfer
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none rounded-[24px] border-white/5 bg-white/[0.03] backdrop-blur-3xl px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest"
+            onClick={() => setIsTransferModalOpen(true)}
+          >
+            <ArrowRightLeft className="w-4 h-4 mr-2 text-indigo-400" /> Relocate
           </Button>
-          <Button className="rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.3)]" onClick={() => { setEditingWallet(null); setName(''); setBalance('0'); setIsWalletModalOpen(true); }}>
-            <Plus className="w-4 h-4 mr-2" /> New Asset
+          <Button 
+            className="flex-1 md:flex-none rounded-[24px] shadow-[0_0_30px_rgba(99,102,241,0.2)] bg-indigo-500 hover:bg-indigo-600 border-none px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest"
+            onClick={() => { setEditingWallet(null); setName(''); setBalance('0'); setIsWalletModalOpen(true); }}
+          >
+            <Plus className="w-5 h-5 mr-2" /> New Asset
           </Button>
         </div>
       </header>
 
+      {/* Hero Liquidity Section */}
       <section>
-        <Card glass className="p-10 relative group overflow-hidden border-indigo-500/10 bg-gradient-to-br from-[#12042a] via-[#09112a] to-[#050816]">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 blur-[100px] rounded-full -mr-40 -mt-40 transition-all group-hover:bg-indigo-600/15" />
-          <div className="flex items-center justify-between relative z-10">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-white/50">Cumulative Liquidity</h3>
+        <Card glass className="p-10 md:p-14 relative group overflow-hidden border-white/5 shadow-2xl bg-gradient-to-br from-[#0a1028] to-[#050816]">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-indigo-600/10" />
+          
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
+            <div className="space-y-4 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-3">
+                <Zap className="w-5 h-5 text-indigo-400" />
+                <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Cumulative Liquidity Position</h3>
               </div>
-              <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">
-                <NumberTicker value={totalBalance} formatter={(v) => formatRupiah(v)} />
+              <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter">
+                <NumberTicker value={totalBalance} formatter={formatRupiah} />
               </h2>
+              <div className="flex items-center justify-center md:justify-start gap-4">
+                <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+                  Live Audit Active
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-black text-white/20 uppercase tracking-widest">
+                  <Database className="w-3.5 h-3.5" /> Synchronized with {wallets.length} Nodes
+                </div>
+              </div>
             </div>
-            <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-indigo-400 shadow-2xl">
-              <WalletIcon className="w-10 h-10" />
+            
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-[40px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-indigo-400 shadow-2xl group-hover:scale-110 transition-transform duration-500">
+              <WalletIcon className="w-12 h-12 md:w-16 md:h-16" />
             </div>
           </div>
         </Card>
       </section>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Asset Nodes Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <AnimatePresence>
-          {wallets.map((wallet) => (
+          {wallets.map((wallet, i) => (
             <motion.div
               key={wallet.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              whileHover={{ y: -5 }}
-              className="relative group"
+              transition={{ delay: i * 0.1 }}
+              whileHover={{ y: -8 }}
+              className="relative group h-full"
             >
-              <Card glass className="p-8 h-full border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all flex flex-col justify-between rounded-[32px]">
-                <div className="flex items-start justify-between mb-8">
-                  <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-inner" style={{ boxShadow: `inset 0 0 20px ${wallet.color}20` }}>
+              <Card glass className="p-10 h-full border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all flex flex-col justify-between rounded-[40px] shadow-2xl">
+                <div className="flex items-start justify-between mb-10">
+                  <div className="w-16 h-16 rounded-[24px] bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-inner relative overflow-hidden" style={{ boxShadow: `inset 0 0 30px ${wallet.color}25` }}>
+                    <div className="absolute inset-0 blur-2xl opacity-20" style={{ backgroundColor: wallet.color }} />
                     {getWalletIcon(wallet.type, wallet.color)}
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => { setEditingWallet(wallet); setName(wallet.name); setType(wallet.type); setBalance(wallet.balance.toString()); setColor(wallet.color); setIcon(wallet.icon); setIsWalletModalOpen(true); }} className="p-2.5 rounded-xl bg-white/5 hover:bg-indigo-500/20 text-white/60 hover:text-white transition-all"><Pencil className="w-4 h-4" /></button>
-                    <button onClick={() => walletService.deleteWallet(wallet.id).then(() => fetchWallets())} className="p-2.5 rounded-xl bg-white/5 hover:bg-rose-500/20 text-white/60 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-[-10px] group-hover:translate-y-0">
+                    <button onClick={() => { setEditingWallet(wallet); setName(wallet.name); setType(wallet.type); setBalance(wallet.balance.toString()); setColor(wallet.color); setIcon(wallet.icon); setIsWalletModalOpen(true); }} className="p-3 rounded-2xl bg-white/5 hover:bg-indigo-500/20 text-white/40 hover:text-white transition-all shadow-xl"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => walletService.deleteWallet(wallet.id).then(() => fetchWallets())} className="p-3 rounded-2xl bg-white/5 hover:bg-rose-500/20 text-white/40 hover:text-white transition-all shadow-xl"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-black text-white uppercase tracking-tight mb-1">{wallet.name}</h4>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-4">{wallet.type}</p>
-                  <div className="pt-4 border-t border-white/5">
-                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Available Funds</p>
-                    <p className="text-2xl font-black text-white tracking-tighter">{formatRupiah(Number(wallet.balance))}</p>
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-xl font-black text-white uppercase tracking-tight mb-2 truncate">{wallet.name}</h4>
+                    <div className="flex items-center gap-3">
+                      <Terminal className="w-3.5 h-3.5 text-white/10" />
+                      <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">{wallet.type} Node</span>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-8 border-t border-white/5 space-y-3">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/30">
+                      <span>Available Liquidity</span>
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-500/50" />
+                    </div>
+                    <p className="text-3xl font-black text-white tracking-tighter leading-none">
+                      {formatRupiah(Number(wallet.balance))}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -176,32 +219,65 @@ export default function WalletsPage() {
         </AnimatePresence>
       </section>
 
-      <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} title={editingWallet ? 'Refactor Asset' : 'Initialize Asset'}>
-        <form onSubmit={handleSaveWallet} className="space-y-6">
-          <Input label="Asset Alias" placeholder="e.g. Cold Storage, Corporate Bank" value={name} onChange={(e) => setName(e.target.value)} required />
-          <Select label="Asset Class" options={[{value: 'cash', label: 'Physical Cash'}, {value: 'bank', label: 'Financial Institution'}, {value: 'e-wallet', label: 'Digital Ledger'}, {value: 'crypto', label: 'Cryptographic Asset'}, {value: 'savings', label: 'High-Yield Deposit'}]} value={type} onChange={(e) => setType(e.target.value)} />
-          {!editingWallet && <Input label="Initial Magnitude" type="number" value={balance} onChange={(e) => setBalance(e.target.value)} required />}
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Visual Identity</label>
-            <div className="flex gap-3">
+      {/* Asset Modal */}
+      <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} title={editingWallet ? 'Refactor Asset Node' : 'Initialize Asset Node'}>
+        <form onSubmit={handleSaveWallet} className="space-y-8 p-2">
+          <Input label="Asset Label" placeholder="e.g. Nexus Prime, Global Ledger" value={name} onChange={(e) => setName(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-6" />
+          
+          <Select label="Classification Protocol" options={[{value: 'cash', label: 'Physical Capital'}, {value: 'bank', label: 'Institutional Custody'}, {value: 'e-wallet', label: 'Digital Terminal'}, {value: 'crypto', label: 'Cryptographic Asset'}, {value: 'savings', label: 'Treasury Reserves'}]} value={type} onChange={(e) => setType(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+          
+          {!editingWallet && (
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Initial Magnitude (IDR)</label>
+              <div className="relative">
+                <Activity className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500/50" />
+                <Input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} required className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-xl font-black tracking-tighter h-auto" />
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Visual Frequency</label>
+            <div className="flex flex-wrap gap-4">
               {['#6366f1', '#22c55e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'].map((col) => (
-                <button key={col} type="button" onClick={() => setColor(col)} className={`w-8 h-8 rounded-full border-2 transition-all ${color === col ? 'border-white scale-125 shadow-lg' : 'border-transparent opacity-50'}`} style={{ backgroundColor: col }} />
+                <button key={col} type="button" onClick={() => setColor(col)} className={`w-10 h-10 rounded-[12px] border-2 transition-all duration-300 ${color === col ? 'border-white scale-110 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-transparent opacity-30 hover:opacity-100'}`} style={{ backgroundColor: col }} />
               ))}
             </div>
           </div>
-          <Button type="submit" loading={submitting} className="w-full h-14 font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/10">Authorize Asset</Button>
+
+          <div className="flex gap-4 pt-4">
+            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsWalletModalOpen(false)}>Cancel</Button>
+            <Button type="submit" loading={submitting} className="flex-1 rounded-[24px] bg-indigo-500 hover:bg-indigo-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none">
+              Authorize Node
+            </Button>
+          </div>
         </form>
       </Modal>
 
-      <Modal isOpen={isTransferModalOpen} onClose={() => setIsTransferModalOpen(false)} title="Relocate Liquidity">
-        <form onSubmit={(e) => { e.preventDefault(); walletService.transferFunds(accountId!, sourceId, destId, Number(transferAmount), transferNote).then(() => { setIsTransferModalOpen(false); fetchWallets(); }); }} className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
-            <Select label="Source Account" options={[{value: '', label: '-- Select --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={sourceId} onChange={(e) => setSourceId(e.target.value)} required />
-            <Select label="Target Account" options={[{value: '', label: '-- Select --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={destId} onChange={(e) => setDestId(e.target.value)} required />
+      {/* Transfer Modal */}
+      <Modal isOpen={isTransferModalOpen} onClose={() => setIsTransferModalOpen(false)} title="Execute Liquidity Relocation">
+        <form onSubmit={(e) => { e.preventDefault(); walletService.transferFunds(accountId!, sourceId, destId, Number(transferAmount), transferNote).then(() => { setIsTransferModalOpen(false); fetchWallets(); }); }} className="space-y-8 p-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Select label="Origin Node" options={[{value: '', label: '-- Select Asset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={sourceId} onChange={(e) => setSourceId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+            <Select label="Destination Node" options={[{value: '', label: '-- Select Asset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={destId} onChange={(e) => setDestId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
           </div>
-          <Input label="Transfer Magnitude" type="number" value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} required />
-          <Input label="Protocol Note" placeholder="Reason for relocation..." value={transferNote} onChange={(e) => setTransferNote(e.target.value)} />
-          <Button type="submit" loading={submitting} className="w-full h-14 font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/10">Execute Relocation</Button>
+          
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Relocation Magnitude (IDR)</label>
+            <div className="relative">
+              <ArrowRightLeft className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500/50" />
+              <Input type="number" value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} required className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-xl font-black tracking-tighter h-auto" />
+            </div>
+          </div>
+
+          <Input label="Protocol Log Annotation" placeholder="Nature of relocation..." value={transferNote} onChange={(e) => setTransferNote(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-6 h-auto" />
+          
+          <div className="flex gap-4 pt-4">
+            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsTransferModalOpen(false)}>Cancel</Button>
+            <Button type="submit" loading={submitting} className="flex-1 rounded-[24px] bg-indigo-500 hover:bg-indigo-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none">
+              Execute Relocation
+            </Button>
+          </div>
         </form>
       </Modal>
     </div>
