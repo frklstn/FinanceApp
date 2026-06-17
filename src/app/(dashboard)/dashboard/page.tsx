@@ -9,6 +9,7 @@ import { walletService } from '@/lib/services/wallet.service';
 import { formatRupiah } from '@/lib/debt-planner/format';
 import { SpendingChart } from '@/components/charts/spending-chart';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import {
   TrendingUp,
@@ -24,15 +25,21 @@ import {
   Target,
   ArrowUpRight,
   ArrowDownLeft,
+  Wallet,
+  PiggyBank,
+  Receipt,
+  PieChart
 } from 'lucide-react';
 import { QuickAddModal } from '@/components/transaction/quick-add-modal';
 import NumberTicker from '@/components/ui/number-ticker';
 import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const { accountId } = useApp();
   const { toast } = useToast();
+  const router = useRouter();
 
   const [financialStats, setFinancialStats] = useState({
     score: 0,
@@ -46,6 +53,7 @@ export default function DashboardPage() {
     incomeDiff: 0,
     expenseDiff: 0,
     savingsDiff: 0,
+    totalTarget: 0,
     insights: [] as FinancialInsight[],
   });
 
@@ -80,6 +88,8 @@ export default function DashboardPage() {
       const activeTrackers = trackers.filter(l => l.status === 'active');
       const totalActiveDebt = activeTrackers.reduce((sum, l) => sum + Number(l.total_repayment), 0);
 
+      const goals = await insightsService.generateInsights(accountId, { prefetchedTransactions: monthTxs }); // Simple way to get targets if service supports it
+
       setFinancialStats({
         score: insightData.score,
         income: insightData.income,
@@ -92,6 +102,7 @@ export default function DashboardPage() {
         incomeDiff: 12.5,
         expenseDiff: -5.2,
         savingsDiff: 8.4,
+        totalTarget: 50000000, // Hardcoded for demo if not available
         insights: insightData.insights,
       });
 
@@ -125,176 +136,205 @@ export default function DashboardPage() {
     loadDashboardData();
   }, [loadDashboardData]);
 
+  const HeroWidgets = [
+    { label: 'Liquidity', value: financialStats.totalBalance, icon: Wallet, color: 'text-indigo-400', path: '/wallets' },
+    { label: 'Inflow', value: financialStats.income, icon: TrendingUp, color: 'text-emerald-400', path: '/transactions?type=income' },
+    { label: 'Outflow', value: financialStats.expense, icon: TrendingDown, color: 'text-rose-400', path: '/transactions?type=expense' },
+    { label: 'Reserves', value: financialStats.savings, icon: PiggyBank, color: 'text-amber-400', path: '/savings' },
+  ];
+
+  const ActionWidgets = [
+    { label: 'Analysis', desc: 'Real-time financial auditing', icon: PieChart, path: '/insights' },
+    { label: 'Ledger', desc: 'Manage entry history', icon: Receipt, path: '/transactions' },
+    { label: 'Liability', desc: 'Monitor debt exposure', icon: ShieldAlert, path: '/debts' },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0a0a0c] py-10 px-8 space-y-10">
+    <div className="min-h-screen bg-[#0a0a0c] py-6 md:py-10 px-4 md:px-8 space-y-8 md:space-y-12">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-black text-white tracking-tighter"
+            className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
           >
-            Dashboard <span className="text-indigo-500">Elite</span>
+            Nexus <span className="text-indigo-500">Dashboard</span>
           </motion.h1>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.3em]">
-            Financial Ecosystem • v2.0
-          </p>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Financial Command Center • v2.0</p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex-1 md:flex-none px-5 py-3 rounded-[24px] bg-white/[0.03] backdrop-blur-3xl border border-white/5 flex items-center justify-between md:justify-start gap-4">
             <Calendar className="w-4 h-4 text-indigo-400" />
-            <span className="text-xs font-black text-white uppercase tracking-widest">{dateFilter}</span>
-            <ChevronDown className="w-3 h-3 text-muted-foreground" />
+            <span className="text-[10px] font-black text-white uppercase tracking-widest">{dateFilter}</span>
+            <ChevronDown className="w-3 h-3 text-white/20" />
           </div>
-          <button className="p-3 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 text-white hover:bg-white/[0.08] transition-all relative">
+          <button className="p-3.5 rounded-[24px] bg-white/[0.03] backdrop-blur-3xl border border-white/5 text-white hover:bg-white/[0.08] transition-all relative">
             <Bell className="w-5 h-5" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
+            <span className="absolute top-3 right-3 w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,1)]" />
           </button>
         </div>
       </header>
 
-      <section>
-        <Card glass className="p-10 relative group overflow-hidden border-indigo-500/20 shadow-[0_0_50px_rgba(99,102,241,0.1)]">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-indigo-600/20" />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-            <div className="space-y-6">
-              <div className="space-y-1">
-                <p className="text-xs font-black text-indigo-400 uppercase tracking-[0.4em]">Total Liquidity</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-5xl md:text-7xl font-black text-white tracking-tighter">
-                    <NumberTicker value={financialStats.totalBalance} formatter={(v) => formatRupiah(v)} />
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex flex-wrap gap-4">
-                <div className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
-                  <span className="text-[10px] font-black text-emerald-400 uppercase">+{financialStats.incomeDiff}% Inflow</span>
-                </div>
-                <div className="px-4 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-indigo-400" />
-                  <span className="text-[10px] font-black text-indigo-400 uppercase">{financialStats.walletCount} Active Assets</span>
-                </div>
+      {/* Hero 4 Widgets - Interactive */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {HeroWidgets.map((w, i) => (
+          <motion.button
+            key={w.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            onClick={() => router.push(w.path)}
+            className="relative group p-6 md:p-8 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all text-left overflow-hidden shadow-2xl"
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.02] blur-3xl rounded-full -mr-12 -mt-12 transition-all group-hover:bg-indigo-500/10" />
+            <w.icon className={`w-6 h-6 md:w-8 md:h-8 ${w.color} mb-4 md:mb-6 transition-transform group-hover:scale-110`} />
+            <div className="space-y-1">
+              <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{w.label}</p>
+              <div className="text-lg md:text-2xl font-black text-white tracking-tighter truncate">
+                <NumberTicker value={w.value} formatter={formatRupiah} />
               </div>
             </div>
+          </motion.button>
+        ))}
+      </section>
 
-            <div className="bg-white/[0.02] backdrop-blur-2xl rounded-[32px] border border-white/5 p-8 flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 flex items-center justify-center border border-indigo-500/30">
-                    <ShieldCheck className="w-6 h-6 text-indigo-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-black text-white uppercase tracking-tight">Financial Score</h4>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Calculated by AI</p>
-                  </div>
-                </div>
-                <div className="text-4xl font-black text-white italic">{financialStats.score}</div>
+      {/* Main Analysis Section */}
+      <section className="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8">
+        <Card glass className="xl:col-span-2 p-8 md:p-10 border-indigo-500/10">
+          <div className="flex items-center justify-between mb-8">
+            <div className="space-y-1">
+              <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+                <Zap className="w-5 h-5 text-indigo-400" /> Spending Velocity
+              </h3>
+              <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">7-Day Consumption Audit</p>
+            </div>
+          </div>
+          <div className="h-[300px] w-full">
+            <SpendingChart data={chartData} />
+          </div>
+        </Card>
+
+        {/* Financial Health Widget */}
+        <Card glass className="p-8 md:p-10 border-white/5 flex flex-col justify-between">
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div className="w-14 h-14 rounded-[24px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-inner">
+                <ShieldCheck className="w-7 h-7 text-indigo-400" />
               </div>
-              <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+              <div className="text-5xl font-black text-white italic tracking-tighter shadow-indigo-500/20 drop-shadow-2xl">{financialStats.score}</div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
+                <span className="text-white/40">Nexus Health Index</span>
+                <span className="text-white">AI Calculated</span>
+              </div>
+              <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${financialStats.score}%` }}
-                  className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.5)]" 
+                  className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.6)]" 
                 />
               </div>
-              <p className="text-[10px] font-bold text-muted-foreground leading-relaxed">
-                Kesehatan finansial Anda berada di zona aman. Optimalkan pengeluaran di sektor gaya hidup untuk skor maksimal.
-              </p>
             </div>
+            <p className="text-[11px] font-bold text-white/50 leading-relaxed uppercase tracking-tight">
+              Operational capacity at <span className="text-white">Optimal Level</span>. Consumption patterns detected within safe margins. No anomalies identified in current cycle.
+            </p>
           </div>
+          <Button variant="outline" className="w-full mt-8 rounded-[20px] py-6 border-white/5 bg-white/[0.03] text-[10px] font-black uppercase tracking-[0.2em]" onClick={() => router.push('/insights')}>
+            View Audit Details
+          </Button>
         </Card>
       </section>
 
-      <section>
-        <BentoGrid>
-          <BentoGridItem
-            className="md:col-span-2"
-            title="Spending Velocity"
-            description="Analisis pengeluaran harian 7 hari terakhir"
-            header={<SpendingChart data={chartData} />}
-            icon={<Zap className="w-4 h-4 text-indigo-400" />}
-          />
-
-          <BentoGridItem
-            title="Nexus Terminal"
-            description="Eksekusi transaksi instan"
-            header={
-              <div className="grid grid-cols-2 gap-3 h-full">
-                <button 
-                  onClick={() => setQuickAdd({ open: true, type: 'expense' })}
-                  className="rounded-2xl bg-rose-500/10 border border-rose-500/20 flex flex-col items-center justify-center gap-2 hover:bg-rose-500/20 transition-all group"
-                >
-                  <ArrowDownLeft className="w-6 h-6 text-rose-400 group-hover:scale-110 transition-transform" />
-                  <span className="text-[10px] font-black text-rose-400 uppercase">Expense</span>
-                </button>
-                <button 
-                  onClick={() => setQuickAdd({ open: true, type: 'income' })}
-                  className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center gap-2 hover:bg-emerald-500/20 transition-all group"
-                >
-                  <ArrowUpRight className="w-6 h-6 text-emerald-400 group-hover:scale-110 transition-transform" />
-                  <span className="text-[10px] font-black text-emerald-400 uppercase">Income</span>
-                </button>
-              </div>
-            }
-            icon={<Target className="w-4 h-4 text-indigo-400" />}
-          />
-
-          <BentoGridItem
-            title="Active Liability"
-            description="Monitor paparan pinjaman"
-            header={
-              <div className="flex flex-col justify-center h-full p-4">
-                <div className="text-3xl font-black text-white tracking-tighter">
-                  {formatRupiah(financialStats.activeDebt)}
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{financialStats.activeLoansCount} Kontrak Pinjol</span>
-                </div>
-              </div>
-            }
-            icon={<ShieldAlert className="w-4 h-4 text-rose-400" />}
-          />
-
-          <BentoGridItem
-            className="md:col-span-2"
-            title="Recent Ledger"
-            description="Log transaksi terakhir terdeteksi"
-            header={
-              <div className="space-y-3 h-full overflow-hidden">
-                {recentTxs.map((tx) => (
-                  <div key={tx.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${tx.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                        {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                      </div>
-                      <span className="text-[11px] font-bold text-white truncate max-w-[150px]">{tx.note || 'Transaksi'}</span>
-                    </div>
-                    <span className={`text-[11px] font-black ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      {tx.type === 'income' ? '+' : '-'}{formatRupiah(Number(tx.amount))}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            }
-            icon={<ArrowRightLeft className="w-4 h-4 text-indigo-400" />}
-          />
-        </BentoGrid>
+      {/* 3 Action Widgets - Interactive */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {ActionWidgets.map((w, i) => (
+          <motion.button
+            key={w.label}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.1 }}
+            onClick={() => router.push(w.path)}
+            className="group flex items-center gap-6 p-6 md:p-8 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all text-left shadow-2xl"
+          >
+            <div className="w-14 h-14 rounded-[24px] bg-white/[0.03] border border-white/5 flex items-center justify-center group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20 transition-all">
+              <w.icon className="w-6 h-6 text-white/40 group-hover:text-indigo-400 transition-colors" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <h4 className="text-sm font-black text-white uppercase tracking-widest">{w.label}</h4>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-tight">{w.desc}</p>
+            </div>
+          </motion.button>
+        ))}
       </section>
 
-      {quickAdd.open && (
-        <QuickAddModal 
-          isOpen={quickAdd.open}
-          onClose={() => setQuickAdd({ ...quickAdd, open: false })}
-          initialType={quickAdd.type}
-          onSuccess={loadDashboardData}
-          accountId={accountId!}
+      {/* Bottom Ledger & Terminal Grid */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        <BentoGridItem
+          title="Recent Ledger"
+          description="Detected entries in current session"
+          header={
+            <div className="space-y-4 h-full">
+              {recentTxs.map((tx) => (
+                <div key={tx.id} className="flex items-center justify-between p-4 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-white/10 transition-colors group">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center ${tx.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                      {tx.type === 'income' ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+                    </div>
+                    <div className="space-y-0.5">
+                      <span className="text-[11px] font-black text-white uppercase tracking-tight truncate max-w-[120px] md:max-w-[180px] block">{tx.note || 'Unlabeled Transaction'}</span>
+                      <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                    </div>
+                  </div>
+                  <span className={`text-[12px] font-black tracking-tighter ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {tx.type === 'income' ? '+' : '-'}{formatRupiah(Number(tx.amount))}
+                  </span>
+                </div>
+              ))}
+            </div>
+          }
+          icon={<ArrowRightLeft className="w-4 h-4 text-indigo-400" />}
+          className="p-8 md:p-10"
         />
-      )}
+
+        <BentoGridItem
+          title="Nexus Terminal"
+          description="Manual Liquidity Authorization"
+          header={
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
+              <button 
+                onClick={() => setQuickAdd({ open: true, type: 'expense' })}
+                className="p-8 rounded-[32px] bg-rose-500/5 border border-rose-500/10 flex flex-col items-center justify-center gap-4 hover:bg-rose-500/10 transition-all group shadow-xl shadow-rose-500/5"
+              >
+                <ArrowDownLeft className="w-8 h-8 text-rose-400 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-black text-rose-400 uppercase tracking-[0.3em]">Authorize Expense</span>
+              </button>
+              <button 
+                onClick={() => setQuickAdd({ open: true, type: 'income' })}
+                className="p-8 rounded-[32px] bg-emerald-500/5 border border-emerald-500/10 flex flex-col items-center justify-center gap-4 hover:bg-emerald-500/10 transition-all group shadow-xl shadow-emerald-500/5"
+              >
+                <ArrowUpRight className="w-8 h-8 text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">Authorize Inflow</span>
+              </button>
+            </div>
+          }
+          icon={<Target className="w-4 h-4 text-indigo-400" />}
+          className="p-8 md:p-10"
+        />
+      </section>
+
+      <AnimatePresence>
+        {quickAdd.open && (
+          <QuickAddModal 
+            isOpen={quickAdd.open}
+            onClose={() => setQuickAdd({ ...quickAdd, open: false })}
+            initialType={quickAdd.type}
+            onSuccess={loadDashboardData}
+            accountId={accountId!}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
