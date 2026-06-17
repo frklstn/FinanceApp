@@ -21,7 +21,7 @@ function Card({
         glass 
           ? "bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]" 
           : "bg-card border border-border",
-        "p-6 text-sm text-card-foreground",
+        "py-6 px-8 text-sm text-card-foreground",
         "hover:bg-white/[0.05] hover:border-white/20 hover:shadow-primary/5",
         className
       )}

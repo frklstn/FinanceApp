@@ -52,21 +52,16 @@ export default function Sidebar() {
   return (
     <motion.aside
       initial={false}
-      animate={{ width: collapsed ? 80 : 256 }}
+      animate={{ width: collapsed ? 100 : 280 }}
       onMouseEnter={() => setCollapsed(false)}
       onMouseLeave={() => setCollapsed(true)}
-      className="fixed left-0 top-0 h-screen z-50 flex flex-col bg-background/60 backdrop-blur-xl border-r border-white/5 transition-all duration-500 ease-in-out select-none overflow-hidden"
+      className="fixed left-0 top-0 h-screen z-50 flex flex-col bg-[#0a0a0c]/80 backdrop-blur-2xl border-r border-white/5 transition-all duration-500 ease-in-out select-none overflow-hidden"
     >
-      <style jsx global>{`
-        aside::-webkit-scrollbar { display: none; }
-        aside { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-
-      <div className={cn("p-6 flex items-center", collapsed ? "justify-center" : "justify-start pl-8")}>
+      <div className={cn("p-8 flex items-center", collapsed ? "justify-center" : "justify-start pl-10")}>
         <AppBrand collapsed={collapsed} />
       </div>
 
-      <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto no-scrollbar">
+      <nav className="flex-1 px-4 py-4 space-y-3 overflow-y-auto no-scrollbar">
         {menuItems.map((item) => {
           const isActive = pathname.startsWith(item.path)
           const Icon = item.icon
@@ -76,21 +71,21 @@ export default function Sidebar() {
               key={item.path}
               href={item.path}
               className={cn(
-                "flex items-center gap-4 p-3 rounded-2xl transition-all duration-300 group relative",
+                "flex items-center gap-4 py-4 rounded-[32px] transition-all duration-300 group relative",
                 isActive 
-                  ? "bg-primary/10 text-primary shadow-[0_0_20px_rgba(99,102,241,0.1)]" 
-                  : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
-                collapsed ? "justify-center" : "px-4"
+                  ? "bg-indigo-500/10 text-indigo-400 shadow-[0_0_30px_rgba(99,102,241,0.15)]" 
+                  : "text-muted-foreground hover:bg-white/5 hover:text-white",
+                collapsed ? "justify-center px-0" : "px-8"
               )}
             >
               <Icon className={cn("w-5 h-5 shrink-0 transition-transform duration-300", isActive && "scale-110")} />
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {!collapsed && (
                   <motion.span
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="text-sm font-bold truncate"
+                    className="text-xs font-black uppercase tracking-widest truncate"
                   >
                     {item.name}
                   </motion.span>
@@ -99,7 +94,7 @@ export default function Sidebar() {
               {isActive && (
                 <motion.div 
                   layoutId="active-pill"
-                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full" 
+                  className="absolute left-0 w-1.5 h-8 bg-indigo-500 rounded-r-full shadow-[0_0_20px_rgba(99,102,241,0.8)]" 
                 />
               )}
             </Link>
@@ -107,40 +102,40 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 mt-auto space-y-4">
+      <div className="p-6 mt-auto space-y-6">
         {!collapsed && !isProPlan && (
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-5 rounded-3xl bg-gradient-to-br from-primary/20 to-indigo-600/5 border border-primary/20 space-y-3 relative overflow-hidden"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-6 rounded-[32px] bg-gradient-to-br from-indigo-500/20 to-transparent border border-indigo-500/20 space-y-4 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 blur-2xl rounded-full -mr-8 -mt-8" />
-            <p className="text-xs font-black text-white uppercase tracking-wider">Upgrade ke Pro</p>
-            <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">
-              Buka insight elit dan fitur premium finansial.
+            <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/10 blur-3xl rounded-full -mr-10 -mt-10" />
+            <p className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Vault Access</p>
+            <p className="text-[10px] text-muted-foreground leading-relaxed font-bold uppercase tracking-tight">
+              Unlock elite financial intelligence.
             </p>
             <Button 
               size="sm" 
-              className="w-full rounded-xl font-black text-[10px] uppercase tracking-widest h-9"
+              className="w-full rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] h-10 shadow-lg shadow-indigo-500/20"
               onClick={() => waLink ? window.open(waLink, '_blank') : toast('Hubungi admin.', 'info')}
             >
-              Aktifkan Sekarang
+              Go Elite
             </Button>
           </motion.div>
         )}
 
         <div className={cn(
-          "flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/5 transition-all duration-300",
+          "flex items-center gap-4 p-4 rounded-[32px] bg-white/[0.03] border border-white/5 transition-all duration-300",
           collapsed ? "justify-center" : "justify-between"
         )}>
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary text-sm font-black border border-primary/20 shadow-lg shrink-0 overflow-hidden">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-12 h-12 rounded-[24px] bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-sm font-black border border-indigo-500/20 shadow-xl shrink-0 overflow-hidden">
               {profile?.avatar_url ? (
                 <Image 
                   src={profile.avatar_url} 
                   alt="Avatar" 
-                  width={40} 
-                  height={40} 
+                  width={48} 
+                  height={48} 
                   className="w-full h-full object-cover" 
                 />
               ) : (
@@ -152,14 +147,14 @@ export default function Sidebar() {
                 <p className="text-[11px] font-black text-white truncate uppercase tracking-tight">
                   {profile?.full_name || user?.email?.split('@')[0] || 'User'}
                 </p>
-                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">
-                  {isProPlan ? 'Premium' : 'Standard'}
+                <p className="text-[9px] text-indigo-400/60 font-black uppercase tracking-[0.2em]">
+                  {isProPlan ? 'Elite' : 'Standard'}
                 </p>
               </div>
             )}
           </div>
           {!collapsed && (
-            <button onClick={handleLogout} className="p-2 text-muted-foreground hover:text-destructive transition-colors">
+            <button onClick={handleLogout} className="p-2.5 text-muted-foreground hover:text-rose-500 transition-colors">
               <LogOut className="w-4 h-4" />
             </button>
           )}

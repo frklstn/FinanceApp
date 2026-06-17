@@ -28,11 +28,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <ToastProvider>
         <AppProvider>
           <DocumentTitle />
-          <div className="flex h-screen overflow-hidden bg-gradient p-4 md:p-6 gap-6 text-text-primary transition-all duration-300">
+          <div className="flex h-screen overflow-hidden bg-[#0a0a0c] text-text-primary transition-all duration-300">
             <Sidebar />
             <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative">
-              <main className="flex-1 overflow-y-auto focus:outline-none p-0 scroll-smooth">
-                <div className="max-w-[1440px] mx-auto space-y-8">
+              <main className="flex-1 overflow-y-auto no-scrollbar focus:outline-none p-6 md:p-8 scroll-smooth">
+                <div className="max-w-[1440px] mx-auto min-h-full rounded-[32px] bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-8">
                   {children}
                 </div>
               </main>
