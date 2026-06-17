@@ -95,8 +95,7 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
       await incomeProjectionService.createEntry(accountId, { 
         effective_date, 
         monthly_income,
-        currency: 'IDR',
-        exchange_rate: 1.0
+        currency: 'IDR'
       });
       await loadPlannerData();
     },
