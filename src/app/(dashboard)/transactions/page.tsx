@@ -95,13 +95,13 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (accountId) {
-      fetchFiltersData();
+      Promise.resolve().then(fetchFiltersData);
     }
   }, [accountId, fetchFiltersData]);
 
   useEffect(() => {
     if (accountId) {
-      fetchTransactions();
+      Promise.resolve().then(fetchTransactions);
     }
   }, [accountId, page, filterWallet, filterType, searchTerm, fetchTransactions]);
 

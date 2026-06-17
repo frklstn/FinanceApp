@@ -10,23 +10,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
-import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
 import { DatePicker } from '@/components/ui/date-picker';
-import { 
-  HandCoins, 
-  Plus, 
-  Landmark, 
-  Trash2, 
-  Calendar, 
-  Coins, 
-  User, 
-  ShieldCheck, 
+import {
+  HandCoins,
+  Plus,
+  Landmark,
+  Trash2,
+  Calendar,
+  User,
+  ShieldCheck,
   ShieldAlert,
   Zap,
   TrendingDown,
   ArrowRightLeft,
-  ChevronDown,
   Bell,
   Target
 } from 'lucide-react';

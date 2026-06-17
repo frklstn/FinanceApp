@@ -23,8 +23,6 @@ import {
   Trash2,
   Wallet as WalletIcon,
   Zap,
-  ChevronDown,
-  Bell,
   Activity,
   Database,
   Terminal,
@@ -68,7 +66,7 @@ export default function WalletsPage() {
 
   useEffect(() => {
     if (accountId) {
-      fetchWallets();
+      Promise.resolve().then(fetchWallets);
     }
   }, [accountId, fetchWallets]);
 
