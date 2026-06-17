@@ -2,18 +2,30 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
-import { savingsService, SavingsGoal } from '@/lib/services/savings.service';
-import { walletService, Wallet } from '@/lib/services/wallet.service';
+import { savingsService, type SavingsGoal } from '@/lib/services/savings.service';
+import { walletService, type Wallet } from '@/lib/services/wallet.service';
 import { formatRupiah } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
-import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
 import { DatePicker } from '@/components/ui/date-picker';
-import { Target, Plus, PiggyBank, Trash2, Calendar, Coins, ShieldCheck } from 'lucide-react';
+import { 
+  Target, 
+  Plus, 
+  PiggyBank, 
+  Trash2, 
+  Calendar, 
+  Coins, 
+  ShieldCheck, 
+  Zap, 
+  TrendingUp, 
+  Trophy 
+} from 'lucide-react';
+import NumberTicker from '@/components/ui/number-ticker';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SavingsPage() {
   const { accountId } = useApp();
@@ -23,7 +35,6 @@ export default function SavingsPage() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Creation Goal Form Modal states
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [goalName, setGoalName] = useState('');
   const [targetAmt, setTargetAmt] = useState('');
@@ -31,7 +42,6 @@ export default function SavingsPage() {
   const [deadline, setDeadline] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Contribution Modal states
   const [isContributionModalOpen, setIsContributionModalOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<SavingsGoal | null>(null);
   const [contribWalletId, setContribWalletId] = useState('');
@@ -49,7 +59,7 @@ export default function SavingsPage() {
       setGoals(gList);
       setWallets(wList);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal memuat modul target tabungan.';
+      const msg = err instanceof Error ? err.message : 'Unknown error';
       toast(msg, 'danger');
     } finally {
       setLoading(false);
@@ -58,299 +68,173 @@ export default function SavingsPage() {
 
   useEffect(() => {
     if (accountId) {
-      Promise.resolve().then(fetchData);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchData();
     }
   }, [accountId, fetchData]);
 
   const handleCreateGoal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accountId || !goalName || !targetAmt) return;
-
-    const targetNum = Number(targetAmt);
-    const currentNum = Number(currentAmt);
-
-    if (isNaN(targetNum) || targetNum <= 0) {
-      toast('Masukkan jumlah target yang valid dan positif.', 'danger');
-      return;
-    }
-
     setSubmitting(true);
     try {
-      await savingsService.createSavingsGoal(
-        accountId,
-        goalName,
-        targetNum,
-        currentNum,
-        deadline || null
-      );
-      toast('Target tabungan berhasil dibuat!', 'success');
+      await savingsService.createSavingsGoal(accountId, goalName, Number(targetAmt), Number(currentAmt), deadline || null);
+      toast('Target Forge Completed', 'success');
       setIsGoalModalOpen(false);
-      setGoalName('');
-      setTargetAmt('');
-      setCurrentAmt('0');
-      setDeadline('');
+      setGoalName(''); setTargetAmt(''); setCurrentAmt('0'); setDeadline('');
       fetchData();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal membuat target tabungan.';
+      const msg = err instanceof Error ? err.message : 'Error forging target';
       toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleOpenContribution = (goal: SavingsGoal) => {
-    setSelectedGoal(goal);
-    setContribWalletId('');
-    setContribAmount('');
-    setContribNote(`Setoran untuk: ${goal.name}`);
-    setIsContributionModalOpen(true);
   };
 
   const handleContributionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accountId || !selectedGoal || !contribWalletId || !contribAmount) return;
-
-    const amtNum = Number(contribAmount);
-    if (isNaN(amtNum) || amtNum <= 0) {
-      toast('Tentukan jumlah setoran yang positif.', 'danger');
-      return;
-    }
-
     setSubmitting(true);
     try {
-      await savingsService.addContribution(
-        accountId,
-        selectedGoal.id,
-        amtNum,
-        contribWalletId,
-        contribNote
-      );
-
-      toast(`Berhasil menyetor ${formatRupiah(amtNum)} ke "${selectedGoal.name}"!`, 'success');
+      await savingsService.addContribution(accountId, selectedGoal.id, Number(contribAmount), contribWalletId, contribNote);
+      toast('Liquidity Allocated', 'success');
       setIsContributionModalOpen(false);
-      setSelectedGoal(null);
       fetchData();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal menyetor tabungan.';
+      const msg = err instanceof Error ? err.message : 'Error allocating liquidity';
       toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDeleteGoal = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus target tabungan ini?')) return;
-    try {
-      await savingsService.deleteSavingsGoal(id);
-      toast('Target tabungan dihapus.', 'success');
-      fetchData();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal menghapus target.';
-      toast(msg, 'danger');
-    }
-  };
+  const totalSaved = goals.reduce((sum, g) => sum + Number(g.current_amount), 0);
+  const totalTarget = goals.reduce((sum, g) => sum + Number(g.target_amount), 0);
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto p-4 md:p-5 pb-24">
-      {/* Header Panel */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-            <Target className="w-5.5 h-5.5 text-primary" />
-            Target Tabungan Mandiri
-          </h2>
-          <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            Kumpulkan dana untuk pencapaian khusus, investasi, dan pengeluaran besar Anda
-          </p>
+    <div className="min-h-screen bg-[#0a0a0c] py-10 px-8 space-y-10">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Treasury <span className="text-indigo-500">Forge</span></h1>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.3em]">Capital Growth Infrastructure • v2.0</p>
         </div>
-        <Button className="flex items-center gap-2 cursor-pointer" onClick={() => setIsGoalModalOpen(true)}>
-          <Plus className="w-4 h-4" />
-          Tambah Target Tabungan
+        <Button className="rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.3)]" onClick={() => setIsGoalModalOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" /> Initialize Target
         </Button>
-      </div>
+      </header>
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((n) => (
-            <div key={n} className="h-44 rounded-2xl border border-light-border dark:border-dark-border shimmer" />
-          ))}
-        </div>
-      ) : goals.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-light-border/40 dark:bg-dark-border/40 flex items-center justify-center mb-4 text-light-text-secondary">
-            <PiggyBank className="w-6.5 h-6.5" />
+      <section>
+        <Card glass className="p-10 relative group overflow-hidden border-indigo-500/10 bg-gradient-to-br from-[#12042a] via-[#09112a] to-[#050816]">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 blur-[100px] rounded-full -mr-40 -mt-40 transition-all group-hover:bg-indigo-600/15" />
+          <div className="flex items-center justify-between relative z-10">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-white/50">Aggregated Reserves</h3>
+              </div>
+              <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">
+                <NumberTicker value={totalSaved} formatter={(v) => formatRupiah(v)} />
+              </h2>
+              <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">
+                <Target className="w-3.5 h-3.5" /> Objective: {formatRupiah(totalTarget)}
+              </div>
+            </div>
+            <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-indigo-400 shadow-2xl">
+              <PiggyBank className="w-10 h-10" />
+            </div>
           </div>
-          <h4 className="text-base font-bold text-light-text-primary dark:text-dark-text-primary mb-1">Belum Ada Target Aktif</h4>
-          <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary max-w-sm mb-4">
-            Mulai buat target tabungan Anda (seperti dana darurat, pembelian aset, DP rumah) dan setor saldo secara berkala.
-          </p>
-          <Button size="sm" onClick={() => setIsGoalModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-1.5" />
-            Buat Target Tabungan
-          </Button>
-        </div>
-      ) : (
-        /* Goals list Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {goals.map((goal) => {
-            const currentNum = Number(goal.current_amount);
-            const targetNum = Number(goal.target_amount);
-            const percentage = targetNum > 0 ? (currentNum / targetNum) * 100 : 0;
-            const isFinished = currentNum >= targetNum;
+        </Card>
+      </section>
 
-            return (
-              <Card key={goal.id} className="p-5 flex flex-col justify-between hover:shadow-lg transition-all duration-200">
-                <div className="space-y-4">
-                  {/* Title & Delete */}
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">
-                      {goal.name}
-                    </h4>
-                    <button
-                      onClick={() => handleDeleteGoal(goal.id)}
-                      className="p-1.5 rounded-lg hover:bg-danger/10 text-light-text-secondary hover:text-danger cursor-pointer transition-all duration-150"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          [1, 2, 3].map((n) => <div key={n} className="h-64 rounded-[32px] border border-white/5 bg-white/[0.02] animate-pulse" />)
+        ) : (
+          <AnimatePresence>
+            {goals.map((goal) => {
+              const current = Number(goal.current_amount);
+              const target = Number(goal.target_amount);
+              const progress = Math.min((current / target) * 100, 100);
+              const finished = current >= target;
 
-                  {/* Progress ring indicators */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between items-end text-xs font-semibold">
-                      <span className="text-light-text-secondary dark:text-dark-text-secondary">Progres Terkumpul</span>
-                      <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                        {formatRupiah(currentNum)} / {formatRupiah(targetNum)}
-                      </span>
+              return (
+                <motion.div
+                  key={goal.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ y: -5 }}
+                  className="group"
+                >
+                  <Card glass className="p-8 h-full border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all flex flex-col justify-between rounded-[32px]">
+                    <div className="space-y-6">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <h4 className="text-lg font-black text-white uppercase tracking-tight">{goal.name}</h4>
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {goal.deadline ? new Date(goal.deadline).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }) : 'No Deadline'}
+                          </div>
+                        </div>
+                        <button onClick={() => savingsService.deleteSavingsGoal(goal.id).then(() => fetchData())} className="p-2.5 rounded-xl bg-white/5 hover:bg-rose-500/20 text-white/40 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-widest">
+                          <span className="text-white/40">Efficiency</span>
+                          <span className="text-white">{Math.round(progress)}%</span>
+                        </div>
+                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            className={`h-full shadow-[0_0_15px_rgba(99,102,241,0.3)] ${finished ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[11px] font-black text-white tracking-tighter">
+                          <span>{formatRupiah(current)}</span>
+                          <span className="text-white/30">{formatRupiah(target)}</span>
+                        </div>
+                      </div>
                     </div>
-                    <Progress value={percentage} variant={isFinished ? 'success' : 'primary'} />
-                  </div>
-                </div>
 
-                {/* Contribution details and CTA */}
-                <div className="flex items-center justify-between gap-3 mt-6 pt-3 border-t border-light-border/40 dark:border-dark-border/40">
-                  <div className="flex items-center gap-1 text-[11px] font-semibold text-light-text-secondary dark:text-dark-text-secondary">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {goal.deadline
-                      ? `Selesai s.d. ${new Date(goal.deadline).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' })}`
-                      : 'Tanpa Tenggat Waktu'}
-                  </div>
-                  {isFinished ? (
-                    <div className="flex items-center gap-1 text-xs font-bold text-success">
-                      <ShieldCheck className="w-4 h-4" />
-                      Selesai
+                    <div className="mt-8 pt-6 border-t border-white/5">
+                      {finished ? (
+                        <div className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-widest">
+                          <Trophy className="w-4 h-4" /> Objective Secured
+                        </div>
+                      ) : (
+                        <Button variant="outline" className="w-full rounded-2xl border-white/5 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest py-6" onClick={() => { setSelectedGoal(goal); setContribNote(`Allocation for ${goal.name}`); setIsContributionModalOpen(true); }}>
+                          <Coins className="w-3.5 h-3.5 mr-2" /> Allocate Liquidity
+                        </Button>
+                      )}
                     </div>
-                  ) : (
-                    <Button size="sm" variant="outline" className="flex items-center gap-1 cursor-pointer" onClick={() => handleOpenContribution(goal)}>
-                      <Coins className="w-3 h-3" />
-                      Setor Tabungan
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        )}
+      </section>
 
-      {/* Add goal target modal */}
-      <Modal isOpen={isGoalModalOpen} onClose={() => setIsGoalModalOpen(false)} title="Tambah Target Tabungan">
-        <form onSubmit={handleCreateGoal} className="space-y-4">
-          <Input
-            label="Nama Target"
-            placeholder="misal: Dana Darurat, DP Rumah"
-            value={goalName}
-            onChange={(e) => setGoalName(e.target.value)}
-            required
-            disabled={submitting}
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Target Nominal (Rp)"
-              placeholder="5000000"
-              type="number"
-              value={targetAmt}
-              onChange={(e) => setTargetAmt(e.target.value)}
-              required
-              disabled={submitting}
-            />
-            <Input
-              label="Setoran Awal (Rp)"
-              type="number"
-              value={currentAmt}
-              onChange={(e) => setCurrentAmt(e.target.value)}
-              required
-              disabled={submitting}
-            />
+      <Modal isOpen={isGoalModalOpen} onClose={() => setIsGoalModalOpen(false)} title="Initialize Forge Target">
+        <form onSubmit={handleCreateGoal} className="space-y-6">
+          <Input label="Objective Alias" placeholder="e.g. Asset Acquisition, Emergency Fund" value={goalName} onChange={(e) => setGoalName(e.target.value)} required />
+          <div className="grid grid-cols-2 gap-6">
+            <Input label="Target Magnitude" type="number" value={targetAmt} onChange={(e) => setTargetAmt(e.target.value)} required />
+            <Input label="Initial Deposit" type="number" value={currentAmt} onChange={(e) => setCurrentAmt(e.target.value)} required />
           </div>
-          <DatePicker
-            label="Tanggal Batas Waktu / Tenggat"
-            value={deadline}
-            onChange={(val) => setDeadline(val)}
-            disabled={submitting}
-          />
-
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsGoalModalOpen(false)}
-              disabled={submitting}
-            >
-              Batal
-            </Button>
-            <Button type="submit" loading={submitting}>
-              Buat Target
-            </Button>
-          </div>
+          <DatePicker label="Chronological Deadline" value={deadline} onChange={setDeadline} />
+          <Button type="submit" loading={submitting} className="w-full h-14 font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/10">Authorize Target</Button>
         </form>
       </Modal>
 
-      {/* Contribution Drawer modal */}
-      <Modal isOpen={isContributionModalOpen} onClose={() => setIsContributionModalOpen(false)} title={`Setor Tabungan: ${selectedGoal?.name}`}>
-        {selectedGoal && (
-          <form onSubmit={handleContributionSubmit} className="space-y-4">
-            <Select
-              label="Sumber Dompet Pendanaan"
-              options={[
-                { value: '', label: '-- Pilih --' },
-                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
-              ]}
-              value={contribWalletId}
-              onChange={(e) => setContribWalletId(e.target.value)}
-              required
-              disabled={submitting}
-            />
-            <Input
-              label="Jumlah Setoran (Rp)"
-              placeholder="100000"
-              type="number"
-              value={contribAmount}
-              onChange={(e) => setContribAmount(e.target.value)}
-              required
-              disabled={submitting}
-            />
-            <Input
-              label="Catatan Setoran"
-              value={contribNote}
-              onChange={(e) => setContribNote(e.target.value)}
-              disabled={submitting}
-            />
-
-            <div className="flex justify-end gap-3 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsContributionModalOpen(false)}
-                disabled={submitting}
-              >
-                Batal
-              </Button>
-              <Button type="submit" loading={submitting}>
-                Proses Setoran
-              </Button>
-            </div>
-          </form>
-        )}
+      <Modal isOpen={isContributionModalOpen} onClose={() => setIsContributionModalOpen(false)} title={`Allocate: ${selectedGoal?.name}`}>
+        <form onSubmit={handleContributionSubmit} className="space-y-6">
+          <Select label="Source Account" options={[{value: '', label: '-- Select --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={contribWalletId} onChange={(e) => setContribWalletId(e.target.value)} required />
+          <Input label="Allocation Magnitude" type="number" value={contribAmount} onChange={(e) => setContribAmount(e.target.value)} required />
+          <Input label="Protocol Note" value={contribNote} onChange={(e) => setContribNote(e.target.value)} />
+          <Button type="submit" loading={submitting} className="w-full h-14 font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/10">Execute Allocation</Button>
+        </form>
       </Modal>
     </div>
   );
