@@ -37,7 +37,7 @@ export const incomeProjectionService = {
       .single();
 
     if (error) throw new Error(error.message);
-    return data;
+    return { ...data, currency: data.currency ?? 'IDR' };
   },
 
   async deleteEntry(id: string): Promise<void> {

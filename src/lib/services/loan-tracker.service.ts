@@ -67,7 +67,7 @@ export const loanTrackerService = {
       .single();
 
     if (error) throw new Error(error.message);
-    return data as unknown as LoanTracker;
+    return { ...data, currency: data.currency ?? 'IDR' } as any as LoanTracker;
   },
 
   async updateLoanStatus(id: string, status: LoanStatus): Promise<void> {
