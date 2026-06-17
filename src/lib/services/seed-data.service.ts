@@ -58,6 +58,8 @@ export const seedDataService = {
           attachment_url: null,
           is_recurring: false,
           recurring_id: null,
+          currency: 'IDR',
+          exchange_rate: 1,
         });
       }
       
@@ -76,6 +78,8 @@ export const seedDataService = {
           attachment_url: null,
           is_recurring: false,
           recurring_id: null,
+          currency: 'IDR',
+          exchange_rate: 1,
         });
       }
     }
