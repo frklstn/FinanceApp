@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { budgetService, type Budget } from '@/lib/services/budget.service';
-import { currencyService } from '@/lib/services/currency.service';
 import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
 import { categoryService, type Category } from '@/lib/services/category.service';
 import { incomeProjectionService } from '@/lib/services/income-projection.service';
@@ -133,7 +132,7 @@ export default function BudgetsPage() {
       setPendingBudgets([]);
       setIsModalOpen(false);
       fetchBudgets();
-    } catch (err) {
+    } catch (err: unknown) {
       toast('Gagal mengotorisasi budget.', 'danger');
     } finally {
       setSubmitting(false);

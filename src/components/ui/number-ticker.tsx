@@ -4,13 +4,11 @@ import { cn } from "@/lib/utils"
 
 export default function NumberTicker({
   value,
-  direction = "up",
   delay = 0,
   className,
   formatter = (v: number) => v.toLocaleString(),
 }: {
   value: number
-  direction?: "up" | "down"
   delay?: number
   className?: string
   formatter?: (value: number) => string

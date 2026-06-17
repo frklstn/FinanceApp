@@ -11,7 +11,7 @@ import { walletService, Wallet } from '@/lib/services/wallet.service';
 import { categoryService, Category } from '@/lib/services/category.service';
 import { transactionService } from '@/lib/services/transaction.service';
 import { currencyService } from '@/lib/services/currency.service';
-import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 
 interface QuickAddModalProps {
   isOpen: boolean;
