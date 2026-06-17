@@ -21,7 +21,6 @@ import {
   ChevronDown,
   Zap,
   ShieldCheck,
-  CreditCard,
   Target,
   ArrowUpRight,
   ArrowDownLeft,
@@ -32,7 +31,7 @@ import {
 } from 'lucide-react';
 import { QuickAddModal } from '@/components/transaction/quick-add-modal';
 import NumberTicker from '@/components/ui/number-ticker';
-import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
+import { BentoGridItem } from '@/components/ui/bento-grid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -88,7 +87,7 @@ export default function DashboardPage() {
       const activeTrackers = trackers.filter(l => l.status === 'active');
       const totalActiveDebt = activeTrackers.reduce((sum, l) => sum + Number(l.total_repayment), 0);
 
-      const goals = await insightsService.generateInsights(accountId, { prefetchedTransactions: monthTxs }); // Simple way to get targets if service supports it
+      await insightsService.generateInsights(accountId, { prefetchedTransactions: monthTxs }); // Simple way to get targets if service supports it
 
       setFinancialStats({
         score: insightData.score,

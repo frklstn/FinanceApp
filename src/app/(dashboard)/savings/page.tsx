@@ -19,8 +19,6 @@ import {
   Trash2, 
   Calendar, 
   Coins, 
-  ShieldCheck, 
-  Zap, 
   TrendingUp, 
   Trophy 
 } from 'lucide-react';
