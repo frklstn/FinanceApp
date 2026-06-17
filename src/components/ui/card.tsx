@@ -17,7 +17,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "nexus-card flex flex-col gap-4 overflow-hidden py-6 px-8 text-sm",
+        "nexus-card flex flex-col gap-4 py-6 px-8 text-sm",
         glass ? "backdrop-blur-3xl" : "bg-card border-border",
         className
       )}

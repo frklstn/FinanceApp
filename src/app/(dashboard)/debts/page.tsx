@@ -4,7 +4,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { debtService, Debt } from '@/lib/services/debt.service';
 import { walletService, Wallet } from '@/lib/services/wallet.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { currencyService } from '@/lib/services/currency.service';
+import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,7 @@ export default function DebtsPage() {
   const [amount, setAmount] = useState('');
   const [contactInfo, setContactInfo] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [currency, setCurrency] = useState('IDR');
   const [submitting, setSubmitting] = useState(false);
 
   // Installment Modal States
@@ -96,7 +98,8 @@ export default function DebtsPage() {
         debtType,
         amtNum,
         contactInfo || null,
-        dueDate || null
+        dueDate || null,
+        currency
       );
 
       toast('Ledger account added successfully.', 'success');
@@ -167,6 +170,7 @@ export default function DebtsPage() {
   };
 
   const totalOwe = debts.filter((d) => d.type === 'owe').reduce((sum, d) => sum + Number(d.remaining_amount), 0);
+  // Note: Simplified totals. Real implementation would convert to base currency.
   const totalLend = debts.filter((d) => d.type === 'lend').reduce((sum, d) => sum + Number(d.remaining_amount), 0);
   const netPosition = totalLend - totalOwe;
 
@@ -332,7 +336,7 @@ export default function DebtsPage() {
                             <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.2em]">
                               <span className="text-white/30">Repayment Audit</span>
                               <span className="text-white">
-                                <NumberTicker value={paid} formatter={formatRupiah} /> / {formatRupiah(tot)}
+                                <NumberTicker value={paid} formatter={(v) => formatCurrency(v, debt.currency || 'IDR')} /> / {formatCurrency(tot, debt.currency || 'IDR')}
                               </span>
                             </div>
                             <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
@@ -437,7 +441,7 @@ export default function DebtsPage() {
                             <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.2em]">
                               <span className="text-white/30">Collection Audit</span>
                               <span className="text-white">
-                                <NumberTicker value={paid} formatter={formatRupiah} /> / {formatRupiah(tot)}
+                                <NumberTicker value={paid} formatter={(v) => formatCurrency(v, debt.currency || 'IDR')} /> / {formatCurrency(tot, debt.currency || 'IDR')}
                               </span>
                             </div>
                             <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
@@ -511,9 +515,17 @@ export default function DebtsPage() {
             disabled={submitting}
             className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
           />
+          <Select
+            label="Currency Base"
+            options={currencyService.getSupportedCurrencies().map(c => ({ value: c.code, label: `${c.code} - ${c.name}` }))}
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            disabled={submitting}
+            className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto"
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
-              label="Magnitude (Rp)"
+              label={`Magnitude (${currency})`}
               placeholder="0"
               type="number"
               value={amount}
@@ -572,7 +584,7 @@ export default function DebtsPage() {
               label={selectedDebt.type === 'owe' ? 'Source Asset Account' : 'Destination Asset Account'}
               options={[
                 { value: '', label: '-- Select Asset --' },
-                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
+                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance), w.currency || 'IDR')})` })),
               ]}
               value={payWalletId}
               onChange={(e) => setPayWalletId(e.target.value)}
@@ -581,7 +593,7 @@ export default function DebtsPage() {
               className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto"
             />
             <Input
-              label="Authorization Magnitude (Rp)"
+              label={`Authorization Magnitude (${selectedDebt.currency || 'Rp'})`}
               placeholder="0"
               type="number"
               value={payAmount}

@@ -8,6 +8,7 @@ export interface Wallet {
   balance: number;
   color: string;
   icon: string;
+  currency: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -41,7 +42,8 @@ export const walletService = {
     type: string,
     balance: number,
     color: string,
-    icon: string
+    icon: string,
+    currency: string = 'IDR'
   ): Promise<Wallet> {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -53,6 +55,7 @@ export const walletService = {
         balance,
         color,
         icon,
+        currency,
       })
       .select()
       .single();
@@ -87,6 +90,7 @@ export const walletService = {
     type: string,
     color: string,
     icon: string,
+    currency: string,
     isActive: boolean = true
   ): Promise<Wallet> {
     const supabase = createClient();
@@ -97,6 +101,7 @@ export const walletService = {
         type,
         color,
         icon,
+        currency,
         is_active: isActive,
       })
       .eq('id', id)
@@ -174,6 +179,8 @@ export const walletService = {
       type: 'transfer',
       note: note || 'Transfer',
       date: new Date().toISOString(),
+      currency: sourceWallet.currency || 'IDR',
+      exchange_rate: 1.0,
     });
 
     if (tErr) {

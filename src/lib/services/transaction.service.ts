@@ -11,6 +11,8 @@ export interface Transaction {
   note: string | null;
   date: string;
   tags: string[];
+  currency: string;
+  exchange_rate: number;
   attachment_url: string | null;
   is_recurring: boolean;
   recurring_id: string | null;
@@ -54,8 +56,8 @@ export const transactionService = {
     
     let query = supabase
       .from('transactions')
-      .select('*, wallets!transactions_wallet_id_fkey(name, color), categories(name, icon, color)', { count: 'exact' })
-      .eq('workspace_id', workspaceId);
+      .select('*, wallets!transactions_wallet_id_fkey(name, color), categories(name, icon, color)', { count: 'exact' });
+    query = query.eq('workspace_id', workspaceId);
 
     // Apply filters
     if (filters.walletId) {
@@ -174,6 +176,8 @@ export const transactionService = {
         note: tx.note,
         date: tx.date || new Date().toISOString(),
         tags: tx.tags || [],
+        currency: tx.currency || 'IDR',
+        exchange_rate: tx.exchange_rate || 1.0,
         attachment_url: tx.attachment_url,
         is_recurring: tx.is_recurring || false,
       })

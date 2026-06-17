@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { currencyService } from './currency.service';
 
 export interface Debt {
   id: string;
@@ -10,6 +11,7 @@ export interface Debt {
   contact_info: string | null;
   due_date: string | null;
   status: 'active' | 'settled';
+  currency: string;
   created_at: string;
   updated_at: string;
 }
@@ -42,7 +44,8 @@ export const debtService = {
     type: 'owe' | 'lend',
     amount: number,
     contactInfo: string | null = null,
-    dueDate: string | null = null
+    dueDate: string | null = null,
+    currency: string = 'IDR'
   ): Promise<Debt> {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -55,6 +58,7 @@ export const debtService = {
         remaining_amount: amount,
         contact_info: contactInfo,
         due_date: dueDate,
+        currency,
         status: 'active',
       })
       .select()
@@ -151,6 +155,8 @@ export const debtService = {
       amount,
       type: debt.type === 'owe' ? 'expense' : 'income',
       note: note || `Repayment contribution: ${debt.name}`,
+      currency: debt.currency || 'IDR',
+      exchange_rate: await currencyService.getExchangeRate(debt.currency || 'IDR', 'IDR'),
       date: new Date().toISOString(),
     });
 

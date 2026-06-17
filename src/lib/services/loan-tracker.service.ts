@@ -20,6 +20,7 @@ export interface CreateLoanTrackerInput {
   penalty_fee?: number | null;
   can_early_payoff?: boolean | null;
   notes?: string | null;
+  currency: string;
 }
 
 export {

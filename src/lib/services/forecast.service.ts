@@ -16,6 +16,8 @@ import {
   hasClusteredDueDates,
   calcRemainingObligation,
 } from '@/lib/debt-planner/calculations';
+import { currencyService } from './currency.service';
+import { formatCurrency } from '@/lib/debt-planner/format';
 
 export type {
   PeriodForecast,
@@ -25,16 +27,18 @@ export type {
 } from '@/lib/debt-planner/types';
 export { calcSurvivalScore } from '@/lib/debt-planner/calculations';
 
-const LOW_CASH_THRESHOLD = 500_000;
+const LOW_CASH_THRESHOLD_IDR = 500_000;
 
-export function buildPeriodWarnings(
+export async function buildPeriodWarnings(
   totalDebt: number,
   income: number,
   remainingCash: number,
   activeCount: number,
   clustered: boolean
-): ForecastWarning[] {
+): Promise<ForecastWarning[]> {
   const warnings: ForecastWarning[] = [];
+
+  const threshold = await currencyService.convert(LOW_CASH_THRESHOLD_IDR, 'IDR', 'IDR'); // Normalize if needed
 
   if (income > 0 && totalDebt > income) {
     warnings.push({
@@ -43,7 +47,7 @@ export function buildPeriodWarnings(
     });
   }
 
-  if (remainingCash >= 0 && remainingCash < LOW_CASH_THRESHOLD) {
+  if (remainingCash >= 0 && remainingCash < threshold) {
     warnings.push({
       level: 'danger',
       message: 'Remaining cash is dangerously low.',
@@ -67,13 +71,13 @@ export function buildPeriodWarnings(
   return warnings;
 }
 
-export function buildForecastForPeriod(
+export async function buildForecastForPeriod(
   loans: LoanTracker[],
   incomeTimeline: IncomeTimelineEntry[],
   salaryDay: number,
   periodIndex: number,
   fromDate: Date = new Date()
-): PeriodForecast {
+): Promise<PeriodForecast> {
   const periods = getSalaryPeriods(salaryDay, periodIndex + 1, fromDate);
   const period = periods[periodIndex];
   const activeLoans = loans.filter((l) => l.status === 'active');
@@ -84,6 +88,14 @@ export function buildForecastForPeriod(
   const health_status = getHealthStatus(debt_ratio, remaining_cash);
   const clustered = hasClusteredDueDates(activeLoans);
 
+  const warnings = await buildPeriodWarnings(
+    total_debt,
+    income,
+    remaining_cash,
+    activeLoans.length,
+    clustered
+  );
+
   return {
     period,
     income,
@@ -91,33 +103,35 @@ export function buildForecastForPeriod(
     remaining_cash,
     debt_ratio,
     health_status,
-    warnings: buildPeriodWarnings(
-      total_debt,
-      income,
-      remaining_cash,
-      activeLoans.length,
-      clustered
-    ),
+    warnings,
   };
 }
 
-export function buildForecastTimeline(
+export async function buildForecastTimeline(
   loans: LoanTracker[],
   incomeTimeline: IncomeTimelineEntry[],
   salaryDay: number,
   periodCount = 12,
   fromDate: Date = new Date()
-): PeriodForecast[] {
+): Promise<PeriodForecast[]> {
   const periods = getSalaryPeriods(salaryDay, periodCount, fromDate);
   const activeLoans = loans.filter((l) => l.status === 'active');
   const clustered = hasClusteredDueDates(activeLoans);
 
-  return periods.map((period) => {
+  return Promise.all(periods.map(async (period) => {
     const income = getIncomeForDate(incomeTimeline, period.start);
     const total_debt = calcPeriodDebtTotal(activeLoans, period.start, period.end);
     const remaining_cash = income - total_debt;
     const debt_ratio = calcDebtRatio(total_debt, income);
     const health_status = getHealthStatus(debt_ratio, remaining_cash);
+
+    const warnings = await buildPeriodWarnings(
+      total_debt,
+      income,
+      remaining_cash,
+      activeLoans.length,
+      clustered
+    );
 
     return {
       period,
@@ -126,29 +140,31 @@ export function buildForecastTimeline(
       remaining_cash,
       debt_ratio,
       health_status,
-      warnings: buildPeriodWarnings(
-        total_debt,
-        income,
-        remaining_cash,
-        activeLoans.length,
-        clustered
-      ),
+      warnings,
     };
-  });
+  }));
 }
 
-export function getCurrentPeriodForecast(
+export async function getCurrentPeriodForecast(
   loans: LoanTracker[],
   incomeTimeline: IncomeTimelineEntry[],
   salaryDay: number,
   fromDate: Date = new Date()
-): PeriodForecast {
+): Promise<PeriodForecast> {
   const period = getSalaryPeriodContaining(salaryDay, fromDate);
   const activeLoans = loans.filter((l) => l.status === 'active');
   const income = getIncomeForDate(incomeTimeline, period.start);
   const total_debt = calcPeriodDebtTotal(activeLoans, period.start, period.end);
   const remaining_cash = income - total_debt;
   const debt_ratio = calcDebtRatio(total_debt, income);
+
+  const warnings = await buildPeriodWarnings(
+    total_debt,
+    income,
+    remaining_cash,
+    activeLoans.length,
+    hasClusteredDueDates(activeLoans)
+  );
 
   return {
     period,
@@ -157,13 +173,7 @@ export function getCurrentPeriodForecast(
     remaining_cash,
     debt_ratio,
     health_status: getHealthStatus(debt_ratio, remaining_cash),
-    warnings: buildPeriodWarnings(
-      total_debt,
-      income,
-      remaining_cash,
-      activeLoans.length,
-      hasClusteredDueDates(activeLoans)
-    ),
+    warnings,
   };
 }
 
@@ -213,11 +223,11 @@ export function buildForecastAnalytics(
   };
 }
 
-export function generateSurvivalInsight(
+export async function generateSurvivalInsight(
   forecastTimeline: PeriodForecast[],
   loans: LoanTracker[],
   currentForecast: PeriodForecast
-): string {
+): Promise<string> {
   const activeLoans = loans.filter((l) => l.status === 'active');
 
   if (activeLoans.length === 0) {
@@ -225,13 +235,13 @@ export function generateSurvivalInsight(
   }
 
   if (currentForecast.income <= 0) {
-    return `Ada ${activeLoans.length} utang aktif dengan kewajiban periode ini ${formatRupiah(currentForecast.total_debt)}. Tambahkan timeline gaji untuk analisis lengkap.`;
+    return `Ada ${activeLoans.length} utang aktif dengan kewajiban periode ini ${formatCurrency(currentForecast.total_debt)}. Tambahkan timeline gaji untuk analisis lengkap.`;
   }
 
   const deficitPeriods = forecastTimeline.filter((p) => p.remaining_cash < 0);
   if (deficitPeriods.length > 0) {
     const first = deficitPeriods[0];
-    return `Cashflow menjadi negatif pada periode ${first.period.label} (sisa ${formatRupiah(first.remaining_cash)}). Pertimbangkan kurangi pengeluaran atau restrukturisasi utang.`;
+    return `Cashflow menjadi negatif pada periode ${first.period.label} (sisa ${formatCurrency(first.remaining_cash)}). Pertimbangkan kurangi pengeluaran atau restrukturisasi utang.`;
   }
 
   const heavyPeriods = forecastTimeline.filter(
@@ -249,14 +259,14 @@ export function generateSurvivalInsight(
   }
 
   if (currentForecast.debt_ratio > 50) {
-    return `Periode ini berat dengan debt ratio ${currentForecast.debt_ratio.toFixed(0)}% dan sisa ${formatRupiah(currentForecast.remaining_cash)}. Fokus bertahan tanpa menambah utang.`;
+    return `Periode ini berat dengan debt ratio ${currentForecast.debt_ratio.toFixed(0)}% dan sisa ${formatCurrency(currentForecast.remaining_cash)}. Fokus bertahan tanpa menambah utang.`;
   }
 
   if (currentForecast.debt_ratio > 30) {
-    return `Cashflow masih manageable (debt ratio ${currentForecast.debt_ratio.toFixed(0)}%, sisa ${formatRupiah(currentForecast.remaining_cash)}). Pertahankan disiplin hingga salah satu cicilan lunas.`;
+    return `Cashflow masih manageable (debt ratio ${currentForecast.debt_ratio.toFixed(0)}%, sisa ${formatCurrency(currentForecast.remaining_cash)}). Pertahankan disiplin hingga salah satu cicilan lunas.`;
   }
 
-  return `Situasi aman: debt ratio ${currentForecast.debt_ratio.toFixed(0)}%, sisa ${formatRupiah(currentForecast.remaining_cash)} per periode gajian.`;
+  return `Situasi aman: debt ratio ${currentForecast.debt_ratio.toFixed(0)}%, sisa ${formatCurrency(currentForecast.remaining_cash)} per periode gajian.`;
 }
 
 export function generateGlobalWarnings(
@@ -314,11 +324,4 @@ export function computeDashboardSurvivalScore(
   });
 }
 
-function formatRupiah(amount: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+

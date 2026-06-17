@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { type Wallet, walletService } from '@/lib/services/wallet.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { currencyService } from '@/lib/services/currency.service';
+import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -45,6 +46,7 @@ export default function WalletsPage() {
   const [balance, setBalance] = useState('0');
   const [color, setColor] = useState('#6366f1');
   const [icon, setIcon] = useState('wallet');
+  const [currency, setCurrency] = useState('IDR');
 
   const [sourceId, setSourceId] = useState('');
   const [destId, setDestId] = useState('');
@@ -76,10 +78,10 @@ export default function WalletsPage() {
     setSubmitting(true);
     try {
       if (editingWallet) {
-        await walletService.updateWallet(editingWallet.id, name, type, color, icon, editingWallet.is_active);
+        await walletService.updateWallet(editingWallet.id, name, type, color, icon, currency, editingWallet.is_active);
         toast('Asset Node Optimized', 'success');
       } else {
-        await walletService.createWallet(accountId, name, type, Number(balance), color, icon);
+        await walletService.createWallet(accountId, name, type, Number(balance), color, icon, currency);
         toast('Asset Node Authorized', 'success');
       }
       setIsWalletModalOpen(false);
@@ -106,6 +108,7 @@ export default function WalletsPage() {
   };
 
   const totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
+  // Note: Simplified total for demo. Real implementation would convert all to base currency.
 
   return (
     <div className="space-y-8 no-scrollbar">
@@ -189,7 +192,7 @@ export default function WalletsPage() {
                     {getWalletIcon(wallet.type, wallet.color)}
                   </div>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-[-10px] group-hover:translate-y-0">
-                    <button onClick={() => { setEditingWallet(wallet); setName(wallet.name); setType(wallet.type); setBalance(wallet.balance.toString()); setColor(wallet.color); setIcon(wallet.icon); setIsWalletModalOpen(true); }} className="p-3 rounded-2xl bg-white/5 hover:bg-emerald-500/20 text-white/40 hover:text-white transition-all shadow-xl"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => { setEditingWallet(wallet); setName(wallet.name); setType(wallet.type); setBalance(wallet.balance.toString()); setColor(wallet.color); setIcon(wallet.icon); setCurrency(wallet.currency || 'IDR'); setIsWalletModalOpen(true); }} className="p-3 rounded-2xl bg-white/5 hover:bg-emerald-500/20 text-white/40 hover:text-white transition-all shadow-xl"><Pencil className="w-4 h-4" /></button>
                     <button onClick={() => walletService.deleteWallet(wallet.id).then(() => fetchWallets())} className="p-3 rounded-2xl bg-white/5 hover:bg-rose-500/20 text-white/40 hover:text-white transition-all shadow-xl"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
@@ -208,7 +211,7 @@ export default function WalletsPage() {
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-500/50" />
                     </div>
                     <p className="text-3xl font-black text-white tracking-tighter leading-none">
-                      {formatRupiah(Number(wallet.balance))}
+                      {formatCurrency(Number(wallet.balance), wallet.currency || 'IDR')}
                     </p>
                   </div>
                 </div>
@@ -224,6 +227,8 @@ export default function WalletsPage() {
           <Input label="Asset Label" placeholder="e.g. Nexus Prime, Global Ledger" value={name} onChange={(e) => setName(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-6" />
           
           <Select label="Classification Protocol" options={[{value: 'cash', label: 'Physical Capital'}, {value: 'bank', label: 'Institutional Custody'}, {value: 'e-wallet', label: 'Digital Terminal'}, {value: 'crypto', label: 'Cryptographic Asset'}, {value: 'savings', label: 'Treasury Reserves'}]} value={type} onChange={(e) => setType(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+          
+          <Select label="Currency Base" options={currencyService.getSupportedCurrencies().map(c => ({ value: c.code, label: `${c.code} - ${c.name}` }))} value={currency} onChange={(e) => setCurrency(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
           
           {!editingWallet && (
             <div className="space-y-2">

@@ -1,10 +1,23 @@
-export function formatRupiah(amount: number): string {
-  return new Intl.NumberFormat('id-ID', {
+export function formatCurrency(amount: number, currencyCode: string = 'IDR'): string {
+  const localeMap: Record<string, string> = {
+    'IDR': 'id-ID',
+    'USD': 'en-US',
+    'SGD': 'en-SG',
+    'EUR': 'de-DE',
+    'BTC': 'en-US',
+  };
+
+  return new Intl.NumberFormat(localeMap[currencyCode] || 'id-ID', {
     style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    currency: currencyCode,
+    minimumFractionDigits: currencyCode === 'BTC' ? 8 : 0,
+    maximumFractionDigits: currencyCode === 'BTC' ? 8 : 0,
   }).format(amount);
+}
+
+/** @deprecated Use formatCurrency */
+export function formatRupiah(amount: number): string {
+  return formatCurrency(amount, 'IDR');
 }
 
 export function formatDateId(date: Date | string): string {

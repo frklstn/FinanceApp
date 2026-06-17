@@ -10,7 +10,8 @@ import { useToast } from '@/components/ui/toast';
 import { walletService, Wallet } from '@/lib/services/wallet.service';
 import { categoryService, Category } from '@/lib/services/category.service';
 import { transactionService } from '@/lib/services/transaction.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { currencyService } from '@/lib/services/currency.service';
+import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
 
 interface QuickAddModalProps {
   isOpen: boolean;
@@ -67,8 +68,13 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
       return;
     }
 
+    const selectedWallet = wallets.find(w => w.id === walletId);
+    const currency = selectedWallet?.currency || 'IDR';
+
     setLoading(true);
     try {
+      const exchangeRate = await currencyService.getExchangeRate(currency, 'IDR');
+
       await transactionService.createTransaction(accountId, {
         workspace_id: accountId,
         wallet_id: walletId,
@@ -79,6 +85,8 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
         note: note.trim() || null,
         date: new Date(date).toISOString(),
         tags: [],
+        currency,
+        exchange_rate: exchangeRate,
         attachment_url: null,
         is_recurring: false,
         recurring_id: null,
@@ -104,7 +112,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="Jumlah Nominal (Rp)"
+            label={`Jumlah Nominal (${wallets.find(w => w.id === walletId)?.currency || 'Rp'})`}
             type="number"
             placeholder="0"
             value={amount}
@@ -126,7 +134,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
             label={type === 'transfer' ? 'Dari Dompet' : 'Pilih Dompet'}
             options={[
               { value: '', label: '-- Pilih Dompet --' },
-              ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
+              ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance), w.currency || 'IDR')})` })),
             ]}
             value={walletId}
             onChange={(e) => setWalletId(e.target.value)}
@@ -139,7 +147,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
               label="Ke Dompet"
               options={[
                 { value: '', label: '-- Pilih Dompet --' },
-                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
+                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance), w.currency || 'IDR')})` })),
               ]}
               value={destWalletId}
               onChange={(e) => setDestWalletId(e.target.value)}

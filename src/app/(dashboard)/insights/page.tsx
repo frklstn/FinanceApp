@@ -28,6 +28,7 @@ export default function InsightsPage() {
     income: 0,
     expense: 0,
     savings: 0,
+    runwayMonths: 0,
   });
   const [insights, setInsights] = useState<FinancialInsight[]>([]);
 
@@ -54,6 +55,7 @@ export default function InsightsPage() {
         income: insightData.income,
         expense: insightData.expense,
         savings: insightData.savings,
+        runwayMonths: insightData.runwayMonths,
       });
       setInsights(insightData.insights);
     } catch (err: unknown) {
@@ -175,9 +177,9 @@ export default function InsightsPage() {
               </Card>
               <Card className="p-4 flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">Sisa Tabungan Bersih</span>
-                  <p className={`text-lg font-bold ${stats.savings >= 0 ? 'text-emerald-500' : 'text-danger'}`}>
-                    {stats.savings >= 0 ? '+' : '-'}{formatRupiah(Math.abs(stats.savings))}
+                  <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">Runway Keuangan</span>
+                  <p className={`text-lg font-bold ${stats.runwayMonths >= 6 ? 'text-emerald-500' : stats.runwayMonths >= 3 ? 'text-warning' : 'text-danger'}`}>
+                    {stats.runwayMonths.toFixed(1)} Bulan
                   </p>
                 </div>
                 <Wallet className="w-5 h-5 text-emerald-400/70" />

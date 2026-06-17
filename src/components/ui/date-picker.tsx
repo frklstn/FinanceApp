@@ -11,6 +11,8 @@ interface DatePickerProps {
   disabled?: boolean;
   error?: string;
   showTime?: boolean;
+  placeholder?: string;
+  className?: string;
 }
 
 const INDO_MONTHS = [
@@ -28,7 +30,9 @@ export function DatePicker({
   onChange,
   disabled = false,
   error,
-  showTime = false
+  showTime = false,
+  placeholder,
+  className
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('days');
@@ -73,7 +77,7 @@ export function DatePicker({
   }, []);
 
   const getDisplayValue = () => {
-    if (!value) return 'Pilih Tanggal';
+    if (!value) return placeholder || 'Pilih Tanggal';
     const d = new Date(value);
     if (isNaN(d.getTime())) return value;
 
@@ -216,7 +220,7 @@ export function DatePicker({
   };
 
   return (
-    <div className="w-full relative" ref={containerRef}>
+    <div className={cn("w-full relative", className)} ref={containerRef}>
       {label && <label className="block text-[10px] font-black uppercase text-white/30 tracking-widest mb-1.5">{label}</label>}
       <button
         type="button"

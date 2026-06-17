@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
+import { useSearchParams } from 'next/navigation';
 import { DatePicker } from '@/components/ui/date-picker';
 import {
   Edit2,
@@ -33,8 +34,9 @@ import { CategoryManagerModal } from '@/components/transaction/category-manager-
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TransactionsPage() {
-  const { accountId, appSettings } = useApp();
+  const { accountId } = useApp();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
 
   const [transactions, setTransactions] = useState<PopulatedTransaction[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -46,6 +48,8 @@ export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterWallet, setFilterWallet] = useState('');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -81,6 +85,8 @@ export default function TransactionsPage() {
       const { data, count: total } = await transactionService.getTransactions(accountId, {
         walletId: filterWallet || undefined,
         type: filterType || undefined,
+        startDate: filterStartDate || undefined,
+        endDate: filterEndDate || undefined,
         search: searchTerm.trim() || undefined,
         limit,
         offset,
@@ -91,19 +97,40 @@ export default function TransactionsPage() {
       const message = err instanceof Error ? err.message : 'Gagal memuat transaksi.';
       toast(message, 'danger');
     }
-  }, [accountId, page, filterWallet, filterType, searchTerm, toast]);
+  }, [accountId, page, filterWallet, filterType, filterStartDate, filterEndDate, searchTerm, toast]);
 
   useEffect(() => {
     if (accountId) {
-      Promise.resolve().then(fetchFiltersData);
+      setTimeout(() => fetchFiltersData(), 0);
     }
   }, [accountId, fetchFiltersData]);
 
   useEffect(() => {
     if (accountId) {
-      Promise.resolve().then(fetchTransactions);
+      setTimeout(() => fetchTransactions(), 0);
     }
-  }, [accountId, page, filterWallet, filterType, searchTerm, fetchTransactions]);
+  }, [accountId, page, filterWallet, filterType, filterStartDate, filterEndDate, searchTerm, fetchTransactions]);
+
+  // Handle URL edit trigger
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (!id || transactions.length === 0) return;
+    
+    const tx = transactions.find(t => t.id === id);
+    if (tx && !isEditing) {
+      setTimeout(() => {
+        setEditingId(tx.id);
+        setTxType(tx.type as 'income' | 'expense' | 'transfer');
+        setTxAmount(tx.amount.toString());
+        setTxNote(tx.note || '');
+        setTxCategoryId(tx.category_id || '');
+        setTxWalletId(tx.wallet_id);
+        setTxDate(new Date(tx.date).toISOString().substring(0, 16));
+        setIsEditing(true);
+        setIsModalOpen(true);
+      }, 0);
+    }
+  }, [searchParams, transactions, isEditing]);
 
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,32 +203,35 @@ export default function TransactionsPage() {
 
       <section className="grid grid-cols-1 xl:grid-cols-4 gap-8">
         {/* Advanced Filters */}
-        <Card glass className="xl:col-span-1 p-8 md:p-10 space-y-10 h-fit border-white/5 relative overflow-hidden group">
+        <Card glass className="xl:col-span-1 p-6 space-y-8 h-fit border-white/5 relative z-50 group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-indigo-500/10 transition-all" />
           <div className="flex items-center gap-3 relative z-10">
-            <div className="w-10 h-10 rounded-[12px] bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-              <Filter className="w-5 h-5 text-indigo-400" />
+            <div className="w-9 h-9 rounded-[12px] bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+              <Filter className="w-4 h-4 text-indigo-400" />
             </div>
-            <h3 className="text-sm font-black uppercase tracking-widest text-white">{appSettings.app_name || 'FinanceApp'} Kueri</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-white">TERMINAL KUERI</h3>
           </div>
-          <div className="space-y-6 relative z-10">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Cari Deskripsi</label>
+          <div className="space-y-4 relative z-10">
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black text-white/30 uppercase tracking-widest pl-1">Cari Deskripsi</label>
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                <Input placeholder="Cari entri..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-white/[0.03] border-white/5 pl-12 rounded-[16px] py-6 h-auto" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20" />
+                <Input placeholder="Cari entri..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-white/[0.03] border-white/5 pl-11 rounded-[14px] py-4 h-auto text-xs" />
               </div>
             </div>
-            <Select label="Tipe Entri" options={[{value: '', label: 'Semua Protokol'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer Internal'}]} value={filterType} onChange={(e) => setFilterType(e.target.value)} className="rounded-[16px] bg-white/[0.03] border-white/5 h-auto py-3" />
-            <Select label="Akun Aset" options={[{value: '', label: 'Semua Node'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => setFilterWallet(e.target.value)} className="rounded-[16px] bg-white/[0.03] border-white/5 h-auto py-3" />
-          </div>
-          <div className="pt-6 border-t border-white/5 space-y-4">
-            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-white/30">
-              <span>Status Sinkron</span>
-              <span className="text-emerald-400">Aktif</span>
+            <div className="space-y-4">
+              <Select label="Tipe Entri" options={[{value: '', label: 'Semua Protokol'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer Internal'}]} value={filterType} onChange={(e) => setFilterType(e.target.value)} className="rounded-[14px] bg-white/[0.03] border-white/5 h-auto py-2.5 text-xs" />
+              <Select label="Akun Aset" options={[{value: '', label: 'Semua Node'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => setFilterWallet(e.target.value)} className="rounded-[14px] bg-white/[0.03] border-white/5 h-auto py-2.5 text-xs" />
+              <div className="grid grid-cols-2 gap-2">
+                 <DatePicker value={filterStartDate} onChange={setFilterStartDate} className="text-xs" placeholder="START" />
+                 <DatePicker value={filterEndDate} onChange={setFilterEndDate} className="text-xs" placeholder="END" />
+              </div>
             </div>
-            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-              <motion.div initial={{ x: '-100%' }} animate={{ x: '100%' }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} className="w-1/3 h-full bg-indigo-500/50" />
+          </div>
+          <div className="pt-4 border-t border-white/5 space-y-3">
+            <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-white/30">
+              <span>Status Sinkron</span>
+              <span className="text-emerald-400 animate-pulse">AKTIF</span>
             </div>
           </div>
         </Card>
@@ -300,45 +330,45 @@ export default function TransactionsPage() {
 
       {/* Modern Terminal Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? "Modifikasi Catatan Transaksi" : "Otorisasi Entri Buku Besar"}>
-        <form onSubmit={handleAddTransaction} className="space-y-8 p-2">
-          <div className="grid grid-cols-3 gap-3 p-2 bg-white/[0.02] rounded-[24px] border border-white/5 shadow-inner">
+        <form onSubmit={handleAddTransaction} className="space-y-4 p-4">
+          <div className="grid grid-cols-3 gap-2 p-1.5 bg-white/[0.02] rounded-[16px] border border-white/5 shadow-inner">
             {(['expense', 'income', 'transfer'] as const).map((t) => (
               <button 
                 key={t} 
                 type="button" 
                 onClick={() => setTxType(t)} 
-                className={`py-3 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${txType === t ? 'bg-indigo-500 text-white shadow-xl shadow-indigo-500/20' : 'text-white/30 hover:text-white hover:bg-white/5'}`}
+                className={`py-2 rounded-[12px] text-[9px] font-black uppercase tracking-[0.1em] transition-all duration-300 ${txType === t ? 'bg-indigo-500 text-white shadow-xl shadow-indigo-500/20' : 'text-white/30 hover:text-white hover:bg-white/5'}`}
               >
                 {t}
               </button>
             ))}
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Besaran Entri (IDR)</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[9px] font-black text-white/30 uppercase tracking-widest pl-1">Besaran Entri (IDR)</label>
               <div className="relative">
-                <Activity className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500/50" />
-                <Input type="number" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} required className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-xl font-black tracking-tighter h-auto" />
+                <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-500/50" />
+                <Input type="number" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} required className="pl-10 rounded-[16px] bg-white/[0.03] border-white/5 py-4 text-lg font-black tracking-tighter h-auto" />
               </div>
             </div>
             <DatePicker label="Kronologi Temporal" showTime value={txDate} onChange={setTxDate} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Select label="Node Aset Asal" options={[{value: '', label: '-- Pilih Aset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txWalletId} onChange={(e) => setTxWalletId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Select label="Node Aset Asal" options={[{value: '', label: '-- Pilih Aset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txWalletId} onChange={(e) => setTxWalletId(e.target.value)} required className="rounded-[16px] bg-white/[0.03] border-white/5 py-3 h-auto" />
             {txType === 'transfer' ? (
-              <Select label="Node Aset Tujuan" options={[{value: '', label: '-- Pilih Aset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txDestWalletId} onChange={(e) => setTxDestWalletId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+              <Select label="Node Aset Tujuan" options={[{value: '', label: '-- Pilih Aset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txDestWalletId} onChange={(e) => setTxDestWalletId(e.target.value)} required className="rounded-[16px] bg-white/[0.03] border-white/5 py-3 h-auto" />
             ) : (
-              <Select label="Klasifikasi Protokol" options={[{value: '', label: '-- Entri Umum --'}, ...categories.filter(c => c.type === txType).map(c => ({value: c.id, label: c.name}))]} value={txCategoryId} onChange={(e) => setTxCategoryId(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+              <Select label="Klasifikasi Protokol" options={[{value: '', label: '-- Entri Umum --'}, ...categories.filter(c => c.type === txType).map(c => ({value: c.id, label: c.name}))]} value={txCategoryId} onChange={(e) => setTxCategoryId(e.target.value)} className="rounded-[16px] bg-white/[0.03] border-white/5 py-3 h-auto" />
             )}
           </div>
 
-          <Input label="Anotasi Registri" placeholder="Keterangan entri..." value={txNote} onChange={(e) => setTxNote(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-6 h-auto" />
+          <Input label="Anotasi Registri" placeholder="Keterangan entri..." value={txNote} onChange={(e) => setTxNote(e.target.value)} className="rounded-[16px] bg-white/[0.03] border-white/5 py-4 h-auto" />
           
-          <div className="flex gap-4 pt-4">
-            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsModalOpen(false)}>Batal</Button>
-            <Button type="submit" loading={submitting} className="flex-1 rounded-[24px] bg-indigo-500 hover:bg-indigo-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none">
+          <div className="flex gap-3 pt-2">
+            <Button variant="outline" type="button" className="flex-1 rounded-[16px] border-white/5 bg-white/[0.03] py-5 text-[10px] font-black uppercase tracking-widest" onClick={() => setIsModalOpen(false)}>Batal</Button>
+            <Button type="submit" loading={submitting} className="flex-1 rounded-[16px] bg-indigo-500 hover:bg-indigo-600 py-5 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none">
               Otorisasi Entri
             </Button>
           </div>

@@ -5,9 +5,11 @@ FinanceApp adalah platform manajemen keuangan pribadi modern berkinerja tinggi y
 ---
 
 ## 🛠️ Tech Stack
-*   **Frontend**: Next.js 16 (App Router / Turbopack), React 19, Tailwind CSS.
-*   **Database & Auth**: Supabase.
-*   **Charts**: Recharts (with client-side mounting optimizations).
+*   **Frontend**: Next.js 16 (App Router / Turbopack), React 19, Tailwind CSS 4.
+*   **Database & Auth**: Supabase (Multi-Currency Schema Enabled).
+*   **Charts**: Recharts & Tremor (Visual Analytics).
+*   **Animations**: Framer Motion, Aceternity UI, Magic UI.
+*   **Type Safety**: TypeScript (Strict mode, Zero-Error Linter).
 *   **Icons**: Lucide React.
 *   **Exports**: XLSX (Excel Spreadsheet export).
 

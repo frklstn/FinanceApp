@@ -4,6 +4,7 @@ import type { IncomeTimelineEntry } from '@/lib/debt-planner/types';
 export interface CreateIncomeEntryInput {
   effective_date: string;
   monthly_income: number;
+  currency: string;
 }
 
 export const incomeProjectionService = {
@@ -30,6 +31,7 @@ export const incomeProjectionService = {
         workspace_id: workspaceId,
         effective_date: input.effective_date,
         monthly_income: input.monthly_income,
+        currency: input.currency || 'IDR',
       })
       .select()
       .single();

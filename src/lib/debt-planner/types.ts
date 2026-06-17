@@ -35,6 +35,7 @@ export interface LoanTracker {
   can_early_payoff?: boolean | null;
   status: LoanStatus;
   notes: string | null;
+  currency: string;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +45,7 @@ export interface IncomeTimelineEntry {
   workspace_id: string;
   effective_date: string;
   monthly_income: number;
+  currency: string;
   created_at: string;
 }
 

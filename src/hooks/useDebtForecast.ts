@@ -47,35 +47,34 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
     Promise.resolve().then(loadPlannerData);
   }, [loadPlannerData]);
 
-  const forecastTimeline = useMemo(
-    () => buildForecastTimeline(loans, incomeTimeline, salaryDay, FORECAST_PERIOD_COUNT),
-    [loans, incomeTimeline, salaryDay]
-  );
+  const [forecastTimeline, setForecastTimeline] = useState<import('@/lib/services/forecast.service').PeriodForecast[]>([]);
+  const [currentForecast, setCurrentForecast] = useState<import('@/lib/services/forecast.service').PeriodForecast | null>(null);
+  const [analytics, setAnalytics] = useState<import('@/lib/services/forecast.service').ForecastAnalytics | null>(null);
+  const [survivalScore, setSurvivalScore] = useState<import('@/lib/debt-planner/types').SurvivalScore | null>(null);
+  const [globalWarnings, setGlobalWarnings] = useState<import('@/lib/debt-planner/types').ForecastWarning[]>([]);
+  const [survivalInsight, setSurvivalInsight] = useState<string | null>(null);
 
-  const currentForecast = useMemo(
-    () => getCurrentPeriodForecast(loans, incomeTimeline, salaryDay),
-    [loans, incomeTimeline, salaryDay]
-  );
-
-  const analytics = useMemo(
-    () => buildForecastAnalytics(forecastTimeline, loans),
-    [forecastTimeline, loans]
-  );
-
-  const survivalScore = useMemo(
-    () => computeDashboardSurvivalScore(currentForecast, forecastTimeline, loans),
-    [currentForecast, forecastTimeline, loans]
-  );
-
-  const globalWarnings = useMemo(
-    () => generateGlobalWarnings(forecastTimeline, loans),
-    [forecastTimeline, loans]
-  );
-
-  const survivalInsight = useMemo(() => {
-    if (!insightRequested) return null;
-    return generateSurvivalInsight(forecastTimeline, loans, currentForecast);
-  }, [insightRequested, forecastTimeline, loans, currentForecast]);
+  useEffect(() => {
+    async function updateForecast() {
+      const timeline = await buildForecastTimeline(loans, incomeTimeline, salaryDay, FORECAST_PERIOD_COUNT);
+      const current = await getCurrentPeriodForecast(loans, incomeTimeline, salaryDay);
+      const ana = buildForecastAnalytics(timeline, loans);
+      const score = computeDashboardSurvivalScore(current, timeline, loans);
+      const warnings = generateGlobalWarnings(timeline, loans);
+      
+      setForecastTimeline(timeline);
+      setCurrentForecast(current);
+      setAnalytics(ana);
+      setSurvivalScore(score);
+      setGlobalWarnings(warnings);
+      
+      if (insightRequested) {
+        const insight = await generateSurvivalInsight(timeline, loans, current);
+        setSurvivalInsight(insight);
+      }
+    }
+    updateForecast();
+  }, [loans, incomeTimeline, salaryDay, insightRequested]);
 
   const nextDueDate = useMemo(() => getNextDueDate(loans), [loans]);
 
@@ -93,7 +92,12 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
   const addIncomeEntry = useCallback(
     async (effective_date: string, monthly_income: number) => {
       if (!accountId) return;
-      await incomeProjectionService.createEntry(accountId, { effective_date, monthly_income });
+      await incomeProjectionService.createEntry(accountId, { 
+        effective_date, 
+        monthly_income,
+        currency: 'IDR',
+        exchange_rate: 1.0
+      });
       await loadPlannerData();
     },
     [accountId, loadPlannerData]

@@ -54,6 +54,7 @@ export type Database = {
           amount: number
           category_id: string
           created_at: string
+          currency: string | null
           end_date: string
           id: string
           period: string
@@ -65,6 +66,7 @@ export type Database = {
           amount: number
           category_id: string
           created_at?: string
+          currency?: string | null
           end_date: string
           id?: string
           period?: string
@@ -76,6 +78,7 @@ export type Database = {
           amount?: number
           category_id?: string
           created_at?: string
+          currency?: string | null
           end_date?: string
           id?: string
           period?: string
@@ -230,6 +233,7 @@ export type Database = {
           amount: number
           contact_info: string | null
           created_at: string
+          currency: string | null
           description: string | null
           due_date: string | null
           id: string
@@ -245,6 +249,7 @@ export type Database = {
           amount: number
           contact_info?: string | null
           created_at?: string
+          currency?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -260,6 +265,7 @@ export type Database = {
           amount?: number
           contact_info?: string | null
           created_at?: string
+          currency?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -668,8 +674,10 @@ export type Database = {
           attachment_url: string | null
           category_id: string | null
           created_at: string
+          currency: string | null
           date: string
           destination_wallet_id: string | null
+          exchange_rate: number | null
           id: string
           is_recurring: boolean
           note: string | null
@@ -685,8 +693,10 @@ export type Database = {
           attachment_url?: string | null
           category_id?: string | null
           created_at?: string
+          currency?: string | null
           date?: string
           destination_wallet_id?: string | null
+          exchange_rate?: number | null
           id?: string
           is_recurring?: boolean
           note?: string | null
@@ -702,8 +712,10 @@ export type Database = {
           attachment_url?: string | null
           category_id?: string | null
           created_at?: string
+          currency?: string | null
           date?: string
           destination_wallet_id?: string | null
+          exchange_rate?: number | null
           id?: string
           is_recurring?: boolean
           note?: string | null
@@ -750,6 +762,7 @@ export type Database = {
           balance: number
           color: string
           created_at: string
+          currency: string | null
           icon: string
           id: string
           is_active: boolean
@@ -762,6 +775,7 @@ export type Database = {
           balance?: number
           color?: string
           created_at?: string
+          currency?: string | null
           icon?: string
           id?: string
           is_active?: boolean
@@ -774,6 +788,7 @@ export type Database = {
           balance?: number
           color?: string
           created_at?: string
+          currency?: string | null
           icon?: string
           id?: string
           is_active?: boolean

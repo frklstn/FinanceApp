@@ -7,12 +7,15 @@ export interface Budget {
   amount: number;
   spent: number; // dynamically added from transactions query
   period: string; // YYYY-MM
+  currency: string;
   created_at: string;
   updated_at: string;
   categories?: {
     name: string;
     color: string;
   };
+  can_early_payoff?: boolean | null;
+  notes?: string | null;
 }
 
 export const budgetService = {
@@ -65,10 +68,10 @@ export const budgetService = {
     });
 
     // 4. Merge calculated spending into budget objects
-    const list: Budget[] = budgets.map((b) => ({
+    const list: Budget[] = (budgets || []).map((b) => ({
       ...b,
       spent: spendingMap[b.category_id] || 0,
-    }));
+    } as Budget));
 
     return list;
   },
@@ -80,7 +83,8 @@ export const budgetService = {
     workspaceId: string,
     categoryId: string,
     amount: number,
-    periodString?: string
+    periodString?: string,
+    currency: string = 'IDR'
   ): Promise<Budget> {
     const supabase = createClient();
     const period = periodString || new Date().toISOString().substring(0, 7);
@@ -93,43 +97,25 @@ export const budgetService = {
     const start_date = startOfMonth.toISOString();
     const end_date = endOfMonth.toISOString();
 
-    // Check if budget already exists for this category/period
-    const { data: existing } = await supabase
-      .from('budgets')
-      .select('id')
-      .eq('workspace_id', workspaceId)
-      .eq('category_id', categoryId)
-      .eq('period', period)
-      .maybeSingle();
-
-    if (existing) {
-      // Update instead
-      const { data, error } = await supabase
-        .from('budgets')
-        .update({ amount })
-        .eq('id', existing.id)
-        .select()
-        .single();
-      if (error) throw new Error(error.message);
-      return { ...data, spent: 0 };
-    }
-
     const { data, error } = await supabase
       .from('budgets')
-      .insert({
+      .upsert({
         workspace_id: workspaceId,
         category_id: categoryId,
         amount,
         period,
         start_date,
         end_date,
+        currency,
+      }, {
+        onConflict: 'workspace_id,category_id,period'
       })
       .select()
       .single();
-
+    
     if (error) {
-      console.error('Error creating budget:', error);
-      throw new Error(error.message);
+      console.error('Error creating/updating budget:', JSON.stringify(error, null, 2));
+      throw new Error(error.message || 'Unknown database error');
     }
 
     return { ...data, spent: 0 };
