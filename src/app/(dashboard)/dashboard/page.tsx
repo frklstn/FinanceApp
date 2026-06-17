@@ -31,7 +31,6 @@ import {
 import { QuickAddModal } from '@/components/transaction/quick-add-modal';
 import { ProfileModal } from '@/components/profile/profile-modal';
 import { calcRemainingObligation, getNextDueDate } from '@/lib/debt-planner/calculations';
-import { formatCurrency } from '@/lib/debt-planner/format';
 import NumberTicker from '@/components/ui/number-ticker';
 import { BentoGridItem } from '@/components/ui/bento-grid';
 import { motion, AnimatePresence } from 'framer-motion';
