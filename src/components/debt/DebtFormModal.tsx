@@ -88,6 +88,7 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
       due_day: dueDay,
       start_date: form.start_date,
       notes: form.notes.trim() || null,
+      currency: 'IDR',
     });
     reset();
   };
