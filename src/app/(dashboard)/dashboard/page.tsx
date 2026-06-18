@@ -4,11 +4,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { insightsService, type FinancialInsight } from '@/lib/services/insights.service';
 import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
-import { loanTrackerService, type LoanTracker } from '@/lib/services/loan-tracker.service';
+import { debtService } from '@/lib/services/debt.service';
+import { type LoanTracker } from '@/lib/debt-planner/types';
 import { APP_TEXTS } from '@/config/branding';
 import { walletService } from '@/lib/services/wallet.service';
 import { currencyService } from '@/lib/services/currency.service';
-import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { SpendingChart } from '@/components/charts/spending-chart';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,15 @@ import NumberTicker from '@/components/ui/number-ticker';
 import { BentoGridItem } from '@/components/ui/bento-grid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { 
+  startOfDay, 
+  startOfWeek, 
+  subDays, 
+  subMonths, 
+  startOfMonth,
+  getHours,
+  getDay
+} from 'date-fns';
 
 export default function DashboardPage() {
   const { accountId, profile } = useApp();
@@ -83,46 +93,28 @@ export default function DashboardPage() {
 
       switch (dateFilter) {
         case 'Hari Ini': {
-          startDate.setHours(0, 0, 0, 0);
+          startDate.setTime(startOfDay(now).getTime());
           bucketMode = 'hour';
-
-          widerStartDate.setTime(startDate.getTime());
-          widerStartDate.setDate(widerStartDate.getDate() - 1);
+          widerStartDate.setTime(subDays(startDate, 1).getTime());
           break;
         }
         case 'Minggu Ini': {
-          const dow = now.getDay();
-          const diff = now.getDate() - dow + (dow === 0 ? -6 : 1);
-          startDate.setDate(diff);
-          startDate.setHours(0, 0, 0, 0);
+          startDate.setTime(startOfWeek(now, { weekStartsOn: 1 }).getTime());
           bucketMode = 'weekday';
-
-          widerStartDate.setTime(startDate.getTime());
-          widerStartDate.setDate(widerStartDate.getDate() - 7);
+          widerStartDate.setTime(subDays(startDate, 7).getTime());
           break;
         }
         case '3 Bulan Terakhir': {
-          startDate.setMonth(startDate.getMonth() - 3);
-          startDate.setDate(1);
-          startDate.setHours(0, 0, 0, 0);
+          startDate.setTime(startOfMonth(subMonths(now, 3)).getTime());
           bucketMode = 'month';
-
-          widerStartDate.setTime(startDate.getTime());
-          widerStartDate.setMonth(widerStartDate.getMonth() - 3);
-          widerStartDate.setDate(1);
-          widerStartDate.setHours(0, 0, 0, 0);
+          widerStartDate.setTime(subMonths(startDate, 3).getTime());
           break;
         }
         case 'Bulan Ini':
         default: {
-          startDate.setDate(1);
-          startDate.setHours(0, 0, 0, 0);
+          startDate.setTime(startOfMonth(now).getTime());
           bucketMode = 'day';
-
-          widerStartDate.setTime(startDate.getTime());
-          widerStartDate.setMonth(widerStartDate.getMonth() - 1);
-          widerStartDate.setDate(1);
-          widerStartDate.setHours(0, 0, 0, 0);
+          widerStartDate.setTime(startOfMonth(subMonths(now, 1)).getTime());
           break;
         }
       }
@@ -140,7 +132,7 @@ export default function DashboardPage() {
       const [insightData, wallets, trackers] = await Promise.all([
         insightsService.generateInsights(accountId, { prefetchedTransactions: txs }),
         walletService.getWallets(accountId),
-        loanTrackerService.getLoanTrackers(accountId),
+        debtService.getLoanTrackers(accountId),
       ]);
 
       // Calculate previous period stats for dynamic greeting subtitle
@@ -177,9 +169,9 @@ export default function DashboardPage() {
         const debtRatio = (totalMonthlyDebtPayment / (insightData.income || 1)) * 100;
 
         if (currentSavings < 0) {
-          statusMsg = `Waspada, gaji kamu sudah 'kemakan' pinjol sebesar ${formatRupiah(Math.abs(currentSavings))}. Bulan ini ada tagihan ${formatRupiah(totalMonthlyDebtPayment)} yang harus dibayar. Tetap tenang, fokus lunasi yang terkecil dulu ya!`;
+          statusMsg = `Waspada, gaji kamu sudah 'kemakan' pinjol sebesar ${formatCurrency(Math.abs(currentSavings))}. Bulan ini ada tagihan ${formatCurrency(totalMonthlyDebtPayment)} yang harus dibayar. Tetap tenang, fokus lunasi yang terkecil dulu ya!`;
         } else if (debtRatio > 50) {
-          statusMsg = `Hati-hati, lebih dari 50% pendapatan kamu habis buat bayar hutang. Sisa uang kamu tinggal ${formatRupiah(currentSavings)}. Jangan impulsif belanja dulu ya!`;
+          statusMsg = `Hati-hati, lebih dari 50% pendapatan kamu habis buat bayar hutang. Sisa uang kamu tinggal ${formatCurrency(currentSavings)}. Jangan impulsif belanja dulu ya!`;
         } else {
           statusMsg = `Ada tagihan aktif ${formatCurrency(totalMonthlyDebtPayment)} bulan ini. Tabungan kamu masih surplus ${formatCurrency(currentSavings)}, yuk jaga disiplin biar cepat bebas hutang!`;
         }
@@ -191,7 +183,7 @@ export default function DashboardPage() {
             statusMsg = `Tabungan kamu bulan ini aman, tapi sedikit turun ${diffStr} dibanding periode lalu. Cek lagi pengeluaran kecil yang nggak perlu ya.`;
           }
         } else {
-          statusMsg = `Duh, bulan ini kamu minus ${formatRupiah(Math.abs(currentSavings))}. Coba cek riwayat transaksi buat cari tahu bocor halusnya di mana.`;
+          statusMsg = `Duh, bulan ini kamu minus ${formatCurrency(Math.abs(currentSavings))}. Coba cek riwayat transaksi buat cari tahu bocor halusnya di mana.`;
         }
       }
       setFinancialStatusText(statusMsg);
@@ -305,11 +297,6 @@ export default function DashboardPage() {
     { label: APP_TEXTS.dashboard.hero.savings, value: financialStats.savings, icon: PiggyBank, color: 'text-amber-400', colorCode: '#f59e0b', path: '/savings' },
   ];
 
-  const ActionWidgets = [
-    { label: APP_TEXTS.dashboard.actions.analysis, desc: APP_TEXTS.dashboard.actions.analysis_desc, icon: PieChart, path: '/insights', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    { label: APP_TEXTS.dashboard.actions.history, desc: APP_TEXTS.dashboard.actions.history_desc, icon: Receipt, path: '/transactions', color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-  ];
-  console.log('ActionWidgets initialized:', ActionWidgets.length);
 
   return (
     <div className="space-y-4">
@@ -436,7 +423,7 @@ export default function DashboardPage() {
             <div className="space-y-1 relative z-10">
               <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{w.label}</p>
               <div className="text-lg md:text-2xl font-black text-white tracking-tighter truncate">
-                <NumberTicker value={w.value} formatter={formatRupiah} />
+                <NumberTicker value={w.value} formatter={formatCurrency} />
               </div>
             </div>
           </motion.button>
@@ -570,7 +557,7 @@ export default function DashboardPage() {
                       <span className="text-[11px] font-bold text-white truncate">{tx.note || '-'}</span>
                     </div>
                     <span className={`text-[11px] font-black shrink-0 ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      {tx.type === 'income' ? '+' : '-'}{formatRupiah(Number(tx.amount))}
+                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(Number(tx.amount))}
                     </span>
                   </button>
                 ))}
@@ -597,7 +584,7 @@ export default function DashboardPage() {
                 <div className="flex justify-between items-end">
                   <p className="text-[10px] font-black text-rose-500/60 uppercase tracking-widest">Total Kewajiban</p>
                   <p className="text-xl font-black text-rose-500 leading-none">
-                    <NumberTicker value={financialStats.totalRemainingDebt} formatter={formatRupiah} />
+                    <NumberTicker value={financialStats.totalRemainingDebt} formatter={formatCurrency} />
                   </p>
                 </div>
                 <div className="h-1 w-full bg-rose-500/10 rounded-full overflow-hidden">

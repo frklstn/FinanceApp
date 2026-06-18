@@ -4,10 +4,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { insightsService, FinancialInsight } from '@/lib/services/insights.service';
 import { transactionService } from '@/lib/services/transaction.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
+import { EmergencyRunwayCard } from '@/components/insights/emergency-runway-card';
 import {
   Sparkles,
   ShieldCheck,
@@ -72,30 +73,23 @@ export default function InsightsPage() {
     }
   }, [accountId, loadInsightsData]);
 
-  const getInsightIcon = (type: string) => {
-    switch (type) {
-      case 'success':
-        return <ShieldCheck className="w-5 h-5 text-success shrink-0" />;
-      case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-warning shrink-0" />;
-      case 'danger':
-        return <AlertTriangle className="w-5 h-5 text-danger shrink-0" />;
-      default:
-        return <Info className="w-5 h-5 text-emerald-500 shrink-0" />;
-    }
-  };
-
-  const getInsightColor = (type: string) => {
-    switch (type) {
-      case 'success':
-        return 'bg-success/5 border-success/15 text-light-text-primary dark:text-dark-text-primary';
-      case 'warning':
-        return 'bg-warning/5 border-warning/15 text-light-text-primary dark:text-dark-text-primary';
-      case 'danger':
-        return 'bg-danger/5 border-danger/15 text-light-text-primary dark:text-dark-text-primary';
-      default:
-        return 'bg-emerald-500/5 border-emerald-500/15 text-light-text-primary dark:text-dark-text-primary';
-    }
+  const INSIGHT_CONFIG = {
+    success: {
+      icon: <ShieldCheck className="w-5 h-5 text-success shrink-0" />,
+      style: 'bg-success/5 border-success/15 text-light-text-primary dark:text-dark-text-primary',
+    },
+    warning: {
+      icon: <AlertTriangle className="w-5 h-5 text-warning shrink-0" />,
+      style: 'bg-warning/5 border-warning/15 text-light-text-primary dark:text-dark-text-primary',
+    },
+    danger: {
+      icon: <AlertTriangle className="w-5 h-5 text-danger shrink-0" />,
+      style: 'bg-danger/5 border-danger/15 text-light-text-primary dark:text-dark-text-primary',
+    },
+    default: {
+      icon: <Info className="w-5 h-5 text-emerald-500 shrink-0" />,
+      style: 'bg-emerald-500/5 border-emerald-500/15 text-light-text-primary dark:text-dark-text-primary',
+    },
   };
 
   return (
@@ -159,32 +153,27 @@ export default function InsightsPage() {
               </div>
             </Card>
 
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Premium Runway Card */}
+            <EmergencyRunwayCard runwayMonths={stats.runwayMonths} />
+
+            {/* Quick Metrics (Remaining) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Card className="p-4 flex items-center justify-between">
                 <div className="space-y-1">
                   <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">Pemasukan Bulan Ini</span>
-                  <p className="text-lg font-bold text-success">+{formatRupiah(stats.income)}</p>
+                  <p className="text-lg font-bold text-success">+{formatCurrency(stats.income)}</p>
                 </div>
                 <TrendingUp className="w-5 h-5 text-success/70" />
               </Card>
               <Card className="p-4 flex items-center justify-between">
                 <div className="space-y-1">
                   <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">Pengeluaran Bulan Ini</span>
-                  <p className="text-lg font-bold text-danger">-{formatRupiah(stats.expense)}</p>
+                  <p className="text-lg font-bold text-danger">-{formatCurrency(stats.expense)}</p>
                 </div>
                 <TrendingDown className="w-5 h-5 text-danger/70" />
               </Card>
-              <Card className="p-4 flex items-center justify-between">
-                <div className="space-y-1">
-                  <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">Runway Keuangan</span>
-                  <p className={`text-lg font-bold ${stats.runwayMonths >= 6 ? 'text-emerald-500' : stats.runwayMonths >= 3 ? 'text-warning' : 'text-danger'}`}>
-                    {stats.runwayMonths.toFixed(1)} Bulan
-                  </p>
-                </div>
-                <Wallet className="w-5 h-5 text-emerald-400/70" />
-              </Card>
             </div>
+
 
             {/* Detailed list of insights */}
             <Card className="p-6 space-y-4">
@@ -200,15 +189,18 @@ export default function InsightsPage() {
                     Semua sistem aman! Kami tidak mendeteksi kebiasaan buruk atau peringatan keuangan pada siklus ini.
                   </div>
                 ) : (
-                  insights.map((ins, index) => (
-                    <div key={index} className={`flex items-start gap-4 p-4 rounded-xl border ${getInsightColor(ins.type)}`}>
-                      {getInsightIcon(ins.type)}
-                      <div className="space-y-1">
-                        <h4 className="text-xs font-bold">{ins.title}</h4>
-                        <p className="text-[11px] font-medium leading-relaxed opacity-90">{ins.description}</p>
+                  insights.map((ins, index) => {
+                    const config = INSIGHT_CONFIG[ins.type as keyof typeof INSIGHT_CONFIG] || INSIGHT_CONFIG.default;
+                    return (
+                      <div key={index} className={`flex items-start gap-4 p-4 rounded-xl border ${config.style}`}>
+                        {config.icon}
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-bold">{ins.title}</h4>
+                          <p className="text-[11px] font-medium leading-relaxed opacity-90">{ins.description}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </Card>

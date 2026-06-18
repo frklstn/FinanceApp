@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import type { LoanTracker } from '@/lib/debt-planner/types';
 import { formatEndMonth, getUpcomingDueDates, LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 
 interface DebtDueTimelineProps {
   loans: LoanTracker[];
@@ -48,7 +48,7 @@ export function DebtDueTimeline({ loans }: DebtDueTimelineProps) {
                       {formatEndMonth(loan.start_date, loan.tenure_months)}
                     </p>
                   </div>
-                  <div className="pinjol-timeline-amount">{formatRupiah(loan.monthly_payment)}</div>
+                  <div className="pinjol-timeline-amount">{formatCurrency(loan.monthly_payment)}</div>
                 </div>
               );
             })}
@@ -57,7 +57,7 @@ export function DebtDueTimeline({ loans }: DebtDueTimelineProps) {
             <span className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
               Total / Bulan
             </span>
-            <span className="text-lg font-extrabold text-danger">{formatRupiah(total)}</span>
+            <span className="text-lg font-extrabold text-danger">{formatCurrency(total)}</span>
           </div>
         </>
       )}

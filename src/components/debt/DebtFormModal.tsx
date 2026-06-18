@@ -8,7 +8,6 @@ import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import type { LoanCategory } from '@/lib/debt-planner/types';
 import { calcRemainingMonths, calcEndDate, LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
-import type { CreateLoanTrackerInput } from '@/lib/services/loan-tracker.service';
 
 const CATEGORY_OPTIONS = Object.entries(LOAN_CATEGORY_LABELS)
   .filter(([key]) => !['hutang_pribadi', 'cicilan', 'lainnya'].includes(key))
@@ -29,7 +28,7 @@ const EMPTY_FORM = {
 interface DebtFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (input: CreateLoanTrackerInput) => Promise<void>;
+  onSubmit: (input: any) => Promise<void>;
   submitting?: boolean;
 }
 

@@ -193,50 +193,12 @@ export const transactionService = {
   },
 
   /**
-   * Deletes a transaction and rolls back the balance mutation in wallets.
+   * Deletes a transaction. DB triggers should handle wallet balance rollbacks.
    */
   async deleteTransaction(id: string): Promise<void> {
     const supabase = createClient();
-
-    // 1. Fetch transaction details
-    const { data: tx, error: tErr } = await supabase
-      .from('transactions')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (tErr) throw new Error('Transaction not found');
-
-    const amountNum = Number(tx.amount);
-
-    // 2. Rollback wallet balances
-    if (tx.type === 'income') {
-      const { data: wallet } = await supabase.from('wallets').select('balance').eq('id', tx.wallet_id).single();
-      if (wallet) {
-        await supabase.from('wallets').update({ balance: Number(wallet.balance) - amountNum }).eq('id', tx.wallet_id);
-      }
-    } else if (tx.type === 'expense') {
-      const { data: wallet } = await supabase.from('wallets').select('balance').eq('id', tx.wallet_id).single();
-      if (wallet) {
-        await supabase.from('wallets').update({ balance: Number(wallet.balance) + amountNum }).eq('id', tx.wallet_id);
-      }
-    } else if (tx.type === 'transfer' && tx.destination_wallet_id) {
-      const { data: source } = await supabase.from('wallets').select('balance').eq('id', tx.wallet_id).single();
-      const { data: dest } = await supabase.from('wallets').select('balance').eq('id', tx.destination_wallet_id).single();
-
-      if (source) {
-        await supabase.from('wallets').update({ balance: Number(source.balance) + amountNum }).eq('id', tx.wallet_id);
-      }
-      if (dest) {
-        await supabase.from('wallets').update({ balance: Number(dest.balance) - amountNum }).eq('id', tx.destination_wallet_id);
-      }
-    }
-
-    // 3. Delete transaction record
     const { error } = await supabase.from('transactions').delete().eq('id', id);
-    if (error) {
-      console.error('Error deleting transaction:', error);
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
   },
 
   /**

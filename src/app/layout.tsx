@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   },
 };
 
+import { ThemeProvider } from '@/contexts/theme-context';
+import { AppProvider } from '@/contexts/app-context';
+import { ToastProvider } from '@/components/ui/toast';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,8 +36,14 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-light-bg dark:bg-dark-bg transition-colors duration-300">
-        {children}
-        <Analytics />
+        <ThemeProvider>
+          <ToastProvider>
+            <AppProvider>
+              {children}
+              <Analytics />
+            </AppProvider>
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

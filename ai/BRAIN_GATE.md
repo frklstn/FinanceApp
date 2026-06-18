@@ -5,6 +5,7 @@ MANDATORY: Semua agent/sesi yang baru masuk ke project ini WAJIB membaca file in
 ## 1. Tahap Audit (Pre-Build)
 Sebelum menulis kode atau menjalankan tool modifikasi:
 - **Scan `/ai`**: Baca [PROTOCOLS.md](./PROTOCOLS.md) dan [FinanceApp.md](./FinanceApp.md) untuk context roadmap.
+- **Ponytail Priority**: WAJIB menjalankan `ponytail-review` pada setiap perubahan kode. Fokus: eliminasi over-engineering, redundansi, dan kode yang tidak perlu. Prioritas utama: clean & minimal code.
 - **Graphify**: WAJIB menjalankan `/graphify` atau `graphify query` untuk memahami arsitektur dan relasi file sebelum melakukan modifikasi kode.
 - **MCP Validation**: Jalankan `mcp_supabase_list_tables` untuk sinkronisasi state database.
 - **Disk Reality**: Gunakan `ls` atau `dir` untuk memverifikasi struktur file. DILARANG berasumsi file ada berdasarkan memori sesi sebelumnya.
@@ -14,11 +15,10 @@ Sebelum menulis kode atau menjalankan tool modifikasi:
 - **Canva**: Gunakan `canva-dev` untuk integrasi desain dan aset saat melakukan UI refactor.
 - **Impeccable Context**: Selalu sertakan `Cwd` yang tepat. Gunakan `npx` jika menjalankan script di Windows environment.
 
-## 3. Komunikasi & Gaya (Caveman)
-- Selalu gunakan bahasa indonesia
-- Terse, teknis, pattern-based.
-- Laporkan fakta (X -> Y), bukan narasi.
-- Jika menemukan inkonsistensi antara dokumentasi dan disk, prioritaskan DISK dan update dokumentasi segera.
+## 3. Komunikasi & Gaya (Caveman + Ponytail)
+- **Komunikasi**: Caveman style (Indonesian). Terse, fragmented, pattern-based (X -> Y). No filler.
+- **Audit Kontinu**: Setiap respon yang melibatkan perubahan kode harus menyertakan mini-audit Ponytail (cek redundansi).
+- **Laporkan Fakta**: Fokus pada apa yang diubah/dihapus untuk optimasi.
 - **Sensitivitas Error**: Deteksi error sekecil apapun (warning compiler, linter, typos, unused-vars) dan sebutkan di kesimpulan.
 - **FIX FIRST**: Prioritaskan fix error yang ada sebelum melanjutkan tugas.
 

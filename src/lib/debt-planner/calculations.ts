@@ -1,3 +1,11 @@
+import { 
+  addMonths, 
+  differenceInCalendarMonths, 
+  isBefore, 
+  startOfMonth, 
+  setDay,
+  getDate
+} from 'date-fns';
 import type {
   HealthStatus,
   LoanTracker,
@@ -13,10 +21,10 @@ export const LOAN_CATEGORY_LABELS: Record<string, string> = {
   kartu_kredit: 'Kartu Kredit',
   koperasi: 'Koperasi',
   teman_keluarga: 'Teman / Keluarga',
-  cicilan_barang: 'Cicilan Barang',
-  custom: 'Custom',
   hutang_pribadi: 'Teman / Keluarga',
+  cicilan_barang: 'Cicilan Barang',
   cicilan: 'Cicilan Barang',
+  custom: 'Custom',
   lainnya: 'Custom',
 };
 
@@ -28,11 +36,9 @@ export const HEALTH_STATUS_LABELS: Record<HealthStatus, string> = {
 };
 
 export function calcElapsedMonths(startDate: string, asOf: Date = new Date()): number {
-  const start = new Date(startDate);
-  const years = asOf.getFullYear() - start.getFullYear();
-  const months = asOf.getMonth() - start.getMonth();
-  const adjusted = years * 12 + months - (asOf.getDate() < start.getDate() ? 1 : 0);
-  return Math.max(0, adjusted);
+  const diff = differenceInCalendarMonths(asOf, new Date(startDate));
+  const hasNotReachedDay = getDate(asOf) < getDate(new Date(startDate));
+  return Math.max(0, diff - (hasNotReachedDay ? 1 : 0));
 }
 
 export function calcRemainingMonths(
@@ -44,10 +50,7 @@ export function calcRemainingMonths(
 }
 
 export function calcEndDate(startDate: string, tenureMonths: number): Date {
-  const start = new Date(startDate);
-  const end = new Date(start);
-  end.setMonth(end.getMonth() + tenureMonths);
-  return end;
+  return addMonths(new Date(startDate), tenureMonths);
 }
 
 export function formatEndMonth(startDate: string, tenureMonths: number): string {
@@ -59,8 +62,7 @@ export function formatEndMonth(startDate: string, tenureMonths: number): string 
 
 export function calcProgressPercent(tenureMonths: number, startDate: string): number {
   if (tenureMonths <= 0) return 0;
-  const elapsed = calcElapsedMonths(startDate);
-  return Math.min(100, Math.round((elapsed / tenureMonths) * 100));
+  return Math.min(100, Math.round((calcElapsedMonths(startDate) / tenureMonths) * 100));
 }
 
 export function calcRemainingObligation(loan: LoanTracker): number {

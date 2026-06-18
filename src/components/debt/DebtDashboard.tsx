@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import type { PeriodForecast, SurvivalScore } from '@/lib/debt-planner/types';
 import { HEALTH_STATUS_LABELS } from '@/lib/debt-planner/calculations';
-import { formatRupiah, formatDateId } from '@/lib/debt-planner/format';
+import { formatCurrency, formatDateId } from '@/lib/debt-planner/format';
 
 
 interface DebtDashboardProps {
@@ -59,7 +59,7 @@ export function DebtDashboard({
       <Card className="p-5 bg-gradient-to-br from-danger/5 to-danger/10 border-danger/20 flex items-center justify-between gap-4">
         <div>
           <p className="pinjol-stat-label text-danger">Total Debt This Period</p>
-          <p className="pinjol-stat-value text-danger">{formatRupiah(total_debt)}</p>
+          <p className="pinjol-stat-value text-danger">{formatCurrency(total_debt)}</p>
           <p className="pinjol-stat-sub text-danger">Siklus gajian aktif</p>
         </div>
         <div className="pinjol-stat-icon bg-danger/10 text-danger">
@@ -71,7 +71,7 @@ export function DebtDashboard({
         <div>
           <p className="pinjol-stat-label text-success">Remaining Cash</p>
           <p className="pinjol-stat-value text-success">
-            {income > 0 ? formatRupiah(remaining_cash) : '—'}
+            {income > 0 ? formatCurrency(remaining_cash) : '—'}
           </p>
           <p className="pinjol-stat-sub text-success">
             {remaining_cash < 0 ? 'Deficit!' : 'Setelah cicilan'}

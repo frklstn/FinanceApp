@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Trash2 } from 'lucide-react';
 import type { LoanTracker } from '@/lib/debt-planner/types';
 import { computeLoanMetrics, LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 
 interface ActiveDebtCardProps {
   loan: LoanTracker;
@@ -54,7 +54,7 @@ export function ActiveDebtCard({ loan, onMarkPaid, onDelete }: ActiveDebtCardPro
       </div>
 
       <p className="pinjol-debt-amount">
-        {formatRupiah(loan.monthly_payment)}
+        {formatCurrency(loan.monthly_payment)}
         <span>/bulan</span>
       </p>
 
@@ -85,7 +85,7 @@ export function ActiveDebtCard({ loan, onMarkPaid, onDelete }: ActiveDebtCardPro
         <div className="pinjol-debt-meta-item">
           <span className="pinjol-debt-meta-label">Sisa kewajiban</span>
           <span className="pinjol-debt-meta-value">
-            {formatRupiah(metrics.remainingObligation)}
+            {formatCurrency(metrics.remainingObligation)}
           </span>
         </div>
       </div>

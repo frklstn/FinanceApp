@@ -123,9 +123,5 @@ function LandingPageContent() {
 }
 
 export default function LandingPage() {
-  return (
-    <AppProvider>
-      <LandingPageContent />
-    </AppProvider>
-  );
+  return <LandingPageContent />;
 }

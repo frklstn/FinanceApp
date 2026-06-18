@@ -3,10 +3,10 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { budgetService, type Budget } from '@/lib/services/budget.service';
-import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { categoryService, type Category } from '@/lib/services/category.service';
 import { incomeProjectionService } from '@/lib/services/income-projection.service';
-import { loanTrackerService } from '@/lib/services/loan-tracker.service';
+import { debtService } from '@/lib/services/debt.service';
 import { debtPlannerSettingsService } from '@/lib/services/debt-planner-settings.service';
 import { 
   getSalaryPeriods, 
@@ -70,7 +70,7 @@ export default function BudgetsPage() {
         budgetService.getBudgets(accountId, dbPeriod),
         categoryService.getCategories(accountId),
         incomeProjectionService.getTimeline(accountId),
-        loanTrackerService.getLoanTrackers(accountId),
+        debtService.getLoanTrackers(accountId),
         debtPlannerSettingsService.getSettings(accountId)
       ]);
       setBudgets(bList);
@@ -106,7 +106,7 @@ export default function BudgetsPage() {
     
     const amountNum = Number(limitAmount);
     if (amountNum > remainingLimit) {
-      toast(`Alokasi melebihi batas aman (${formatRupiah(remainingLimit)}).`, 'warning');
+      toast(`Alokasi melebihi batas aman (${formatCurrency(remainingLimit)}).`, 'warning');
       return;
     }
 
@@ -139,9 +139,6 @@ export default function BudgetsPage() {
     }
   };
 
-  const removeBatchItem = (index: number) => {
-    setPendingBudgets(prev => prev.filter((_, i) => i !== index));
-  };
 
   const totalBudget = budgets.reduce((sum, b) => sum + Number(b.amount), 0);
   const totalSpent = budgets.reduce((sum, b) => sum + Number(b.spent), 0);
@@ -177,10 +174,10 @@ export default function BudgetsPage() {
                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Margin Terpakai • {currentPeriod.label}</h3>
               </div>
               <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter italic">
-                <NumberTicker value={totalSpent} formatter={(v) => formatRupiah(v)} />
+                <NumberTicker value={totalSpent} formatter={(v) => formatCurrency(v)} />
               </h2>
               <div className="flex items-center gap-2 text-[10px] font-bold text-white/20 uppercase tracking-widest pt-2">
-                <Target className="w-3.5 h-3.5" /> Alokasi Maksimal: {formatRupiah(totalBudget)}
+                <Target className="w-3.5 h-3.5" /> Alokasi Maksimal: {formatCurrency(totalBudget)}
               </div>
             </div>
             <div className="w-24 h-24 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xl group-hover:scale-110 transition-transform duration-500">
@@ -196,7 +193,7 @@ export default function BudgetsPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Operational Buffer</p>
             <p className={`text-3xl font-black tracking-tighter ${totalRemaining < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-              {formatRupiah(totalRemaining)}
+              {formatCurrency(totalRemaining)}
             </p>
           </div>
           <p className="text-[9px] font-black text-white/40 leading-relaxed px-4 uppercase tracking-tighter">
@@ -299,11 +296,11 @@ export default function BudgetsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
              <div className="p-5 rounded-[24px] bg-white/[0.03] border border-white/5 space-y-1">
                <label className="text-[9px] font-black uppercase text-white/30 tracking-widest">Gaji Estimasi</label>
-               <div className="text-xl font-black text-white tracking-tight">{formatRupiah(currentIncome)}</div>
+               <div className="text-xl font-black text-white tracking-tight">{formatCurrency(currentIncome)}</div>
              </div>
              <div className="p-5 rounded-[24px] bg-white/[0.03] border border-white/5 space-y-1">
                <label className="text-[9px] font-black uppercase text-rose-500/40 tracking-widest">Kewajiban Tagihan</label>
-               <div className="text-xl font-black text-rose-400 tracking-tight">-{formatRupiah(currentDebt)}</div>
+               <div className="text-xl font-black text-rose-400 tracking-tight">-{formatCurrency(currentDebt)}</div>
              </div>
              <div className="md:col-span-2 p-5 rounded-[24px] bg-emerald-500/5 border border-emerald-500/10 flex justify-between items-center">
                 <div className="space-y-0.5">
@@ -312,10 +309,10 @@ export default function BudgetsPage() {
                 </div>
                 <div className={`text-xl font-black tracking-tighter italic ${remainingLimit < 0 ? 'text-rose-500' : remainingLimit === 0 ? 'text-amber-500' : 'text-emerald-400'}`}>
                   {remainingLimit < 0 
-                    ? `Defisit: -${formatRupiah(Math.abs(remainingLimit))}` 
+                    ? `Defisit: -${formatCurrency(Math.abs(remainingLimit))}` 
                     : remainingLimit === 0 
                       ? 'Tidak ada sisa saldo' 
-                      : formatRupiah(remainingLimit)}
+                      : formatCurrency(remainingLimit)}
                 </div>
              </div>
           </div>

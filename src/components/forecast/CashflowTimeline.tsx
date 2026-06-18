@@ -3,7 +3,7 @@
 import React from 'react';
 import type { PeriodForecast } from '@/lib/debt-planner/types';
 import { HEALTH_STATUS_LABELS } from '@/lib/debt-planner/calculations';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import '@/styles/forecast/timeline.css';
 
 interface CashflowTimelineProps {
@@ -38,15 +38,15 @@ export function CashflowTimeline({ periods }: CashflowTimelineProps) {
           <div className="forecast-period-metrics">
             <div>
               <p className="forecast-metric-label">Income</p>
-              <p className="forecast-metric-value">{formatRupiah(p.income)}</p>
+              <p className="forecast-metric-value">{formatCurrency(p.income)}</p>
             </div>
             <div>
               <p className="forecast-metric-label">Total debt</p>
-              <p className="forecast-metric-value text-danger">{formatRupiah(p.total_debt)}</p>
+              <p className="forecast-metric-value text-danger">{formatCurrency(p.total_debt)}</p>
             </div>
             <div>
               <p className="forecast-metric-label">Remaining</p>
-              <p className="forecast-metric-value text-success">{formatRupiah(p.remaining_cash)}</p>
+              <p className="forecast-metric-value text-success">{formatCurrency(p.remaining_cash)}</p>
             </div>
             <div>
               <p className="forecast-metric-label">Debt ratio</p>

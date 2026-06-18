@@ -4,7 +4,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { type Wallet, walletService } from '@/lib/services/wallet.service';
 import { currencyService } from '@/lib/services/currency.service';
-import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
+import { transactionService } from '@/lib/services/transaction.service';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -78,10 +79,10 @@ export default function WalletsPage() {
     setSubmitting(true);
     try {
       if (editingWallet) {
-        await walletService.updateWallet(editingWallet.id, name, type, color, icon, currency, editingWallet.is_active);
+        await walletService.updateWallet(editingWallet.id, { name, type: type as any, color, icon, currency });
         toast('Asset Node Optimized', 'success');
       } else {
-        await walletService.createWallet(accountId, name, type, Number(balance), color, icon, currency);
+        await walletService.createWallet(accountId, name, type as any, Number(balance), color, icon, currency);
         toast('Asset Node Authorized', 'success');
       }
       setIsWalletModalOpen(false);
@@ -153,7 +154,7 @@ export default function WalletsPage() {
                 <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Cumulative Liquidity Position</h3>
               </div>
               <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter">
-                <NumberTicker value={totalBalance} formatter={formatRupiah} />
+                <NumberTicker value={totalBalance} formatter={formatCurrency} />
               </h2>
               <div className="flex items-center justify-center md:justify-start gap-4">
                 <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-widest">
@@ -260,7 +261,33 @@ export default function WalletsPage() {
 
       {/* Transfer Modal */}
       <Modal isOpen={isTransferModalOpen} onClose={() => setIsTransferModalOpen(false)} title="Execute Liquidity Relocation">
-        <form onSubmit={(e) => { e.preventDefault(); walletService.transferFunds(accountId!, sourceId, destId, Number(transferAmount), transferNote).then(() => { setIsTransferModalOpen(false); fetchWallets(); }); }} className="space-y-8 p-2">
+        <form 
+          onSubmit={(e) => { 
+            e.preventDefault(); 
+            setSubmitting(true);
+            transactionService.createTransaction(accountId!, {
+              workspace_id: accountId!,
+              wallet_id: sourceId,
+              destination_wallet_id: destId,
+              amount: Number(transferAmount),
+              type: 'transfer',
+              note: transferNote || 'Liquidity Relocation',
+              date: new Date().toISOString(),
+              currency: wallets.find(w => w.id === sourceId)?.currency || 'IDR',
+              exchange_rate: 1.0,
+              category_id: null,
+              tags: [],
+              attachment_url: null,
+              is_recurring: false,
+              recurring_id: null
+            }).then(() => { 
+              setIsTransferModalOpen(false); 
+              fetchWallets(); 
+              toast('Relocation Success', 'success');
+            }).finally(() => setSubmitting(false)); 
+          }} 
+          className="space-y-8 p-2"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Select label="Origin Node" options={[{value: '', label: '-- Select Asset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={sourceId} onChange={(e) => setSourceId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
             <Select label="Destination Node" options={[{value: '', label: '-- Select Asset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={destId} onChange={(e) => setDestId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />

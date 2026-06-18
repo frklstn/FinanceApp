@@ -15,11 +15,6 @@ export function formatCurrency(amount: number, currencyCode: string = 'IDR'): st
   }).format(amount);
 }
 
-/** @deprecated Use formatCurrency */
-export function formatRupiah(amount: number): string {
-  return formatCurrency(amount, 'IDR');
-}
-
 export function formatDateId(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });

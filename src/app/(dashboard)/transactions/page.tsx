@@ -5,7 +5,7 @@ import { useApp } from '@/contexts/app-context';
 import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
 import { walletService, type Wallet } from '@/lib/services/wallet.service';
 import { categoryService, type Category } from '@/lib/services/category.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -298,7 +298,7 @@ function TransactionsContent() {
                       </td>
                       <td className="px-8 py-6 text-right whitespace-nowrap">
                         <span className={`text-base font-black tracking-tighter ${tx.type === 'income' ? 'text-emerald-400' : tx.type === 'expense' ? 'text-rose-400' : 'text-indigo-400'}`}>
-                          {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatRupiah(Number(tx.amount))}
+                          {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatCurrency(Number(tx.amount))}
                         </span>
                       </td>
                       <td className="px-8 py-6">

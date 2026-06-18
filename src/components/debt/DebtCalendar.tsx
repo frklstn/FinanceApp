@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import type { LoanTracker } from '@/lib/debt-planner/types';
 import { LOAN_CATEGORY_LABELS, hasClusteredDueDates } from '@/lib/debt-planner/calculations';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import '@/styles/debt/calendar.css';
 
 interface CalendarEntry {
@@ -80,7 +80,7 @@ export function DebtCalendar({ loans, salaryDay }: DebtCalendarProps) {
                 {entry.sub && <p className="debt-calendar-sub">{entry.sub}</p>}
               </div>
               {entry.amount != null && (
-                <span className="debt-calendar-amount">{formatRupiah(entry.amount)}</span>
+                <span className="debt-calendar-amount">{formatCurrency(entry.amount)}</span>
               )}
             </div>
           ))}

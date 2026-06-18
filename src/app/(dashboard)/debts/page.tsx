@@ -5,7 +5,7 @@ import { useApp } from '@/contexts/app-context';
 import { debtService, Debt } from '@/lib/services/debt.service';
 import { walletService, Wallet } from '@/lib/services/wallet.service';
 import { currencyService } from '@/lib/services/currency.service';
-import { formatRupiah, formatCurrency } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -213,7 +213,7 @@ export default function DebtsPage() {
                 <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em]">Posisi Eksposur Bersih</p>
                 <div className="flex items-baseline gap-3">
                   <span className={`text-5xl md:text-8xl font-black tracking-tighter ${netPosition >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
-                    <NumberTicker value={Math.abs(netPosition)} formatter={formatRupiah} />
+                    <NumberTicker value={Math.abs(netPosition)} formatter={formatCurrency} />
                   </span>
                   <span className="text-xs font-black text-white/20 uppercase tracking-widest">{netPosition >= 0 ? 'Surplus' : 'Defisit'}</span>
                 </div>
@@ -223,13 +223,13 @@ export default function DebtsPage() {
                 <div className="px-6 py-3 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
                   <TrendingDown className="w-4 h-4 text-rose-400" />
                   <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest">
-                    Bayar: <NumberTicker value={totalOwe} formatter={formatRupiah} />
+                    Bayar: <NumberTicker value={totalOwe} formatter={formatCurrency} />
                   </span>
                 </div>
                 <div className="px-6 py-3 rounded-[24px] bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
                   <HandCoins className="w-4 h-4 text-emerald-400" />
                   <span className="text-[11px] font-black text-emerald-400 uppercase tracking-widest">
-                    Terima: <NumberTicker value={totalLend} formatter={formatRupiah} />
+                    Terima: <NumberTicker value={totalLend} formatter={formatCurrency} />
                   </span>
                 </div>
               </div>

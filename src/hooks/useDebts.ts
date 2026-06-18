@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { loanTrackerService } from '@/lib/services/loan-tracker.service';
+import { debtService } from '@/lib/services/debt.service';
 import type { LoanTracker } from '@/lib/debt-planner/types';
 
 export function useDebts(accountId: string | undefined) {
@@ -18,7 +18,7 @@ export function useDebts(accountId: string | undefined) {
     try {
       setLoading(true);
       setError(null);
-      const data = await loanTrackerService.getLoanTrackers(accountId);
+      const data = await debtService.getLoanTrackers(accountId);
       setLoans(data);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gagal memuat pinjaman';

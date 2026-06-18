@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { transactionService } from '@/lib/services/transaction.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -224,18 +224,18 @@ export default function ReportsPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-xs font-semibold">
                   <span className="text-light-text-secondary dark:text-dark-text-secondary">Total Pemasukan</span>
-                  <span className="text-success">+{formatRupiah(reportStats.income)}</span>
+                  <span className="text-success">+{formatCurrency(reportStats.income)}</span>
                 </div>
                 <div className="flex justify-between items-center text-xs font-semibold">
                   <span className="text-light-text-secondary dark:text-dark-text-secondary">Total Pengeluaran</span>
-                  <span className="text-danger">-{formatRupiah(reportStats.expense)}</span>
+                  <span className="text-danger">-{formatCurrency(reportStats.expense)}</span>
                 </div>
                 <div className="h-px bg-light-border/40 dark:bg-dark-border/40 my-2" />
                 
                 <div className="flex justify-between items-center text-sm font-extrabold">
                   <span className="text-light-text-primary dark:text-dark-text-primary">Margin Bersih</span>
                   <span className={reportStats.savings >= 0 ? 'text-emerald-500' : 'text-danger'}>
-                    {reportStats.savings >= 0 ? '+' : '-'}{formatRupiah(Math.abs(reportStats.savings))}
+                    {reportStats.savings >= 0 ? '+' : '-'}{formatCurrency(Math.abs(reportStats.savings))}
                   </span>
                 </div>
               </div>
@@ -251,7 +251,7 @@ export default function ReportsPage() {
               </h4>
               <Progress value={reportStats.savingsRate} className="bg-emerald-500" />
               <p className="text-[10.5px] font-medium text-light-text-secondary dark:text-dark-text-secondary/60 leading-relaxed pt-1">
-                Anda menyisihkan {formatRupiah(reportStats.savings)} dari total pemasukan {formatRupiah(reportStats.income)} pada siklus ini.
+                Anda menyisihkan {formatCurrency(reportStats.savings)} dari total pemasukan {formatCurrency(reportStats.income)} pada siklus ini.
               </p>
             </Card>
           </div>
@@ -288,7 +288,7 @@ export default function ReportsPage() {
                           </span>
                         </div>
                         <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                          {formatRupiah(cat.amount)} ({cat.percentage}%)
+                          {formatCurrency(cat.amount)} ({cat.percentage}%)
                         </span>
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-light-border dark:bg-dark-border overflow-hidden">
@@ -374,7 +374,7 @@ export default function ReportsPage() {
                 <div className="flex justify-between items-center pt-3.5">
                   <span className="text-light-text-secondary dark:text-dark-text-secondary">Pendapatan Kotor (Total Pemasukan)</span>
                   <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                    {formatRupiah(grossIncome)}
+                    {formatCurrency(grossIncome)}
                   </span>
                 </div>
                 
@@ -384,14 +384,14 @@ export default function ReportsPage() {
                     <p className="text-[10px] text-light-text-secondary/60 font-medium">Mengasumsikan {deductiblesRatio}% dari pengeluaran bulanan dapat dikurangkan dari pajak</p>
                   </div>
                   <span className="text-success font-bold">
-                    -{formatRupiah(totalDeductibles)}
+                    -{formatCurrency(totalDeductibles)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center pt-3.5">
                   <span className="text-light-text-secondary dark:text-dark-text-secondary">Penghasilan Kena Pajak Bersih Disesuaikan</span>
                   <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                    {formatRupiah(taxableIncome)}
+                    {formatCurrency(taxableIncome)}
                   </span>
                 </div>
 
@@ -401,7 +401,7 @@ export default function ReportsPage() {
                     <p className="text-[10px] text-light-text-secondary/60 font-medium">Menerapkan perkiraan tarif pajak sebesar {taxRate}%</p>
                   </div>
                   <span className="text-lg font-extrabold text-danger">
-                    {formatRupiah(estimatedTax)}
+                    {formatCurrency(estimatedTax)}
                   </span>
                 </div>
               </div>

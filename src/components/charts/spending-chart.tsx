@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 
 interface SpendingChartProps {
   data: { date: string; amount: number }[];
@@ -65,7 +65,7 @@ export function SpendingChart({ data }: SpendingChartProps) {
           }}
           labelStyle={{ color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}
           itemStyle={{ color: '#10b981', fontSize: 12, fontWeight: 800 }}
-          formatter={(value) => [formatRupiah(Number(value ?? 0)), 'Pengeluaran']}
+          formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Pengeluaran']}
         />
         <Area
           type="monotone"

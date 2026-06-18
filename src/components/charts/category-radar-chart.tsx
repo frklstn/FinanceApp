@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 
 interface CategoryRadarChartProps {
   data: { name: string; value: number; color: string }[];
@@ -38,7 +38,7 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
           {item.name}
         </p>
         <p className="text-sm font-extrabold text-primary">
-          {formatRupiah(item.value)}
+          {formatCurrency(item.value)}
         </p>
       </div>
     );
@@ -108,7 +108,7 @@ export function CategoryRadarChart({ data, showLegend = false }: CategoryRadarCh
                   </span>
                 </div>
                 <span className="text-light-text-secondary dark:text-dark-text-secondary font-bold shrink-0">
-                  {formatRupiah(item.value)} ({pct}%)
+                  {formatCurrency(item.value)} ({pct}%)
                 </span>
               </div>
             );

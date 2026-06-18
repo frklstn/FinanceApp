@@ -203,8 +203,3 @@ export function useApp() {
   }
   return ctx;
 }
-
-/** @deprecated Use useApp().accountId */
-export function useAccountId(): string | null {
-  return useApp().accountId;
-}

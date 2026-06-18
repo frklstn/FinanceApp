@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import type { ForecastAnalytics as Analytics } from '@/lib/debt-planner/types';
-import { formatRupiah, formatDateId } from '@/lib/debt-planner/format';
+import { formatCurrency, formatDateId } from '@/lib/debt-planner/format';
 import '@/styles/forecast/timeline.css';
 
 interface ForecastAnalyticsProps {
@@ -19,12 +19,12 @@ export function ForecastAnalyticsSummary({ analytics }: ForecastAnalyticsProps) 
       <div className="forecast-analytics-grid">
         <div className="forecast-analytics-item">
           <p className="forecast-analytics-label">Total sisa utang</p>
-          <p className="forecast-analytics-value">{formatRupiah(analytics.totalDebtAmount)}</p>
+          <p className="forecast-analytics-value">{formatCurrency(analytics.totalDebtAmount)}</p>
         </div>
         <div className="forecast-analytics-item">
           <p className="forecast-analytics-label">Total kewajiban bayar</p>
           <p className="forecast-analytics-value">
-            {formatRupiah(analytics.totalRepaymentObligation)}
+            {formatCurrency(analytics.totalRepaymentObligation)}
           </p>
         </div>
         <div className="forecast-analytics-item">

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Wallet, Trash2 } from 'lucide-react';
 import type { IncomeTimelineEntry } from '@/lib/debt-planner/types';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import '@/styles/forecast/timeline.css';
 
 interface IncomeProjectionPanelProps {
@@ -130,7 +130,7 @@ export function IncomeProjectionPanel({
             <div key={entry.id} className="forecast-income-row">
               <span>
                 {new Date(entry.effective_date).toLocaleDateString('id-ID')} →{' '}
-                {formatRupiah(Number(entry.monthly_income))}
+                {formatCurrency(Number(entry.monthly_income))}
               </span>
               <button
                 type="button"

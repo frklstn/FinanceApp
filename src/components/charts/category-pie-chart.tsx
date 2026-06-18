@@ -13,7 +13,7 @@ interface CategoryPieChartProps {
   data: { name: string; value: number; color: string }[];
 }
 
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -39,7 +39,7 @@ const CustomTooltip = ({ active, payload, total }: CustomTooltipProps) => {
           {item.name}
         </p>
         <p className="text-sm font-extrabold">
-          {formatRupiah(item.value)}
+          {formatCurrency(item.value)}
         </p>
         <p className="opacity-60 font-semibold">{percentage}% dari total pengeluaran</p>
       </div>
@@ -136,7 +136,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
                 </span>
               </div>
               <span className="text-light-text-secondary dark:text-dark-text-secondary font-bold shrink-0">
-                {formatRupiah(item.value)} ({pct}%)
+                {formatCurrency(item.value)} ({pct}%)
               </span>
             </div>
           );

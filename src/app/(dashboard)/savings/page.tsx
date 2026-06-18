@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { savingsService, type SavingsGoal } from '@/lib/services/savings.service';
 import { walletService, type Wallet } from '@/lib/services/wallet.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -131,10 +131,10 @@ export default function SavingsPage() {
                 <h3 className="text-xs font-black uppercase tracking-[0.4em] text-white/50">Aggregated Reserves</h3>
               </div>
               <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">
-                <NumberTicker value={totalSaved} formatter={(v) => formatRupiah(v)} />
+                <NumberTicker value={totalSaved} formatter={(v) => formatCurrency(v)} />
               </h2>
               <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">
-                <Target className="w-3.5 h-3.5" /> Objective: {formatRupiah(totalTarget)}
+                <Target className="w-3.5 h-3.5" /> Objective: {formatCurrency(totalTarget)}
               </div>
             </div>
             <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xl">
@@ -189,8 +189,8 @@ export default function SavingsPage() {
                           />
                         </div>
                         <div className="flex justify-between text-[11px] font-black text-white tracking-tighter">
-                          <span>{formatRupiah(current)}</span>
-                          <span className="text-white/30">{formatRupiah(target)}</span>
+                          <span>{formatCurrency(current)}</span>
+                          <span className="text-white/30">{formatCurrency(target)}</span>
                         </div>
                       </div>
                     </div>

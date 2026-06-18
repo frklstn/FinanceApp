@@ -5,12 +5,11 @@ import { useApp } from '@/contexts/app-context';
 
 import { useDebts } from '@/hooks/useDebts';
 import { useDebtForecast } from '@/hooks/useDebtForecast';
-import { loanTrackerService } from '@/lib/services/loan-tracker.service';
 import { debtService, Debt } from '@/lib/services/debt.service';
 import { walletService, Wallet } from '@/lib/services/wallet.service';
-import { formatRupiah } from '@/lib/debt-planner/format';
+import { formatCurrency } from '@/lib/debt-planner/format';
 import { APP_TEXTS } from '@/config/branding';
-import type { CreateLoanTrackerInput } from '@/lib/services/loan-tracker.service';
+import type { LoanTracker } from '@/lib/debt-planner/types';
 import { Button } from '@/components/ui/button';
 import { DebtDashboard } from '@/components/debt/DebtDashboard';
 import { ActiveDebtList } from '@/components/debt/ActiveDebtList';
@@ -95,11 +94,11 @@ export default function PinjolPage() {
     }
   }, [accountId, loadIntegratedData, refresh]);
 
-  const handleCreate = async (input: CreateLoanTrackerInput) => {
+  const handleCreate = async (input: any) => {
     if (!accountId) return;
     setSubmitting(true);
     try {
-      await loanTrackerService.createLoanTracker(accountId, input);
+      await debtService.createLoanTracker(accountId, input);
       toast('Pinjaman berhasil dicatat!', 'success');
       setIsModalOpen(false);
       await refresh();
@@ -189,7 +188,7 @@ export default function PinjolPage() {
   const handleMarkPaid = async (id: string, name: string) => {
     if (!confirm(`Tandai "${name}" sebagai LUNAS?`)) return;
     try {
-      await loanTrackerService.updateLoanStatus(id, 'paid_off');
+      await debtService.updateLoanStatus(id, 'paid_off');
       toast(`${name} ditandai lunas!`, 'success');
       await refresh();
     } catch (err: unknown) {
@@ -200,7 +199,7 @@ export default function PinjolPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Hapus catatan "${name}"?`)) return;
     try {
-      await loanTrackerService.deleteLoanTracker(id);
+      await debtService.deleteLoanTracker(id);
       toast(`${name} dihapus`, 'success');
       await refresh();
     } catch (err: unknown) {
@@ -361,7 +360,7 @@ export default function PinjolPage() {
                             const lend = debts.filter(d => d.type === 'lend').reduce((s, d) => s + Number(d.remaining_amount), 0);
                             return lend - owe >= 0 ? 'text-emerald-400' : 'text-rose-500';
                           })()}`}>
-                            <NumberTicker value={Math.abs(debts.filter(d => d.type === 'lend').reduce((s, d) => s + Number(d.remaining_amount), 0) - debts.filter(d => d.type === 'owe').reduce((s, d) => s + Number(d.remaining_amount), 0))} formatter={formatRupiah} />
+                            <NumberTicker value={Math.abs(debts.filter(d => d.type === 'lend').reduce((s, d) => s + Number(d.remaining_amount), 0) - debts.filter(d => d.type === 'owe').reduce((s, d) => s + Number(d.remaining_amount), 0))} formatter={formatCurrency} />
                           </span>
                         </div>
                       </div>
@@ -369,13 +368,13 @@ export default function PinjolPage() {
                         <div className="px-6 py-3 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
                           <TrendingUp className="w-4 h-4 text-rose-400" />
                           <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest">
-                            Utang: {formatRupiah(debts.filter(d => d.type === 'owe').reduce((s, d) => s + Number(d.remaining_amount), 0))}
+                            Utang: {formatCurrency(debts.filter(d => d.type === 'owe').reduce((s, d) => s + Number(d.remaining_amount), 0))}
                           </span>
                         </div>
                         <div className="px-6 py-3 rounded-[24px] bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
                           <HandCoins className="w-4 h-4 text-emerald-400" />
                           <span className="text-[11px] font-black text-emerald-400 uppercase tracking-widest">
-                            Piutang: {formatRupiah(debts.filter(d => d.type === 'lend').reduce((s, d) => s + Number(d.remaining_amount), 0))}
+                            Piutang: {formatCurrency(debts.filter(d => d.type === 'lend').reduce((s, d) => s + Number(d.remaining_amount), 0))}
                           </span>
                         </div>
                       </div>
@@ -418,7 +417,7 @@ export default function PinjolPage() {
                             <div className="space-y-2">
                               <div className="flex justify-between text-[10px] font-black uppercase">
                                 <span className="text-white/20">Progres Pelunasan</span>
-                                <span className="text-white">{formatRupiah(Number(d.amount) - Number(d.remaining_amount))} / {formatRupiah(Number(d.amount))}</span>
+                                <span className="text-white">{formatCurrency(Number(d.amount) - Number(d.remaining_amount))} / {formatCurrency(Number(d.amount))}</span>
                               </div>
                               <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                                 <div className="h-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]" style={{ width: `${((Number(d.amount) - Number(d.remaining_amount)) / Number(d.amount)) * 100}%` }} />
@@ -457,7 +456,7 @@ export default function PinjolPage() {
                             <div className="space-y-2">
                               <div className="flex justify-between text-[10px] font-black uppercase">
                                 <span className="text-white/20">Progres Penagihan</span>
-                                <span className="text-white">{formatRupiah(Number(d.amount) - Number(d.remaining_amount))} / {formatRupiah(Number(d.amount))}</span>
+                                <span className="text-white">{formatCurrency(Number(d.amount) - Number(d.remaining_amount))} / {formatCurrency(Number(d.amount))}</span>
                               </div>
                               <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                                 <div className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: `${((Number(d.amount) - Number(d.remaining_amount)) / Number(d.amount)) * 100}%` }} />
@@ -558,7 +557,7 @@ export default function PinjolPage() {
                 label={selectedDebt.type === 'owe' ? 'Sumber Dana (Dompet)' : 'Tujuan Dana (Dompet)'}
                 options={[
                   { value: '', label: '-- Pilih Dompet --' },
-                  ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatRupiah(Number(w.balance))})` })),
+                  ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance))})` })),
                 ]}
                 value={payWalletId}
                 onChange={(e) => setPayWalletId(e.target.value)}
