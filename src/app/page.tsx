@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { AppProvider, useApp } from "@/contexts/app-context";
+import { useApp } from "@/contexts/app-context";
 import { ArrowRight, BarChart3, ShieldCheck, Zap } from "lucide-react";
 
 function LandingPageContent() {

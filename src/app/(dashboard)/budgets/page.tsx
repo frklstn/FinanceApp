@@ -78,7 +78,7 @@ export default function BudgetsPage() {
       setIncomeTimeline(timeline);
       setActiveLoans(trackers.filter((l: LoanTracker) => l.status === 'active'));
       if (settings?.salary_day) setSalaryDay(settings.salary_day);
-    } catch (err: unknown) {
+    } catch {
       toast('Gagal memuat data protokol.', 'danger');
     } finally {
       setLoading(false);
@@ -132,7 +132,7 @@ export default function BudgetsPage() {
       setPendingBudgets([]);
       setIsModalOpen(false);
       fetchBudgets();
-    } catch (err: unknown) {
+    } catch {
       toast('Gagal mengotorisasi budget.', 'danger');
     } finally {
       setSubmitting(false);

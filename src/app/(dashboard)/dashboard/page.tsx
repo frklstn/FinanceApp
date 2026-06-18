@@ -1,49 +1,23 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApp } from '@/contexts/app-context';
+import { useToast } from '@/hooks/use-toast';
 import { insightsService, type FinancialInsight } from '@/lib/services/insights.service';
-import { transactionService, PopulatedTransaction } from '@/lib/services/transaction.service';
+import { transactionService, type PopulatedTransaction } from '@/lib/services/transaction.service';
 import { debtService } from '@/lib/services/debt.service';
 import { type LoanTracker } from '@/lib/debt-planner/types';
 import { APP_TEXTS } from '@/config/branding';
 import { walletService } from '@/lib/services/wallet.service';
 import { currencyService } from '@/lib/services/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
-import { SpendingChart } from '@/components/charts/spending-chart';
+import { startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
+import { motion } from 'framer-motion';
+import { Wallet, TrendingUp, TrendingDown, PiggyBank, Bell } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
-import { useToast } from '@/components/ui/toast';
-import {
-  TrendingUp,
-  TrendingDown,
-  Bell,
-  Zap,
-  ShieldCheck,
-  Wallet,
-  PiggyBank,
-  Receipt,
-  PieChart,
-  User,
-  AlertTriangle,
-  ArrowRight,
-} from 'lucide-react';
-import { QuickAddModal } from '@/components/transaction/quick-add-modal';
-import { ProfileModal } from '@/components/profile/profile-modal';
-import NumberTicker from '@/components/ui/number-ticker';
-import { BentoGridItem } from '@/components/ui/bento-grid';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import { 
-  startOfDay, 
-  startOfWeek, 
-  subDays, 
-  subMonths, 
-  startOfMonth,
-  getHours,
-  getDay
-} from 'date-fns';
 
 export default function DashboardPage() {
   const { accountId, profile } = useApp();
@@ -87,7 +61,6 @@ export default function DashboardPage() {
       const startDate = new Date();
       const widerStartDate = new Date();
 
-      // --- Tentukan startDate & mode bucket grafik ---
       type BucketMode = 'hour' | 'day' | 'weekday' | 'month';
       let bucketMode: BucketMode = 'day';
 
@@ -119,13 +92,11 @@ export default function DashboardPage() {
         }
       }
 
-      // --- Single fetch with wider range for comparison ---
       const { data: allTxs } = await transactionService.getTransactions(accountId, {
         startDate: widerStartDate.toISOString(),
         limit: 2000,
       });
 
-      // Split transactions into current and previous periods
       const txs = allTxs.filter(tx => new Date(tx.date) >= startDate);
       const prevTxs = allTxs.filter(tx => new Date(tx.date) >= widerStartDate && new Date(tx.date) < startDate);
 
@@ -135,7 +106,6 @@ export default function DashboardPage() {
         debtService.getLoanTrackers(accountId),
       ]);
 
-      // Calculate previous period stats for dynamic greeting subtitle
       let prevIncome = 0;
       let prevExpense = 0;
       prevTxs.forEach((t) => {
@@ -146,18 +116,14 @@ export default function DashboardPage() {
           prevExpense += amt;
         }
       });
-      const prevSavings = prevIncome - prevExpense;
       const currentSavings = insightData.income - insightData.expense;
 
       let diffPercent = 0;
-      if (prevSavings !== 0) {
-        diffPercent = ((currentSavings - prevSavings) / Math.abs(prevSavings)) * 100;
-      } else if (currentSavings !== 0) {
-        diffPercent = currentSavings > 0 ? 100 : -100;
+      if (prevIncome !== 0) {
+        diffPercent = ((currentSavings - (prevIncome - prevExpense)) / Math.abs(prevIncome - prevExpense || 1)) * 100;
       }
 
       const diffStr = diffPercent >= 0 ? `+${diffPercent.toFixed(0)}%` : `${diffPercent.toFixed(0)}%`;
-
 
       const activeLoans = trackers.filter(l => l.status === 'active');
       const totalMonthlyDebtPayment = activeLoans.reduce((sum, l) => sum + Number(l.monthly_payment), 0);
@@ -214,7 +180,6 @@ export default function DashboardPage() {
 
       setRecentTxs(txs.slice(0, 6));
 
-      // --- Bangun bucket grafik sesuai mode ---
       const HARI = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
       const BULAN_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -232,7 +197,6 @@ export default function DashboardPage() {
         });
 
       } else if (bucketMode === 'weekday') {
-        // Senin-Minggu untuk minggu berjalan
         const monday = new Date(startDate);
         for (let i = 0; i < 7; i++) {
           const d = new Date(monday);
@@ -249,7 +213,6 @@ export default function DashboardPage() {
         });
 
       } else if (bucketMode === 'month') {
-        // 3 bulan terakhir — bucket per bulan
         for (let m = 2; m >= 0; m--) {
           const d = new Date();
           d.setMonth(d.getMonth() - m);
@@ -263,7 +226,6 @@ export default function DashboardPage() {
         });
 
       } else {
-        // day — setiap hari dalam bulan
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
         for (let i = 1; i <= daysInMonth; i++) {
           const key = `${i} ${BULAN_ID[now.getMonth()]}`;
@@ -287,7 +249,7 @@ export default function DashboardPage() {
   }, [accountId, dateFilter, toast]);
 
   useEffect(() => {
-    setTimeout(() => loadDashboardData(), 0);
+    loadDashboardData();
   }, [loadDashboardData]);
 
   const HeroWidgets = [

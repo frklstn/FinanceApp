@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { currencyService } from './currency.service';
+import type { LoanTracker } from '@/lib/debt-planner/types';
 
 export interface Debt {
   id: string;
@@ -185,26 +186,26 @@ export const debtService = {
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
-    return ((data as any[]) || []).map(l => ({ ...l, currency: l.currency ?? 'IDR' }));
+    return ((data as unknown as LoanTracker[]) || []).map(l => ({ ...l, currency: l.currency ?? 'IDR' }));
   },
 
-  async createLoanTracker(workspaceId: string, input: any) {
+  async createLoanTracker(workspaceId: string, input: Omit<LoanTracker, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>) {
     const supabase = createClient();
     const { calcEndDate } = await import('@/lib/debt-planner/calculations');
     const endDate = calcEndDate(input.start_date, input.tenure_months);
     const { data, error } = await supabase
       .from('loan_trackers')
       .insert({
-        workspace_id: workspaceId,
         ...input,
+        workspace_id: workspaceId,
         end_date: input.end_date ?? endDate.toISOString().slice(0, 10),
         payment_frequency: input.payment_frequency ?? 'monthly',
-      })
+      } as any)
       .select()
       .single();
 
     if (error) throw new Error(error.message);
-    return { ...data, currency: (data as any).currency ?? 'IDR' };
+    return { ...data, currency: (data as unknown as LoanTracker).currency ?? 'IDR' };
   },
 
   async updateLoanStatus(id: string, status: string): Promise<void> {

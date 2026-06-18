@@ -89,26 +89,20 @@ export default function PinjolPage() {
 
   React.useEffect(() => {
     if (accountId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      loadIntegratedData();
+      Promise.resolve().then(() => loadIntegratedData());
     }
   }, [accountId, loadIntegratedData, refresh]);
 
-  const handleCreate = async (input: any) => {
+  const handleCreate = async (data: Omit<LoanTracker, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>) => {
     if (!accountId) return;
     setSubmitting(true);
     try {
-      await debtService.createLoanTracker(accountId, input);
-      toast('Pinjaman berhasil dicatat!', 'success');
+      await debtService.createLoanTracker(accountId, data);
+      toast('Pinjaman berhasil disimpan', 'success');
       setIsModalOpen(false);
       await refresh();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal menyimpan';
-      if (msg.includes('does not exist') || msg.includes('schema cache')) {
-        toast('Jalankan migration 002 & 003 di Supabase terlebih dahulu.', 'warning');
-      } else {
-        toast(msg, 'danger');
-      }
+    } catch {
+      toast('Gagal menyimpan', 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -347,7 +341,6 @@ export default function PinjolPage() {
 
             {activeTab === 'ledger' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Net Position Hero */}
                 <Card glass className="p-8 md:p-12 relative group overflow-hidden border-white/5 shadow-2xl">
                   <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/5 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-rose-500/10" />
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
@@ -392,9 +385,7 @@ export default function PinjolPage() {
                   </div>
                 </Card>
 
-                {/* Ledger Lists */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                  {/* Owe Section */}
                   <div className="space-y-6">
                     <h3 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
                       <Landmark className="w-5 h-5 text-rose-500" /> Utang Personal
@@ -433,7 +424,6 @@ export default function PinjolPage() {
                     </div>
                   </div>
 
-                  {/* Lend Section */}
                   <div className="space-y-6">
                     <h3 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
                       <HandCoins className="w-5 h-5 text-emerald-500" /> Piutang Personal
@@ -484,7 +474,6 @@ export default function PinjolPage() {
           submitting={submitting}
         />
 
-        {/* Integrated Debt Modal */}
         <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Initialize Ledger Protocol">
           <form onSubmit={handleCreateDebt} className="space-y-8 p-2">
             <div className="grid grid-cols-2 gap-3 bg-white/[0.02] p-2 rounded-[24px] border border-white/5">
@@ -544,7 +533,6 @@ export default function PinjolPage() {
           </form>
         </Modal>
 
-        {/* Integrated Payment Modal */}
         <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title="Execute Repayment Protocol">
           {selectedDebt && (
             <form onSubmit={handlePaymentSubmit} className="space-y-8 p-2">

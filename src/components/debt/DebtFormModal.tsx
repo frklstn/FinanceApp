@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
-import type { LoanCategory } from '@/lib/debt-planner/types';
+import type { LoanCategory, LoanTracker } from '@/lib/debt-planner/types';
 import { calcRemainingMonths, calcEndDate, LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
 
 const CATEGORY_OPTIONS = Object.entries(LOAN_CATEGORY_LABELS)
@@ -28,7 +28,7 @@ const EMPTY_FORM = {
 interface DebtFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (input: any) => Promise<void>;
+  onSubmit: (input: Omit<LoanTracker, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>) => Promise<void>;
   submitting?: boolean;
 }
 

@@ -79,10 +79,10 @@ export default function WalletsPage() {
     setSubmitting(true);
     try {
       if (editingWallet) {
-        await walletService.updateWallet(editingWallet.id, { name, type: type as any, color, icon, currency });
+        await walletService.updateWallet(editingWallet.id, { name, type: type as Wallet['type'], color, icon, currency });
         toast('Asset Node Optimized', 'success');
       } else {
-        await walletService.createWallet(accountId, name, type as any, Number(balance), color, icon, currency);
+        await walletService.createWallet(accountId, name, type as Wallet['type'], Number(balance), color, icon, currency);
         toast('Asset Node Authorized', 'success');
       }
       setIsWalletModalOpen(false);
@@ -109,7 +109,6 @@ export default function WalletsPage() {
   };
 
   const totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
-  // Note: Simplified total for demo. Real implementation would convert all to base currency.
 
   return (
     <div className="space-y-8 no-scrollbar">
@@ -142,7 +141,6 @@ export default function WalletsPage() {
         </div>
       </header>
 
-      {/* Hero Liquidity Section */}
       <section>
         <Card glass className="p-10 md:p-14 relative group overflow-hidden border-white/5 shadow-2xl bg-gradient-to-br from-[#0a1028] to-[#050816]">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-indigo-600/10" />
@@ -173,7 +171,6 @@ export default function WalletsPage() {
         </Card>
       </section>
 
-      {/* Asset Nodes Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <AnimatePresence>
           {wallets.map((wallet, i) => (
@@ -222,7 +219,6 @@ export default function WalletsPage() {
         </AnimatePresence>
       </section>
 
-      {/* Asset Modal */}
       <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} title={editingWallet ? 'Refactor Asset Node' : 'Initialize Asset Node'}>
         <form onSubmit={handleSaveWallet} className="space-y-8 p-2">
           <Input label="Asset Label" placeholder="e.g. Nexus Prime, Global Ledger" value={name} onChange={(e) => setName(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-6" />
@@ -259,7 +255,6 @@ export default function WalletsPage() {
         </form>
       </Modal>
 
-      {/* Transfer Modal */}
       <Modal isOpen={isTransferModalOpen} onClose={() => setIsTransferModalOpen(false)} title="Execute Liquidity Relocation">
         <form 
           onSubmit={(e) => { 

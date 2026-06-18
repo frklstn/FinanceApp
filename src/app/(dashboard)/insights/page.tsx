@@ -16,7 +16,6 @@ import {
   Info,
   TrendingUp,
   TrendingDown,
-  Wallet,
 } from 'lucide-react';
 
 export default function InsightsPage() {
@@ -59,9 +58,8 @@ export default function InsightsPage() {
         runwayMonths: insightData.runwayMonths,
       });
       setInsights(insightData.insights);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal memuat analisis keuangan.';
-      toast(msg, 'danger');
+    } catch {
+      toast('Gagal memuat analisis keuangan.', 'danger');
     } finally {
       setLoading(false);
     }

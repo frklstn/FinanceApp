@@ -84,8 +84,7 @@ export const walletService = {
   /**
    * Simple Transfer (Meta-wrapper). Actual balance adjustment via DB or Transaction Service.
    */
-  async transferFunds(sourceId: string, destId: string, amount: number, note?: string): Promise<void> {
-    // Recommendation: Use transactionService.createTransaction with type 'transfer'
+  async transferFunds(): Promise<void> {
     throw new Error('Use transactionService.createTransaction for atomic transfers.');
   },
 };

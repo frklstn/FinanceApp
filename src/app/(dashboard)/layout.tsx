@@ -6,9 +6,7 @@ import Sidebar from '@/components/layout/sidebar';
 
 const MobileNav = dynamic(() => import('@/components/layout/mobile-nav'), { ssr: false });
 
-import { ThemeProvider } from '@/contexts/theme-context';
-import { AppProvider, useApp } from '@/contexts/app-context';
-import { ToastProvider } from '@/components/ui/toast';
+import { useApp } from '@/contexts/app-context';
 import { usePathname } from 'next/navigation';
 
 function DocumentTitle() {
