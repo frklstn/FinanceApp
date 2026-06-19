@@ -71,7 +71,7 @@ export default function MobileNav() {
           onClick={() => setIsMoreOpen(!isMoreOpen)}
           className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-150 cursor-pointer ${
             isMoreOpen
-              ? 'text-emerald-400 font-bold scale-105'
+              ? 'text-[var(--nexus-emerald)] font-bold scale-105'
               : 'text-white/30 hover:text-white'
           }`}
         >

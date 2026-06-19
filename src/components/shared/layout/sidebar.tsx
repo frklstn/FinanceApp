@@ -63,7 +63,7 @@ export default function Sidebar() {
                 className={cn(
                   "w-12 h-12 flex items-center justify-center rounded-[20px] transition-all duration-300 relative z-10",
                   isActive 
-                    ? "bg-emerald-500/10 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] border border-emerald-500/20" 
+                    ? "bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] shadow-[0_0_20px_rgba(16,185,129,0.1)] border border-[var(--nexus-emerald-border)]" 
                     : "text-white/20 hover:bg-white/[0.05] hover:text-white border border-transparent"
                 )}
               >
@@ -72,7 +72,7 @@ export default function Sidebar() {
                 {isActive && (
                   <motion.div 
                     layoutId="active-pill-side"
-                    className="absolute -left-3 w-1 h-6 bg-emerald-500 rounded-r-full shadow-[0_0_15px_rgba(16,185,129,0.8)]" 
+                    className="absolute -left-3 w-1 h-6 bg-[var(--nexus-emerald)] rounded-r-full shadow-[0_0_15px_rgba(16,185,129,0.8)]" 
                   />
                 )}
               </Link>

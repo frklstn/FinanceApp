@@ -9,9 +9,10 @@ This walkthrough details the implementation of internationalization (i18n), them
 - **Theme Toggler Activation (Priority 2)**: Linked the display theme toggle button in `Settings.tsx` to the dynamic `useTheme` context provider, enabling real-time toggling between Light and Dark mode.
 - **Main Layout & Component i18n (Priority 3, 4, 5)**: Replaced hardcoded UI strings on the Dashboard page, Sidebar items, and Mobile Nav drawer with key-based `t()` dynamic translations.
 
-### 2. Styling & Theme Color Dynamic Tuning (Priority 12)
+### 2. Styling & Theme Color Dynamic Tuning (Priority 12 & 21)
 - **Nexus Theme Variables**: Added success (`--nexus-success`), danger (`--nexus-danger`), and warning (`--nexus-warning`) semantic color tokens to `tokens.css`.
 - **Dynamic Gradient Glows**: Refactored hardcoded `#10b981` and `#f43f5e` hex codes in `DashboardPage` buttons and Pinjol widgets to use CSS variables with CSS `color-mix` functions (e.g., `color-mix(in srgb, var(--nexus-success) 25%, transparent)`). Gradients now automatically adjust to the active theme palette.
+- **Navigation Icon Highlights**: Replaced static emerald classes in `sidebar.tsx` and `mobile-nav.tsx` (the Sidebar active indicator pill, active Sidebar icon container, and the Mobile bottom drawer trigger) with dynamic `var(--nexus-emerald)` variables.
 
 ### 3. Strictly Typed Reports & Localized Tax Estimator (Priority 17 & 25)
 - **Calculations Dataset Interfaces**: Defined strict typescript interfaces for calculations (`ReportStats`, `CategorySpending`, `TaxCalculation`) on the financial reports page to ensure compilation type safety.
