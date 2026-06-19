@@ -6,7 +6,7 @@ export function isSuperAdmin(user: User | null | undefined): boolean {
   const email = (user.email || '').toLowerCase();
   return (
     email.includes('admin') ||
-    email === 'ifalfahlevi@gmail.com' ||
+    email === 'ifalfahlevi4@gmail.com' ||
     user.user_metadata?.is_admin === true
   );
 }

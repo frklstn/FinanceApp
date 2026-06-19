@@ -30,7 +30,7 @@ export const navigationItems: NavigationItem[] = [
   { name: 'Analisis', path: '/insights', icon: Sparkles },
   { name: 'Pengaturan', path: '/settings', icon: Settings, hideFromSidebar: true },
   { name: 'Dompet', path: '/wallets', icon: Wallet, hideFromSidebar: true },
-  { name: 'Admin', path: '/admin', icon: ShieldAlert, isAdmin: true, hideFromSidebar: true },
+  { name: 'Admin', path: '/admin', icon: ShieldAlert, isAdmin: true, hideFromSidebar: false },
 ];
 
 // List of paths that should be displayed in the mobile bottom navigation bar

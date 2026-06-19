@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { profileService } from '@/lib/services/profile.service';
+import { profileService } from '@/lib/services/user/user.service';
 import { Crown, MessageCircle } from 'lucide-react';
 
 interface UpgradeGateProps {

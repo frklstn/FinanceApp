@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { IncomeTimelineEntry, LoanTracker } from '@/lib/debt-planner/types';
-import { incomeProjectionService } from '@/lib/services/income-projection.service';
-import { debtPlannerSettingsService } from '@/lib/services/debt-planner-settings.service';
+import { incomeProjectionService } from '@/lib/services/finance/income-projection.service';
+import { debtPlannerSettingsService } from '@/lib/services/finance/debt-planner-settings.service';
 import {
   buildForecastAnalytics,
   buildForecastTimeline,
@@ -11,7 +11,7 @@ import {
   generateGlobalWarnings,
   generateSurvivalInsight,
   getCurrentPeriodForecast,
-} from '@/lib/services/forecast.service';
+} from '@/lib/services/finance/forecast.service';
 import { getNextDueDate } from '@/lib/debt-planner/calculations';
 
 const FORECAST_PERIOD_COUNT = 12;
@@ -47,9 +47,9 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
     Promise.resolve().then(loadPlannerData);
   }, [loadPlannerData]);
 
-  const [forecastTimeline, setForecastTimeline] = useState<import('@/lib/services/forecast.service').PeriodForecast[]>([]);
-  const [currentForecast, setCurrentForecast] = useState<import('@/lib/services/forecast.service').PeriodForecast | null>(null);
-  const [analytics, setAnalytics] = useState<import('@/lib/services/forecast.service').ForecastAnalytics | null>(null);
+  const [forecastTimeline, setForecastTimeline] = useState<import('@/lib/services/finance/forecast.service').PeriodForecast[]>([]);
+  const [currentForecast, setCurrentForecast] = useState<import('@/lib/services/finance/forecast.service').PeriodForecast | null>(null);
+  const [analytics, setAnalytics] = useState<import('@/lib/services/finance/forecast.service').ForecastAnalytics | null>(null);
   const [survivalScore, setSurvivalScore] = useState<import('@/lib/debt-planner/types').SurvivalScore | null>(null);
   const [globalWarnings, setGlobalWarnings] = useState<import('@/lib/debt-planner/types').ForecastWarning[]>([]);
   const [survivalInsight, setSurvivalInsight] = useState<string | null>(null);

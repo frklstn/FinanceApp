@@ -3,12 +3,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
-import { accountService } from '@/lib/services/account.service';
+import { workspaceService } from '@/lib/services/workspace/workspace';
 import {
   appSettingsService,
   DEFAULT_APP_SETTINGS,
   type AppSettings,
-} from '@/lib/services/app-settings.service';
+} from '@/lib/services/user/app-settings.service';
 import { isSuperAdmin } from '@/lib/auth/admin';
 import { idTranslations } from '@/locales/id';
 import { enTranslations } from '@/locales/en';
@@ -20,22 +20,20 @@ export interface UserProfile {
   avatar_url: string | null;
   is_suspended?: boolean | null;
   language?: string | null;
+  plan_expires_at?: string | null;
+  plan?: 'free' | 'pro' | null;
+  app_name?: string | null;
+  app_icon_url?: string | null;
+  app_title?: string | null;
 }
 
 interface AppContextType {
   user: User | null;
   profile: UserProfile | null;
-  /** Internal scope id (maps to workspace_id in DB). */
   accountId: string | null;
   appSettings: AppSettings;
   isLoading: boolean;
   isSuperAdmin: boolean;
-  userPlan: 'free' | 'pro';
-  userBranding: {
-    app_name: string | null;
-    app_icon_url: string | null;
-    app_title: string | null;
-  } | null;
   language: string;
   t: (key: string, defaultValue?: string) => string;
   isPro: () => boolean;
@@ -50,12 +48,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
-  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
-  const [userBranding, setUserBranding] = useState<{
-    app_name: string | null;
-    app_icon_url: string | null;
-    app_title: string | null;
-  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   const bootstrapInProgress = useRef(false);
@@ -67,16 +59,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const loadSession = useCallback(async () => {
     const supabase = createClient();
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
 
     if (!authUser) {
       setUser(null);
       setProfile(null);
       setAccountId(null);
-      setUserPlan('free');
-      setUserBranding(null);
       return;
     }
 
@@ -85,10 +73,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const [{ data: profileRow }, scopeId] = await Promise.all([
       supabase
         .from('profiles')
-        .select('id, email, full_name, avatar_url, is_suspended, plan, app_name, app_icon_url, app_title, language')
+        .select('*')
         .eq('id', authUser.id)
         .maybeSingle(),
-      accountService.getAccountIdForUser(authUser.id),
+      workspaceService.getAccountIdForUser(authUser.id),
     ]);
 
     if (profileRow) {
@@ -99,15 +87,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         avatar_url: profileRow.avatar_url,
         is_suspended: profileRow.is_suspended,
         language: profileRow.language ?? 'id',
-      });
-      // Force PRO plan for Demo account (Match bypass email)
-      const isDemo = authUser.email?.toLowerCase() === 'demo@frklstn.com' || profileRow.email?.toLowerCase() === 'demo@frklstn.com';
-      const finalPlan = isDemo ? 'pro' : (profileRow.plan as 'free' | 'pro' || 'free');
-      setUserPlan(finalPlan);
-      setUserBranding({
-        app_name: profileRow.app_name ?? null,
-        app_icon_url: profileRow.app_icon_url ?? null,
-        app_title: profileRow.app_title ?? null,
+        plan_expires_at: (profileRow as { plan_expires_at?: string | null }).plan_expires_at || null,
+        plan: (profileRow.plan as 'free' | 'pro') || 'free',
+        app_name: profileRow.app_name,
+        app_icon_url: profileRow.app_icon_url,
+        app_title: profileRow.app_title,
       });
     } else {
       setProfile({
@@ -116,9 +100,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         full_name: (authUser.user_metadata?.full_name as string) ?? null,
         avatar_url: (authUser.user_metadata?.avatar_url as string) ?? null,
         language: 'id',
+        plan: 'free',
       });
-      setUserPlan('free');
-      setUserBranding(null);
     }
     setAccountId(scopeId);
   }, []);
@@ -140,9 +123,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     Promise.resolve().then(bootstrap);
     const supabase = createClient();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
         Promise.resolve().then(bootstrap);
       }
@@ -151,9 +132,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [bootstrap]);
 
   const superAdmin = useMemo(() => isSuperAdmin(user), [user]);
-  const isPro = useCallback(() => userPlan === 'pro', [userPlan]);
-  const isProUser = isPro();
-
+  const isPro = useCallback(() => profile?.plan === 'pro', [profile?.plan]);
   const activeLanguage = profile?.language || 'id';
 
   const t = useCallback(
@@ -166,12 +145,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const activeTitle = (isProUser && userBranding?.app_title)
-        ? userBranding.app_title
+      const activeTitle = (isPro() && profile?.app_title)
+        ? profile.app_title
         : (appSettings.document_title || 'FinanceApp');
       document.title = activeTitle;
     }
-  }, [isProUser, userBranding, appSettings]);
+  }, [isPro, profile, appSettings]);
 
   return (
     <AppContext.Provider
@@ -182,8 +161,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         appSettings,
         isLoading,
         isSuperAdmin: superAdmin,
-        userPlan,
-        userBranding,
         language: activeLanguage,
         t,
         isPro,

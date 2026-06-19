@@ -91,15 +91,7 @@ export default function RegisterPage() {
       <div className="absolute inset-0 bg-emerald-500/5 blur-[80px] rounded-full -z-10" />
 
       <div className="glass-card p-8 md:p-12 w-full border-white/5 bg-white/[0.01] backdrop-blur-3xl rounded-[40px] shadow-2xl space-y-8">
-        <div className="space-y-2 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-[24px] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-inner">
-              <User className="w-8 h-8 text-emerald-400" />
-            </div>
-          </div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Node <span className="text-emerald-500">Initialization</span></h2>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Register New Entity in FinanceNode OS</p>
-        </div>
+        {/* Header Removed as requested */}
 
         {errorMsg && (
           <motion.div 
@@ -134,7 +126,7 @@ export default function RegisterPage() {
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="LEGAL_NAME"
                   disabled={loading}
-                  className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto"
+                  className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
                 />
               </div>
@@ -150,14 +142,12 @@ export default function RegisterPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="ID_SEQUENCE@DOMAIN.COM"
                   disabled={loading}
-                  className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto"
+                  className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
                 />
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Primary Secret</label>
               <div className="relative group">
@@ -168,7 +158,7 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   disabled={loading}
-                  className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto"
+                  className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
                 />
               </div>
@@ -184,7 +174,7 @@ export default function RegisterPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   disabled={loading}
-                  className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto"
+                  className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
                 />
                 <button

@@ -1,0 +1,59 @@
+import { useState, useCallback } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/components/ui/toast';
+import { useApp } from '@/contexts/app-context';
+
+export function useUser() {
+  const [submitting, setSubmitting] = useState(false);
+  const supabase = createClient();
+  const { toast } = useToast();
+  const { refreshSession } = useApp();
+
+  const updateProfile = useCallback(async (data: { 
+    fullName: string; 
+    email?: string; 
+    password?: string; 
+    avatarUrl: string;
+    currency?: string;
+  }) => {
+    setSubmitting(true);
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error('Pengguna tidak terotentikasi');
+
+      // 1. Update Auth
+      const updateAuthData: { email?: string; password?: string; data: { full_name: string; avatar_url: string; currency?: string } } = {
+        data: { full_name: data.fullName, avatar_url: data.avatarUrl }
+      };
+      if (data.email && data.email !== currentUser.email) updateAuthData.email = data.email;
+      if (data.password) updateAuthData.password = data.password;
+      if (data.currency) updateAuthData.data.currency = data.currency;
+
+      const { error: authError } = await supabase.auth.updateUser(updateAuthData);
+      if (authError) throw authError;
+
+      // 2. Update Profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: data.fullName,
+          avatar_url: data.avatarUrl,
+        })
+        .eq('id', currentUser.id);
+
+      if (profileError) throw profileError;
+
+      await refreshSession();
+      toast('Profil berhasil diperbarui!', 'success');
+      return true;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal memperbarui profil.';
+      toast(msg, 'danger');
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
+  }, [supabase, toast, refreshSession]);
+
+  return { updateProfile, submitting };
+}

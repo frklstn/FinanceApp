@@ -33,7 +33,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       />
 
       {/* Modal Dialog */}
-      <div className="nexus-popup w-full max-w-2xl overflow-hidden text-white relative animate-in fade-in zoom-in-95 duration-300">
+      <div className="nexus-popup w-full max-w-5xl overflow-hidden text-white relative animate-in fade-in zoom-in-95 duration-300 rounded-3xl border border-white/10 shadow-2xl">
         {/* Header */}
         <div className="flex justify-between items-center px-8 py-6 border-b border-white/5 bg-white/2">
           <h3 className="text-lg font-bold tracking-tight text-white">{title}</h3>

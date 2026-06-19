@@ -2,9 +2,9 @@
 
 import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import Sidebar from '@/components/layout/sidebar';
+import Sidebar from '@/components/shared/layout/sidebar';
 
-const MobileNav = dynamic(() => import('@/components/layout/mobile-nav'), { ssr: false });
+const MobileNav = dynamic(() => import('@/components/shared/layout/mobile-nav'), { ssr: false });
 
 import { useApp } from '@/contexts/app-context';
 import { usePathname } from 'next/navigation';
