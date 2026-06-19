@@ -253,9 +253,8 @@ export default function DashboardPage() {
 
       setChartData(Object.entries(aggregation).map(([date, amount]) => ({ date, amount })));
 
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      toast(message, 'danger');
+    } catch {
+      toast('Terjadi kesalahan saat memuat data dashboard.', 'danger');
     }
   }, [accountId, dateFilter, toast]);
 
@@ -269,7 +268,7 @@ export default function DashboardPage() {
       );
       toast(`Anggaran ${suggestion.categoryName} berhasil dioptimalkan!`, 'success');
       loadDashboardData();
-    } catch (err: unknown) {
+    } catch {
       toast('Gagal mengoptimalkan anggaran.', 'danger');
     }
   };
