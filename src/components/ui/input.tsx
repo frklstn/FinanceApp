@@ -11,7 +11,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full space-y-1.5">
         {label && (
-          <label className="block text-xs font-bold text-[#A7B0D1] tracking-wide">
+          <label className="block text-xs font-bold text-text-secondary tracking-wide">
             {label}
           </label>
         )}
@@ -19,11 +19,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             type={type}
             ref={ref}
-            className={`w-full px-5 py-3 rounded-2xl bg-[#0A1028]/50 backdrop-blur-md border text-sm text-white focus:outline-none transition-all duration-300 placeholder:text-[#6F7A9E]/40 group-hover:bg-[#0A1028]/80 
+            className={`w-full px-5 py-3 rounded-2xl bg-[var(--bg-main)]/50 backdrop-blur-md border text-sm text-text-primary focus:outline-none transition-all duration-300 placeholder:text-text-muted/40 group-hover:bg-[var(--bg-main)]/80 
               ${
                 error
                   ? 'border-danger/60 focus:border-danger focus:ring-4 focus:ring-danger/10'
-                  : 'border-white/5 focus:border-[#6E5CFF] focus:ring-4 focus:ring-[#6E5CFF]/10'
+                  : 'border-white/5 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10'
               } 
               ${className}`}
             {...props}
@@ -40,7 +40,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </p>
         )}
         {!error && description && (
-          <p className="text-[10px] text-[#6F7A9E] font-medium leading-relaxed">
+          <p className="text-[10px] text-text-muted font-medium leading-relaxed">
             {description}
           </p>
         )}

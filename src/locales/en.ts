@@ -128,5 +128,28 @@ export const enTranslations = {
   // Toasts
   "dashboard.error.loadFailed": "An error occurred while loading dashboard data.",
   "dashboard.success.optimizeSuccess": "Budget for {category} successfully optimized!",
-  "dashboard.error.optimizeFailed": "Failed to optimize budget."
+  "dashboard.error.optimizeFailed": "Failed to optimize budget.",
+
+  // Registration Page
+  "auth.register.fullNameLabel": "Full Name / Username",
+  "auth.register.fullNameDesc": "Use your full name or a unique handle for your profile",
+  "auth.register.fullNamePlaceholder": "Enter your full name",
+  "auth.register.emailLabel": "Email",
+  "auth.register.emailDesc": "Use an active email address for verification and login",
+  "auth.register.emailPlaceholder": "name@email.com",
+  "auth.register.passwordLabel": "Password",
+  "auth.register.passwordDesc": "Must be at least 6 characters to secure your vault",
+  "auth.register.passwordPlaceholder": "Enter password (min 6 characters)",
+  "auth.register.confirmPasswordLabel": "Confirm Password",
+  "auth.register.confirmPasswordDesc": "Re-enter password to avoid typos",
+  "auth.register.confirmPasswordPlaceholder": "Re-enter your password",
+  "auth.register.submitButton": "Create Account Now",
+  "auth.register.loadingButton": "Creating Account...",
+  "auth.register.hasAccount": "Already have an account?",
+  "auth.register.loginLink": "Log In",
+  "auth.register.errorFieldsRequired": "All fields are required.",
+  "auth.register.errorPasswordMin": "Password must be at least 6 characters.",
+  "auth.register.errorConfirmMismatch": "Passwords do not match.",
+  "auth.register.successInitializing": "Registration authorized. Initializing system...",
+  "auth.register.successVerification": "Entity registered. Check your inbox to verify."
 };

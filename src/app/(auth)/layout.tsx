@@ -9,7 +9,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="dark min-h-screen flex items-center justify-center bg-[#050816] relative overflow-hidden font-sans no-scrollbar">
+    <div className="dark min-h-screen flex items-center justify-center bg-[var(--bg-main)] relative overflow-hidden font-sans no-scrollbar">
       {/* Nexus Emerald Background Accents */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none" />

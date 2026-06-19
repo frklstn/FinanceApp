@@ -122,22 +122,22 @@ export default function SavingsPage() {
       </header>
 
       <section>
-        <Card glass className="p-10 relative group overflow-hidden border-indigo-500/10 bg-gradient-to-br from-[#12042a] via-[#09112a] to-[#050816]">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 blur-[100px] rounded-full -mr-40 -mt-40 transition-all group-hover:bg-indigo-600/15" />
+        <Card glass className="p-10 relative group overflow-hidden border-border/20 bg-gradient-to-br from-indigo-500/10 via-[var(--bg-card)] to-[var(--bg-main)]">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 blur-[100px] rounded-full -mr-40 -mt-40 transition-all group-hover:bg-indigo-500/15" />
           <div className="flex items-center justify-between relative z-10">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-white/50">Aggregated Reserves</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-text-secondary/50">Aggregated Reserves</h3>
               </div>
-              <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">
+              <h2 className="text-5xl md:text-7xl font-black text-text-primary tracking-tighter">
                 <NumberTicker value={totalSaved} formatter={(v) => formatCurrency(v)} />
               </h2>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">
+              <div className="flex items-center gap-2 text-[10px] font-bold text-text-muted uppercase tracking-widest mt-2">
                 <Target className="w-3.5 h-3.5" /> Objective: {formatCurrency(totalTarget)}
               </div>
             </div>
-            <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xl">
+            <div className="w-20 h-20 rounded-[32px] bg-border/10 backdrop-blur-3xl border border-border/20 flex items-center justify-center text-emerald-400 shadow-2xl">
               <PiggyBank className="w-10 h-10" />
             </div>
           </div>

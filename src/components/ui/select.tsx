@@ -88,7 +88,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full space-y-1.5" ref={containerRef}>
         {label && (
-          <label className="block text-xs font-bold text-[#A7B0D1] tracking-wide uppercase">
+          <label className="block text-xs font-bold text-text-secondary tracking-wide uppercase">
             {label}
           </label>
         )}
@@ -112,14 +112,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             </option>
           ))}
         </select>
-
+ 
         <div className="relative group">
           <button
             type="button"
             onClick={() => !props.disabled && setIsOpen(!isOpen)}
             disabled={props.disabled}
             className={cn(
-              "w-full flex items-center justify-between px-5 py-3 rounded-2xl bg-[#050507]/50 backdrop-blur-md border text-sm text-white text-left focus:outline-none transition-all duration-300 hover:bg-[#050507]/80 cursor-pointer",
+              "w-full flex items-center justify-between px-5 py-3 rounded-2xl bg-[var(--bg-main)]/50 backdrop-blur-md border text-sm text-white text-left focus:outline-none transition-all duration-300 hover:bg-[var(--bg-main)]/80 cursor-pointer",
               error
                 ? "border-danger/60"
                 : isOpen
@@ -143,9 +143,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </button>
-
+ 
           {isOpen && !props.disabled && (
-            <div className="absolute left-0 right-0 z-[100] mt-2 w-full rounded-2xl bg-[#0a0a0c]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300 no-scrollbar">
+            <div className="absolute left-0 right-0 z-[100] mt-2 w-full rounded-2xl bg-[var(--bg-card)]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300 no-scrollbar">
               {options.map((option) => {
                 const isSelected = option.value === currentValue;
                 return (
@@ -170,14 +170,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             </div>
           )}
         </div>
-
+ 
         {error && (
           <p className="text-[10px] text-danger font-bold uppercase tracking-tight flex items-center gap-1.5">
             {error}
           </p>
         )}
         {!error && description && (
-          <p className="text-[10px] text-[#6F7A9E] font-medium leading-relaxed">
+          <p className="text-[10px] text-text-muted font-medium leading-relaxed">
             {description}
           </p>
         )}

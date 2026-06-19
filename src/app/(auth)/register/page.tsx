@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useApp } from '@/contexts/app-context';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, ShieldCheck, ArrowRight, Activity, Terminal, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { Input } from '@/components/ui/input';
 export default function RegisterPage() {
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useApp();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -31,19 +33,19 @@ export default function RegisterPage() {
     setSuccessMsg(null);
 
     if (!fullName || !email || !password || !confirmPassword) {
-      setErrorMsg('Semua kolom wajib diisi.');
+      setErrorMsg(t('auth.register.errorFieldsRequired', 'Semua kolom wajib diisi.'));
       setLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      setErrorMsg('Password minimal 6 karakter.');
+      setErrorMsg(t('auth.register.errorPasswordMin', 'Password minimal 6 karakter.'));
       setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMsg('Konfirmasi password tidak cocok.');
+      setErrorMsg(t('auth.register.errorConfirmMismatch', 'Konfirmasi password tidak cocok.'));
       setLoading(false);
       return;
     }
@@ -64,18 +66,18 @@ export default function RegisterPage() {
       } else {
         const isSessionActive = data.session !== null;
         if (isSessionActive) {
-          setSuccessMsg('Registration Authorized. Initializing Node...');
+          setSuccessMsg(t('auth.register.successInitializing', 'Registration Authorized. Initializing Node...'));
           setTimeout(() => {
             router.push('/dashboard');
             router.refresh();
           }, 1500);
         } else {
-          setSuccessMsg('Entity Registered. Verify Communication via Inbox.');
+          setSuccessMsg(t('auth.register.successVerification', 'Entity Registered. Verify Communication via Inbox.'));
           setFullName(''); setEmail(''); setPassword(''); setConfirmPassword('');
         }
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'System Failure: Unexpected error.';
+      const msg = err instanceof Error ? err.message : t('auth.register.errorGeneric', 'System Failure: Unexpected error.');
       setErrorMsg(msg);
     } finally {
       setLoading(false);
@@ -118,14 +120,17 @@ export default function RegisterPage() {
         <form onSubmit={handleRegister} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Nama Lengkap / Username</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">
+                {t('auth.register.fullNameLabel', 'Nama Lengkap / Username')}
+              </label>
               <div className="relative group">
                 <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Masukkan nama lengkap"
+                  placeholder={t('auth.register.fullNamePlaceholder', 'Masukkan nama lengkap')}
                   disabled={loading}
+                  description={t('auth.register.fullNameDesc', 'Gunakan nama lengkap atau nama unik Anda untuk profil')}
                   className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
                 />
@@ -133,15 +138,18 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Email</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">
+                {t('auth.register.emailLabel', 'Email')}
+              </label>
               <div className="relative group">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nama@email.com"
+                  placeholder={t('auth.register.emailPlaceholder', 'nama@email.com')}
                   disabled={loading}
+                  description={t('auth.register.emailDesc', 'Gunakan alamat email aktif untuk verifikasi masuk')}
                   className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
                 />
@@ -149,15 +157,18 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Password</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">
+                {t('auth.register.passwordLabel', 'Password')}
+              </label>
               <div className="relative group">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('auth.register.passwordPlaceholder', '••••••••')}
                   disabled={loading}
+                  description={t('auth.register.passwordDesc', 'Password minimal 6 karakter untuk keamanan brankas')}
                   className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
                 />
@@ -165,15 +176,18 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Konfirmasi Password</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">
+                {t('auth.register.confirmPasswordLabel', 'Konfirmasi Password')}
+              </label>
               <div className="relative group">
                 <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('auth.register.confirmPasswordPlaceholder', '••••••••')}
                   disabled={loading}
+                  description={t('auth.register.confirmPasswordDesc', 'Ulangi password untuk menghindari salah ketik')}
                   className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
                 />
@@ -196,12 +210,12 @@ export default function RegisterPage() {
             {loading ? (
               <div className="flex items-center gap-3">
                 <Activity className="w-4 h-4 animate-spin" />
-                <span>Membuat Akun...</span>
+                <span>{t('auth.register.loadingButton', 'Membuat Akun...')}</span>
               </div>
             ) : (
               <div className="flex items-center gap-3">
                 <Terminal className="w-4 h-4" />
-                <span>Buat Akun Sekarang</span>
+                <span>{t('auth.register.submitButton', 'Buat Akun Sekarang')}</span>
                 <ArrowRight className="w-4 h-4" />
               </div>
             )}
@@ -210,9 +224,9 @@ export default function RegisterPage() {
 
         <div className="pt-6 text-center">
           <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">
-            Sudah punya akun?{' '}
+            {t('auth.register.hasAccount', 'Sudah punya akun? ')}{' '}
             <Link href="/login" className="text-emerald-500 hover:text-emerald-400 transition-all underline decoration-emerald-500/20 underline-offset-4">
-              Masuk
+              {t('auth.register.loginLink', 'Masuk')}
             </Link>
           </p>
         </div>

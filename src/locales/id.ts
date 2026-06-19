@@ -128,5 +128,28 @@ export const idTranslations = {
   // Toasts
   "dashboard.error.loadFailed": "Terjadi kesalahan saat memuat data dashboard.",
   "dashboard.success.optimizeSuccess": "Anggaran {category} berhasil dioptimalkan!",
-  "dashboard.error.optimizeFailed": "Gagal mengoptimalkan anggaran."
+  "dashboard.error.optimizeFailed": "Gagal mengoptimalkan anggaran.",
+
+  // Registration Page
+  "auth.register.fullNameLabel": "Nama Lengkap / Username",
+  "auth.register.fullNameDesc": "Gunakan nama lengkap atau nama unik Anda untuk profil",
+  "auth.register.fullNamePlaceholder": "Masukkan nama lengkap",
+  "auth.register.emailLabel": "Email",
+  "auth.register.emailDesc": "Gunakan alamat email aktif untuk verifikasi masuk",
+  "auth.register.emailPlaceholder": "nama@email.com",
+  "auth.register.passwordLabel": "Password",
+  "auth.register.passwordDesc": "Password minimal 6 karakter untuk keamanan brankas",
+  "auth.register.passwordPlaceholder": "Masukkan password minimal 6 karakter",
+  "auth.register.confirmPasswordLabel": "Konfirmasi Password",
+  "auth.register.confirmPasswordDesc": "Ulangi password untuk menghindari salah ketik",
+  "auth.register.confirmPasswordPlaceholder": "Masukkan kembali password Anda",
+  "auth.register.submitButton": "Buat Akun Sekarang",
+  "auth.register.loadingButton": "Membuat Akun...",
+  "auth.register.hasAccount": "Sudah punya akun?",
+  "auth.register.loginLink": "Masuk",
+  "auth.register.errorFieldsRequired": "Semua kolom wajib diisi.",
+  "auth.register.errorPasswordMin": "Password minimal 6 karakter.",
+  "auth.register.errorConfirmMismatch": "Konfirmasi password tidak cocok.",
+  "auth.register.successInitializing": "Pendaftaran disetujui. Menginisialisasi sistem...",
+  "auth.register.successVerification": "Entitas terdaftar. Verifikasi email masuk Anda."
 };
