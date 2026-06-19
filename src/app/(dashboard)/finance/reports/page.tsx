@@ -18,30 +18,46 @@ import {
   Percent,
 } from 'lucide-react';
 
+interface ReportStats {
+  income: number;
+  expense: number;
+  savings: number;
+  savingsRate: number;
+}
+
+interface CategorySpending {
+  name: string;
+  amount: number;
+  color: string;
+  type: string;
+  percentage: number;
+}
+
+interface TaxCalculation {
+  grossIncome: number;
+  totalDeductibles: number;
+  taxableIncome: number;
+  estimatedTax: number;
+}
+
 export default function ReportsPage() {
-  const { accountId } = useApp();
+  const { accountId, t } = useApp();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('month'); // month, last_month, ytd
   const [activeSubTab, setActiveSubTab] = useState<'analytics' | 'tax'>('analytics');
   
-  // Aggregate stats
-  const [reportStats, setReportStats] = useState({
+  // Aggregate stats with strict type structure
+  const [reportStats, setReportStats] = useState<ReportStats>({
     income: 0,
     expense: 0,
     savings: 0,
     savingsRate: 0,
   });
 
-  // Categories spending list
-  const [categorySpendings, setCategorySpendings] = useState<{
-    name: string;
-    amount: number;
-    color: string;
-    type: string;
-    percentage: number;
-  }[]>([]);
+  // Categories spending list with strict type structure
+  const [categorySpendings, setCategorySpendings] = useState<CategorySpending[]>([]);
 
   // Tax metrics states
   const [taxRate, setTaxRate] = useState(15); // Default 15% estimated average bracket
@@ -108,8 +124,8 @@ export default function ReportsPage() {
         savingsRate: Math.max(0, Math.round(rate)),
       });
 
-      // Map categories rankings
-      const catRankings = Object.entries(catAggregation)
+      // Map categories rankings with strict type checking
+      const catRankings: CategorySpending[] = Object.entries(catAggregation)
         .map(([name, item]) => ({
           name,
           amount: item.amt,
@@ -122,12 +138,12 @@ export default function ReportsPage() {
       setCategorySpendings(catRankings);
 
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to assemble reports';
+      const msg = err instanceof Error ? err.message : t('reports.error.assemble', 'Gagal memproses laporan keuangan.');
       toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
-  }, [accountId, period, toast]);
+  }, [accountId, period, toast, t]);
 
   useEffect(() => {
     if (accountId) {
@@ -136,18 +152,20 @@ export default function ReportsPage() {
   }, [accountId, period, generateReport]);
 
   const handleExportData = () => {
-    toast('Excel export initialized. Proceeding to compilation...', 'info');
+    toast(t('reports.toast.exportInit', 'Ekspor Excel dimulai. Memproses kompilasi...'), 'info');
     setTimeout(() => {
-      toast('Redirecting to Excel export service...', 'success');
+      toast(t('reports.toast.redirect', 'Mengalihkan ke modul ekspor data...'), 'success');
       window.location.href = '/settings?tab=data';
     }, 1000);
   };
 
-  // Tax calculations
-  const grossIncome = reportStats.income;
-  const totalDeductibles = (reportStats.expense * deductiblesRatio) / 100;
-  const taxableIncome = Math.max(0, grossIncome - totalDeductibles);
-  const estimatedTax = (taxableIncome * taxRate) / 100;
+  // Strictly typed tax calculation dataset
+  const taxCalculations: TaxCalculation = {
+    grossIncome: reportStats.income,
+    totalDeductibles: (reportStats.expense * deductiblesRatio) / 100,
+    taxableIncome: Math.max(0, reportStats.income - (reportStats.expense * deductiblesRatio) / 100),
+    estimatedTax: (Math.max(0, reportStats.income - (reportStats.expense * deductiblesRatio) / 100) * taxRate) / 100,
+  };
 
   return (
     <div className="space-y-8">
@@ -156,25 +174,25 @@ export default function ReportsPage() {
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
             <BarChart3 className="w-5.5 h-5.5 text-emerald-500" />
-            Laporan Keuangan & Estimasi Pajak
+            {t('reports.title', 'Laporan Keuangan & Estimasi Pajak')}
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            Analisis konsentrasi kategori pengeluaran, margin, dan kinerja tabungan Anda
+            {t('reports.subtitle', 'Analisis konsentrasi kategori pengeluaran, margin, dan kinerja tabungan Anda')}
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <Select
             options={[
-              { value: 'month', label: 'Bulan Ini' },
-              { value: 'last_month', label: 'Bulan Lalu' },
-              { value: 'ytd', label: 'Tahun ke Tanggal (YTD)' },
+              { value: 'month', label: t('common.thisMonth', 'Bulan Ini') },
+              { value: 'last_month', label: t('common.lastMonth', 'Bulan Lalu') },
+              { value: 'ytd', label: t('common.ytd', 'Tahun ke Tanggal (YTD)') },
             ]}
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
           />
           <Button variant="outline" className="flex items-center gap-1.5 cursor-pointer" onClick={handleExportData}>
             <Download className="w-4 h-4 mr-2" />
-            Ekspor Buku Besar
+            {t('reports.exportLedger', 'Ekspor Buku Besar')}
           </Button>
         </div>
       </div>
@@ -190,7 +208,7 @@ export default function ReportsPage() {
           }`}
         >
           <BarChart3 className="w-4.5 h-4.5 text-emerald-400" />
-          Analisis Pengeluaran
+          {t('reports.tab.analytics', 'Analisis Pengeluaran')}
         </button>
         <button
           onClick={() => setActiveSubTab('tax')}
@@ -201,7 +219,7 @@ export default function ReportsPage() {
           }`}
         >
           <Scale className="w-4.5 h-4.5" />
-          Estimasi Perencanaan Pajak
+          {t('reports.tab.tax', 'Estimasi Perencanaan Pajak')}
         </button>
       </div>
 
@@ -218,22 +236,22 @@ export default function ReportsPage() {
             <Card className="p-5 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
                 <TrendingUpDown className="w-4.5 h-4.5 text-emerald-500" />
-                Aliran Kas Bersih
+                {t('reports.analytics.netCashflow', 'Aliran Kas Bersih')}
               </h3>
               
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-xs font-semibold">
-                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Total Pemasukan</span>
+                  <span className="text-light-text-secondary dark:text-dark-text-secondary">{t('reports.analytics.totalIncome', 'Total Pemasukan')}</span>
                   <span className="text-success">+{formatCurrency(reportStats.income)}</span>
                 </div>
                 <div className="flex justify-between items-center text-xs font-semibold">
-                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Total Pengeluaran</span>
+                  <span className="text-light-text-secondary dark:text-dark-text-secondary">{t('reports.analytics.totalExpense', 'Total Pengeluaran')}</span>
                   <span className="text-danger">-{formatCurrency(reportStats.expense)}</span>
                 </div>
                 <div className="h-px bg-light-border/40 dark:bg-dark-border/40 my-2" />
                 
                 <div className="flex justify-between items-center text-sm font-extrabold">
-                  <span className="text-light-text-primary dark:text-dark-text-primary">Margin Bersih</span>
+                  <span className="text-light-text-primary dark:text-dark-text-primary">{t('reports.analytics.netMargin', 'Margin Bersih')}</span>
                   <span className={reportStats.savings >= 0 ? 'text-emerald-500' : 'text-danger'}>
                     {reportStats.savings >= 0 ? '+' : '-'}{formatCurrency(Math.abs(reportStats.savings))}
                   </span>
@@ -244,14 +262,16 @@ export default function ReportsPage() {
             {/* Savings Rate Card */}
             <Card className="p-5 space-y-3">
               <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
-                Rasio Menabung Bulanan
+                {t('reports.analytics.monthlySavingsRate', 'Rasio Menabung Bulanan')}
               </span>
               <h4 className="text-2xl font-extrabold text-emerald-500 dark:text-white">
                 {reportStats.savingsRate}%
               </h4>
               <Progress value={reportStats.savingsRate} className="bg-emerald-500" />
               <p className="text-[10.5px] font-medium text-light-text-secondary dark:text-dark-text-secondary/60 leading-relaxed pt-1">
-                Anda menyisihkan {formatCurrency(reportStats.savings)} dari total pemasukan {formatCurrency(reportStats.income)} pada siklus ini.
+                {t('reports.analytics.savingsMsg', 'Anda menyisihkan {savings} dari total pemasukan {income} pada siklus ini.')
+                  .replace('{savings}', formatCurrency(reportStats.savings))
+                  .replace('{income}', formatCurrency(reportStats.income))}
               </p>
             </Card>
           </div>
@@ -261,7 +281,7 @@ export default function ReportsPage() {
             <Card className="p-6 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
                 <BarChart3 className="w-4.5 h-4.5 text-emerald-500" />
-                Peringkat Pengeluaran Kategori
+                {t('reports.analytics.categoryRanking', 'Peringkat Pengeluaran Kategori')}
               </h3>
               
               {categorySpendings.length === 0 ? (
@@ -270,7 +290,7 @@ export default function ReportsPage() {
                     <Info className="w-5 h-5" />
                   </div>
                   <p className="text-xs text-light-text-secondary font-medium">
-                    Tidak ada data transaksi pengeluaran untuk jangka waktu yang dipilih.
+                    {t('reports.analytics.noData', 'Tidak ada data transaksi pengeluaran untuk jangka waktu yang dipilih.')}
                   </p>
                 </div>
               ) : (
@@ -315,13 +335,13 @@ export default function ReportsPage() {
             <Card className="p-5 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
                 <Percent className="w-4.5 h-4.5 text-emerald-500" />
-                Variabel Tarif Pajak
+                {t('reports.tax.variables', 'Variabel Tarif Pajak')}
               </h3>
               
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1">
-                    Estimasi Golongan Pajak ({taxRate}%)
+                    {t('reports.tax.estimatedBracket', 'Estimasi Golongan Pajak')} ({taxRate}%)
                   </label>
                   <input
                     type="range"
@@ -332,14 +352,14 @@ export default function ReportsPage() {
                     className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-emerald-500"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">
-                    <span>5% (Rendah)</span>
-                    <span>45% (Tinggi)</span>
+                    <span>5% ({t('reports.tax.low', 'Rendah')})</span>
+                    <span>45% ({t('reports.tax.high', 'Tinggi')})</span>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1">
-                    Pengeluaran Bebas Pajak ({deductiblesRatio}%)
+                    {t('reports.tax.deductiblesRatio', 'Pengeluaran Bebas Pajak')} ({deductiblesRatio}%)
                   </label>
                   <input
                     type="range"
@@ -350,8 +370,8 @@ export default function ReportsPage() {
                     className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-emerald-500"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">
-                    <span>0% (Nihil)</span>
-                    <span>100% (Semua)</span>
+                    <span>0% ({t('reports.tax.zero', 'Nihil')})</span>
+                    <span>100% ({t('reports.tax.all', 'Semua')})</span>
                   </div>
                 </div>
               </div>
@@ -363,45 +383,51 @@ export default function ReportsPage() {
             <Card className="p-6 space-y-6">
               <div>
                 <h3 className="text-base font-extrabold text-light-text-primary dark:text-dark-text-primary">
-                  Pernyataan Proyeksi Pajak Penghasilan
+                  {t('reports.tax.statement', 'Pernyataan Proyeksi Pajak Penghasilan')}
                 </h3>
                 <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
-                  Proyeksi pajak berdasarkan pemasukan dan pengeluaran periode aktif.
+                  {t('reports.tax.statementDesc', 'Proyeksi pajak berdasarkan pemasukan dan pengeluaran periode aktif.')}
                 </p>
               </div>
 
               <div className="divide-y divide-light-border/40 dark:divide-dark-border/40 text-xs font-semibold space-y-3.5">
                 <div className="flex justify-between items-center pt-3.5">
-                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Pendapatan Kotor (Total Pemasukan)</span>
+                  <span className="text-light-text-secondary dark:text-dark-text-secondary">{t('reports.tax.grossIncome', 'Pendapatan Kotor (Total Pemasukan)')}</span>
                   <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                    {formatCurrency(grossIncome)}
+                    {formatCurrency(taxCalculations.grossIncome)}
                   </span>
                 </div>
                 
                 <div className="flex justify-between items-center pt-3.5">
                   <div className="space-y-0.5">
-                    <span className="text-light-text-secondary dark:text-dark-text-secondary">Pengurangan Pajak Pengeluaran</span>
-                    <p className="text-[10px] text-light-text-secondary/60 font-medium">Mengasumsikan {deductiblesRatio}% dari pengeluaran bulanan dapat dikurangkan dari pajak</p>
+                    <span className="text-light-text-secondary dark:text-dark-text-secondary">{t('reports.tax.deductions', 'Pengurangan Pajak Pengeluaran')}</span>
+                    <p className="text-[10px] text-light-text-secondary/60 font-medium">
+                      {t('reports.tax.deductionsDesc', 'Mengasumsikan {ratio}% dari pengeluaran bulanan dapat dikurangkan dari pajak')
+                        .replace('{ratio}', String(deductiblesRatio))}
+                    </p>
                   </div>
                   <span className="text-success font-bold">
-                    -{formatCurrency(totalDeductibles)}
+                    -{formatCurrency(taxCalculations.totalDeductibles)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center pt-3.5">
-                  <span className="text-light-text-secondary dark:text-dark-text-secondary">Penghasilan Kena Pajak Bersih Disesuaikan</span>
+                  <span className="text-light-text-secondary dark:text-dark-text-secondary">{t('reports.tax.taxableIncome', 'Penghasilan Kena Pajak Bersih Disesuaikan')}</span>
                   <span className="text-light-text-primary dark:text-dark-text-primary font-bold">
-                    {formatCurrency(taxableIncome)}
+                    {formatCurrency(taxCalculations.taxableIncome)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center pt-3.5 border-t-2 border-primary/20">
                   <div className="space-y-0.5">
-                    <span className="text-sm font-extrabold text-emerald-500">Estimasi Proyeksi Pajak</span>
-                    <p className="text-[10px] text-light-text-secondary/60 font-medium">Menerapkan perkiraan tarif pajak sebesar {taxRate}%</p>
+                    <span className="text-sm font-extrabold text-emerald-500">{t('reports.tax.estimatedTax', 'Estimasi Proyeksi Pajak')}</span>
+                    <p className="text-[10px] text-light-text-secondary/60 font-medium">
+                      {t('reports.tax.estimatedTaxDesc', 'Menerapkan perkiraan tarif pajak sebesar {rate}%')
+                        .replace('{rate}', String(taxRate))}
+                    </p>
                   </div>
                   <span className="text-lg font-extrabold text-danger">
-                    {formatCurrency(estimatedTax)}
+                    {formatCurrency(taxCalculations.estimatedTax)}
                   </span>
                 </div>
               </div>
@@ -409,7 +435,7 @@ export default function ReportsPage() {
               <div className="flex items-start gap-2.5 p-3.5 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/40 dark:bg-dark-bg/25">
                 <Info className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
                 <p className="text-[10.5px] font-medium text-light-text-secondary leading-relaxed">
-                  Disclaimer: Proyeksi ini dibuat murni untuk kemudahan perencanaan dan kejelasan anggaran. Ini tidak merupakan saran pajak profesional. Konsultasikan dengan Akuntan Pajak resmi untuk pelaporan SPT formal Anda.
+                  {t('reports.tax.disclaimer', 'Disclaimer: Proyeksi ini dibuat murni untuk kemudahan perencanaan dan kejelasan anggaran. Ini tidak merupakan saran pajak profesional. Konsultasikan dengan Akuntan Pajak resmi untuk pelaporan SPT formal Anda.')}
                 </p>
               </div>
             </Card>

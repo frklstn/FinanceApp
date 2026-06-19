@@ -56,16 +56,16 @@ graph TD
     B -- Tidak --> C[Daftar Akun / Register]
     B -- Ya --> D[Masuk Akun / Login]
     C --> D
-    D --> E[Dashboard Utama]
+    D --> E[Dashboard Utama /finance/dashboard]
     
     %% Alur Fitur Finansial
-    E --> F[Kelola Dompet / Wallets]
-    E --> G[Catat Transaksi / Transactions]
-    E --> H[Rencanakan Anggaran & Tabungan]
-    E --> I[Laporan Keuangan / Ekspor Excel]
+    E --> F[Kelola Dompet /finance/wallets]
+    E --> G[Catat Transaksi /finance/transactions]
+    E --> H[Rencanakan Anggaran & Tabungan /finance/budgets & /finance/savings]
+    E --> I[Laporan Keuangan /finance/reports]
     
     %% Alur Pinjol Planner
-    E --> J[Debt Survival Planner / Pinjol Tracker]
+    E --> J[Debt Survival Planner /finance/pinjol]
     J --> K[Atur Hari Gajian & Proyeksi Pendapatan]
     J --> L[Input Data Pinjaman Online]
     L --> M[Kalkulasi Sistem: Survival Score, Forecast & Timeline]
@@ -73,12 +73,26 @@ graph TD
     
     %% Alur Admin
     E --> O{Apakah Akun Admin?}
-    O -- Ya --> P[Admin Portal]
+    O -- Ya --> P[Admin Portal /user/admin]
     P --> Q[Set Plan & Branding Per-User / Global Fallback & WA Link]
     Q --> R[Update Tabel profiles & app_settings di Supabase]
     R --> S[Perubahan Tampil Instan di Client]
     O -- Tidak --> E
 ```
+
+### 📂 Struktur Halaman & Routing (App Router)
+Platform ini menggunakan Next.js App Router dengan layout rute terproteksi:
+*   **Dasbor Utama**: `/finance/dashboard`
+*   **Transaksi Cepat**: `/finance/transactions`
+*   **Manajemen Dompet**: `/finance/wallets`
+*   **Anggaran Bulanan**: `/finance/budgets`
+*   **Rencana Tabungan**: `/finance/savings`
+*   **Tracker Pinjol**: `/finance/pinjol`
+*   **Utang & Piutang**: `/finance/debts`
+*   **Laporan & Estimasi Pajak**: `/finance/reports`
+*   **Rekomendasi / Analisis AI**: `/finance/insights`
+*   **Portal Admin**: `/user/admin`
+*   **Halaman Penangguhan**: `/suspended`
 
 ---
 

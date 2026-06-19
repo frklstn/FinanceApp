@@ -1,42 +1,30 @@
-# Walkthrough: i18n Implementation for Debts, Wallets, and Excel Export
+# Walkthrough: Comprehensive Resolutions for Repo Audit Report Priorities
 
-This walkthrough details the implementation of internationalization (i18n) across the Debts and Wallets pages, and the Excel export functionality within the Settings component. Additionally, the `repo_audit_report.md` has been updated to reflect the completion of these tasks.
+This walkthrough details the implementation of internationalization (i18n), theme and styling, code quality, and cleanup items across the FinanceApp repository, satisfying outstanding high, medium, and low priority issues in the `repo_audit_report.md`.
 
 ## Changes Made
 
-### 1. Debts Page (`src/app/(dashboard)/finance/debts/page.tsx`)
-- **Localized Hardcoded Strings**: All user-facing strings, including headers, widget labels, status messages, and modal form fields (for initializing ledgers and executing repayments), have been replaced with `t()` translation keys.
-- **Variable Shadowing Fix**: Renamed a loop variable `t` to `dt` within the debt/lend type selection map to prevent shadowing of the global `t()` translation function, resolving a TypeScript compilation error.
+### 1. Security & Layout Core Mappings
+- **Middleware Protected Paths (Priority 1)**: Correctly routed and secured all restructured paths under `/finance` and `/user` to prevent unauthenticated access.
+- **Theme Toggler Activation (Priority 2)**: Linked the display theme toggle button in `Settings.tsx` to the dynamic `useTheme` context provider, enabling real-time toggling between Light and Dark mode.
+- **Main Layout & Component i18n (Priority 3, 4, 5)**: Replaced hardcoded UI strings on the Dashboard page, Sidebar items, and Mobile Nav drawer with key-based `t()` dynamic translations.
 
-### 2. Wallets Page (`src/app/(dashboard)/finance/wallets/page.tsx`)
-- **Localized Hardcoded Strings**: Similar to the Debts page, all static strings for titles, subtitles, buttons, and modal forms (for adding/editing assets and transferring liquidity) are now dynamically translated using `t()`.
-- **`useApp` Import**: Ensured `t` function is correctly destructured from `useApp()` to enable translations throughout the component, resolving compilation errors.
+### 2. Styling & Theme Color Dynamic Tuning (Priority 12)
+- **Nexus Theme Variables**: Added success (`--nexus-success`), danger (`--nexus-danger`), and warning (`--nexus-warning`) semantic color tokens to `tokens.css`.
+- **Dynamic Gradient Glows**: Refactored hardcoded `#10b981` and `#f43f5e` hex codes in `DashboardPage` buttons and Pinjol widgets to use CSS variables with CSS `color-mix` functions (e.g., `color-mix(in srgb, var(--nexus-success) 25%, transparent)`). Gradients now automatically adjust to the active theme palette.
 
-### 3. Translation Files (`src/locales/en.ts`, `src/locales/id.ts`)
-- **New Keys Added**: Comprehensive sets of translation keys were added for both English (`en.ts`) and Indonesian (`id.ts`) dictionaries, covering all newly localized strings in the Debts and Wallets pages.
-- **`debts.modal.selectAsset` and `wallets.modal.protocolLogPlaceholder`**: Added missing translation keys for specific modal fields.
-- **`settings.export.*` Keys**: Added keys for the Excel export headers and status messages.
+### 3. Strictly Typed Reports & Localized Tax Estimator (Priority 17 & 25)
+- **Calculations Dataset Interfaces**: Defined strict typescript interfaces for calculations (`ReportStats`, `CategorySpending`, `TaxCalculation`) on the financial reports page to ensure compilation type safety.
+- **Reports i18n Integration**: Replaced all hardcoded Indonesian strings (such as titles, tabs, headers, summary messages, and the legal disclaimer) with `t()` dynamic translations.
+- **New Localization Keys**: Appended translation strings for both Indonesian (`id.ts`) and English (`en.ts`) dictionaries covering all Reports page keys.
 
-### 4. Settings Component (`src/components/user/profile/Settings.tsx`)
-- **Excel Export Localization**: The `handleExcelExport` function was refactored to use `t()` for dynamic translation of Excel column headers (ID, Date, Type, Amount, Wallet, Category, Note, Tag) and cell values (Income, Expense, Transfer, General).
-- **Dynamic Filename**: The exported Excel file name now includes a timestamp to ensure uniqueness and versioning, using the format `${appName}_Buku_Besar_${timestamp}.xlsx`.
-- **Toast Messages**: Export-related toast notifications are now localized.
-
-### 5. Repository Audit Report (`repo_audit_report.md`)
-- **Status Update**: The following priorities in the audit report have been marked as completed (strikethrough):
-    - Priority 6: Hardcoded colors in UI components (`select.tsx`, `modal.tsx`, `input.tsx`)
-    - Priority 7: Static input focus color (`input.tsx`)
-    - Priority 8: Hardcoded savings page gradient (`savings/page.tsx`)
-    - Priority 9: Static SEO and browser title in root layout (`layout.tsx`)
-    - Priority 10: Hardcoded suspended page support email (`suspended/page.tsx`)
-    - Priority 11: Static register form error messages (`register/page.tsx`)
-    - Priority 13: Dark mode display issue due to `tokens.css`
-    - Priority 14: Debts page forms not i18n adaptive (`debts/page.tsx`)
-    - Priority 15: Wallets page forms not i18n adaptive (`wallets/page.tsx`)
-    - Priority 16: Hardcoded Excel export column titles (`Settings.tsx`)
+### 4. Documentation & Cleanup (Priority 18, 19, 24)
+- **Flat Layout Route Documentation**: Updated both `docs/read.md` and `docs/read.html` to reflect the new App Router path mappings (`/finance/*`, `/user/*`) in all text guides and mermaid flow diagrams.
+- **Obsolete Folder Clean-up**: Deleted the leftover empty `src/app/(dashboard)/user/settings` folder to maintain directory cleanliness.
+- **Git Ignore Pattern**: Registered `.graphify*` files inside `.gitignore` to prevent tracking of local temporary graphify scanning logs.
 
 ## Verification Results
 
-- All changes were validated locally using `npm run build`, which completed successfully with zero compiler or linter errors.
-- The application now correctly displays localized strings on the Debts and Wallets pages based on the active language setting.
-- The Excel export feature generates spreadsheets with translated headers and dynamic filenames, confirming the successful implementation of i18n.
+- Running `npm run build` succeeds cleanly with 0 TypeScript compilation errors or linter warnings.
+- The build correctly compiles `Proxy (Middleware)` and static HTML page routes.
+- Visual inspection confirms theme color variables seamlessly adjust between Light and Dark modes.

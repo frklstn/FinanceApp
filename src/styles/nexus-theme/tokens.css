@@ -10,6 +10,9 @@
   --nexus-emerald: #10B981;
   --nexus-emerald-glow: rgba(16, 185, 129, 0.08);
   --nexus-emerald-border: rgba(16, 185, 129, 0.15);
+  --nexus-success: #10B981;
+  --nexus-danger: #f43f5e;
+  --nexus-warning: #f59e0b;
   
   /* Nexus Typography (Light Mode) */
   --nexus-text-primary: #0f172a;
@@ -40,6 +43,9 @@
   --nexus-emerald: #10B981;
   --nexus-emerald-glow: rgba(16, 185, 129, 0.15);
   --nexus-emerald-border: rgba(16, 185, 129, 0.2);
+  --nexus-success: #10B981;
+  --nexus-danger: #f43f5e;
+  --nexus-warning: #f59e0b;
   
   /* Nexus Typography (Dark Mode) */
   --nexus-text-primary: #FFFFFF;

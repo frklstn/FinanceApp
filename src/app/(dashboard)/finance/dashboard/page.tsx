@@ -299,10 +299,10 @@ export default function DashboardPage() {
 
 
   const HeroWidgets = [
-    { label: t('dashboard.hero.netWorth', 'Total Aset Bersih (Gabungan Dompet)'), value: financialStats.totalBalance, icon: Wallet, color: 'text-emerald-400', colorCode: '#10b981', path: '/wallets' },
-    { label: t('dashboard.widget.income', 'Pemasukan'), value: financialStats.income, icon: TrendingUp, color: 'text-emerald-400', colorCode: '#10b981', action: () => setQuickAdd({ open: true, type: 'income' }) },
-    { label: t('dashboard.widget.expense', 'Pengeluaran'), value: financialStats.expense, icon: TrendingDown, color: 'text-rose-400', colorCode: '#f43f5e', action: () => setQuickAdd({ open: true, type: 'expense' }) },
-    { label: t('dashboard.widget.savings', 'Sisa Tabungan'), value: financialStats.savings, icon: PiggyBank, color: 'text-amber-400', colorCode: '#f59e0b', path: '/savings' },
+    { label: t('dashboard.hero.netWorth', 'Total Aset Bersih (Gabungan Dompet)'), value: financialStats.totalBalance, icon: Wallet, color: 'text-emerald-400', colorCode: 'var(--nexus-success)', path: '/wallets' },
+    { label: t('dashboard.widget.income', 'Pemasukan'), value: financialStats.income, icon: TrendingUp, color: 'text-emerald-400', colorCode: 'var(--nexus-success)', action: () => setQuickAdd({ open: true, type: 'income' }) },
+    { label: t('dashboard.widget.expense', 'Pengeluaran'), value: financialStats.expense, icon: TrendingDown, color: 'text-rose-400', colorCode: 'var(--nexus-danger)', action: () => setQuickAdd({ open: true, type: 'expense' }) },
+    { label: t('dashboard.widget.savings', 'Sisa Tabungan'), value: financialStats.savings, icon: PiggyBank, color: 'text-amber-400', colorCode: 'var(--nexus-warning)', path: '/savings' },
   ];
 
 
@@ -434,7 +434,7 @@ export default function DashboardPage() {
             onClick={() => w.action ? w.action() : router.push(w.path!)}
             className={`relative group p-8 rounded-[32px] bg-[#0A0A0C] border border-white/5 transition-all text-left overflow-hidden cursor-pointer shadow-2xl min-h-[140px] flex flex-col justify-between`}
             style={{
-              background: `radial-gradient(circle at top right, ${w.colorCode}25, transparent 70%)`
+              background: `radial-gradient(circle at top right, color-mix(in srgb, ${w.colorCode} 25%, transparent), transparent 70%)`
             }}
           >
             <w.icon className={`w-6 h-6 ${w.color} mb-4 transition-transform group-hover:scale-110 relative z-10`} />
@@ -661,7 +661,7 @@ export default function DashboardPage() {
           }
           className="p-6 rounded-[28px] border border-white/5 bg-[#0A0A0C] shadow-2xl relative overflow-hidden flex flex-col h-full"
           style={{
-            background: `radial-gradient(circle at top right, #f43f5e20, transparent 70%)`
+            background: `radial-gradient(circle at top right, color-mix(in srgb, var(--nexus-danger) 20%, transparent), transparent 70%)`
           }}
         />
       </section>
