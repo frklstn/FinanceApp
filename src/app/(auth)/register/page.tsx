@@ -31,19 +31,19 @@ export default function RegisterPage() {
     setSuccessMsg(null);
 
     if (!fullName || !email || !password || !confirmPassword) {
-      setErrorMsg('Protocol Violation: All fields required.');
+      setErrorMsg('Semua kolom wajib diisi.');
       setLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      setErrorMsg('Complexity Failure: Min 6 characters required.');
+      setErrorMsg('Password minimal 6 karakter.');
       setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMsg('Validation Error: Secrets do not match.');
+      setErrorMsg('Konfirmasi password tidak cocok.');
       setLoading(false);
       return;
     }
@@ -118,13 +118,13 @@ export default function RegisterPage() {
         <form onSubmit={handleRegister} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Entity Alias</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Nama Lengkap / Username</label>
               <div className="relative group">
                 <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="LEGAL_NAME"
+                  placeholder="Masukkan nama lengkap"
                   disabled={loading}
                   className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
@@ -133,14 +133,14 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Identifier</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Email</label>
               <div className="relative group">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ID_SEQUENCE@DOMAIN.COM"
+                  placeholder="nama@email.com"
                   disabled={loading}
                   className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
                   required
@@ -149,7 +149,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Primary Secret</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Password</label>
               <div className="relative group">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
@@ -165,7 +165,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Confirm Secret</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Konfirmasi Password</label>
               <div className="relative group">
                 <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
                 <Input
@@ -196,12 +196,12 @@ export default function RegisterPage() {
             {loading ? (
               <div className="flex items-center gap-3">
                 <Activity className="w-4 h-4 animate-spin" />
-                <span>Initializing...</span>
+                <span>Membuat Akun...</span>
               </div>
             ) : (
               <div className="flex items-center gap-3">
                 <Terminal className="w-4 h-4" />
-                <span>Initialize Node</span>
+                <span>Buat Akun Sekarang</span>
                 <ArrowRight className="w-4 h-4" />
               </div>
             )}
@@ -210,9 +210,9 @@ export default function RegisterPage() {
 
         <div className="pt-6 text-center">
           <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">
-            Already Synchronized?{' '}
+            Sudah punya akun?{' '}
             <Link href="/login" className="text-emerald-500 hover:text-emerald-400 transition-all underline decoration-emerald-500/20 underline-offset-4">
-              Access Vault
+              Masuk
             </Link>
           </p>
         </div>
