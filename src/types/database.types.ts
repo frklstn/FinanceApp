@@ -481,6 +481,7 @@ export type Database = {
           language: string | null
           plan: string
           timezone: string | null
+          tax_rate: number | null
           updated_at: string
           whatsapp_contact: string | null
           workspace_id: string | null
@@ -501,6 +502,7 @@ export type Database = {
           language?: string | null
           plan?: string
           timezone?: string | null
+          tax_rate?: number | null
           updated_at?: string
           whatsapp_contact?: string | null
           workspace_id?: string | null
@@ -521,6 +523,7 @@ export type Database = {
           language?: string | null
           plan?: string
           timezone?: string | null
+          tax_rate?: number | null
           updated_at?: string
           whatsapp_contact?: string | null
           workspace_id?: string | null

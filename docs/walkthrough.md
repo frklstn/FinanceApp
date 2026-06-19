@@ -18,7 +18,10 @@ This walkthrough details the implementation of internationalization (i18n), them
 - **Reports i18n Integration**: Replaced all hardcoded Indonesian strings (such as titles, tabs, headers, summary messages, and the legal disclaimer) with `t()` dynamic translations.
 - **New Localization Keys**: Appended translation strings for both Indonesian (`id.ts`) and English (`en.ts`) dictionaries covering all Reports page keys.
 
-### 4. Documentation & Cleanup (Priority 18, 19, 24)
+### 4. Database Persistence (Priority 20)
+- **Profile Tax Rate Setting**: Created a database migration to add `tax_rate` column to the `profiles` table, updated types, and mapped it in `app-context.tsx`. Enabled auto-saving profile tax rate preferences in Supabase when sliding the tax bracket slider.
+
+### 5. Documentation & Cleanup (Priority 18, 19, 24)
 - **Flat Layout Route Documentation**: Updated both `docs/read.md` and `docs/read.html` to reflect the new App Router path mappings (`/finance/*`, `/user/*`) in all text guides and mermaid flow diagrams.
 - **Obsolete Folder Clean-up**: Deleted the leftover empty `src/app/(dashboard)/user/settings` folder to maintain directory cleanliness.
 - **Git Ignore Pattern**: Registered `.graphify*` files inside `.gitignore` to prevent tracking of local temporary graphify scanning logs.

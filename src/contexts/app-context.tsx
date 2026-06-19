@@ -25,6 +25,7 @@ export interface UserProfile {
   app_name?: string | null;
   app_icon_url?: string | null;
   app_title?: string | null;
+  tax_rate?: number | null;
 }
 
 interface AppContextType {
@@ -92,6 +93,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         app_name: profileRow.app_name,
         app_icon_url: profileRow.app_icon_url,
         app_title: profileRow.app_title,
+        tax_rate: profileRow.tax_rate,
       });
     } else {
       setProfile({

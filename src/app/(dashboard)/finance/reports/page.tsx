@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
+import { createClient } from '@/lib/supabase/client';
 import {
   BarChart3,
   TrendingUpDown,
@@ -41,7 +42,7 @@ interface TaxCalculation {
 }
 
 export default function ReportsPage() {
-  const { accountId, t } = useApp();
+  const { accountId, profile, t } = useApp();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -62,6 +63,26 @@ export default function ReportsPage() {
   // Tax metrics states
   const [taxRate, setTaxRate] = useState(15); // Default 15% estimated average bracket
   const [deductiblesRatio, setDeductiblesRatio] = useState(25); // Estimated 25% of expenses are tax deductible
+
+  // Synchronize taxRate with profile setting once loaded
+  useEffect(() => {
+    if (profile?.tax_rate !== undefined && profile?.tax_rate !== null) {
+      setTaxRate(Number(profile.tax_rate));
+    }
+  }, [profile?.tax_rate]);
+
+  const persistTaxRate = useCallback(async (rate: number) => {
+    if (!profile?.id) return;
+    try {
+      const supabase = createClient();
+      await supabase
+        .from('profiles')
+        .update({ tax_rate: rate })
+        .eq('id', profile.id);
+    } catch (err) {
+      console.error('Failed to persist tax rate:', err);
+    }
+  }, [profile?.id]);
 
   const generateReport = useCallback(async () => {
     if (!accountId) return;
@@ -349,6 +370,8 @@ export default function ReportsPage() {
                     max="45"
                     value={taxRate}
                     onChange={(e) => setTaxRate(Number(e.target.value))}
+                    onMouseUp={(e) => persistTaxRate(Number((e.target as HTMLInputElement).value))}
+                    onTouchEnd={(e) => persistTaxRate(Number((e.target as HTMLInputElement).value))}
                     className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-emerald-500"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">

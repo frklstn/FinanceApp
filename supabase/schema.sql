@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     app_icon_url TEXT,
     app_title VARCHAR,
     whatsapp_contact TEXT,
+    tax_rate NUMERIC DEFAULT 15.00,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
