@@ -17,7 +17,7 @@ export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { toast } = useToast()
-  const { isSuperAdmin: showAdmin } = useApp()
+  const { isSuperAdmin: showAdmin, t } = useApp()
 
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
@@ -87,7 +87,7 @@ export default function Sidebar() {
                     className="absolute left-[70px] px-4 py-2 bg-[#0a0a0c] border border-white/10 rounded-xl shadow-2xl z-50 pointer-events-none whitespace-nowrap"
                   >
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">
-                      {item.name}
+                      {t(`nav.${item.path.replace('/', '')}`, item.name)}
                     </span>
                   </motion.div>
                 )}

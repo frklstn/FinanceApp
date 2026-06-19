@@ -17,7 +17,7 @@ export default function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
-  const { isSuperAdmin: showAdmin } = useApp();
+  const { isSuperAdmin: showAdmin, t } = useApp();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   const navItems = navigationItems.filter((item) => mobileBottomBarPaths.includes(item.path));
@@ -33,12 +33,12 @@ export default function MobileNav() {
       const supabase = createClient();
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      toast('Berhasil keluar!', 'info');
+      toast(t('auth.logoutSuccess', 'Berhasil keluar!'), 'info');
       setIsMoreOpen(false);
       router.push('/login');
       router.refresh();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal keluar';
+      const msg = err instanceof Error ? err.message : t('auth.logoutFailed', 'Gagal keluar');
       toast(msg, 'danger');
     }
   };
@@ -58,7 +58,9 @@ export default function MobileNav() {
               className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
             >
               <Icon className="w-5.5 h-5.5 shrink-0 mb-0.5" />
-              <span className="text-[10px] tracking-tight font-medium uppercase">{item.name}</span>
+              <span className="text-[10px] tracking-tight font-medium uppercase">
+                {t(`nav.${item.path.replace('/', '')}`, item.name)}
+              </span>
             </Link>
           );
         })}
@@ -74,7 +76,9 @@ export default function MobileNav() {
           }`}
         >
           <Menu className="w-5.5 h-5.5 shrink-0 mb-0.5" />
-          <span className="text-[10px] tracking-tight font-medium uppercase">Lainnya</span>
+          <span className="text-[10px] tracking-tight font-medium uppercase">
+            {t('nav.more', 'Lainnya')}
+          </span>
         </button>
       </nav>
 
@@ -93,10 +97,10 @@ export default function MobileNav() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex flex-col">
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-light-text-primary dark:text-dark-text-primary">
-              Menu Utama
+              {t('nav.mainMenu', 'Menu Utama')}
             </h3>
             <p className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
-              Akses cepat ke fitur tambahan lainnya
+              {t('nav.menuDesc', 'Akses cepat ke fitur tambahan lainnya')}
             </p>
           </div>
           <button
@@ -104,7 +108,7 @@ export default function MobileNav() {
             onClick={() => setIsMoreOpen(false)}
             className="text-xs font-bold text-light-text-secondary hover:text-light-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary px-3 py-1.5 bg-light-bg dark:bg-dark-bg/60 rounded-xl cursor-pointer transition-all duration-150"
           >
-            Tutup
+            {t('common.close', 'Tutup')}
           </button>
         </div>
 
@@ -136,7 +140,7 @@ export default function MobileNav() {
                     isAdminItem ? 'text-danger' : 'text-light-text-primary dark:text-dark-text-primary'
                   }`}
                 >
-                  {item.name}
+                  {t(`nav.${item.path.replace('/', '')}`, item.name)}
                 </span>
               </Link>
             );
@@ -151,7 +155,7 @@ export default function MobileNav() {
             className="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl text-sm font-bold text-danger bg-danger/10 hover:bg-danger/25 transition-all duration-150 cursor-pointer"
           >
             <LogOut className="w-5 h-5 shrink-0" />
-            <span>Keluar Aplikasi</span>
+            <span>{t('nav.logoutCTA', 'Keluar Aplikasi')}</span>
           </button>
         </div>
       </div>

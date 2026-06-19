@@ -27,7 +27,7 @@ import { budgetService } from '@/lib/services/finance/budget.service';
 import { BudgetOptimizerWidget } from '@/components/finance/dashboard/BudgetOptimizerWidget';
 import { SpendingChart } from '@/components/charts/spending-chart';
 export default function DashboardPage() {
-  const { accountId, profile } = useApp();
+  const { accountId, profile, language, t } = useApp();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -52,10 +52,10 @@ export default function DashboardPage() {
 
   const [recentTxs, setRecentTxs] = useState<PopulatedTransaction[]>([]);
   const [chartData, setChartData] = useState<{ date: string; amount: number }[]>([]);
-  const [dateFilter, setDateFilter] = useState('Bulan Ini');
+  const [dateFilter, setDateFilter] = useState('thisMonth');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [financialStatusText, setFinancialStatusText] = useState('Memuat analisis finansial...');
+  const [financialStatusText, setFinancialStatusText] = useState(t('dashboard.status.loading', 'Memuat analisis finansial...'));
   const [quickAdd, setQuickAdd] = useState<{ open: boolean; type: 'income' | 'expense' | 'transfer' }>({
     open: false,
     type: 'expense',
@@ -74,25 +74,25 @@ export default function DashboardPage() {
       let bucketMode: BucketMode = 'day';
 
       switch (dateFilter) {
-        case 'Hari Ini': {
+        case 'today': {
           startDate.setTime(startOfDay(now).getTime());
           bucketMode = 'hour';
           widerStartDate.setTime(subDays(startDate, 1).getTime());
           break;
         }
-        case 'Minggu Ini': {
+        case 'thisWeek': {
           startDate.setTime(startOfWeek(now, { weekStartsOn: 1 }).getTime());
           bucketMode = 'weekday';
           widerStartDate.setTime(subDays(startDate, 7).getTime());
           break;
         }
-        case '3 Bulan Terakhir': {
+        case 'last3Months': {
           startDate.setTime(startOfMonth(subMonths(now, 3)).getTime());
           bucketMode = 'month';
           widerStartDate.setTime(subMonths(startDate, 3).getTime());
           break;
         }
-        case 'Bulan Ini':
+        case 'thisMonth':
         default: {
           startDate.setTime(startOfMonth(now).getTime());
           bucketMode = 'day';
@@ -147,21 +147,29 @@ export default function DashboardPage() {
         const debtRatio = (totalMonthlyDebtPayment / (insightData.income || 1)) * 100;
 
         if (currentSavings < 0) {
-          statusMsg = `Waspada, gaji kamu sudah 'kemakan' pinjol sebesar ${formatCurrency(Math.abs(currentSavings))}. Bulan ini ada tagihan ${formatCurrency(totalMonthlyDebtPayment)} yang harus dibayar. Tetap tenang, fokus lunasi yang terkecil dulu ya!`;
+          statusMsg = t('dashboard.status.loanNegativeSavings', "Waspada, gaji kamu sudah 'kemakan' pinjol sebesar {savings}. Bulan ini ada tagihan {debt} yang harus dibayar. Tetap tenang, fokus lunasi yang terkecil dulu ya!")
+            .replace('{savings}', formatCurrency(Math.abs(currentSavings)))
+            .replace('{debt}', formatCurrency(totalMonthlyDebtPayment));
         } else if (debtRatio > 50) {
-          statusMsg = `Hati-hati, lebih dari 50% pendapatan kamu habis buat bayar hutang. Sisa uang kamu tinggal ${formatCurrency(currentSavings)}. Jangan impulsif belanja dulu ya!`;
+          statusMsg = t('dashboard.status.loanHighDebtRatio', 'Hati-hati, lebih dari 50% pendapatan kamu habis buat bayar hutang. Sisa uang kamu tinggal {savings}. Jangan impulsif belanja dulu ya!')
+            .replace('{savings}', formatCurrency(currentSavings));
         } else {
-          statusMsg = `Ada tagihan aktif ${formatCurrency(totalMonthlyDebtPayment)} bulan ini. Tabungan kamu masih surplus ${formatCurrency(currentSavings)}, yuk jaga disiplin biar cepat bebas hutang!`;
+          statusMsg = t('dashboard.status.loanNormal', 'Ada tagihan aktif {debt} bulan ini. Tabungan kamu masih surplus {savings}, yuk jaga disiplin biar cepat bebas hutang!')
+            .replace('{debt}', formatCurrency(totalMonthlyDebtPayment))
+            .replace('{savings}', formatCurrency(currentSavings));
         }
       } else {
         if (currentSavings >= 0) {
           if (diffPercent >= 0) {
-            statusMsg = `Keren! Keuangan kamu lagi sehat banget dan ada kenaikan tabungan ${diffStr}. Pertahankan pola hidup hematnya ya!`;
+            statusMsg = t('dashboard.status.noLoanHealthy', 'Keren! Keuangan kamu lagi sehat banget dan ada kenaikan tabungan {diff}. Pertahaman pola hidup hematnya ya!')
+              .replace('{diff}', diffStr);
           } else {
-            statusMsg = `Tabungan kamu bulan ini aman, tapi sedikit turun ${diffStr} dibanding periode lalu. Cek lagi pengeluaran kecil yang nggak perlu ya.`;
+            statusMsg = t('dashboard.status.noLoanDecreased', 'Tabungan kamu bulan ini aman, tapi sedikit turun {diff} dibanding periode lalu. Cek lagi pengeluaran kecil yang nggak perlu ya.')
+              .replace('{diff}', diffStr);
           }
         } else {
-          statusMsg = `Duh, bulan ini kamu minus ${formatCurrency(Math.abs(currentSavings))}. Coba cek riwayat transaksi buat cari tahu bocor halusnya di mana.`;
+          statusMsg = t('dashboard.status.noLoanNegative', 'Duh, bulan ini kamu minus {savings}. Coba cek riwayat transaksi buat cari tahu bocor halusnya di mana.')
+            .replace('{savings}', formatCurrency(Math.abs(currentSavings)));
         }
       }
       setFinancialStatusText(statusMsg);
@@ -192,8 +200,12 @@ export default function DashboardPage() {
 
       setRecentTxs(txs.slice(0, 6));
 
-      const HARI = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-      const BULAN_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+      const HARI = language === 'en'
+        ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        : ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+      const BULAN_ID = language === 'en'
+        ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
       const aggregation: { [key: string]: number } = {};
 
@@ -255,9 +267,9 @@ export default function DashboardPage() {
       setChartData(Object.entries(aggregation).map(([date, amount]) => ({ date, amount })));
 
     } catch {
-      toast('Terjadi kesalahan saat memuat data dashboard.', 'danger');
+      toast(t('dashboard.error.loadFailed', 'Terjadi kesalahan saat memuat data dashboard.'), 'danger');
     }
-  }, [accountId, dateFilter, toast]);
+  }, [accountId, dateFilter, toast, language, t]);
 
   const handleApplyOptimization = async (suggestion: OptimizationSuggestion) => {
     if (!accountId) return;
@@ -267,10 +279,13 @@ export default function DashboardPage() {
         suggestion.categoryId,
         suggestion.suggestedBudget
       );
-      toast(`Anggaran ${suggestion.categoryName} berhasil dioptimalkan!`, 'success');
+      toast(
+        t('dashboard.success.optimizeSuccess', 'Anggaran {category} berhasil dioptimalkan!').replace('{category}', suggestion.categoryName),
+        'success'
+      );
       loadDashboardData();
     } catch {
-      toast('Gagal mengoptimalkan anggaran.', 'danger');
+      toast(t('dashboard.error.optimizeFailed', 'Gagal mengoptimalkan anggaran.'), 'danger');
     }
   };
 
@@ -284,10 +299,10 @@ export default function DashboardPage() {
 
 
   const HeroWidgets = [
-    { label: APP_TEXTS.dashboard.hero.liquidity, value: financialStats.totalBalance, icon: Wallet, color: 'text-emerald-400', colorCode: '#10b981', path: '/wallets' },
-    { label: APP_TEXTS.dashboard.hero.income, value: financialStats.income, icon: TrendingUp, color: 'text-emerald-400', colorCode: '#10b981', action: () => setQuickAdd({ open: true, type: 'income' }) },
-    { label: APP_TEXTS.dashboard.hero.expense, value: financialStats.expense, icon: TrendingDown, color: 'text-rose-400', colorCode: '#f43f5e', action: () => setQuickAdd({ open: true, type: 'expense' }) },
-    { label: APP_TEXTS.dashboard.hero.savings, value: financialStats.savings, icon: PiggyBank, color: 'text-amber-400', colorCode: '#f59e0b', path: '/savings' },
+    { label: t('dashboard.hero.netWorth', 'Total Aset Bersih (Gabungan Dompet)'), value: financialStats.totalBalance, icon: Wallet, color: 'text-emerald-400', colorCode: '#10b981', path: '/wallets' },
+    { label: t('dashboard.widget.income', 'Pemasukan'), value: financialStats.income, icon: TrendingUp, color: 'text-emerald-400', colorCode: '#10b981', action: () => setQuickAdd({ open: true, type: 'income' }) },
+    { label: t('dashboard.widget.expense', 'Pengeluaran'), value: financialStats.expense, icon: TrendingDown, color: 'text-rose-400', colorCode: '#f43f5e', action: () => setQuickAdd({ open: true, type: 'expense' }) },
+    { label: t('dashboard.widget.savings', 'Sisa Tabungan'), value: financialStats.savings, icon: PiggyBank, color: 'text-amber-400', colorCode: '#f59e0b', path: '/savings' },
   ];
 
 
@@ -300,7 +315,7 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase font-outfit"
           >
-            Halo, <span className="text-emerald-500">{profile?.full_name || 'User'}!</span>
+            {t('dashboard.greeting', 'Halo, ')}<span className="text-emerald-500">{profile?.full_name || 'User'}!</span>
           </motion.h1>
           <p className="text-[10px] font-semibold text-white/50 font-outfit animate-pulse">
             {financialStatusText}
@@ -313,10 +328,10 @@ export default function DashboardPage() {
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
               options={[
-                { value: 'Hari Ini', label: 'Hari Ini' },
-                { value: 'Minggu Ini', label: 'Minggu Ini' },
-                { value: 'Bulan Ini', label: 'Bulan Ini' },
-                { value: '3 Bulan Terakhir', label: '3 Bulan Terakhir' },
+                { value: 'today', label: t('common.today', 'Hari Ini') },
+                { value: 'thisWeek', label: t('common.thisWeek', 'Minggu Ini') },
+                { value: 'thisMonth', label: t('common.thisMonth', 'Bulan Ini') },
+                { value: 'last3Months', label: t('common.last3Months', '3 Bulan Terakhir') },
               ]}
               className="rounded-[24px] bg-white/[0.03] backdrop-blur-3xl border-white/5 py-3 h-auto min-w-[180px]"
             />
@@ -346,16 +361,22 @@ export default function DashboardPage() {
                       className="absolute right-0 mt-3 w-80 p-6 rounded-[32px] bg-[#0a0a0c]/95 backdrop-blur-3xl border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] z-[100]"
                     >
                       <div className="flex items-center justify-between mb-6">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Notifikasi</h4>
-                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded-md">Baru</span>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">
+                          {t('dashboard.notifications', 'Notifikasi')}
+                        </h4>
+                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded-md">
+                          {t('dashboard.notifications.new', 'Baru')}
+                        </span>
                       </div>
                       <div className="space-y-4">
                         <div className="p-4 rounded-[20px] bg-white/[0.03] border border-white/5 space-y-2">
-                          <p className="text-[11px] font-bold text-white uppercase tracking-tight">Status Insight</p>
+                          <p className="text-[11px] font-bold text-white uppercase tracking-tight">
+                            {t('dashboard.notifications.statusInsight', 'Status Insight')}
+                          </p>
                           <p className="text-[9px] font-medium text-white/40 leading-relaxed uppercase">
-                            {financialStats.score >= 80 ? 'Kesehatan finansial optimal. Pertahankan rasio tabungan.' : 
-                             financialStats.score >= 50 ? 'Kondisi stabil namun perlu waspada pengeluaran impulsif.' :
-                             'Peringatan: Arus kas kritis. Segera audit pengeluaran.'}
+                            {financialStats.score >= 80 ? t('dashboard.notifications.scoreOptimal', 'Kesehatan finansial optimal. Pertahankan rasio tabungan.') : 
+                             financialStats.score >= 50 ? t('dashboard.notifications.scoreStable', 'Kondisi stabil namun perlu waspada pengeluaran impulsif.') :
+                             t('dashboard.notifications.scoreCritical', 'Peringatan: Arus kas kritis. Segera audit pengeluaran.')}
                           </p>
                         </div>
 
@@ -365,16 +386,20 @@ export default function DashboardPage() {
                             className="w-full p-4 rounded-[20px] bg-rose-500/5 border border-rose-500/20 text-left hover:bg-rose-500/10 transition-all group"
                           >
                             <div className="flex justify-between items-start mb-1">
-                              <p className="text-[11px] font-bold text-rose-500 uppercase tracking-tight">Peringatan Utang</p>
+                              <p className="text-[11px] font-bold text-rose-500 uppercase tracking-tight">
+                                {t('dashboard.notifications.debtWarning', 'Peringatan Utang')}
+                              </p>
                               <ArrowRight className="w-3 h-3 text-rose-500 group-hover:translate-x-1 transition-transform" />
                             </div>
                             <p className="text-[9px] font-medium text-rose-500/60 leading-relaxed uppercase">
-                              Ada {financialStats.activeLoansCount} tagihan aktif. Klik untuk manajemen pelunasan.
+                              {t('dashboard.notifications.debtWarningDesc', 'Ada {count} tagihan aktif. Klik untuk manajemen pelunasan.').replace('{count}', String(financialStats.activeLoansCount))}
                             </p>
                           </button>
                         )}
                         
-                        <button onClick={() => setIsNotificationsOpen(false)} className="w-full py-3 text-[9px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-colors">Tutup</button>
+                        <button onClick={() => setIsNotificationsOpen(false)} className="w-full py-3 text-[9px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-colors">
+                          {t('common.close', 'Tutup')}
+                        </button>
                       </div>
                     </motion.div>
                   </>
@@ -428,7 +453,7 @@ export default function DashboardPage() {
         <Card glass className="xl:col-span-3 p-6 border-emerald-500/10 rounded-[32px]">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-base font-black text-white uppercase tracking-tight flex items-center gap-3">
-              <Zap className="w-5 h-5 text-emerald-400" /> GRAFIK PENGELUARAN
+              <Zap className="w-5 h-5 text-emerald-400" /> {t('dashboard.chart.expenseTrendsTitle', 'GRAFIK PENGELUARAN')}
             </h3>
           </div>
           <div className="h-[280px] w-full -ml-4 min-w-0">
@@ -447,9 +472,9 @@ export default function DashboardPage() {
             
             <div className="space-y-1.5">
               <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-white/40">
-                <span>Skor Kesehatan AI</span>
+                <span>{t('dashboard.hero.scoreLabel', 'Skor Kesehatan')} AI</span>
                 <span className={financialStats.score > 70 ? "text-emerald-400" : "text-amber-400"}>
-                  {financialStats.score > 70 ? "Optimal" : "Perlu Audit"}
+                  {financialStats.score > 70 ? t('dashboard.health.optimal', 'Optimal') : t('dashboard.health.needAudit', 'Perlu Audit')}
                 </span>
               </div>
               <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
@@ -469,22 +494,26 @@ export default function DashboardPage() {
               
               <div className="grid grid-cols-2 gap-2">
                 <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-                  <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Trend</p>
+                  <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">
+                    {t('dashboard.metrics.trend', 'Trend')}
+                  </p>
                   <p className={`text-[10px] font-black ${financialStats.savingsDiff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {financialStats.savingsDiff >= 0 ? '▲' : '▼'} {Math.abs(financialStats.savingsDiff).toFixed(1)}%
                   </p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-                  <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Utang</p>
+                  <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">
+                    {t('dashboard.metrics.debt', 'Utang')}
+                  </p>
                   <p className={`text-[10px] font-black ${financialStats.activeLoansCount > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                    {financialStats.activeLoansCount > 0 ? `${financialStats.activeLoansCount} Aktif` : 'Bersih'}
+                    {financialStats.activeLoansCount > 0 ? `${financialStats.activeLoansCount} ${t('dashboard.metrics.active', 'Aktif')}` : t('dashboard.metrics.clean', 'Bersih')}
                   </p>
                 </div>
               </div>
             </div>
           </div>
           <Button variant="nexus-emerald" className="w-full mt-4 py-3 h-auto text-[10px] font-black uppercase tracking-widest" onClick={() => router.push('/insights')}>
-            Lihat Rekomendasi
+            {t('dashboard.actions.viewRecommendations', 'Lihat Rekomendasi')}
           </Button>
         </Card>
 
@@ -505,14 +534,16 @@ export default function DashboardPage() {
       <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {/* Widget 1: Tren Kategori */}
         <BentoGridItem
-          title="TREN KATEGORI"
-          description="Alokasi Pengeluaran"
+          title={t('dashboard.chart.categoriesTitle', 'TREN KATEGORI')}
+          description={t('dashboard.chart.categoriesDesc', 'Alokasi Pengeluaran')}
           header={
             <div className="flex flex-col h-full gap-4">
               <div className="space-y-1.5">
                 <div className="flex justify-between items-end">
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">Alokasi Dana</span>
-                  <span className="text-xl font-black text-emerald-400 italic">65% <span className="text-[8px] not-italic text-white/20">Efisien</span></span>
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                    {t('dashboard.metrics.fundAllocation', 'Alokasi Dana')}
+                  </span>
+                  <span className="text-xl font-black text-emerald-400 italic">65% <span className="text-[8px] not-italic text-white/20">{t('dashboard.metrics.efficient', 'Efisien')}</span></span>
                 </div>
                 <div className="h-5 w-full bg-white/[0.03] rounded-2xl overflow-hidden flex p-1 border border-white/5">
                   <div className="h-full bg-emerald-500 rounded-[8px] flex items-center justify-center relative" style={{ width: '65%' }}>
@@ -525,10 +556,10 @@ export default function DashboardPage() {
 
               <div className="grid grid-cols-2 gap-3 flex-1">
                 {[
-                  { label: 'Kebutuhan', value: 'Rp4.8M', color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
-                  { label: 'Cicilan', value: 'Rp1.2M', color: 'text-rose-400', bg: 'bg-rose-500/5' },
-                  { label: 'Tabungan', value: 'Rp800K', color: 'text-amber-400', bg: 'bg-amber-500/5' },
-                  { label: 'Lainnya', value: 'Rp450K', color: 'text-blue-400', bg: 'bg-blue-500/5' },
+                  { label: t('dashboard.categories.needs', 'Kebutuhan'), value: 'Rp4.8M', color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
+                  { label: t('dashboard.categories.installments', 'Cicilan'), value: 'Rp1.2M', color: 'text-rose-400', bg: 'bg-rose-500/5' },
+                  { label: t('dashboard.categories.savings', 'Tabungan'), value: 'Rp800K', color: 'text-amber-400', bg: 'bg-amber-500/5' },
+                  { label: t('dashboard.categories.others', 'Lainnya'), value: 'Rp450K', color: 'text-blue-400', bg: 'bg-blue-500/5' },
                 ].map((cat) => (
                   <div key={cat.label} className={`p-4 rounded-[20px] ${cat.bg} border border-white/5 flex flex-col justify-center`}>
                     <p className="text-[9px] font-black text-white/50 uppercase tracking-widest">{cat.label}</p>
@@ -542,8 +573,8 @@ export default function DashboardPage() {
         />
 
         <BentoGridItem
-          title="LOG AKTIVITAS"
-          description="3 Transaksi Terakhir"
+          title={t('dashboard.insights.recentActivity', 'LOG AKTIVITAS')}
+          description={t('dashboard.insights.recentActivityDesc', '3 Transaksi Terakhir')}
           header={
             <div className="flex flex-col h-full justify-between gap-4">
               <div className="space-y-3">
@@ -570,7 +601,7 @@ export default function DashboardPage() {
                 className="w-full text-[9px] font-black uppercase tracking-widest text-white/20 hover:text-white"
                 onClick={() => router.push('/transactions')}
               >
-                Lihat Semua Sesi
+                {t('dashboard.actions.viewAll', 'Lihat Semua Sesi')}
               </Button>
             </div>
           }
@@ -578,14 +609,16 @@ export default function DashboardPage() {
         />
 
         <BentoGridItem
-          title={<span className="text-rose-500 font-black">DARURAT PINJOL</span>}
-          description="Status Cicilan & Tagihan"
+          title={<span className="text-rose-500 font-black">{t('dashboard.widget.pinjolEmergency', 'DARURAT PINJOL')}</span>}
+          description={t('dashboard.widget.pinjolStatus', 'Status Cicilan & Tagihan')}
           icon={<AlertTriangle className="w-4 h-4 text-rose-500 animate-pulse" />}
           header={
             <div className="flex flex-col h-full justify-between gap-4">
               <div className="p-5 rounded-[24px] bg-white/[0.03] border border-rose-500/20 space-y-3">
                 <div className="flex justify-between items-end">
-                  <p className="text-[10px] font-black text-rose-500/60 uppercase tracking-widest">Total Kewajiban</p>
+                  <p className="text-[10px] font-black text-rose-500/60 uppercase tracking-widest">
+                    {t('dashboard.metrics.totalLiability', 'Total Kewajiban')}
+                  </p>
                   <p className="text-xl font-black text-rose-500 leading-none">
                     <NumberTicker value={financialStats.totalRemainingDebt} formatter={formatCurrency} />
                   </p>
@@ -601,14 +634,18 @@ export default function DashboardPage() {
                     <div key={loan.id} className="p-3.5 rounded-[18px] bg-white/[0.03] border border-white/5 flex items-center justify-between">
                       <div className="space-y-0.5">
                         <p className="text-[10px] font-black text-white uppercase">{loan.app_name || 'Pinjol'}</p>
-                        <p className="text-[9px] font-bold text-rose-400/60 uppercase">Node Aktif • {loan.category.toUpperCase()}</p>
+                        <p className="text-[9px] font-bold text-rose-400/60 uppercase">
+                          {t('dashboard.metrics.activeNode', 'Node Aktif')} • {loan.category.toUpperCase()}
+                        </p>
                       </div>
                       <p className="text-[11px] font-black text-white">{formatCurrency(Number(loan.monthly_payment))}</p>
                     </div>
                   ))
                 ) : (
                   <div className="p-8 text-center rounded-[18px] bg-white/[0.03] border border-white/5">
-                    <p className="text-[10px] font-black text-rose-500/40 uppercase tracking-widest">Tidak Ada Tagihan Aktif</p>
+                    <p className="text-[10px] font-black text-rose-500/40 uppercase tracking-widest">
+                      {t('dashboard.metrics.noActiveBills', 'Tidak Ada Tagihan Aktif')}
+                    </p>
                   </div>
                 )}
               </div>
@@ -618,7 +655,7 @@ export default function DashboardPage() {
                 className="w-full py-3.5 h-auto text-[10px] font-black uppercase tracking-widest border-rose-500/30 text-rose-500 hover:bg-rose-500 hover:text-white transition-all rounded-2xl bg-white/[0.03]"
                 onClick={() => router.push('/pinjol')}
               >
-                MANAJEMEN UTANG
+                {t('dashboard.actions.manageDebt', 'MANAJEMEN UTANG')}
               </Button>
             </div>
           }
