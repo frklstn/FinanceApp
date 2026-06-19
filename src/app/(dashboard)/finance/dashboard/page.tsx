@@ -8,7 +8,6 @@ import { insightsService, type FinancialInsight } from '@/lib/services/finance/i
 import { transactionService, type PopulatedTransaction } from '@/lib/services/workspace/transaction.service';
 import { debtService } from '@/lib/services/finance/debt.service';
 import { type LoanTracker } from '@/lib/debt-planner/types';
-import { APP_TEXTS } from '@/config/branding';
 import { walletService } from '@/lib/services/workspace/wallet.service';
 import { currencyService } from '@/lib/services/finance/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';

@@ -32,7 +32,7 @@ import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DebtsPage() {
-  const { accountId, language, t } = useApp();
+  const { accountId, t } = useApp();
   const { toast } = useToast();
 
   const [debts, setDebts] = useState<Debt[]>([]);

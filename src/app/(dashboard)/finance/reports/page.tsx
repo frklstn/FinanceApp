@@ -67,6 +67,7 @@ export default function ReportsPage() {
   // Synchronize taxRate with profile setting once loaded
   useEffect(() => {
     if (profile?.tax_rate !== undefined && profile?.tax_rate !== null) {
+      /* eslint-disable-next-line react-hooks/set-state-in-effect */
       setTaxRate(Number(profile.tax_rate));
     }
   }, [profile?.tax_rate]);
@@ -82,7 +83,7 @@ export default function ReportsPage() {
     } catch (err) {
       console.error('Failed to persist tax rate:', err);
     }
-  }, [profile?.id]);
+  }, [profile]);
 
   const generateReport = useCallback(async () => {
     if (!accountId) return;
