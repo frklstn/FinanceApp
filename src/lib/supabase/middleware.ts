@@ -37,18 +37,10 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  // Protected paths: /dashboard, /transactions, /wallets, /budgets, /savings, /debts, /reports, /settings, /suspended
+  // Protected paths: /finance/*, /user/*, /suspended
   const isProtectedPath =
-    path.startsWith('/dashboard') ||
-    path.startsWith('/transactions') ||
-    path.startsWith('/wallets') ||
-    path.startsWith('/budgets') ||
-    path.startsWith('/savings') ||
-    path.startsWith('/debts') ||
-    path.startsWith('/pinjol') ||
-    path.startsWith('/reports') ||
-    path.startsWith('/settings') ||
-    path.startsWith('/admin') ||
+    path.startsWith('/finance') ||
+    path.startsWith('/user') ||
     path === '/suspended';
 
   const isAuthPath = 

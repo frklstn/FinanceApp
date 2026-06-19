@@ -12,6 +12,7 @@ import { useUser } from '@/lib/hooks/use-user';
 import * as XLSX from 'xlsx';
 import { transactionService } from '@/lib/services/workspace/transaction.service';
 import { useToast } from '@/components/ui/toast';
+import { useTheme } from '@/contexts/theme-context';
 
 interface AccountSettingsProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function AccountSettings({ isOpen, onClose }: AccountSettingsProps) {
   const { user, profile, accountId, appSettings } = useApp();
   const { toast } = useToast();
   const { updateProfile, submitting } = useUser();
+  const { theme, toggleTheme } = useTheme();
 
   const handleExcelExport = async () => {
     if (!accountId) {
@@ -218,7 +220,9 @@ export function AccountSettings({ isOpen, onClose }: AccountSettingsProps) {
                   <Monitor className="w-4 h-4 text-emerald-500" />
                   <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Mode Tampilan</span>
                 </div>
-                <Button variant="outline" size="sm">Dark Mode</Button>
+                <Button variant="outline" size="sm" onClick={toggleTheme} className="capitalize font-bold cursor-pointer">
+                  {theme === 'light' ? 'Mode Terang' : 'Mode Gelap'}
+                </Button>
               </div>
 
               <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
