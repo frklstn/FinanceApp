@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useApp } from '@/contexts/app-context';
-import { useToast } from '@/hooks/use-toast';
+import { useApp } from '@/contexts/app-context';import { useToast } from '@/components/ui/toast';
 import { insightsService, type FinancialInsight } from '@/lib/services/insights.service';
 import { transactionService, type PopulatedTransaction } from '@/lib/services/transaction.service';
 import { debtService } from '@/lib/services/debt.service';
@@ -13,12 +12,19 @@ import { walletService } from '@/lib/services/wallet.service';
 import { currencyService } from '@/lib/services/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
-import { motion } from 'framer-motion';
-import { Wallet, TrendingUp, TrendingDown, PiggyBank, Bell } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Wallet, TrendingUp, TrendingDown, PiggyBank, Bell, User, ArrowRight, AlertTriangle, ShieldCheck, Zap } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
-
+import { BentoGridItem } from '@/components/ui/bento-grid';
+import NumberTicker from '@/components/ui/number-ticker';
+import { QuickAddModal } from '@/components/transaction/quick-add-modal';
+import { ProfileModal } from '@/components/profile/profile-modal';
+import { budgetOptimizerService, type OptimizationSuggestion } from '@/lib/services/budget-optimizer.service';
+import { budgetService } from '@/lib/services/budget.service';
+import { BudgetOptimizerWidget } from '@/components/dashboard/BudgetOptimizerWidget';
+import { SpendingChart } from '@/components/charts/spending-chart';
 export default function DashboardPage() {
   const { accountId, profile } = useApp();
   const { toast } = useToast();
@@ -53,6 +59,8 @@ export default function DashboardPage() {
     open: false,
     type: 'expense',
   });
+  const [optimizerSuggestions, setOptimizerSuggestions] = useState<OptimizationSuggestion[]>([]);
+
 
   const loadDashboardData = useCallback(async () => {
     if (!accountId) return;
@@ -100,11 +108,14 @@ export default function DashboardPage() {
       const txs = allTxs.filter(tx => new Date(tx.date) >= startDate);
       const prevTxs = allTxs.filter(tx => new Date(tx.date) >= widerStartDate && new Date(tx.date) < startDate);
 
-      const [insightData, wallets, trackers] = await Promise.all([
+      const [insightData, wallets, trackers, suggestions] = await Promise.all([
         insightsService.generateInsights(accountId, { prefetchedTransactions: txs }),
         walletService.getWallets(accountId),
         debtService.getLoanTrackers(accountId),
+        budgetOptimizerService.getOptimizationSuggestions(accountId),
       ]);
+      setOptimizerSuggestions(suggestions);
+
 
       let prevIncome = 0;
       let prevExpense = 0;
@@ -248,9 +259,29 @@ export default function DashboardPage() {
     }
   }, [accountId, dateFilter, toast]);
 
+  const handleApplyOptimization = async (suggestion: OptimizationSuggestion) => {
+    if (!accountId) return;
+    try {
+      await budgetService.createBudget(
+        accountId,
+        suggestion.categoryId,
+        suggestion.suggestedBudget
+      );
+      toast(`Anggaran ${suggestion.categoryName} berhasil dioptimalkan!`, 'success');
+      loadDashboardData();
+    } catch (err: unknown) {
+      toast('Gagal mengoptimalkan anggaran.', 'danger');
+    }
+  };
+
+
   useEffect(() => {
-    loadDashboardData();
+    const init = async () => {
+      await loadDashboardData();
+    };
+    init();
   }, [loadDashboardData]);
+
 
   const HeroWidgets = [
     { label: APP_TEXTS.dashboard.hero.liquidity, value: financialStats.totalBalance, icon: Wallet, color: 'text-emerald-400', colorCode: '#10b981', path: '/wallets' },
@@ -456,7 +487,17 @@ export default function DashboardPage() {
             Lihat Rekomendasi
           </Button>
         </Card>
+
+        {/* AI Budget Optimizer Widget */}
+        <div className="xl:col-span-1">
+          <BudgetOptimizerWidget 
+            suggestions={optimizerSuggestions} 
+            onApply={handleApplyOptimization}
+          />
+        </div>
       </section>
+
+
 
       <div className="py-4" /> {/* Compact spacer between above-the-fold and below-the-fold content */}
 

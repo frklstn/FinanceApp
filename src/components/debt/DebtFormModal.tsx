@@ -86,8 +86,10 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
       tenure_months: tenure,
       due_day: dueDay,
       start_date: form.start_date,
-      notes: form.notes.trim() || null,
+      status: 'active',
+      salary_date: null,
       currency: 'IDR',
+      notes: form.notes.trim() || null,
     });
     reset();
   };

@@ -200,9 +200,10 @@ export const debtService = {
         workspace_id: workspaceId,
         end_date: input.end_date ?? endDate.toISOString().slice(0, 10),
         payment_frequency: input.payment_frequency ?? 'monthly',
-      } as any)
+      })
       .select()
       .single();
+
 
     if (error) throw new Error(error.message);
     return { ...data, currency: (data as unknown as LoanTracker).currency ?? 'IDR' };
