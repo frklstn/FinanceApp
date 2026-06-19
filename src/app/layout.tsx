@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   verification: {
     google: 'o-TXeHkwALXfn5qnQJSsXWWMKKyeaLecgAq7e5dfymI',
   },
+  icons: {
+    icon: '/icon.png',
+  },
 };
 
 import { ThemeProvider } from '@/contexts/theme-context';
