@@ -20,17 +20,17 @@ interface AccountSettingsProps {
 }
 
 export function AccountSettings({ isOpen, onClose }: AccountSettingsProps) {
-  const { user, profile, accountId, appSettings } = useApp();
+  const { user, profile, accountId, appSettings, t } = useApp();
   const { toast } = useToast();
   const { updateProfile, submitting } = useUser();
   const { theme, toggleTheme } = useTheme();
 
   const handleExcelExport = async () => {
     if (!accountId) {
-      toast('Workspace ID tidak ditemukan.', 'warning');
+      toast(t('settings.export.noWorkspace', 'Workspace ID tidak ditemukan.'), 'warning');
       return;
     }
-    toast('Mengambil seluruh data transaksi...', 'info');
+    toast(t('settings.export.fetching', 'Mengambil seluruh data transaksi...'), 'info');
 
     try {
       const { data: allTxs } = await transactionService.getTransactions(accountId, {
@@ -38,24 +38,28 @@ export function AccountSettings({ isOpen, onClose }: AccountSettingsProps) {
       });
 
       if (allTxs.length === 0) {
-        toast('Tidak ada transaksi untuk diekspor.', 'warning');
+        toast(t('settings.export.empty', 'Tidak ada transaksi untuk diekspor.'), 'warning');
         return;
       }
 
       const rows = allTxs.map((tx) => ({
-        ID: tx.id,
-        Tanggal: new Date(tx.date).toLocaleDateString('id-ID'),
-        Tipe: tx.type === 'income' ? 'PEMASUKAN' : tx.type === 'expense' ? 'PENGELUARAN' : 'TRANSFER',
-        Nominal: Number(tx.amount),
-        Dompet: tx.wallets?.name || 'Umum',
-        Kategori: tx.categories?.name || 'Umum',
-        Catatan: tx.note || '',
-        Tag: tx.tags?.join(', ') || '',
+        [t('settings.export.id', 'ID')]: tx.id,
+        [t('settings.export.date', 'Tanggal')]: new Date(tx.date).toLocaleDateString('id-ID'),
+        [t('settings.export.type', 'Tipe')]: tx.type === 'income' 
+          ? t('settings.export.income', 'PEMASUKAN') 
+          : tx.type === 'expense' 
+            ? t('settings.export.expense', 'PENGELUARAN') 
+            : t('settings.export.transfer', 'TRANSFER'),
+        [t('settings.export.amount', 'Nominal')]: Number(tx.amount),
+        [t('settings.export.wallet', 'Dompet')]: tx.wallets?.name || t('settings.export.general', 'Umum'),
+        [t('settings.export.category', 'Kategori')]: tx.categories?.name || t('settings.export.general', 'Umum'),
+        [t('settings.export.note', 'Catatan')]: tx.note || '',
+        [t('settings.export.tag', 'Tag')]: tx.tags?.join(', ') || '',
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(rows);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan Keuangan');
+      XLSX.utils.book_append_sheet(workbook, worksheet, t('settings.export.sheetName', 'Laporan Keuangan'));
 
       const colWidths = [
         { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, 
@@ -64,12 +68,13 @@ export function AccountSettings({ isOpen, onClose }: AccountSettingsProps) {
       worksheet['!cols'] = colWidths;
 
       const appName = appSettings?.app_name || 'FinanceApp';
-      const fileName = `${appName.replace(/\s+/g, '_')}_Buku_Besar.xlsx`;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const fileName = `${appName.replace(/\s+/g, '_')}_Buku_Besar_${timestamp}.xlsx`;
       XLSX.writeFile(workbook, fileName);
-      toast('Buku besar berhasil diekspor ke Excel!', 'success');
+      toast(t('settings.export.success', 'Buku besar berhasil diekspor ke Excel!'), 'success');
 
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal mengekspor file Excel.';
+      const msg = err instanceof Error ? err.message : t('settings.export.failed', 'Gagal mengekspor file Excel.');
       toast(msg, 'danger');
     }
   };

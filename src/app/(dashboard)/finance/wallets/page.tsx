@@ -34,7 +34,7 @@ import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function WalletsPage() {
-  const { accountId, appSettings } = useApp();
+  const { accountId, appSettings, t } = useApp();
   const { toast } = useToast();
 
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -119,9 +119,9 @@ export default function WalletsPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
           >
-            Brankas <span className="text-emerald-500">{appSettings.app_name || 'Nexus'}</span>
+            {t('wallets.title', 'Brankas')} <span className="text-emerald-500">{appSettings.app_name || 'Nexus'}</span>
           </motion.h1>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Infrastruktur Alokasi Aset • v2.0</p>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">{t('wallets.subtitle', 'Infrastruktur Alokasi Aset • v2.0')}</p>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Button 
@@ -129,14 +129,14 @@ export default function WalletsPage() {
             className="flex-1 md:flex-none rounded-[24px] border-white/5 bg-white/[0.03] backdrop-blur-3xl px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest"
             onClick={() => setIsTransferModalOpen(true)}
           >
-            <ArrowRightLeft className="w-4 h-4 mr-2 text-emerald-400" /> Pindahkan
+            <ArrowRightLeft className="w-4 h-4 mr-2 text-emerald-400" /> {t('wallets.transfer', 'Pindahkan')}
           </Button>
           <Button 
             variant="nexus-emerald"
             className="flex-1 md:flex-none px-8 py-6 h-auto"
             onClick={() => { setEditingWallet(null); setName(''); setBalance('0'); setIsWalletModalOpen(true); }}
           >
-            <Plus className="w-5 h-5 mr-2" /> Aset Baru
+            <Plus className="w-5 h-5 mr-2" /> {t('wallets.newAsset', 'Aset Baru')}
           </Button>
         </div>
       </header>
@@ -149,17 +149,17 @@ export default function WalletsPage() {
             <div className="space-y-4 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-3">
                 <Zap className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Cumulative Liquidity Position</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">{t('wallets.cumulativeLiquidity', 'Cumulative Liquidity Position')}</h3>
               </div>
               <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter">
                 <NumberTicker value={totalBalance} formatter={formatCurrency} />
               </h2>
               <div className="flex items-center justify-center md:justify-start gap-4">
                 <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-widest">
-                  Live Audit Active
+                  {t('wallets.auditActive', 'Live Audit Active')}
                 </div>
                 <div className="flex items-center gap-2 text-[10px] font-black text-white/20 uppercase tracking-widest">
-                  <Database className="w-3.5 h-3.5" /> Synchronized with {wallets.length} Nodes
+                  <Database className="w-3.5 h-3.5" /> {t('wallets.synchronized', 'Synchronized with {count} Nodes').replace('{count}', String(wallets.length))}
                 </div>
               </div>
             </div>
@@ -199,13 +199,13 @@ export default function WalletsPage() {
                     <h4 className="text-xl font-black text-white uppercase tracking-tight mb-2 truncate">{wallet.name}</h4>
                     <div className="flex items-center gap-3">
                       <Terminal className="w-3.5 h-3.5 text-white/10" />
-                      <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">{wallet.type} Node</span>
+                      <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">{t('wallets.node', '{type} Node').replace('{type}', wallet.type)}</span>
                     </div>
                   </div>
                   
                   <div className="pt-8 border-t border-white/5 space-y-3">
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/30">
-                      <span>Available Liquidity</span>
+                      <span>{t('wallets.availableLiquidity', 'Available Liquidity')}</span>
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-500/50" />
                     </div>
                     <p className="text-3xl font-black text-white tracking-tighter leading-none">
@@ -219,17 +219,29 @@ export default function WalletsPage() {
         </AnimatePresence>
       </section>
 
-      <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} title={editingWallet ? 'Refactor Asset Node' : 'Initialize Asset Node'}>
+      <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} title={editingWallet ? t('wallets.modal.editTitle', 'Refactor Asset Node') : t('wallets.modal.addTitle', 'Initialize Asset Node')}>
         <form onSubmit={handleSaveWallet} className="space-y-8 p-2">
-          <Input label="Asset Label" placeholder="e.g. Nexus Prime, Global Ledger" value={name} onChange={(e) => setName(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-6" />
+          <Input label={t('wallets.modal.label', 'Asset Label')} placeholder="e.g. Nexus Prime, Global Ledger" value={name} onChange={(e) => setName(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-6" />
           
-          <Select label="Classification Protocol" options={[{value: 'cash', label: 'Physical Capital'}, {value: 'bank', label: 'Institutional Custody'}, {value: 'e-wallet', label: 'Digital Terminal'}, {value: 'crypto', label: 'Cryptographic Asset'}, {value: 'savings', label: 'Treasury Reserves'}]} value={type} onChange={(e) => setType(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+          <Select 
+            label={t('wallets.modal.classification', 'Classification Protocol')}
+            options={[
+              {value: 'cash', label: t('wallets.modal.classification.cash', 'Physical Capital')},
+              {value: 'bank', label: t('wallets.modal.classification.bank', 'Institutional Custody')},
+              {value: 'e-wallet', label: t('wallets.modal.classification.ewallet', 'Digital Terminal')},
+              {value: 'crypto', label: t('wallets.modal.classification.crypto', 'Cryptographic Asset')},
+              {value: 'savings', label: t('wallets.modal.classification.savings', 'Treasury Reserves')}
+            ]} 
+            value={type} 
+            onChange={(e) => setType(e.target.value)} 
+            className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" 
+          />
           
-          <Select label="Currency Base" options={currencyService.getSupportedCurrencies().map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` }))} value={currency} onChange={(e) => setCurrency(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+          <Select label={t('wallets.modal.currency', 'Currency Base')} options={currencyService.getSupportedCurrencies().map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` }))} value={currency} onChange={(e) => setCurrency(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
           
           {!editingWallet && (
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Initial Magnitude (IDR)</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t('wallets.modal.initialMagnitude', 'Initial Magnitude ({currency})').replace('{currency}', currency)}</label>
               <div className="relative">
                 <Activity className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500/50" />
                 <Input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} required className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-xl font-black tracking-tighter h-auto" />
@@ -238,7 +250,7 @@ export default function WalletsPage() {
           )}
 
           <div className="space-y-4">
-            <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Visual Frequency</label>
+            <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t('wallets.modal.visualFrequency', 'Visual Frequency')}</label>
             <div className="flex flex-wrap gap-4">
               {['#6366f1', '#22c55e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'].map((col) => (
                 <button key={col} type="button" onClick={() => setColor(col)} className={`w-10 h-10 rounded-[12px] border-2 transition-all duration-300 ${color === col ? 'border-white scale-110 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-transparent opacity-30 hover:opacity-100'}`} style={{ backgroundColor: col }} />
@@ -247,15 +259,15 @@ export default function WalletsPage() {
           </div>
 
           <div className="flex gap-4 pt-4">
-            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsWalletModalOpen(false)}>Cancel</Button>
+            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsWalletModalOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
             <Button type="submit" loading={submitting} className="flex-1 rounded-[24px] bg-indigo-500 hover:bg-indigo-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none">
-              Authorize Node
+              {editingWallet ? t('wallets.modal.submitEdit', 'Authorize Node') : t('wallets.modal.submitAdd', 'Authorize Node')}
             </Button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={isTransferModalOpen} onClose={() => setIsTransferModalOpen(false)} title="Execute Liquidity Relocation">
+      <Modal isOpen={isTransferModalOpen} onClose={() => setIsTransferModalOpen(false)} title={t('wallets.modal.transferTitle', 'Execute Liquidity Relocation')}>
         <form 
           onSubmit={(e) => { 
             e.preventDefault(); 
@@ -266,7 +278,7 @@ export default function WalletsPage() {
               destination_wallet_id: destId,
               amount: Number(transferAmount),
               type: 'transfer',
-              note: transferNote || 'Liquidity Relocation',
+              note: transferNote || t('wallets.modal.protocolLogDefault', 'Liquidity Relocation'), // Default note for transfer
               date: new Date().toISOString(),
               currency: wallets.find(w => w.id === sourceId)?.currency || 'IDR',
               exchange_rate: 1.0,
@@ -278,30 +290,56 @@ export default function WalletsPage() {
             }).then(() => { 
               setIsTransferModalOpen(false); 
               fetchWallets(); 
-              toast('Relocation Success', 'success');
+              toast(t('wallets.toast.relocationSuccess', 'Relocation Success'), 'success');
             }).finally(() => setSubmitting(false)); 
           }} 
           className="space-y-8 p-2"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Select label="Origin Node" options={[{value: '', label: '-- Select Asset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={sourceId} onChange={(e) => setSourceId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
-            <Select label="Destination Node" options={[{value: '', label: '-- Select Asset --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={destId} onChange={(e) => setDestId(e.target.value)} required className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" />
+            <Select 
+              label={t('wallets.modal.originNode', 'Origin Node')} 
+              options={[
+                {value: '', label: `-- ${t('wallets.modal.selectAsset', 'Select Asset')} --`},
+                ...wallets.map(w => ({value: w.id, label: w.name}))
+              ]} 
+              value={sourceId} 
+              onChange={(e) => setSourceId(e.target.value)} 
+              required 
+              className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" 
+            />
+            <Select 
+              label={t('wallets.modal.destinationNode', 'Destination Node')} 
+              options={[
+                {value: '', label: `-- ${t('wallets.modal.selectAsset', 'Select Asset')} --`},
+                ...wallets.map(w => ({value: w.id, label: w.name}))
+              ]} 
+              value={destId} 
+              onChange={(e) => setDestId(e.target.value)} 
+              required 
+              className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto" 
+            />
           </div>
           
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">Relocation Magnitude (IDR)</label>
+            <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t('wallets.modal.relocationMagnitude', 'Relocation Magnitude ({currency})').replace('{currency}', wallets.find(w => w.id === sourceId)?.currency || 'IDR')}</label>
             <div className="relative">
               <ArrowRightLeft className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500/50" />
               <Input type="number" value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} required className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-xl font-black tracking-tighter h-auto" />
             </div>
           </div>
 
-          <Input label="Protocol Log Annotation" placeholder="Nature of relocation..." value={transferNote} onChange={(e) => setTransferNote(e.target.value)} className="rounded-[20px] bg-white/[0.03] border-white/5 py-6 h-auto" />
+          <Input 
+            label={t('wallets.modal.protocolLog', 'Protocol Log Annotation')} 
+            placeholder={t('wallets.modal.protocolLogPlaceholder', 'Nature of relocation...')} 
+            value={transferNote} 
+            onChange={(e) => setTransferNote(e.target.value)} 
+            className="rounded-[20px] bg-white/[0.03] border-white/5 py-6 h-auto" 
+          />
           
           <div className="flex gap-4 pt-4">
-            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsTransferModalOpen(false)}>Cancel</Button>
+            <Button variant="outline" type="button" className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest" onClick={() => setIsTransferModalOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
             <Button type="submit" loading={submitting} className="flex-1 rounded-[24px] bg-indigo-500 hover:bg-indigo-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 border-none">
-              Execute Relocation
+              {t('wallets.modal.executeRelocation', 'Execute Relocation')}
             </Button>
           </div>
         </form>

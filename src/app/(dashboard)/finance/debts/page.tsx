@@ -32,7 +32,7 @@ import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DebtsPage() {
-  const { accountId } = useApp();
+  const { accountId, language, t } = useApp();
   const { toast } = useToast();
 
   const [debts, setDebts] = useState<Debt[]>([]);
@@ -67,12 +67,12 @@ export default function DebtsPage() {
       setDebts(dList);
       setWallets(wList);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to assemble ledger accounts.';
+      const msg = err instanceof Error ? err.message : t('debts.toast.loadFailed', 'Failed to load ledger accounts.');
       toast(msg, 'danger');
     } finally {
       setLoading(false);
     }
-  }, [accountId, toast]);
+  }, [accountId, toast, t]);
 
   useEffect(() => {
     if (accountId) {
@@ -86,7 +86,7 @@ export default function DebtsPage() {
 
     const amtNum = Number(amount);
     if (isNaN(amtNum) || amtNum <= 0) {
-      toast('Please enter a valid ledger amount.', 'danger');
+      toast(t('debts.toast.invalidAmount', 'Please enter a valid ledger amount.'), 'danger');
       return;
     }
 
@@ -102,7 +102,7 @@ export default function DebtsPage() {
         currency
       );
 
-      toast('Ledger account added successfully.', 'success');
+      toast(t('debts.toast.addSuccess', 'Ledger account added successfully.'), 'success');
       setIsDebtModalOpen(false);
       setDebtName('');
       setAmount('');
@@ -110,7 +110,7 @@ export default function DebtsPage() {
       setDueDate('');
       fetchData();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to save record.';
+      const msg = err instanceof Error ? err.message : t('debts.toast.addFailed', 'Failed to save record.');
       toast(msg, 'danger');
     } finally {
       setSubmitting(false);
@@ -121,7 +121,7 @@ export default function DebtsPage() {
     setSelectedDebt(debt);
     setPayWalletId('');
     setPayAmount('');
-    setPayNote(`Installment repayment: ${debt.name}`);
+    setPayNote(`Repayment: ${debt.name}`);
     setIsPayModalOpen(true);
   };
 
@@ -131,7 +131,7 @@ export default function DebtsPage() {
 
     const payNum = Number(payAmount);
     if (isNaN(payNum) || payNum <= 0) {
-      toast('Please enter a valid installment amount.', 'danger');
+      toast(t('debts.toast.invalidPayAmount', 'Please enter a valid installment amount.'), 'danger');
       return;
     }
 
@@ -145,12 +145,12 @@ export default function DebtsPage() {
         payNote
       );
 
-      toast('Payment logged successfully!', 'success');
+      toast(t('debts.toast.paySuccess', 'Payment logged successfully!'), 'success');
       setIsPayModalOpen(false);
       setSelectedDebt(null);
       fetchData();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Repayment failed.';
+      const msg = err instanceof Error ? err.message : t('debts.toast.payFailed', 'Repayment failed.');
       toast(msg, 'danger');
     } finally {
       setSubmitting(false);
@@ -158,13 +158,13 @@ export default function DebtsPage() {
   };
 
   const handleDeleteDebt = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this debt/loan ledger account?')) return;
+    if (!confirm(t('debts.toast.deleteConfirm', 'Are you sure you want to delete this debt/loan ledger account?'))) return;
     try {
       await debtService.deleteDebt(id);
-      toast('Record removed.', 'success');
+      toast(t('debts.toast.deleteSuccess', 'Record removed.'), 'success');
       fetchData();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to delete record.';
+      const msg = err instanceof Error ? err.message : t('debts.toast.deleteFailed', 'Failed to delete record.');
       toast(msg, 'danger');
     }
   };
@@ -183,9 +183,11 @@ export default function DebtsPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
           >
-            Liabilitas <span className="text-rose-500">Terminal</span>
+            {t('debts.title', 'Liabilitas')} <span className="text-rose-500">{t('debts.title.sub', 'Terminal')}</span>
           </motion.h1>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Infrastruktur Audit Utang & Piutang • v2.0</p>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">
+            {t('debts.subtitle', 'Infrastruktur Audit Utang & Piutang • v2.0')}
+          </p>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -193,7 +195,7 @@ export default function DebtsPage() {
             className="flex-1 md:flex-none bg-rose-500 hover:bg-rose-600 px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-rose-500/10 border-none"
             onClick={() => setIsDebtModalOpen(true)}
           >
-            <Plus className="w-5 h-5 mr-2" /> Inisialisasi Protokol
+            <Plus className="w-5 h-5 mr-2" /> {t('debts.addBtn', 'Inisialisasi Protokol')}
           </Button>
           <button className="p-4 rounded-[24px] bg-white/[0.03] backdrop-blur-3xl border border-white/5 text-white hover:bg-white/[0.08] transition-all relative">
             <Bell className="w-5 h-5" />
@@ -210,12 +212,16 @@ export default function DebtsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
             <div className="space-y-8">
               <div className="space-y-2">
-                <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em]">Posisi Eksposur Bersih</p>
+                <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em]">
+                  {t('debts.netPosition', 'Posisi Eksposur Bersih')}
+                </p>
                 <div className="flex items-baseline gap-3">
                   <span className={`text-5xl md:text-8xl font-black tracking-tighter ${netPosition >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
                     <NumberTicker value={Math.abs(netPosition)} formatter={formatCurrency} />
                   </span>
-                  <span className="text-xs font-black text-white/20 uppercase tracking-widest">{netPosition >= 0 ? 'Surplus' : 'Defisit'}</span>
+                  <span className="text-xs font-black text-white/20 uppercase tracking-widest">
+                    {netPosition >= 0 ? t('debts.surplus', 'Surplus') : t('debts.deficit', 'Defisit')}
+                  </span>
                 </div>
               </div>
               
@@ -223,13 +229,13 @@ export default function DebtsPage() {
                 <div className="px-6 py-3 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
                   <TrendingDown className="w-4 h-4 text-rose-400" />
                   <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest">
-                    Bayar: <NumberTicker value={totalOwe} formatter={formatCurrency} />
+                    {t('debts.pay', 'Bayar:')} <NumberTicker value={totalOwe} formatter={formatCurrency} />
                   </span>
                 </div>
                 <div className="px-6 py-3 rounded-[24px] bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
                   <HandCoins className="w-4 h-4 text-emerald-400" />
                   <span className="text-[11px] font-black text-emerald-400 uppercase tracking-widest">
-                    Terima: <NumberTicker value={totalLend} formatter={formatCurrency} />
+                    {t('debts.receive', 'Terima:')} <NumberTicker value={totalLend} formatter={formatCurrency} />
                   </span>
                 </div>
               </div>
@@ -242,18 +248,22 @@ export default function DebtsPage() {
                     <ShieldAlert className="w-7 h-7 text-rose-400" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-white uppercase tracking-tight">Audit Liabilitas</h4>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Pemantauan Sistem</p>
+                    <h4 className="text-sm font-black text-white uppercase tracking-tight">
+                      {t('debts.auditTitle', 'Audit Liabilitas')}
+                    </h4>
+                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">
+                      {t('debts.systemMonitor', 'Pemantauan Sistem')}
+                    </p>
                   </div>
                 </div>
                 <div className="text-4xl font-black text-white italic tracking-tighter">
-                  {debts.length} <span className="text-xs not-italic text-white/20">Unit</span>
+                  {debts.length} <span className="text-xs not-italic text-white/20">{t('debts.unit', 'Unit')}</span>
                 </div>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
-                  <span className="text-white/30">Repayment Ratio</span>
-                  <span className="text-white">Calculated</span>
+                  <span className="text-white/30">{t('debts.repaymentRatio', 'Repayment Ratio')}</span>
+                  <span className="text-white">{t('debts.calculated', 'Calculated')}</span>
                 </div>
                 <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5">
                   <motion.div 
@@ -264,7 +274,10 @@ export default function DebtsPage() {
                 </div>
               </div>
               <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-tight">
-                Current audit identifies <span className="text-white">{debts.filter(d => d.type === 'owe').length} liability contracts</span> and <span className="text-white">{debts.filter(d => d.type === 'lend').length} asset receivables</span>. Risk level: <span className={netPosition >= 0 ? 'text-emerald-400' : 'text-rose-400'}>{netPosition >= 0 ? 'STABLE' : 'ELEVATED'}</span>.
+                {t('debts.status.riskMsg', 'Current audit identifies {loans} liability contracts and {receivables} asset receivables. Risk level: {risk}.')
+                  .replace('{loans}', `${debts.filter(d => d.type === 'owe').length}`)
+                  .replace('{receivables}', `${debts.filter(d => d.type === 'lend').length}`)
+                  .replace('{risk}', netPosition >= 0 ? t('debts.risk.stable', 'STABLE') : t('debts.risk.elevated', 'ELEVATED'))}
               </p>
             </div>
           </div>
@@ -278,9 +291,11 @@ export default function DebtsPage() {
           <div className="flex items-center justify-between px-2">
             <div className="space-y-1">
               <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
-                <Landmark className="w-6 h-6 text-rose-500" /> Liability Ledger
+                <Landmark className="w-6 h-6 text-rose-500" /> {t('debts.liabilityLedger', 'Liability Ledger')}
               </h3>
-              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Active Obligations</p>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+                {t('debts.activeObligations', 'Active Obligations')}
+              </p>
             </div>
           </div>
 
@@ -291,7 +306,9 @@ export default function DebtsPage() {
               ) : debts.filter(d => d.type === 'owe').length === 0 ? (
                 <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-4">
                   <ShieldCheck className="w-12 h-12 text-white/10" />
-                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Tidak Ada Liabilitas Terdeteksi</p>
+                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
+                    {t('debts.emptyLiability', 'Tidak Ada Liabilitas Terdeteksi')}
+                  </p>
                 </div>
               ) : (
                 debts.filter(d => d.type === 'owe').map((debt, i) => {
@@ -316,7 +333,9 @@ export default function DebtsPage() {
                             <div className="space-y-2">
                               <h4 className="text-lg font-black text-white uppercase tracking-tight">{debt.name}</h4>
                               <div className="flex items-center gap-4">
-                                <span className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[9px] font-black text-rose-400 uppercase tracking-widest">Liability</span>
+                                <span className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[9px] font-black text-rose-400 uppercase tracking-widest">
+                                  {t('debts.type.liability', 'Liability')}
+                                </span>
                                 {debt.contact_info && (
                                   <span className="text-[10px] text-white/30 font-bold uppercase tracking-tight flex items-center gap-2">
                                     <User className="w-3.5 h-3.5" /> {debt.contact_info}
@@ -334,7 +353,7 @@ export default function DebtsPage() {
 
                           <div className="space-y-4">
                             <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.2em]">
-                              <span className="text-white/30">Repayment Audit</span>
+                              <span className="text-white/30">{t('debts.repaymentAudit', 'Repayment Audit')}</span>
                               <span className="text-white">
                                 <NumberTicker value={paid} formatter={(v) => formatCurrency(v, debt.currency || 'IDR')} /> / {formatCurrency(tot, debt.currency || 'IDR')}
                               </span>
@@ -351,11 +370,11 @@ export default function DebtsPage() {
                           <div className="flex items-center justify-between pt-6 border-t border-white/5">
                             <div className="flex items-center gap-3 text-[10px] font-black text-white/30 uppercase tracking-widest">
                               <Calendar className="w-4 h-4" />
-                              {debt.due_date ? `Deadline: ${new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}` : 'Infinite Cycle'}
+                              {debt.due_date ? t('debts.deadline', 'Deadline: {date}').replace('{date}', new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })) : t('debts.infiniteCycle', 'Infinite Cycle')}
                             </div>
                             {isPaid ? (
                               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em]">
-                                <ShieldCheck className="w-4 h-4" /> Secured
+                                <ShieldCheck className="w-4 h-4" /> {t('debts.status.secured', 'Secured')}
                               </div>
                             ) : (
                               <Button 
@@ -364,7 +383,7 @@ export default function DebtsPage() {
                                 className="rounded-2xl border-white/5 bg-white/[0.03] text-[9px] font-black uppercase tracking-[0.2em] px-6 py-5 h-auto hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all" 
                                 onClick={() => handleOpenPayment(debt)}
                               >
-                                <Zap className="w-4 h-4 mr-2" /> Execute Payment
+                                <Zap className="w-4 h-4 mr-2" /> {t('debts.action.executePayment', 'Execute Payment')}
                               </Button>
                             )}
                           </div>
@@ -383,9 +402,9 @@ export default function DebtsPage() {
           <div className="flex items-center justify-between px-2">
             <div className="space-y-1">
               <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
-                <HandCoins className="w-6 h-6 text-emerald-500" /> Asset Receivable
+                <HandCoins className="w-6 h-6 text-emerald-500" /> {t('debts.assetReceivable', 'Asset Receivable')}
               </h3>
-              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Active Credits</p>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{t('debts.activeCredits', 'Active Credits')}</p>
             </div>
           </div>
 
@@ -396,7 +415,7 @@ export default function DebtsPage() {
               ) : debts.filter(d => d.type === 'lend').length === 0 ? (
                 <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-4">
                   <Target className="w-12 h-12 text-white/10" />
-                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">No Receivables Active</p>
+                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">{t('debts.emptyReceivable', 'No Active Receivables')}</p>
                 </div>
               ) : (
                 debts.filter(d => d.type === 'lend').map((debt, i) => {
@@ -421,7 +440,9 @@ export default function DebtsPage() {
                             <div className="space-y-2">
                               <h4 className="text-lg font-black text-white uppercase tracking-tight">{debt.name}</h4>
                               <div className="flex items-center gap-4">
-                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Asset</span>
+                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+                                  {t('debts.type.asset', 'Asset')}
+                                </span>
                                 {debt.contact_info && (
                                   <span className="text-[10px] text-white/30 font-bold uppercase tracking-tight flex items-center gap-2">
                                     <User className="w-3.5 h-3.5" /> {debt.contact_info}
@@ -439,7 +460,7 @@ export default function DebtsPage() {
 
                           <div className="space-y-4">
                             <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.2em]">
-                              <span className="text-white/30">Collection Audit</span>
+                              <span className="text-white/30">{t('debts.collectionAudit', 'Collection Audit')}</span>
                               <span className="text-white">
                                 <NumberTicker value={paid} formatter={(v) => formatCurrency(v, debt.currency || 'IDR')} /> / {formatCurrency(tot, debt.currency || 'IDR')}
                               </span>
@@ -456,11 +477,11 @@ export default function DebtsPage() {
                           <div className="flex items-center justify-between pt-6 border-t border-white/5">
                             <div className="flex items-center gap-3 text-[10px] font-black text-white/30 uppercase tracking-widest">
                               <Calendar className="w-4 h-4" />
-                              {debt.due_date ? `Inflow: ${new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}` : 'Infinite Cycle'}
+                              {debt.due_date ? t('debts.inflow', 'Inflow: {date}').replace('{date}', new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })) : t('debts.infiniteCycle', 'Infinite Cycle')}
                             </div>
                             {isPaid ? (
                               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em]">
-                                <ShieldCheck className="w-4 h-4" /> Collected
+                                <ShieldCheck className="w-4 h-4" /> {t('debts.status.collected', 'Collected')}
                               </div>
                             ) : (
                               <Button 
@@ -469,7 +490,7 @@ export default function DebtsPage() {
                                 className="rounded-2xl border-white/5 bg-white/[0.03] text-[9px] font-black uppercase tracking-[0.2em] px-6 py-5 h-auto hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-400 transition-all" 
                                 onClick={() => handleOpenPayment(debt)}
                               >
-                                <ArrowRightLeft className="w-4 h-4 mr-2" /> Receive Inflow
+                                <ArrowRightLeft className="w-4 h-4 mr-2" /> {t('debts.action.receiveInflow', 'Receive Inflow')}
                               </Button>
                             )}
                           </div>
@@ -485,29 +506,29 @@ export default function DebtsPage() {
       </section>
 
       {/* Add Debt/Lend record modal */}
-      <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Initialize Ledger Protocol">
+      <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title={t('debts.modal.addTitle', 'Initialize Ledger Protocol')}>
         <form onSubmit={handleCreateDebt} className="space-y-8 p-2">
           <div className="grid grid-cols-2 gap-3 bg-white/[0.02] p-2 rounded-[24px] border border-white/5 shadow-inner">
-            {(['owe', 'lend'] as const).map((t) => (
+            {(['owe', 'lend'] as const).map((dt) => (
               <button
-                key={t}
+                key={dt}
                 type="button"
-                onClick={() => setDebtType(t)}
+                onClick={() => setDebtType(dt)}
                 className={`py-4 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-xl ${
-                  debtType === t
-                    ? t === 'owe'
+                  debtType === dt
+                    ? dt === 'owe'
                       ? 'bg-rose-500 text-white shadow-rose-500/20'
                       : 'bg-emerald-500 text-white shadow-emerald-500/20'
                     : 'text-white/30 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {t === 'owe' ? 'Liability' : 'Asset'}
+                {dt === 'owe' ? t('debts.type.liability', 'Liability') : t('debts.type.asset', 'Asset')}
               </button>
             ))}
           </div>
 
           <Input
-            label="Protocol Label"
+            label={t('debts.modal.label', 'Protocol Label')}
             placeholder="e.g. Nexus Venture Capital, Personal Loan"
             value={debtName}
             onChange={(e) => setDebtName(e.target.value)}
@@ -516,7 +537,7 @@ export default function DebtsPage() {
             className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
           />
           <Select
-            label="Currency Base"
+            label={t('debts.modal.currency', 'Currency Base')}
             options={currencyService.getSupportedCurrencies().map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` }))}
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
@@ -525,7 +546,7 @@ export default function DebtsPage() {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
-              label={`Magnitude (${currency})`}
+              label={t('debts.modal.magnitude', 'Magnitude ({currency})').replace('{currency}', currency)}
               placeholder="0"
               type="number"
               value={amount}
@@ -535,14 +556,14 @@ export default function DebtsPage() {
               className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
             />
             <DatePicker
-              label="Chronological Deadline"
+              label={t('debts.modal.deadline', 'Chronological Deadline')}
               value={dueDate}
               onChange={(val) => setDueDate(val)}
               disabled={submitting}
             />
           </div>
           <Input
-            label="Counterparty / Protocol Note"
+            label={t('debts.modal.note', 'Counterparty / Protocol Note')}
             placeholder="Entity Name or Identifier"
             value={contactInfo}
             onChange={(e) => setContactInfo(e.target.value)}
@@ -558,32 +579,32 @@ export default function DebtsPage() {
               onClick={() => setIsDebtModalOpen(false)}
               disabled={submitting}
             >
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </Button>
             <Button 
               type="submit" 
               loading={submitting}
               className="flex-1 rounded-[24px] bg-emerald-500 hover:bg-emerald-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 border-none"
             >
-              Authorize Protocol
+              {t('debts.modal.submitAdd', 'Authorize Protocol')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Pay Installment Modal */}
-      <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title="Execute Repayment Protocol">
+      <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title={t('debts.modal.payTitle', 'Execute Repayment Protocol')}>
         {selectedDebt && (
           <form onSubmit={handlePaymentSubmit} className="space-y-8 p-2">
             <div className="p-6 rounded-[24px] bg-white/[0.02] border border-white/5 space-y-2">
-              <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Target Entity</p>
+              <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t('debts.modal.targetEntity', 'Target Entity')}</p>
               <h4 className="text-xl font-black text-white uppercase tracking-tight">{selectedDebt.name}</h4>
             </div>
 
             <Select
-              label={selectedDebt.type === 'owe' ? 'Source Asset Account' : 'Destination Asset Account'}
+              label={selectedDebt.type === 'owe' ? t('debts.modal.sourceAccount', 'Source Asset Account') : t('debts.modal.destinationAccount', 'Destination Asset Account')}
               options={[
-                { value: '', label: '-- Select Asset --' },
+                { value: '', label: `-- ${t('debts.modal.selectAsset', 'Select Asset')} --` },
                 ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance), w.currency || 'IDR')})` })),
               ]}
               value={payWalletId}
@@ -593,7 +614,7 @@ export default function DebtsPage() {
               className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto"
             />
             <Input
-              label={`Authorization Magnitude (${selectedDebt.currency || 'Rp'})`}
+              label={t('debts.modal.authMagnitude', 'Authorization Magnitude ({currency})').replace('{currency}', selectedDebt.currency || 'Rp')}
               placeholder="0"
               type="number"
               value={payAmount}
@@ -603,7 +624,7 @@ export default function DebtsPage() {
               className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
             />
             <Input
-              label="Transaction Log Note"
+              label={t('debts.modal.txNote', 'Transaction Log Note')}
               value={payNote}
               onChange={(e) => setPayNote(e.target.value)}
               disabled={submitting}
@@ -618,7 +639,7 @@ export default function DebtsPage() {
                 onClick={() => setIsPayModalOpen(false)}
                 disabled={submitting}
               >
-                Cancel
+                {t('common.cancel', 'Cancel')}
               </Button>
               <Button 
                 type="submit" 
@@ -629,7 +650,7 @@ export default function DebtsPage() {
                     : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
                 }`}
               >
-                {selectedDebt.type === 'owe' ? 'Authorize Payment' : 'Authorize Inflow'}
+                {selectedDebt.type === 'owe' ? t('debts.modal.submitPay', 'Authorize Payment') : t('debts.modal.submitInflow', 'Authorize Inflow')}
               </Button>
             </div>
           </form>
