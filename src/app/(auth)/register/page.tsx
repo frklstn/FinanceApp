@@ -68,7 +68,7 @@ export default function RegisterPage() {
         if (isSessionActive) {
           setSuccessMsg(t('auth.register.successInitializing', 'Registration Authorized. Initializing Node...'));
           setTimeout(() => {
-            router.push('/dashboard');
+            router.push('/finance/dashboard');
             router.refresh();
           }, 1500);
         } else {

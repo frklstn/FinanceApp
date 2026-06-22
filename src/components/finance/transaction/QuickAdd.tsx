@@ -13,21 +13,32 @@ import { transactionService } from '@/lib/services/workspace/transaction.service
 import { currencyService } from '@/lib/services/finance/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 
+import { useModalStore } from '@/stores/modal-store';
+import { useApp } from '@/contexts/app-context';
+
 interface QuickAddModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   accountId: string;
-  initialType: 'income' | 'expense' | 'transfer';
   onSuccess?: () => void;
 }
 
-export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSuccess }: QuickAddModalProps) {
+export function QuickAddModal({ accountId, onSuccess }: QuickAddModalProps) {
+  const { activeModal, quickAddType, closeModal } = useModalStore();
+  const isOpen = activeModal === 'quickAdd';
+  
+  const { t } = useApp();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const [type, setType] = useState(initialType);
+  const [type, setType] = useState(quickAddType);
+
+  // Sync state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setType(quickAddType);
+    }
+  }, [isOpen, quickAddType]);
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [date, setDate] = useState(new Date().toISOString().substring(0, 16));
@@ -35,13 +46,8 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
   const [destWalletId, setDestWalletId] = useState('');
   const [categoryId, setCategoryId] = useState('');
 
-  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-  if (isOpen !== prevIsOpen) {
-    setPrevIsOpen(isOpen);
-    if (isOpen) {
-      setType(initialType);
-    }
-  }
+  // UseModalStore handles state sync reliably.
+
 
   useEffect(() => {
     if (isOpen && accountId) {
@@ -99,17 +105,17 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
       setWalletId('');
       onSuccess?.();
       onClose();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal menyimpan transaksi.';
-      toast(msg, 'danger');
+    closeModal();
+    } catch (error) {
+    toast('Gagal mencatat transaksi', 'danger');
     } finally {
-      setLoading(false);
+    setLoading(false);
     }
-  };
+    };
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Catat ${type === 'income' ? 'Pemasukan' : type === 'expense' ? 'Pengeluaran' : 'Transfer'} Baru`}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    return (
+    <Modal isOpen={isOpen} onClose={closeModal} title={`Catat ${type === 'income' ? 'Pemasukan' : type === 'expense' ? 'Pengeluaran' : 'Transfer'} Baru`}>
+    <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <Input
             label={`Jumlah Nominal (${wallets.find(w => w.id === walletId)?.currency || 'Rp'})`}
@@ -172,18 +178,18 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
 
         <Input
           label="Catatan / Keterangan"
-          placeholder="Contoh: Gaji bulanan, Makan siang, dll"
+          placeholder={t('transaction.notePlaceholder', 'Contoh: Gaji bulanan, Makan siang, dll')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           disabled={loading}
         />
-
-        <div className="flex justify-end gap-3 pt-4 border-t border-light-border/40 dark:border-dark-border/40">
-          <Button variant="outline" type="button" onClick={onClose} disabled={loading}>
+        </div>
+        <div className="flex justify-end gap-3 pt-4">
+          <Button variant="outline" type="button" onClick={closeModal} disabled={loading}>
             Batal
           </Button>
-          <Button type="submit" loading={loading}>
-            Simpan Transaksi
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Menyimpan...' : 'Simpan Transaksi'}
           </Button>
         </div>
       </form>

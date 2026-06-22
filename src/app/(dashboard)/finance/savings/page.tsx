@@ -26,7 +26,7 @@ import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SavingsPage() {
-  const { accountId } = useApp();
+  const { accountId, t } = useApp();
   const { toast } = useToast();
 
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
@@ -216,7 +216,7 @@ export default function SavingsPage() {
 
       <Modal isOpen={isGoalModalOpen} onClose={() => setIsGoalModalOpen(false)} title="Initialize Forge Target">
         <form onSubmit={handleCreateGoal} className="space-y-6">
-          <Input label="Objective Alias" placeholder="e.g. Asset Acquisition, Emergency Fund" value={goalName} onChange={(e) => setGoalName(e.target.value)} required />
+          <Input label="Objective Alias" placeholder={t('savings.form.namePlaceholder', 'e.g. Asset Acquisition, Emergency Fund')} value={goalName} onChange={(e) => setGoalName(e.target.value)} required />
           <div className="grid grid-cols-2 gap-6">
             <Input label="Target Magnitude" type="number" value={targetAmt} onChange={(e) => setTargetAmt(e.target.value)} required />
             <Input label="Initial Deposit" type="number" value={currentAmt} onChange={(e) => setCurrentAmt(e.target.value)} required />

@@ -25,7 +25,7 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [name, setName] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
-  const [color, setColor] = useState('#6366f1');
+  const [color, setColor] = useState('var(--primary)');
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
@@ -93,7 +93,7 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
           </div>
           <div className="flex items-center justify-between gap-4">
              <div className="flex gap-2">
-                {['#6366f1', '#22c55e', '#ef4444', '#f59e0b', '#ec4899'].map(c => (
+                {['var(--primary)', 'var(--success)', 'var(--danger)', 'var(--warning)', 'var(--color-surface-4)'].map(c => (
                   <button 
                     key={c} type="button" onClick={() => setColor(c)}
                     className={`w-6 h-6 rounded-full border-2 ${color === c ? 'border-white scale-110' : 'border-transparent'}`}
@@ -113,10 +113,10 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
                 <span className="text-sm font-bold text-white">{cat.name}</span>
-                <span className="text-[10px] uppercase font-bold text-[#6F7A9E] opacity-50">{cat.type}</span>
+                <span className="text-[10px] uppercase font-bold text-text-muted opacity-50">{cat.type}</span>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => { setEditingCategory(cat); setName(cat.name); setType(cat.type as 'income' | 'expense'); setColor(cat.color || '#6366f1'); }} className="p-1.5 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
+                <button onClick={() => { setEditingCategory(cat); setName(cat.name); setType(cat.type as 'income' | 'expense'); setColor(cat.color || 'var(--primary)'); }} className="p-1.5 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
                 <button onClick={() => handleDelete(cat.id)} className="p-1.5 hover:text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             </div>

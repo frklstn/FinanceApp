@@ -7,6 +7,7 @@ import { CheckCircle, Trash2 } from 'lucide-react';
 import type { LoanTracker } from '@/lib/debt-planner/types';
 import { computeLoanMetrics, LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
 import { formatCurrency } from '@/lib/debt-planner/format';
+import { useApp } from '@/contexts/app-context';
 
 interface ActiveDebtCardProps {
   loan: LoanTracker;
@@ -20,6 +21,7 @@ function getCategoryBadgeClass(category: string): string {
 }
 
 export function ActiveDebtCard({ loan, onMarkPaid, onDelete }: ActiveDebtCardProps) {
+  const { t } = useApp();
   const metrics = computeLoanMetrics(loan);
   const isPaidOff = loan.status === 'paid_off';
   const categoryLabel = LOAN_CATEGORY_LABELS[loan.category] || loan.category;
@@ -37,7 +39,7 @@ export function ActiveDebtCard({ loan, onMarkPaid, onDelete }: ActiveDebtCardPro
               type="button"
               onClick={() => onMarkPaid(loan.id, loan.app_name)}
               className="p-1.5 rounded-lg hover:bg-success/10 text-light-text-secondary hover:text-success cursor-pointer transition-all duration-150"
-              title="Tandai Lunas"
+              title={t('debts.action.markPaid', 'Tandai Lunas')}
             >
               <CheckCircle className="w-4 h-4" />
             </button>
@@ -46,7 +48,7 @@ export function ActiveDebtCard({ loan, onMarkPaid, onDelete }: ActiveDebtCardPro
             type="button"
             onClick={() => onDelete(loan.id, loan.app_name)}
             className="p-1.5 rounded-lg hover:bg-danger/10 text-light-text-secondary hover:text-danger cursor-pointer transition-all duration-150"
-            title="Hapus"
+            title={t('common.delete', 'Hapus')}
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -55,7 +57,7 @@ export function ActiveDebtCard({ loan, onMarkPaid, onDelete }: ActiveDebtCardPro
 
       <p className="pinjol-debt-amount">
         {formatCurrency(loan.monthly_payment)}
-        <span>/bulan</span>
+        <span>{t('common.perMonth', '/bulan')}</span>
       </p>
 
       {!isPaidOff && (
@@ -63,27 +65,27 @@ export function ActiveDebtCard({ loan, onMarkPaid, onDelete }: ActiveDebtCardPro
           value={metrics.progressPercent}
           variant={metrics.progressPercent > 66 ? 'success' : 'primary'}
           showLabel
-          label={`Progress — selesai ${metrics.endMonthLabel}`}
+          label={`${t('debts.progress', 'Progress — selesai')} ${metrics.endMonthLabel}`}
         />
       )}
 
       <div className="pinjol-debt-meta">
         <div className="pinjol-debt-meta-item">
-          <span className="pinjol-debt-meta-label">Jatuh Tempo</span>
+          <span className="pinjol-debt-meta-label">{t('debts.dueDateLabel', 'Jatuh Tempo')}</span>
           <span className="pinjol-debt-meta-value">Tgl {loan.due_day}</span>
         </div>
         <div className="pinjol-debt-meta-item">
-          <span className="pinjol-debt-meta-label">Sisa Bulan</span>
+          <span className="pinjol-debt-meta-label">{t('debts.remainingMonthsLabel', 'Sisa Bulan')}</span>
           <span className="pinjol-debt-meta-value">
-            {isPaidOff ? 'Lunas' : `${metrics.remainingMonths} bln`}
+            {isPaidOff ? t('debts.status.paid', 'Lunas') : `${metrics.remainingMonths} bln`}
           </span>
         </div>
         <div className="pinjol-debt-meta-item">
-          <span className="pinjol-debt-meta-label">Selesai</span>
+          <span className="pinjol-debt-meta-label">{t('debts.endDateLabel', 'Selesai')}</span>
           <span className="pinjol-debt-meta-value">{metrics.endMonthLabel}</span>
         </div>
         <div className="pinjol-debt-meta-item">
-          <span className="pinjol-debt-meta-label">Sisa kewajiban</span>
+          <span className="pinjol-debt-meta-label">{t('debts.remainingObligationLabel', 'Sisa kewajiban')}</span>
           <span className="pinjol-debt-meta-value">
             {formatCurrency(metrics.remainingObligation)}
           </span>
@@ -100,7 +102,7 @@ export function ActiveDebtCard({ loan, onMarkPaid, onDelete }: ActiveDebtCardPro
         <span
           className={`pinjol-status-badge ${isPaidOff ? 'pinjol-status-paid' : 'pinjol-status-active'}`}
         >
-          {isPaidOff ? 'Lunas' : 'Aktif'}
+          {isPaidOff ? t('debts.status.paid', 'Lunas') : t('debts.status.active', 'Aktif')}
         </span>
       </div>
     </Card>

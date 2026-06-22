@@ -14,7 +14,7 @@ function DocumentTitle() {
   const { appSettings } = useApp();
 
   useEffect(() => {
-    const segment = pathname.split('/')[1] || 'dashboard';
+    const segment = pathname.split('/').filter(Boolean).pop() || 'dashboard';
     const label = segment.charAt(0).toUpperCase() + segment.slice(1);
     const page = label === 'Dashboard' ? 'Overview' : label;
     document.title = `${page} | ${appSettings.document_title}`;

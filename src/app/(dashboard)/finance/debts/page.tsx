@@ -529,7 +529,7 @@ export default function DebtsPage() {
 
           <Input
             label={t('debts.modal.label', 'Protocol Label')}
-            placeholder="e.g. Nexus Venture Capital, Personal Loan"
+            placeholder={t('debts.form.namePlaceholder', 'e.g. Nexus Venture Capital, Personal Loan')}
             value={debtName}
             onChange={(e) => setDebtName(e.target.value)}
             required

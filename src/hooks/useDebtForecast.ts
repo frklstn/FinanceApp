@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { IncomeTimelineEntry, LoanTracker } from '@/lib/debt-planner/types';
-import { incomeProjectionService } from '@/lib/services/finance/income-projection.service';
-import { debtPlannerSettingsService } from '@/lib/services/finance/debt-planner-settings.service';
+import { debtService } from '@/lib/services/finance/debt.service';
 import {
   buildForecastAnalytics,
   buildForecastTimeline,
@@ -31,8 +30,8 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
     try {
       setPlannerLoading(true);
       const [timeline, settings] = await Promise.all([
-        incomeProjectionService.getTimeline(accountId),
-        debtPlannerSettingsService.getSettings(accountId),
+        debtService.getIncomeTimeline(accountId),
+        debtService.getPlannerSettings(accountId),
       ]);
       setIncomeTimeline(timeline);
       if (settings?.salary_day) setSalaryDay(settings.salary_day);
@@ -47,34 +46,31 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
     Promise.resolve().then(loadPlannerData);
   }, [loadPlannerData]);
 
-  const [forecastTimeline, setForecastTimeline] = useState<import('@/lib/services/finance/forecast.service').PeriodForecast[]>([]);
-  const [currentForecast, setCurrentForecast] = useState<import('@/lib/services/finance/forecast.service').PeriodForecast | null>(null);
-  const [analytics, setAnalytics] = useState<import('@/lib/services/finance/forecast.service').ForecastAnalytics | null>(null);
-  const [survivalScore, setSurvivalScore] = useState<import('@/lib/debt-planner/types').SurvivalScore | null>(null);
-  const [globalWarnings, setGlobalWarnings] = useState<import('@/lib/debt-planner/types').ForecastWarning[]>([]);
-  const [survivalInsight, setSurvivalInsight] = useState<string | null>(null);
+  // Derived state via synchronous calculations
+  const forecastTimeline = useMemo(() => {
+    return buildForecastTimeline(loans, incomeTimeline, salaryDay, FORECAST_PERIOD_COUNT);
+  }, [loans, incomeTimeline, salaryDay]);
 
-  useEffect(() => {
-    async function updateForecast() {
-      const timeline = await buildForecastTimeline(loans, incomeTimeline, salaryDay, FORECAST_PERIOD_COUNT);
-      const current = await getCurrentPeriodForecast(loans, incomeTimeline, salaryDay);
-      const ana = buildForecastAnalytics(timeline, loans);
-      const score = computeDashboardSurvivalScore(current, timeline, loans);
-      const warnings = generateGlobalWarnings(timeline, loans);
-      
-      setForecastTimeline(timeline);
-      setCurrentForecast(current);
-      setAnalytics(ana);
-      setSurvivalScore(score);
-      setGlobalWarnings(warnings);
-      
-      if (insightRequested) {
-        const insight = await generateSurvivalInsight(timeline, loans, current);
-        setSurvivalInsight(insight);
-      }
-    }
-    updateForecast();
-  }, [loans, incomeTimeline, salaryDay, insightRequested]);
+  const currentForecast = useMemo(() => {
+    return getCurrentPeriodForecast(loans, incomeTimeline, salaryDay);
+  }, [loans, incomeTimeline, salaryDay]);
+
+  const analytics = useMemo(() => {
+    return buildForecastAnalytics(forecastTimeline, loans);
+  }, [forecastTimeline, loans]);
+
+  const survivalScore = useMemo(() => {
+    return computeDashboardSurvivalScore(currentForecast, forecastTimeline, loans);
+  }, [currentForecast, forecastTimeline, loans]);
+
+  const globalWarnings = useMemo(() => {
+    return generateGlobalWarnings(forecastTimeline, loans);
+  }, [forecastTimeline, loans]);
+
+  const survivalInsight = useMemo(() => {
+    if (!insightRequested) return null;
+    return generateSurvivalInsight(forecastTimeline, loans, currentForecast);
+  }, [insightRequested, forecastTimeline, loans, currentForecast]);
 
   const nextDueDate = useMemo(() => getNextDueDate(loans), [loans]);
 
@@ -83,7 +79,7 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
   const saveSalaryDay = useCallback(
     async (day: number) => {
       if (!accountId) return;
-      await debtPlannerSettingsService.upsertSalaryDay(accountId, day);
+      await debtService.upsertSalaryDay(accountId, day);
       setSalaryDay(day);
     },
     [accountId]
@@ -92,7 +88,7 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
   const addIncomeEntry = useCallback(
     async (effective_date: string, monthly_income: number) => {
       if (!accountId) return;
-      await incomeProjectionService.createEntry(accountId, { 
+      await debtService.createIncomeEntry(accountId, { 
         effective_date, 
         monthly_income,
         currency: 'IDR'
@@ -104,7 +100,7 @@ export function useDebtForecast(accountId: string | undefined, loans: LoanTracke
 
   const removeIncomeEntry = useCallback(
     async (id: string) => {
-      await incomeProjectionService.deleteEntry(id);
+      await debtService.deleteIncomeEntry(id);
       await loadPlannerData();
     },
     [loadPlannerData]

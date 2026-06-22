@@ -13,7 +13,7 @@ export function GlobalBrandingForm() {
   const { user, appSettings, refreshAppSettings } = useApp();
   const { toast } = useToast();
   const [appName, setAppName] = useState(appSettings.app_name);
-  const [appLogoUrl, setAppLogoUrl] = useState(appSettings.app_logo_url ?? '');
+  const [appLogoUrl, setAppLogoUrl] = useState(appSettings.app_logo_url ?? '/icon.png');
   const [documentTitle, setDocumentTitle] = useState(appSettings.document_title);
   const [saving, setSaving] = useState(false);
   const [prevAppSettings, setPrevAppSettings] = useState(appSettings);
@@ -21,7 +21,7 @@ export function GlobalBrandingForm() {
   if (appSettings !== prevAppSettings) {
     setPrevAppSettings(appSettings);
     setAppName(appSettings.app_name);
-    setAppLogoUrl(appSettings.app_logo_url ?? '');
+    setAppLogoUrl(appSettings.app_logo_url ?? '/icon.png');
     setDocumentTitle(appSettings.document_title);
   }
 

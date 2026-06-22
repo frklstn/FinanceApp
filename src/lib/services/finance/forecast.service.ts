@@ -16,7 +16,6 @@ import {
   hasClusteredDueDates,
   calcRemainingObligation,
 } from '@/lib/debt-planner/calculations';
-import { currencyService } from './currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 
 export type {
@@ -29,16 +28,16 @@ export { calcSurvivalScore } from '@/lib/debt-planner/calculations';
 
 const LOW_CASH_THRESHOLD_IDR = 500_000;
 
-export async function buildPeriodWarnings(
+export function buildPeriodWarnings(
   totalDebt: number,
   income: number,
   remainingCash: number,
   activeCount: number,
   clustered: boolean
-): Promise<ForecastWarning[]> {
+): ForecastWarning[] {
   const warnings: ForecastWarning[] = [];
 
-  const threshold = await currencyService.convert(LOW_CASH_THRESHOLD_IDR, 'IDR', 'IDR'); // Normalize if needed
+  const threshold = LOW_CASH_THRESHOLD_IDR; // Normalize if needed
 
   if (income > 0 && totalDebt > income) {
     warnings.push({
@@ -71,13 +70,13 @@ export async function buildPeriodWarnings(
   return warnings;
 }
 
-export async function buildForecastForPeriod(
+export function buildForecastForPeriod(
   loans: LoanTracker[],
   incomeTimeline: IncomeTimelineEntry[],
   salaryDay: number,
   periodIndex: number,
   fromDate: Date = new Date()
-): Promise<PeriodForecast> {
+): PeriodForecast {
   const periods = getSalaryPeriods(salaryDay, periodIndex + 1, fromDate);
   const period = periods[periodIndex];
   const activeLoans = loans.filter((l) => l.status === 'active');
@@ -88,7 +87,7 @@ export async function buildForecastForPeriod(
   const health_status = getHealthStatus(debt_ratio, remaining_cash);
   const clustered = hasClusteredDueDates(activeLoans);
 
-  const warnings = await buildPeriodWarnings(
+  const warnings = buildPeriodWarnings(
     total_debt,
     income,
     remaining_cash,
@@ -107,25 +106,25 @@ export async function buildForecastForPeriod(
   };
 }
 
-export async function buildForecastTimeline(
+export function buildForecastTimeline(
   loans: LoanTracker[],
   incomeTimeline: IncomeTimelineEntry[],
   salaryDay: number,
   periodCount = 12,
   fromDate: Date = new Date()
-): Promise<PeriodForecast[]> {
+): PeriodForecast[] {
   const periods = getSalaryPeriods(salaryDay, periodCount, fromDate);
   const activeLoans = loans.filter((l) => l.status === 'active');
   const clustered = hasClusteredDueDates(activeLoans);
 
-  return Promise.all(periods.map(async (period) => {
+  return periods.map((period) => {
     const income = getIncomeForDate(incomeTimeline, period.start);
     const total_debt = calcPeriodDebtTotal(activeLoans, period.start, period.end);
     const remaining_cash = income - total_debt;
     const debt_ratio = calcDebtRatio(total_debt, income);
     const health_status = getHealthStatus(debt_ratio, remaining_cash);
 
-    const warnings = await buildPeriodWarnings(
+    const warnings = buildPeriodWarnings(
       total_debt,
       income,
       remaining_cash,
@@ -142,15 +141,15 @@ export async function buildForecastTimeline(
       health_status,
       warnings,
     };
-  }));
+  });
 }
 
-export async function getCurrentPeriodForecast(
+export function getCurrentPeriodForecast(
   loans: LoanTracker[],
   incomeTimeline: IncomeTimelineEntry[],
   salaryDay: number,
   fromDate: Date = new Date()
-): Promise<PeriodForecast> {
+): PeriodForecast {
   const period = getSalaryPeriodContaining(salaryDay, fromDate);
   const activeLoans = loans.filter((l) => l.status === 'active');
   const income = getIncomeForDate(incomeTimeline, period.start);
@@ -158,7 +157,7 @@ export async function getCurrentPeriodForecast(
   const remaining_cash = income - total_debt;
   const debt_ratio = calcDebtRatio(total_debt, income);
 
-  const warnings = await buildPeriodWarnings(
+  const warnings = buildPeriodWarnings(
     total_debt,
     income,
     remaining_cash,
@@ -223,11 +222,11 @@ export function buildForecastAnalytics(
   };
 }
 
-export async function generateSurvivalInsight(
+export function generateSurvivalInsight(
   forecastTimeline: PeriodForecast[],
   loans: LoanTracker[],
   currentForecast: PeriodForecast
-): Promise<string> {
+): string {
   const activeLoans = loans.filter((l) => l.status === 'active');
 
   if (activeLoans.length === 0) {

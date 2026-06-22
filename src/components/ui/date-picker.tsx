@@ -227,7 +227,7 @@ export function DatePicker({
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center gap-3 px-5 py-3 rounded-2xl bg-[#050507]/50 border text-sm text-white transition-all cursor-pointer backdrop-blur-xl",
+          "w-full flex items-center gap-3 px-5 py-3 rounded-2xl bg-sidebar/50 border text-sm text-white transition-all cursor-pointer backdrop-blur-xl",
           error ? "border-rose-500/50" : isOpen ? "border-emerald-500 ring-4 ring-emerald-500/10" : "border-white/5 hover:border-white/10"
         )}
       >
@@ -237,7 +237,7 @@ export function DatePicker({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2 w-full min-w-[300px] z-[110] p-5 rounded-[32px] bg-[#0a0a0c] border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.8)] backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute left-0 top-full mt-2 w-full min-w-[300px] z-[110] p-5 rounded-[32px] bg-card border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.8)] backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <button 

@@ -9,20 +9,20 @@ function LandingPageContent() {
   const { appSettings } = useApp();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white selection:bg-indigo-500/30 overflow-hidden relative">
+    <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-500/30 overflow-hidden relative">
       {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[120px] rounded-full animate-pulse" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[120px] rounded-full" />
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#0a0a0c]/80 backdrop-blur-xl">
+      <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <BarChart3 className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight">
-              {appSettings?.app_name === 'FinanceApp' ? (
+              {appSettings?.app_name === 'FRKLSTN' || appSettings?.app_name === 'FinanceApp' ? (
                 <>
                   FRKL<span className="text-indigo-400 font-extrabold">STN</span>
                 </>
@@ -32,7 +32,7 @@ function LandingPageContent() {
             </span>
           </div>
           <Link
-            href="/dashboard"
+            href="/finance/dashboard"
             className="px-6 py-2.5 bg-white text-black font-semibold rounded-full hover:bg-neutral-200 transition-all active:scale-95"
           >
             Masuk Ke Dashboard
@@ -59,7 +59,7 @@ function LandingPageContent() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/dashboard"
+              href="/finance/dashboard"
               className="group px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all flex items-center gap-2 shadow-xl shadow-indigo-500/20 active:scale-95"
             >
               Mulai Sekarang
@@ -109,7 +109,7 @@ function LandingPageContent() {
       <footer className="py-12 px-6 border-t border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:row items-center justify-between gap-6">
           <div className="text-neutral-500 text-sm">
-            © 2026 {appSettings?.app_name || "FinanceApp"}. All rights reserved.
+            © 2026 {appSettings?.app_name || "FRKLSTN"}. All rights reserved.
           </div>
           <div className="flex gap-8 text-sm text-neutral-400 font-medium">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>

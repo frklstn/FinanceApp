@@ -25,7 +25,7 @@ export function BudgetOptimizerWidget({ suggestions, onApply }: BudgetOptimizerW
           <div className="p-2 rounded-xl bg-emerald-500/20 border border-emerald-500/30">
             <Sparkles className="w-5 h-5 text-emerald-400" />
           </div>
-          <h3 className="text-sm font-black text-white uppercase tracking-tight">AI Budget Optimizer</h3>
+          <h3 className="text-sm font-black text-[var(--nexus-text-primary)] uppercase tracking-tight">AI Budget Optimizer</h3>
         </div>
         <span className="text-[9px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20 tracking-widest uppercase">Beta</span>
       </div>
@@ -37,12 +37,12 @@ export function BudgetOptimizerWidget({ suggestions, onApply }: BudgetOptimizerW
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-3 hover:bg-white/[0.06] transition-all"
+            className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)]/50 border border-[var(--nexus-glass-border)] space-y-3 hover:bg-[var(--nexus-bg-panel)] transition-all"
           >
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">{s.categoryName}</p>
-                <p className="text-[11px] font-bold text-white/70 leading-relaxed uppercase tracking-tight">{s.reason}</p>
+                <p className="text-[11px] font-bold text-[var(--nexus-text-secondary)] leading-relaxed uppercase tracking-tight">{s.reason}</p>
               </div>
               {s.priority === 'high' ? (
                 <AlertTriangle className="w-4 h-4 text-rose-500" />
@@ -51,15 +51,15 @@ export function BudgetOptimizerWidget({ suggestions, onApply }: BudgetOptimizerW
               )}
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-white/5">
+            <div className="flex items-center justify-between pt-2 border-t border-[var(--nexus-glass-border)]">
               <div className="space-y-0.5">
-                <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">Potensi Hemat</p>
+                <p className="text-[8px] font-black text-[var(--nexus-text-muted)] uppercase tracking-widest">Potensi Hemat</p>
                 <p className="text-sm font-black text-emerald-400">{formatCurrency(s.potentialSavings)}</p>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="h-auto py-2 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white flex items-center gap-2 group/btn"
+                className="h-auto py-2 text-[9px] font-black uppercase tracking-widest text-[var(--nexus-text-secondary)] hover:text-[var(--nexus-text-primary)] flex items-center gap-2 group/btn"
                 onClick={() => onApply?.(s)}
               >
                 Optimalkan <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
@@ -70,7 +70,7 @@ export function BudgetOptimizerWidget({ suggestions, onApply }: BudgetOptimizerW
       </div>
 
       {suggestions.length > 2 && (
-        <button className="w-full mt-4 text-[9px] font-black text-white/20 hover:text-white uppercase tracking-[0.2em] transition-colors">
+        <button className="w-full mt-4 text-[9px] font-black text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] uppercase tracking-[0.2em] transition-colors">
           Lihat {suggestions.length - 2} Rekomendasi Lainnya
         </button>
       )}

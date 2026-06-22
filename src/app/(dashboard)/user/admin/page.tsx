@@ -41,7 +41,7 @@ export default function AdminPage() {
   const supabase = createClient();
   const { toast } = useToast();
   const router = useRouter();
-  const { user, isSuperAdmin, isLoading: appLoading } = useApp();
+  const { user, isSuperAdmin, isLoading: appLoading, appSettings } = useApp();
 
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<ProfileUser[]>([]);
@@ -81,7 +81,7 @@ export default function AdminPage() {
 
     if (!isSuperAdmin) {
       toast('Akses ditolak: hanya superadmin.', 'danger');
-      router.replace('/dashboard');
+      router.replace('/finance/dashboard');
       return;
     }
 
@@ -453,7 +453,7 @@ export default function AdminPage() {
                   label="URL Avatar"
                   value={editAvatar}
                   onChange={(e) => setEditAvatar(e.target.value)}
-                  placeholder="https://example.com/logo.png"
+                  placeholder="e.g. https://example.com/avatar.jpg"
                 />
                 {editAvatar && (
                   <div className="flex items-center gap-2.5 pt-2">
@@ -482,7 +482,7 @@ export default function AdminPage() {
                   label="URL Icon App"
                   value={editAppIconUrl}
                   onChange={(e) => setEditAppIconUrl(e.target.value)}
-                  placeholder="https://example.com/icon.png"
+                  placeholder={appSettings?.app_logo_url || "/icon.png"}
                 />
                 {editAppIconUrl && (
                   <div className="flex items-center gap-2.5 pt-2">

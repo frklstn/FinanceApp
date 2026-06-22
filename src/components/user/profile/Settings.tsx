@@ -9,7 +9,7 @@ import { useApp } from '@/contexts/app-context';
 import { User, Monitor, Languages, RefreshCw, Trash2, Download } from 'lucide-react';
 import { SubscriptionStatus } from '../subscription/subscription-status';
 import { useUser } from '@/lib/hooks/use-user';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { transactionService } from '@/lib/services/workspace/transaction.service';
 import { useToast } from '@/components/ui/toast';
 import { useTheme } from '@/contexts/theme-context';
@@ -42,35 +42,49 @@ export function AccountSettings({ isOpen, onClose }: AccountSettingsProps) {
         return;
       }
 
-      const rows = allTxs.map((tx) => ({
-        [t('settings.export.id', 'ID')]: tx.id,
-        [t('settings.export.date', 'Tanggal')]: new Date(tx.date).toLocaleDateString('id-ID'),
-        [t('settings.export.type', 'Tipe')]: tx.type === 'income' 
-          ? t('settings.export.income', 'PEMASUKAN') 
-          : tx.type === 'expense' 
-            ? t('settings.export.expense', 'PENGELUARAN') 
-            : t('settings.export.transfer', 'TRANSFER'),
-        [t('settings.export.amount', 'Nominal')]: Number(tx.amount),
-        [t('settings.export.wallet', 'Dompet')]: tx.wallets?.name || t('settings.export.general', 'Umum'),
-        [t('settings.export.category', 'Kategori')]: tx.categories?.name || t('settings.export.general', 'Umum'),
-        [t('settings.export.note', 'Catatan')]: tx.note || '',
-        [t('settings.export.tag', 'Tag')]: tx.tags?.join(', ') || '',
-      }));
+      const workbook = new ExcelJS.Workbook();
+      const sheetName = t('settings.export.sheetName', 'Laporan Keuangan');
+      const worksheet = workbook.addWorksheet(sheetName);
 
-      const worksheet = XLSX.utils.json_to_sheet(rows);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, t('settings.export.sheetName', 'Laporan Keuangan'));
-
-      const colWidths = [
-        { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, 
-        { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 20 },
+      worksheet.columns = [
+        { header: t('settings.export.id', 'ID'), key: 'id', width: 25 },
+        { header: t('settings.export.date', 'Tanggal'), key: 'date', width: 12 },
+        { header: t('settings.export.type', 'Tipe'), key: 'type', width: 12 },
+        { header: t('settings.export.amount', 'Nominal'), key: 'amount', width: 15 },
+        { header: t('settings.export.wallet', 'Dompet'), key: 'wallet', width: 15 },
+        { header: t('settings.export.category', 'Kategori'), key: 'category', width: 15 },
+        { header: t('settings.export.note', 'Catatan'), key: 'note', width: 30 },
+        { header: t('settings.export.tag', 'Tag'), key: 'tag', width: 20 },
       ];
-      worksheet['!cols'] = colWidths;
 
-      const appName = appSettings?.app_name || 'FinanceApp';
+      allTxs.forEach((tx) => {
+        worksheet.addRow({
+          id: tx.id,
+          date: new Date(tx.date).toLocaleDateString('id-ID'),
+          type: tx.type === 'income' 
+            ? t('settings.export.income', 'PEMASUKAN') 
+            : tx.type === 'expense' 
+              ? t('settings.export.expense', 'PENGELUARAN') 
+              : t('settings.export.transfer', 'TRANSFER'),
+          amount: Number(tx.amount),
+          wallet: tx.wallets?.name || t('settings.export.general', 'Umum'),
+          category: tx.categories?.name || t('settings.export.general', 'Umum'),
+          note: tx.note || '',
+          tag: tx.tags?.join(', ') || '',
+        });
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      const appName = appSettings?.app_name || 'FRKLSTN';
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const fileName = `${appName.replace(/\s+/g, '_')}_Buku_Besar_${timestamp}.xlsx`;
-      XLSX.writeFile(workbook, fileName);
+      anchor.download = `${appName.replace(/\s+/g, '_')}_Buku_Besar_${timestamp}.xlsx`;
+      anchor.click();
+      window.URL.revokeObjectURL(url);
+
       toast(t('settings.export.success', 'Buku besar berhasil diekspor ke Excel!'), 'success');
 
     } catch (err: unknown) {
@@ -125,7 +139,7 @@ export function AccountSettings({ isOpen, onClose }: AccountSettingsProps) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Input
                 label="Nama Pengguna"
-                placeholder="Masukkan nama Anda"
+                placeholder={t('settings.form.usernamePlaceholder', 'Masukkan nama Anda')}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -134,7 +148,7 @@ export function AccountSettings({ isOpen, onClose }: AccountSettingsProps) {
               <Input
                 label="Alamat Email"
                 type="email"
-                placeholder="nama@email.com"
+                placeholder={t('auth.emailPlaceholder', 'nama@email.com')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

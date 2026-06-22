@@ -30,6 +30,11 @@
   --color-dark-text-primary: #FFFFFF;
   --color-dark-text-secondary: #A7B0D1;
 
+  --color-main: var(--bg-main);
+  --color-sidebar: var(--bg-sidebar);
+  --color-card: var(--bg-card);
+  --color-surface: var(--bg-surface);
+
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 

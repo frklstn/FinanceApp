@@ -43,7 +43,7 @@ export function EmergencyRunwayCard({ runwayMonths }: EmergencyRunwayCardProps) 
   };
 
   return (
-    <Card className="p-6 md:p-8 overflow-hidden relative border-white/5 bg-white/5 backdrop-blur-xl">
+    <Card className="p-6 md:p-8 overflow-hidden relative border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)] backdrop-blur-xl">
       {/* Background Glow */}
       <div className={`absolute -right-20 -top-20 w-64 h-64 rounded-full blur-[100px] opacity-20 bg-gradient-to-br ${getStatusColor()}`} />
       
@@ -55,9 +55,9 @@ export function EmergencyRunwayCard({ runwayMonths }: EmergencyRunwayCardProps) 
                 {getStatusText()}
               </span>
             </div>
-            <h3 className="text-xl font-extrabold text-white">Emergency Runway</h3>
+            <h3 className="text-xl font-extrabold text-[var(--nexus-text-primary)]">Emergency Runway</h3>
           </div>
-          <div className={`p-3 rounded-2xl bg-white/5 border border-white/10 ${getTextColor()}`}>
+          <div className={`p-3 rounded-2xl bg-[var(--nexus-bg-panel)]/50 border border-[var(--nexus-glass-border)] ${getTextColor()}`}>
             <ShieldCheck className="w-6 h-6" />
           </div>
         </div>
@@ -68,16 +68,16 @@ export function EmergencyRunwayCard({ runwayMonths }: EmergencyRunwayCardProps) 
               <span className={`text-5xl font-black tracking-tighter ${getTextColor()}`}>
                 {runwayMonths.toFixed(1)}
               </span>
-              <span className="text-sm font-bold text-white/40 uppercase tracking-widest ml-1">Bulan</span>
+              <span className="text-sm font-bold text-[var(--nexus-text-secondary)] uppercase tracking-widest ml-1">Bulan</span>
             </div>
             <div className="text-right">
-              <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">Survival Score</span>
-              <span className="text-sm font-black text-white">{Math.round((runwayMonths / 6) * 100)}% Target</span>
+              <span className="text-[10px] font-bold text-[var(--nexus-text-secondary)] uppercase tracking-widest block">Survival Score</span>
+              <span className="text-sm font-black text-[var(--nexus-text-primary)]">{Math.round((runwayMonths / 6) * 100)}% Target</span>
             </div>
           </div>
 
           {/* Progress Bar Container */}
-          <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
+          <div className="h-3 w-full bg-[var(--nexus-bg-panel)]/50 rounded-full overflow-hidden border border-[var(--nexus-glass-border)] p-[1px]">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -86,16 +86,16 @@ export function EmergencyRunwayCard({ runwayMonths }: EmergencyRunwayCardProps) 
             />
           </div>
 
-          <div className="flex justify-between text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">
+          <div className="flex justify-between text-[10px] font-bold text-[var(--nexus-text-muted)] uppercase tracking-[0.2em]">
             <span>0 Bln</span>
             <span>6 Bln (Safe)</span>
             <span>12+ Bln</span>
           </div>
         </div>
 
-        <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-[var(--nexus-bg-panel)]/50 border border-[var(--nexus-glass-border)]">
           <Info className={`w-5 h-5 mt-0.5 shrink-0 ${getTextColor()}`} />
-          <p className="text-xs font-medium text-white/60 leading-relaxed">
+          <p className="text-xs font-medium text-[var(--nexus-text-secondary)] leading-relaxed">
             {runwayMonths >= 6 
               ? 'Dana darurat Anda mencukupi untuk gaya hidup saat ini. Pertahankan aset likuid untuk keamanan jangka panjang.' 
               : 'Anda perlu meningkatkan cadangan kas atau menekan pengeluaran bulanan untuk mencapai batas aman 6 bulan survival.'}
