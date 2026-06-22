@@ -65,7 +65,7 @@ export default function LoginPage() {
       } else {
         setSuccessMsg('Authentication Authorized. Redirecting to Node...');
         setTimeout(() => {
-          router.push('/finance/dashboard');
+          router.push('/dashboard');
           router.refresh();
         }, 1500);
       }

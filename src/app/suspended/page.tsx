@@ -11,14 +11,14 @@ import { ShieldAlert, LogOut, Mail } from 'lucide-react';
 export default function SuspendedPage() {
   const supabase = createClient();
   const router = useRouter();
-  const { t, appSettings } = useApp();
+  const { t } = useApp();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.replace('/login');
   };
 
-  const supportEmail = `support@${(appSettings?.app_name || 'FinanceApp').toLowerCase().replace(/\s+/g, '')}.com`;
+  const supportEmail = 'support@FinanceApp.com';
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 bg-light-bg dark:bg-dark-bg transition-colors duration-300">

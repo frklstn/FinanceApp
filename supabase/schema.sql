@@ -1,5 +1,5 @@
 -- FinanceApp Unified Database Schema (Public)
--- Generated on 2026-06-17, consolidated on 2026-06-20
+-- Generated on 2026-06-17
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -54,7 +54,6 @@ CREATE TABLE IF NOT EXISTS public.wallets (
     color TEXT NOT NULL DEFAULT '#4F46E5',
     icon TEXT NOT NULL DEFAULT 'wallet',
     is_active BOOLEAN NOT NULL DEFAULT true,
-    currency TEXT DEFAULT 'IDR' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
@@ -87,8 +86,6 @@ CREATE TABLE IF NOT EXISTS public.transactions (
     attachment_url TEXT,
     is_recurring BOOLEAN NOT NULL DEFAULT false,
     recurring_id UUID,
-    currency TEXT DEFAULT 'IDR' NOT NULL,
-    exchange_rate NUMERIC DEFAULT 1.0 NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
@@ -102,7 +99,6 @@ CREATE TABLE IF NOT EXISTS public.budgets (
     period TEXT NOT NULL DEFAULT 'monthly',
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    currency TEXT DEFAULT 'IDR' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
@@ -134,7 +130,6 @@ CREATE TABLE IF NOT EXISTS public.debts (
     description TEXT,
     remaining_amount NUMERIC NOT NULL DEFAULT 0.00,
     contact_info TEXT,
-    currency TEXT DEFAULT 'IDR' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
@@ -212,7 +207,6 @@ CREATE TABLE IF NOT EXISTS public.loan_trackers (
     total_remaining_balance NUMERIC,
     penalty_fee NUMERIC,
     can_early_payoff BOOLEAN DEFAULT false,
-    currency TEXT DEFAULT 'IDR' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
@@ -231,7 +225,6 @@ CREATE TABLE IF NOT EXISTS public.income_timeline (
     workspace_id UUID NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,
     effective_date DATE NOT NULL,
     monthly_income NUMERIC NOT NULL,
-    currency TEXT DEFAULT 'IDR' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
@@ -244,181 +237,3 @@ CREATE TABLE IF NOT EXISTS public.app_settings (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL
 );
-
--- 18. Exchange Rates Table
-CREATE TABLE IF NOT EXISTS public.exchange_rates (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    from_currency TEXT NOT NULL,
-    to_currency TEXT NOT NULL,
-    rate NUMERIC NOT NULL,
-    last_updated TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    UNIQUE(from_currency, to_currency)
-);
-
--- Enable RLS on exchange_rates
-ALTER TABLE public.exchange_rates ENABLE ROW LEVEL SECURITY;
-
--- Create policy for public read access to exchange_rates
-CREATE POLICY "Allow public read access to exchange_rates"
-ON public.exchange_rates FOR SELECT
-TO authenticated
-USING (true);
-
-
--- 19. PL/pgSQL Atomic Transaction Functions
-
-CREATE OR REPLACE FUNCTION public.create_transaction(
-  p_workspace_id UUID,
-  p_wallet_id UUID,
-  p_category_id UUID,
-  p_amount NUMERIC,
-  p_type TEXT,
-  p_destination_wallet_id UUID,
-  p_note TEXT,
-  p_date TIMESTAMPTZ,
-  p_tags TEXT[],
-  p_currency TEXT,
-  p_exchange_rate NUMERIC,
-  p_is_recurring BOOLEAN
-) RETURNS public.transactions AS $$
-DECLARE
-  v_transaction public.transactions;
-END;
-$$ LANGUAGE plpgsql;
-
--- Body implementation for create_transaction
-CREATE OR REPLACE FUNCTION public.create_transaction(
-  p_workspace_id UUID,
-  p_wallet_id UUID,
-  p_category_id UUID,
-  p_amount NUMERIC,
-  p_type TEXT,
-  p_destination_wallet_id UUID,
-  p_note TEXT,
-  p_date TIMESTAMPTZ,
-  p_tags TEXT[],
-  p_currency TEXT,
-  p_exchange_rate NUMERIC,
-  p_is_recurring BOOLEAN
-) RETURNS public.transactions AS $$
-DECLARE
-  v_transaction public.transactions;
-BEGIN
-  -- Update source wallet
-  IF p_type = 'income' THEN
-    UPDATE public.wallets SET balance = balance + p_amount WHERE id = p_wallet_id;
-  ELIF p_type = 'expense' THEN
-    UPDATE public.wallets SET balance = balance - p_amount WHERE id = p_wallet_id;
-  ELIF p_type = 'transfer' THEN
-    UPDATE public.wallets SET balance = balance - p_amount WHERE id = p_wallet_id;
-    UPDATE public.wallets SET balance = balance + p_amount WHERE id = p_destination_wallet_id;
-  END IF;
-
-  -- Insert transaction
-  INSERT INTO public.transactions (
-    workspace_id, wallet_id, category_id, amount, type, 
-    destination_wallet_id, note, date, tags, currency, 
-    exchange_rate, is_recurring
-  ) VALUES (
-    p_workspace_id, p_wallet_id, p_category_id, p_amount, p_type,
-    p_destination_wallet_id, p_note, p_date, p_tags, p_currency,
-    p_exchange_rate, p_is_recurring
-  ) RETURNING * INTO v_transaction;
-
-  RETURN v_transaction;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION public.delete_transaction(p_id UUID) RETURNS VOID AS $$
-DECLARE
-  v_tx public.transactions;
-BEGIN
-  -- Fetch the transaction first to get details
-  SELECT * INTO v_tx FROM public.transactions WHERE id = p_id;
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Transaction not found';
-  END IF;
-
-  -- Rollback wallet balance
-  IF v_tx.type = 'income' THEN
-    UPDATE public.wallets SET balance = balance - v_tx.amount WHERE id = v_tx.wallet_id;
-  ELIF v_tx.type = 'expense' THEN
-    UPDATE public.wallets SET balance = balance + v_tx.amount WHERE id = v_tx.wallet_id;
-  ELIF v_tx.type = 'transfer' THEN
-    UPDATE public.wallets SET balance = balance + v_tx.amount WHERE id = v_tx.wallet_id;
-    IF v_tx.destination_wallet_id IS NOT NULL THEN
-      UPDATE public.wallets SET balance = balance - v_tx.amount WHERE id = v_tx.destination_wallet_id;
-    END IF;
-  END IF;
-
-  -- Delete the transaction
-  DELETE FROM public.transactions WHERE id = p_id;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION public.update_transaction(
-  p_id UUID,
-  p_wallet_id UUID,
-  p_category_id UUID,
-  p_amount NUMERIC,
-  p_type TEXT,
-  p_destination_wallet_id UUID,
-  p_note TEXT,
-  p_date TIMESTAMPTZ,
-  p_tags TEXT[],
-  p_attachment_url TEXT,
-  p_is_recurring BOOLEAN
-) RETURNS public.transactions AS $$
-DECLARE
-  v_old_tx public.transactions;
-  v_new_tx public.transactions;
-BEGIN
-  -- Fetch the old transaction first
-  SELECT * INTO v_old_tx FROM public.transactions WHERE id = p_id;
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Transaction not found';
-  END IF;
-
-  -- 1. Rollback old wallet balance
-  IF v_old_tx.type = 'income' THEN
-    UPDATE public.wallets SET balance = balance - v_old_tx.amount WHERE id = v_old_tx.wallet_id;
-  ELIF v_old_tx.type = 'expense' THEN
-    UPDATE public.wallets SET balance = balance + v_old_tx.amount WHERE id = v_old_tx.wallet_id;
-  ELIF v_old_tx.type = 'transfer' THEN
-    UPDATE public.wallets SET balance = balance + v_old_tx.amount WHERE id = v_old_tx.wallet_id;
-    IF v_old_tx.destination_wallet_id IS NOT NULL THEN
-      UPDATE public.wallets SET balance = balance - v_old_tx.amount WHERE id = v_old_tx.destination_wallet_id;
-    END IF;
-  END IF;
-
-  -- 2. Apply new wallet balance
-  IF p_type = 'income' THEN
-    UPDATE public.wallets SET balance = balance + p_amount WHERE id = p_wallet_id;
-  ELIF p_type = 'expense' THEN
-    UPDATE public.wallets SET balance = balance - p_amount WHERE id = p_wallet_id;
-  ELIF p_type = 'transfer' THEN
-    UPDATE public.wallets SET balance = balance - p_amount WHERE id = p_wallet_id;
-    IF p_destination_wallet_id IS NOT NULL THEN
-      UPDATE public.wallets SET balance = balance + p_amount WHERE id = p_destination_wallet_id;
-    END IF;
-  END IF;
-
-  -- 3. Update the transaction
-  UPDATE public.transactions SET
-    wallet_id = p_wallet_id,
-    category_id = p_category_id,
-    amount = p_amount,
-    type = p_type,
-    destination_wallet_id = p_destination_wallet_id,
-    note = p_note,
-    date = p_date,
-    tags = p_tags,
-    attachment_url = p_attachment_url,
-    is_recurring = p_is_recurring,
-    updated_at = now()
-  WHERE id = p_id
-  RETURNING * INTO v_new_tx;
-
-  RETURN v_new_tx;
-END;
-$$ LANGUAGE plpgsql;

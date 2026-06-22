@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState, useReducer, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '@/contexts/app-context';
+
 import { useDebts } from '@/hooks/useDebts';
 import { useDebtForecast } from '@/hooks/useDebtForecast';
+import { debtService, Debt } from '@/lib/services/finance/debt.service';
 import { walletService, Wallet } from '@/lib/services/workspace/wallet.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { APP_TEXTS } from '@/config/branding';
 import type { LoanTracker } from '@/lib/debt-planner/types';
-import { Debt } from '@/lib/services/finance/debt.service';
 import { Button } from '@/components/ui/button';
 import { DebtDashboard } from '@/components/finance/debt/DebtDashboard';
 import { ActiveDebtList } from '@/components/finance/debt/ActiveDebtList';
@@ -22,7 +23,17 @@ import { SurvivalAnalysis } from '@/components/finance/forecast/SurvivalAnalysis
 import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import {
-  AlertTriangle, HandCoins, Plus, BarChart2, LayoutList, Calendar, TrendingUp, AlertCircle, Info, Landmark, Trash2,
+  AlertTriangle,
+  HandCoins,
+  Plus,
+  BarChart2,
+  LayoutList,
+  Calendar,
+  TrendingUp,
+  AlertCircle,
+  Info,
+  Landmark,
+  Trash2,
 } from 'lucide-react';
 import NumberTicker from '@/components/ui/number-ticker';
 import { Card } from '@/components/ui/card';
@@ -30,7 +41,6 @@ import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
-import { StateContainer } from '@/components/shared/StateContainer';
 import '@/styles/pages/pinjol.css';
 import '@/styles/debt/dashboard.css';
 import '@/styles/forecast/timeline.css';
@@ -38,160 +48,156 @@ import '@/styles/debt/calendar.css';
 
 type Tab = 'overview' | 'daftar' | 'forecast' | 'timeline' | 'kalender' | 'ledger';
 
-// REDUCER FOR UI & FORM STATES (PONTYAIL: Konsolidasi state)
-type State = {
-  activeTab: Tab;
-  submitting: boolean;
-  isLoanModalOpen: boolean;
-  isDebtModalOpen: boolean;
-  isPayModalOpen: boolean;
-  selectedDebt: Debt | null;
-  debtForm: { name: string; type: 'owe' | 'lend'; amount: string; contactInfo: string; dueDate: string };
-  payForm: { walletId: string; amount: string; note: string };
-};
-
-type Action = 
-  | { type: 'SET_TAB'; payload: Tab }
-  | { type: 'SET_SUBMITTING'; payload: boolean }
-  | { type: 'TOGGLE_LOAN_MODAL'; payload: boolean }
-  | { type: 'TOGGLE_DEBT_MODAL'; payload: boolean }
-  | { type: 'OPEN_PAY_MODAL'; payload: { debt: Debt; defaultNote: string } }
-  | { type: 'CLOSE_PAY_MODAL' }
-  | { type: 'UPDATE_DEBT_FORM'; payload: Partial<State['debtForm']> }
-  | { type: 'UPDATE_PAY_FORM'; payload: Partial<State['payForm']> }
-  | { type: 'RESET_DEBT_FORM' };
-
-const initialState: State = {
-  activeTab: 'overview',
-  submitting: false,
-  isLoanModalOpen: false,
-  isDebtModalOpen: false,
-  isPayModalOpen: false,
-  selectedDebt: null,
-  debtForm: { name: '', type: 'owe', amount: '', contactInfo: '', dueDate: '' },
-  payForm: { walletId: '', amount: '', note: '' },
-};
-
-function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case 'SET_TAB': return { ...state, activeTab: action.payload };
-    case 'SET_SUBMITTING': return { ...state, submitting: action.payload };
-    case 'TOGGLE_LOAN_MODAL': return { ...state, isLoanModalOpen: action.payload };
-    case 'TOGGLE_DEBT_MODAL': return { ...state, isDebtModalOpen: action.payload };
-    case 'OPEN_PAY_MODAL': return { ...state, isPayModalOpen: true, selectedDebt: action.payload.debt, payForm: { walletId: '', amount: '', note: action.payload.defaultNote } };
-    case 'CLOSE_PAY_MODAL': return { ...state, isPayModalOpen: false, selectedDebt: null };
-    case 'UPDATE_DEBT_FORM': return { ...state, debtForm: { ...state.debtForm, ...action.payload } };
-    case 'UPDATE_PAY_FORM': return { ...state, payForm: { ...state.payForm, ...action.payload } };
-    case 'RESET_DEBT_FORM': return { ...state, debtForm: initialState.debtForm };
-    default: return state;
-  }
-}
-
 export default function PinjolPage() {
-  const { accountId, t } = useApp();
+  const { accountId } = useApp();
   const { toast } = useToast();
-  
-  // Custom Hook (Semua Logic Fetch & Manipulasi Pindah ke Sini)
-  const { 
-    loans, debts, loading: debtsLoading, error: debtsError, 
-    createLoan, updateLoanStatus, deleteLoan, 
-    createDebt, deleteDebt, recordPayment 
-  } = useDebts(accountId ?? undefined);
-  
+  const { loans, loading, error, refresh } = useDebts(accountId ?? undefined);
   const forecast = useDebtForecast(accountId ?? undefined, loans);
-  const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Load Wallets (untuk dropdown pembayaran)
-  useEffect(() => {
-    if (accountId) {
-      walletService.getWallets(accountId).then(setWallets).catch(console.error);
+  const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Debt Integrated States
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
+  const [debtName, setDebtName] = useState('');
+  const [debtType, setDebtType] = useState<'owe' | 'lend'>('owe');
+  const [debtAmount, setDebtAmount] = useState('');
+  const [contactInfo, setContactInfo] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null);
+  const [payWalletId, setPayWalletId] = useState('');
+  const [payAmount, setPayAmount] = useState('');
+  const [payNote, setPayNote] = useState('');
+
+  const loadIntegratedData = React.useCallback(async () => {
+    if (!accountId) return;
+    try {
+      const [dList, wList] = await Promise.all([
+        debtService.getDebts(accountId),
+        walletService.getWallets(accountId),
+      ]);
+      setDebts(dList);
+      setWallets(wList);
+    } catch (err) {
+      console.error('Failed to load ledger data:', err);
     }
   }, [accountId]);
 
-  // Handlers
-  const handleCreateLoan = async (data: Omit<LoanTracker, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>) => {
-    dispatch({ type: 'SET_SUBMITTING', payload: true });
+  React.useEffect(() => {
+    if (accountId) {
+      Promise.resolve().then(() => loadIntegratedData());
+    }
+  }, [accountId, loadIntegratedData, refresh]);
+
+  const handleCreate = async (data: Omit<LoanTracker, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>) => {
+    if (!accountId) return;
+    setSubmitting(true);
     try {
-      await createLoan(data);
+      await debtService.createLoanTracker(accountId, data);
       toast('Pinjaman berhasil disimpan', 'success');
-      dispatch({ type: 'TOGGLE_LOAN_MODAL', payload: false });
+      setIsModalOpen(false);
+      await refresh();
     } catch {
       toast('Gagal menyimpan', 'danger');
     } finally {
-      dispatch({ type: 'SET_SUBMITTING', payload: false });
+      setSubmitting(false);
     }
   };
 
-  const handleCreateDebtSubmit = async (e: React.FormEvent) => {
+  const handleCreateDebt = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!state.debtForm.name || !state.debtForm.amount) return;
-    dispatch({ type: 'SET_SUBMITTING', payload: true });
+    if (!accountId || !debtName || !debtAmount) return;
+
+    setSubmitting(true);
     try {
-      await createDebt(
-        state.debtForm.name, 
-        state.debtForm.type, 
-        Number(state.debtForm.amount), 
-        state.debtForm.contactInfo || null, 
-        state.debtForm.dueDate || null
+      await debtService.createDebt(
+        accountId,
+        debtName,
+        debtType,
+        Number(debtAmount),
+        contactInfo || null,
+        dueDate || null
       );
       toast('Rekod utang piutang berhasil disimpan.', 'success');
-      dispatch({ type: 'TOGGLE_DEBT_MODAL', payload: false });
-      dispatch({ type: 'RESET_DEBT_FORM' });
-    } catch (err: any) {
-      toast(err.message || 'Gagal menyimpan', 'danger');
+      setIsDebtModalOpen(false);
+      setDebtName('');
+      setDebtAmount('');
+      setContactInfo('');
+      setDueDate('');
+      loadIntegratedData();
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal menyimpan', 'danger');
     } finally {
-      dispatch({ type: 'SET_SUBMITTING', payload: false });
+      setSubmitting(false);
     }
+  };
+
+  const handleOpenPayment = (debt: Debt) => {
+    setSelectedDebt(debt);
+    setPayWalletId('');
+    setPayAmount('');
+    setPayNote(`Pelunasan: ${debt.name}`);
+    setIsPayModalOpen(true);
   };
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!state.selectedDebt || !state.payForm.walletId || !state.payForm.amount) return;
-    dispatch({ type: 'SET_SUBMITTING', payload: true });
+    if (!accountId || !selectedDebt || !payWalletId || !payAmount) return;
+
+    setSubmitting(true);
     try {
-      await recordPayment(
-        state.selectedDebt.id, 
-        Number(state.payForm.amount), 
-        state.payForm.walletId, 
-        state.payForm.note
+      await debtService.recordPayment(
+        accountId,
+        selectedDebt.id,
+        Number(payAmount),
+        payWalletId,
+        payNote
       );
       toast('Pembayaran berhasil dicatat!', 'success');
-      dispatch({ type: 'CLOSE_PAY_MODAL' });
-    } catch (err: any) {
-      toast(err.message || 'Gagal mencatat', 'danger');
+      setIsPayModalOpen(false);
+      setSelectedDebt(null);
+      loadIntegratedData();
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal mencatat', 'danger');
     } finally {
-      dispatch({ type: 'SET_SUBMITTING', payload: false });
+      setSubmitting(false);
     }
   };
 
   const handleDeleteDebt = async (id: string, name: string) => {
     if (!confirm(`Hapus rekod "${name}"?`)) return;
     try {
-      await deleteDebt(id);
+      await debtService.deleteDebt(id);
       toast('Rekod dihapus.', 'success');
-    } catch (err: any) {
-      toast(err.message || 'Gagal menghapus', 'danger');
+      loadIntegratedData();
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal menghapus', 'danger');
     }
   };
 
   const handleMarkPaid = async (id: string, name: string) => {
     if (!confirm(`Tandai "${name}" sebagai LUNAS?`)) return;
     try {
-      await updateLoanStatus(id, 'paid_off');
+      await debtService.updateLoanStatus(id, 'paid_off');
       toast(`${name} ditandai lunas!`, 'success');
-    } catch (err: any) {
-      toast(err.message || 'Gagal update', 'danger');
+      await refresh();
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal update', 'danger');
     }
   };
 
-  const handleDeleteLoan = async (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Hapus catatan "${name}"?`)) return;
     try {
-      await deleteLoan(id);
+      await debtService.deleteLoanTracker(id);
       toast(`${name} dihapus`, 'success');
-    } catch (err: any) {
-      toast(err.message || 'Gagal menghapus', 'danger');
+      await refresh();
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal menghapus', 'danger');
     }
   };
 
@@ -204,7 +210,7 @@ export default function PinjolPage() {
     { key: 'kalender', label: APP_TEXTS.pinjol.tabs.calendar, icon: <Calendar className="w-3.5 h-3.5" /> },
   ];
 
-  const isLoading = debtsLoading || forecast.plannerLoading;
+  const isLoading = loading || forecast.plannerLoading;
   const allWarnings = [...forecast.globalWarnings];
 
   return (
@@ -223,10 +229,10 @@ export default function PinjolPage() {
           <Button 
             variant="nexus-emerald" 
             className="flex items-center gap-2 cursor-pointer" 
-            onClick={() => dispatch({ type: state.activeTab === 'ledger' ? 'TOGGLE_DEBT_MODAL' : 'TOGGLE_LOAN_MODAL', payload: true })}
+            onClick={() => activeTab === 'ledger' ? setIsDebtModalOpen(true) : setIsModalOpen(true)}
           >
             <Plus className="w-4 h-4" />
-            {state.activeTab === 'ledger' ? 'Tambah Utang/Piutang' : 'Tambah Pinjaman'}
+            {activeTab === 'ledger' ? 'Tambah Utang/Piutang' : 'Tambah Pinjaman'}
           </Button>
         </div>
 
@@ -235,8 +241,8 @@ export default function PinjolPage() {
             <button
               key={t.key}
               type="button"
-              className={`pinjol-tab-btn ${state.activeTab === t.key ? 'active' : ''}`}
-              onClick={() => dispatch({ type: 'SET_TAB', payload: t.key })}
+              className={`pinjol-tab-btn ${activeTab === t.key ? 'active' : ''}`}
+              onClick={() => setActiveTab(t.key)}
             >
               {t.icon}
               {t.label}
@@ -244,18 +250,22 @@ export default function PinjolPage() {
           ))}
         </div>
 
-        <StateContainer 
-          loading={isLoading} 
-          error={debtsError} 
-          onRetry={refresh}
-          loadingFallback={
-            <div className="space-y-4">
-              {[1, 2, 3].map((n) => <div key={n} className="pinjol-shimmer-card shimmer" />)}
-            </div>
-          }
-        >
+        {error && (
+          <div className="pinjol-warning-item danger mb-4">
+            <AlertCircle className="w-4 h-4 pinjol-warning-icon" />
+            {error}
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="pinjol-shimmer-card shimmer" />
+            ))}
+          </div>
+        ) : (
           <>
-            {(state.activeTab === 'overview' || state.activeTab === 'forecast') && (
+            {(activeTab === 'overview' || activeTab === 'forecast') && (
               <IncomeProjectionPanel
                 timeline={forecast.incomeTimeline}
                 salaryDay={forecast.salaryDay}
@@ -265,7 +275,7 @@ export default function PinjolPage() {
               />
             )}
 
-            {state.activeTab === 'overview' && (
+            {activeTab === 'overview' && (
               <div className="space-y-5">
                 {forecast.currentForecast && forecast.survivalScore && (
                   <DebtDashboard
@@ -291,29 +301,46 @@ export default function PinjolPage() {
                   </div>
                 )}
 
-                <SurvivalAnalysis insight={forecast.survivalInsight} onAnalyze={forecast.requestSurvivalAnalysis} />
-                {forecast.analytics && <ForecastAnalyticsSummary analytics={forecast.analytics} />}
+                <SurvivalAnalysis
+                  insight={forecast.survivalInsight}
+                  onAnalyze={forecast.requestSurvivalAnalysis}
+                />
+
+                {forecast.analytics && (
+                  <ForecastAnalyticsSummary analytics={forecast.analytics} />
+                )}
               </div>
             )}
 
-            {state.activeTab === 'forecast' && (
+            {activeTab === 'forecast' && (
               <div className="space-y-5">
-                {forecast.analytics && <ForecastAnalyticsSummary analytics={forecast.analytics} />}
-                <h3 className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">Cashflow per Siklus Gaji</h3>
+                {forecast.analytics && (
+                  <ForecastAnalyticsSummary analytics={forecast.analytics} />
+                )}
+                <h3 className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
+                  Cashflow per Siklus Gaji
+                </h3>
                 <CashflowTimeline periods={forecast.forecastTimeline} />
               </div>
             )}
 
-            {state.activeTab === 'daftar' && (
-              <ActiveDebtList loans={loans} onAdd={() => dispatch({ type: 'TOGGLE_LOAN_MODAL', payload: true })} onMarkPaid={handleMarkPaid} onDelete={handleDeleteLoan} />
+            {activeTab === 'daftar' && (
+              <ActiveDebtList
+                loans={loans}
+                onAdd={() => setIsModalOpen(true)}
+                onMarkPaid={handleMarkPaid}
+                onDelete={handleDelete}
+              />
             )}
 
-            {state.activeTab === 'timeline' && <DebtDueTimeline loans={loans} />}
-            {state.activeTab === 'kalender' && <DebtCalendar loans={forecast.activeLoans} salaryDay={forecast.salaryDay} />}
+            {activeTab === 'timeline' && <DebtDueTimeline loans={loans} />}
 
-            {state.activeTab === 'ledger' && (
-              <StateContainer isEmpty={debts.length === 0} emptyTitle="Ledger Kosong" emptyDescription="Tidak ada catatan utang/piutang." emptyAction={<Button variant="nexus-emerald" onClick={() => dispatch({ type: 'TOGGLE_DEBT_MODAL', payload: true })}>Inisialisasi Protokol</Button>}>
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {activeTab === 'kalender' && (
+              <DebtCalendar loans={forecast.activeLoans} salaryDay={forecast.salaryDay} />
+            )}
+
+            {activeTab === 'ledger' && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <Card glass className="p-8 md:p-12 relative group overflow-hidden border-white/5 shadow-2xl">
                   <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/5 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-rose-500/10" />
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
@@ -353,7 +380,7 @@ export default function PinjolPage() {
                       <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-tight">
                         Audit sistem mendeteksi <span className="text-white">{debts.filter(d => d.type === 'owe').length} kontrak utang</span> dan <span className="text-white">{debts.filter(d => d.type === 'lend').length} piutang aktif</span>.
                       </p>
-                      <Button variant="nexus-emerald" className="w-full py-6 h-auto" onClick={() => dispatch({ type: 'TOGGLE_DEBT_MODAL', payload: true })}>Inisialisasi Protokol Baru</Button>
+                      <Button variant="nexus-emerald" className="w-full py-6 h-auto" onClick={() => setIsDebtModalOpen(true)}>Inisialisasi Protokol Baru</Button>
                     </div>
                   </div>
                 </Card>
@@ -389,7 +416,7 @@ export default function PinjolPage() {
                             </div>
                             <div className="flex items-center justify-between pt-4 border-t border-white/5">
                               <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{d.due_date ? `Deadline: ${new Date(d.due_date).toLocaleDateString('id-ID')}` : 'Tenor Terbuka'}</span>
-                              <Button size="sm" variant="outline" className="h-auto py-2 rounded-xl text-[9px] font-black uppercase" onClick={() => dispatch({ type: 'OPEN_PAY_MODAL', payload: { debt: d, defaultNote: `Pelunasan: ${d.name}` } })}>Bayar Cicilan</Button>
+                              <Button size="sm" variant="outline" className="h-auto py-2 rounded-xl text-[9px] font-black uppercase" onClick={() => handleOpenPayment(d)}>Bayar Cicilan</Button>
                             </div>
                           </Card>
                         ))
@@ -427,7 +454,7 @@ export default function PinjolPage() {
                             </div>
                             <div className="flex items-center justify-between pt-4 border-t border-white/5">
                               <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{d.due_date ? `Deadline: ${new Date(d.due_date).toLocaleDateString('id-ID')}` : 'Tenor Terbuka'}</span>
-                              <Button size="sm" variant="outline" className="h-auto py-2 rounded-xl text-[9px] font-black uppercase" onClick={() => dispatch({ type: 'OPEN_PAY_MODAL', payload: { debt: d, defaultNote: `Terima dari: ${d.name}` } })}>Terima Dana</Button>
+                              <Button size="sm" variant="outline" className="h-auto py-2 rounded-xl text-[9px] font-black uppercase" onClick={() => handleOpenPayment(d)}>Terima Dana</Button>
                             </div>
                           </Card>
                         ))
@@ -435,28 +462,30 @@ export default function PinjolPage() {
                     </div>
                   </div>
                 </div>
-              </StateContainer>
+              </div>
             )}
           </>
-        </StateContainer>
+        )}
 
-        {/* MODALS */}
         <DebtFormModal
-          isOpen={state.isLoanModalOpen}
-          onClose={() => dispatch({ type: 'TOGGLE_LOAN_MODAL', payload: false })}
-          onSubmit={handleCreateLoan}
-          submitting={state.submitting}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleCreate}
+          submitting={submitting}
         />
 
-        <Modal isOpen={state.isDebtModalOpen} onClose={() => dispatch({ type: 'TOGGLE_DEBT_MODAL', payload: false })} title="Initialize Ledger Protocol">
-          <form onSubmit={handleCreateDebtSubmit} className="space-y-8 p-2">
+        <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Initialize Ledger Protocol">
+          <form onSubmit={handleCreateDebt} className="space-y-8 p-2">
             <div className="grid grid-cols-2 gap-3 bg-white/[0.02] p-2 rounded-[24px] border border-white/5">
               {(['owe', 'lend'] as const).map((t) => (
                 <button
-                  key={t} type="button"
-                  onClick={() => dispatch({ type: 'UPDATE_DEBT_FORM', payload: { type: t } })}
+                  key={t}
+                  type="button"
+                  onClick={() => setDebtType(t)}
                   className={`py-4 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
-                    state.debtForm.type === t ? (t === 'owe' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white') : 'text-white/30 hover:text-white'
+                    debtType === t
+                      ? t === 'owe' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'
+                      : 'text-white/30 hover:text-white'
                   }`}
                 >
                   {t === 'owe' ? 'Utang' : 'Piutang'}
@@ -464,38 +493,85 @@ export default function PinjolPage() {
               ))}
             </div>
 
-            <Input label="Label Protokol" value={state.debtForm.name} onChange={(e) => dispatch({ type: 'UPDATE_DEBT_FORM', payload: { name: e.target.value } })} required disabled={state.submitting} />
+            <Input
+              label="Label Protokol"
+              placeholder="e.g. Pinjaman Personal, Modal Usaha"
+              value={debtName}
+              onChange={(e) => setDebtName(e.target.value)}
+              required
+              disabled={submitting}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Magnitude (Rp)" type="number" value={state.debtForm.amount} onChange={(e) => dispatch({ type: 'UPDATE_DEBT_FORM', payload: { amount: e.target.value } })} required disabled={state.submitting} />
-              <DatePicker label="Chronological Deadline" value={state.debtForm.dueDate} onChange={(val) => dispatch({ type: 'UPDATE_DEBT_FORM', payload: { dueDate: val } })} disabled={state.submitting} />
+              <Input
+                label="Magnitude (Rp)"
+                placeholder="0"
+                type="number"
+                value={debtAmount}
+                onChange={(e) => setDebtAmount(e.target.value)}
+                required
+                disabled={submitting}
+              />
+              <DatePicker
+                label="Chronological Deadline"
+                value={dueDate}
+                onChange={(val) => setDueDate(val)}
+                disabled={submitting}
+              />
             </div>
-            <Input label="Counterparty / Catatan" value={state.debtForm.contactInfo} onChange={(e) => dispatch({ type: 'UPDATE_DEBT_FORM', payload: { contactInfo: e.target.value } })} disabled={state.submitting} />
+            <Input
+              label="Counterparty / Catatan"
+              placeholder="Nama Orang atau Identitas"
+              value={contactInfo}
+              onChange={(e) => setContactInfo(e.target.value)}
+              disabled={submitting}
+            />
 
             <div className="flex gap-4 pt-4">
-              <Button type="button" variant="outline" className="flex-1 rounded-[24px] py-8" onClick={() => dispatch({ type: 'TOGGLE_DEBT_MODAL', payload: false })} disabled={state.submitting}>Batal</Button>
-              <Button type="submit" loading={state.submitting} className="flex-1 rounded-[24px] bg-emerald-500 py-8">Simpan Protokol</Button>
+              <Button type="button" variant="outline" className="flex-1 rounded-[24px] py-8" onClick={() => setIsDebtModalOpen(false)} disabled={submitting}>Batal</Button>
+              <Button type="submit" loading={submitting} className="flex-1 rounded-[24px] bg-emerald-500 py-8">Simpan Protokol</Button>
             </div>
           </form>
         </Modal>
 
-        <Modal isOpen={state.isPayModalOpen} onClose={() => dispatch({ type: 'CLOSE_PAY_MODAL' })} title="Execute Repayment Protocol">
-          {state.selectedDebt && (
+        <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title="Execute Repayment Protocol">
+          {selectedDebt && (
             <form onSubmit={handlePaymentSubmit} className="space-y-8 p-2">
               <div className="p-6 rounded-[24px] bg-white/[0.02] border border-white/5 space-y-2">
                 <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Target Entitas</p>
-                <h4 className="text-xl font-black text-white uppercase tracking-tight">{state.selectedDebt.name}</h4>
+                <h4 className="text-xl font-black text-white uppercase tracking-tight">{selectedDebt.name}</h4>
               </div>
+
               <Select
-                label={state.selectedDebt.type === 'owe' ? 'Sumber Dana (Dompet)' : 'Tujuan Dana (Dompet)'}
-                options={[{ value: '', label: '-- Pilih Dompet --' }, ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance))})` }))]}
-                value={state.payForm.walletId} onChange={(e) => dispatch({ type: 'UPDATE_PAY_FORM', payload: { walletId: e.target.value } })} required disabled={state.submitting}
+                label={selectedDebt.type === 'owe' ? 'Sumber Dana (Dompet)' : 'Tujuan Dana (Dompet)'}
+                options={[
+                  { value: '', label: '-- Pilih Dompet --' },
+                  ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance))})` })),
+                ]}
+                value={payWalletId}
+                onChange={(e) => setPayWalletId(e.target.value)}
+                required
+                disabled={submitting}
               />
-              <Input label="Nominal Transaksi (Rp)" type="number" value={state.payForm.amount} onChange={(e) => dispatch({ type: 'UPDATE_PAY_FORM', payload: { amount: e.target.value } })} required disabled={state.submitting} />
-              <Input label="Catatan Log" value={state.payForm.note} onChange={(e) => dispatch({ type: 'UPDATE_PAY_FORM', payload: { note: e.target.value } })} disabled={state.submitting} />
+              <Input
+                label="Nominal Transaksi (Rp)"
+                placeholder="0"
+                type="number"
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                required
+                disabled={submitting}
+              />
+              <Input
+                label="Catatan Log"
+                value={payNote}
+                onChange={(e) => setPayNote(e.target.value)}
+                disabled={submitting}
+              />
+
               <div className="flex gap-4 pt-4">
-                <Button type="button" variant="outline" className="flex-1 rounded-[24px] py-8" onClick={() => dispatch({ type: 'CLOSE_PAY_MODAL' })} disabled={state.submitting}>Batal</Button>
-                <Button type="submit" loading={state.submitting} className={`flex-1 rounded-[24px] py-8 ${state.selectedDebt.type === 'owe' ? 'bg-rose-500' : 'bg-emerald-400'}`}>
-                  Otorisasi {state.selectedDebt.type === 'owe' ? 'Pembayaran' : 'Penerimaan'}
+                <Button type="button" variant="outline" className="flex-1 rounded-[24px] py-8" onClick={() => setIsPayModalOpen(false)} disabled={submitting}>Batal</Button>
+                <Button type="submit" loading={submitting} className={`flex-1 rounded-[24px] py-8 ${selectedDebt.type === 'owe' ? 'bg-rose-500' : 'bg-emerald-400'}`}>
+                  Otorisasi {selectedDebt.type === 'owe' ? 'Pembayaran' : 'Penerimaan'}
                 </Button>
               </div>
             </form>

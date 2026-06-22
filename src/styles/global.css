@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "./tokens.css";
-@import "./nexus-theme/tokens.css";
 @import "./nexus-theme/components.css";
 @import "./base.css";
 @import "./utilities.css";
@@ -223,32 +222,32 @@
 }
 
 .dark {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(158 94% 30%); /* Nexus Emerald */
-  --primary-foreground: hsl(144 60% 98%);
-  --secondary: hsl(240 3.7% 15.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(240 3.7% 15.9%);
-  --muted-foreground: hsl(240 5% 64.9%);
-  --accent: hsl(240 3.7% 15.9%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 3.7% 15.9%);
-  --input: hsl(240 3.7% 15.9%);
-  --ring: hsl(158 94% 30%);
+    --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 158 94% 30%; /* Nexus Emerald */
+  --primary-foreground: 144 60% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 158 94% 30%;
     
-  --radius: 32px;
+    --radius: 32px;
     
-  /* Glassmorphism Tokens */
-  --glass-bg: rgba(10, 16, 40, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-blur: blur(24px);
+    /* Glassmorphism Tokens */
+    --glass-bg: rgba(10, 16, 40, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-blur: blur(24px);
 }
 
 
@@ -258,7 +257,7 @@
     }
   body {
   background-color: var(--nexus-bg-main) !important;
-  color: var(--nexus-text-primary);
+  color: var(--foreground);
   font-family: 'Outfit', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;

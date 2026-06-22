@@ -127,7 +127,7 @@ export default function ReportsPage() {
         } else if (tx.type === 'expense') {
           exp += amt;
           const catName = tx.categories?.name || 'General';
-          const catColor = tx.categories?.color || 'var(--text-muted)';
+          const catColor = tx.categories?.color || '#9CA3AF';
           
           if (!catAggregation[catName]) {
             catAggregation[catName] = { amt: 0, col: catColor, type: tx.type };

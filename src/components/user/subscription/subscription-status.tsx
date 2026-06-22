@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Crown, AlertCircle } from 'lucide-react';
-import { useApp } from '@/contexts/app-context';
 
 interface SubscriptionStatusProps {
   plan?: string | null;
@@ -10,15 +9,13 @@ interface SubscriptionStatusProps {
 }
 
 export function SubscriptionStatus({ plan, expiresAt }: SubscriptionStatusProps) {
-  const { t } = useApp();
-
   if (!plan || plan === 'free') {
     return (
       <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.03] border border-white/10">
         <AlertCircle className="w-5 h-5 text-amber-500" />
         <div className="text-xs">
-          <p className="font-bold text-white">{t('settings.plan.free', 'Akun Free')}</p>
-          <p className="text-white/60">{t('settings.plan.freeDesc', 'Upgrade ke Pro untuk fitur tanpa batas.')}</p>
+          <p className="font-bold text-white">Akun Free</p>
+          <p className="text-white/60">Upgrade ke Pro untuk fitur tanpa batas.</p>
         </div>
       </div>
     );
@@ -31,10 +28,10 @@ export function SubscriptionStatus({ plan, expiresAt }: SubscriptionStatusProps)
       <Crown className={`w-5 h-5 ${isExpired ? 'text-rose-500' : 'text-emerald-500'}`} />
       <div className="text-xs">
         <p className={`font-bold ${isExpired ? 'text-rose-500' : 'text-emerald-500'}`}>
-          {t('settings.plan.pro', 'Akun Pro')} {isExpired && `(${t('common.expired', 'Kadaluwarsa')})`}
+          Akun Pro {isExpired && '(Kadaluwarsa)'}
         </p>
         {expiresAt && !isExpired && (
-          <p className="text-white/60">{t('settings.plan.expiresAt', 'Berakhir pada:')} {new Date(expiresAt).toLocaleDateString('id-ID')}</p>
+          <p className="text-white/60">Berakhir pada: {new Date(expiresAt).toLocaleDateString('id-ID')}</p>
         )}
       </div>
     </div>

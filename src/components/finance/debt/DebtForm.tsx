@@ -8,7 +8,6 @@ import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import type { LoanCategory, LoanTracker } from '@/lib/debt-planner/types';
 import { calcRemainingMonths, calcEndDate, LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
-import { useApp } from '@/contexts/app-context';
 
 const CATEGORY_OPTIONS = Object.entries(LOAN_CATEGORY_LABELS)
   .filter(([key]) => !['hutang_pribadi', 'cicilan', 'lainnya'].includes(key))
@@ -34,7 +33,6 @@ interface DebtFormModalProps {
 }
 
 export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFormModalProps) {
-  const { t } = useApp();
   const [form, setForm] = useState(EMPTY_FORM);
 
   const calcPreview = useMemo(() => {
@@ -101,7 +99,7 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Nama Pinjaman / Aplikasi"
-          placeholder={t('debts.form.appNamePlaceholder', 'cth. Adapundi, Akulaku')}
+          placeholder="cth. Adapundi, Akulaku"
           value={form.app_name}
           onChange={(e) => handleChange('app_name', e.target.value)}
           required

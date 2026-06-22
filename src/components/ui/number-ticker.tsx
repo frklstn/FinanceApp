@@ -16,7 +16,7 @@ export default function NumberTicker({
   return (
     <span
       className={cn(
-        "inline-block tabular-nums text-current tracking-tighter animate-in fade-in duration-300",
+        "inline-block tabular-nums text-white tracking-tighter animate-in fade-in duration-300",
         className
       )}
       style={{ animationDelay: delay ? `${delay * 1000}ms` : undefined }}

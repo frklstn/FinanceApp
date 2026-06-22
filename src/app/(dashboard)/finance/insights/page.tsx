@@ -115,7 +115,7 @@ export default function InsightsPage() {
             <Card className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-3 text-center md:text-left">
                 <span className="text-[10px] uppercase font-black text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full tracking-[0.2em] border border-emerald-500/20">
-                  Skor Kesehatan {appSettings?.app_name || 'FinanceApp'}
+                  Skor Kesehatan {appSettings.app_name || 'FinanceApp'}
                 </span>
                 <h3 className="text-2xl font-extrabold text-light-text-primary dark:text-dark-text-primary">
                   {stats.score >= 80 ? (

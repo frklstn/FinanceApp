@@ -5,7 +5,9 @@ import { useApp } from '@/contexts/app-context';
 import { budgetService, type Budget } from '@/lib/services/finance/budget.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { categoryService, type Category } from '@/lib/services/finance/category.service';
-import { loanService } from '@/lib/services/finance/loan.service';
+import { incomeProjectionService } from '@/lib/services/finance/income-projection.service';
+import { debtService } from '@/lib/services/finance/debt.service';
+import { debtPlannerSettingsService } from '@/lib/services/finance/debt-planner-settings.service';
 import { 
   getSalaryPeriods, 
   getIncomeForDate, 
@@ -67,9 +69,9 @@ export default function BudgetsPage() {
       const [bList, cList, timeline, trackers, settings] = await Promise.all([
         budgetService.getBudgets(accountId, dbPeriod),
         categoryService.getCategories(accountId),
-        debtService.getIncomeTimeline(accountId),
+        incomeProjectionService.getTimeline(accountId),
         debtService.getLoanTrackers(accountId),
-        debtService.getPlannerSettings(accountId)
+        debtPlannerSettingsService.getSettings(accountId)
       ]);
       setBudgets(bList);
       setCategories(cList.filter((c: Category) => c.type === 'expense'));
@@ -163,7 +165,7 @@ export default function BudgetsPage() {
       </header>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card glass className="lg:col-span-2 p-10 relative group overflow-hidden border-white/5 bg-card rounded-[40px] shadow-2xl">
+        <Card glass className="lg:col-span-2 p-10 relative group overflow-hidden border-white/5 bg-[#0A0A0C] rounded-[40px] shadow-2xl">
           <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 blur-[100px] rounded-full -mr-40 -mt-40" />
           <div className="flex items-center justify-between relative z-10">
             <div className="space-y-3">

@@ -4,7 +4,6 @@ import React from 'react';
 import type { PeriodForecast } from '@/lib/debt-planner/types';
 import { HEALTH_STATUS_LABELS } from '@/lib/debt-planner/calculations';
 import { formatCurrency } from '@/lib/debt-planner/format';
-import { useApp } from '@/contexts/app-context';
 import '@/styles/forecast/timeline.css';
 
 interface CashflowTimelineProps {
@@ -18,12 +17,10 @@ function cardModifier(status: string): string {
 }
 
 export function CashflowTimeline({ periods }: CashflowTimelineProps) {
-  const { t } = useApp();
-
   if (periods.length === 0) {
     return (
       <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-        {t('forecast.empty', 'Tambahkan utang dan timeline gaji untuk melihat forecast.')}
+        Tambahkan utang dan timeline gaji untuk melihat forecast.
       </p>
     );
   }
@@ -40,19 +37,19 @@ export function CashflowTimeline({ periods }: CashflowTimelineProps) {
           </div>
           <div className="forecast-period-metrics">
             <div>
-              <p className="forecast-metric-label">{t('dashboard.widget.income', 'Income')}</p>
+              <p className="forecast-metric-label">Income</p>
               <p className="forecast-metric-value">{formatCurrency(p.income)}</p>
             </div>
             <div>
-              <p className="forecast-metric-label">{t('debts.totalDebt', 'Total debt')}</p>
+              <p className="forecast-metric-label">Total debt</p>
               <p className="forecast-metric-value text-danger">{formatCurrency(p.total_debt)}</p>
             </div>
             <div>
-              <p className="forecast-metric-label">{t('debts.remaining', 'Remaining')}</p>
+              <p className="forecast-metric-label">Remaining</p>
               <p className="forecast-metric-value text-success">{formatCurrency(p.remaining_cash)}</p>
             </div>
             <div>
-              <p className="forecast-metric-label">{t('dashboard.metrics.debt', 'Debt ratio')}</p>
+              <p className="forecast-metric-label">Debt ratio</p>
               <p className="forecast-metric-value">
                 {p.income > 0 ? `${p.debt_ratio.toFixed(0)}%` : '—'}
               </p>

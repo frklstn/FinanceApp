@@ -55,18 +55,6 @@ export async function updateSession(request: NextRequest) {
   const proto = request.headers.get('x-forwarded-proto') || 'https';
   const host = request.headers.get('host') || request.nextUrl.host;
 
-  // Redirect settings and old dashboard paths
-  if (path === '/settings') {
-    const tab = request.nextUrl.searchParams.get('tab') || 'data';
-    const redirectUrl = new URL(`/finance/dashboard?settings=true&tab=${tab}`, `${proto}://${host}`);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  if (path === '/dashboard') {
-    const redirectUrl = new URL('/finance/dashboard', `${proto}://${host}`);
-    return NextResponse.redirect(redirectUrl);
-  }
-
   if (!user && (isProtectedPath || path === '/')) {
     const redirectUrl = new URL('/login', `${proto}://${host}`);
     return NextResponse.redirect(redirectUrl);
@@ -93,13 +81,13 @@ export async function updateSession(request: NextRequest) {
       }
     } else {
       if (path === '/suspended') {
-        const redirectUrl = new URL('/finance/dashboard', `${proto}://${host}`);
+        const redirectUrl = new URL('/dashboard', `${proto}://${host}`);
         return NextResponse.redirect(redirectUrl);
       }
       
       // Allow authenticated users to access /reset-password (recovery mode)
       if (!isResetPasswordPath && (isAuthPath || path === '/')) {
-        const redirectUrl = new URL('/finance/dashboard', `${proto}://${host}`);
+        const redirectUrl = new URL('/dashboard', `${proto}://${host}`);
         return NextResponse.redirect(redirectUrl);
       }
     }
