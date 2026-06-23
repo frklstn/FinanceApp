@@ -71,10 +71,13 @@ export function SpendingChart({ data }: SpendingChartProps) {
           type="monotone"
           dataKey="amount"
           stroke="#10b981"
-          strokeWidth={2}
+          strokeWidth={3}
           fill="url(#colorSpend)"
           dot={false}
           activeDot={{ r: 4, fill: '#10b981', strokeWidth: 0 }}
+          isAnimationActive={true}
+          animationDuration={1500}
+          animationEasing="ease-out"
         />
       </AreaChart>
     </ResponsiveContainer>
