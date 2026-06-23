@@ -1,28 +1,41 @@
 import * as React from "react"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
-interface CardProps extends React.ComponentProps<"div"> {
+interface CardProps extends React.ComponentProps<typeof motion.div> {
   size?: "default" | "sm"
   glass?: boolean
+  interactive?: boolean
 }
 
 function Card({
   className,
   size = "default",
   glass = true,
+  interactive = false,
   ...props
 }: CardProps) {
   return (
-    <div
+    <motion.div
       data-slot="card"
       data-size={size}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={interactive ? { scale: 1.01, translateY: -2 } : undefined}
       className={cn(
-        "nexus-card flex flex-col gap-4 py-6 px-8 text-sm",
+        "nexus-card flex flex-col gap-4 py-6 px-8 text-sm overflow-hidden relative",
         glass ? "backdrop-blur-3xl" : "bg-card border-border",
+        interactive && "cursor-pointer transition-colors hover:bg-[var(--nexus-bg-panel)]/50",
         className
       )}
       {...props}
-    />
+    >
+      {glass && (
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
+      )}
+      {props.children}
+    </motion.div>
   )
 }
 

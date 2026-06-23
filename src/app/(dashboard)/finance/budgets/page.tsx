@@ -6,7 +6,7 @@ import { budgetService, type Budget } from '@/lib/services/finance/budget.servic
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { categoryService, type Category } from '@/lib/services/finance/category.service';
 import { incomeProjectionService } from '@/lib/services/finance/income-projection.service';
-import { debtService } from '@/lib/services/finance/debt.service';
+import { loanService } from '@/lib/services/finance/loan.service';
 import { debtPlannerSettingsService } from '@/lib/services/finance/debt-planner-settings.service';
 import { 
   getSalaryPeriods, 
@@ -70,7 +70,7 @@ export default function BudgetsPage() {
         budgetService.getBudgets(accountId, dbPeriod),
         categoryService.getCategories(accountId),
         incomeProjectionService.getTimeline(accountId),
-        debtService.getLoanTrackers(accountId),
+        loanService.getLoanTrackers(accountId),
         debtPlannerSettingsService.getSettings(accountId)
       ]);
       setBudgets(bList);

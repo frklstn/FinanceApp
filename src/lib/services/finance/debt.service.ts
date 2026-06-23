@@ -177,47 +177,4 @@ export const debtService = {
   },
 
   // LOAN TRACKER METHODS (Merged)
-  async getLoanTrackers(workspaceId: string) {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('loan_trackers')
-      .select('*')
-      .eq('workspace_id', workspaceId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw new Error(error.message);
-    return ((data as unknown as LoanTracker[]) || []).map(l => ({ ...l, currency: l.currency ?? 'IDR' }));
-  },
-
-  async createLoanTracker(workspaceId: string, input: Omit<LoanTracker, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>) {
-    const supabase = createClient();
-    const { calcEndDate } = await import('@/lib/debt-planner/calculations');
-    const endDate = calcEndDate(input.start_date, input.tenure_months);
-    const { data, error } = await supabase
-      .from('loan_trackers')
-      .insert({
-        ...input,
-        workspace_id: workspaceId,
-        end_date: input.end_date ?? endDate.toISOString().slice(0, 10),
-        payment_frequency: input.payment_frequency ?? 'monthly',
-      })
-      .select()
-      .single();
-
-
-    if (error) throw new Error(error.message);
-    return { ...data, currency: (data as unknown as LoanTracker).currency ?? 'IDR' };
-  },
-
-  async updateLoanStatus(id: string, status: string): Promise<void> {
-    const supabase = createClient();
-    const { error } = await supabase.from('loan_trackers').update({ status }).eq('id', id);
-    if (error) throw new Error(error.message);
-  },
-
-  async deleteLoanTracker(id: string): Promise<void> {
-    const supabase = createClient();
-    const { error } = await supabase.from('loan_trackers').delete().eq('id', id);
-    if (error) throw new Error(error.message);
-  },
 };
