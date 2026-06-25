@@ -5,8 +5,6 @@ import { useApp } from '@/contexts/app-context';
 import { useDebts } from '@/hooks/useDebts';
 import { useDebtForecast } from '@/hooks/useDebtForecast';
 import { debtService } from '@/lib/services/finance/debt.service';
-import { walletService, Wallet } from '@/lib/services/workspace/wallet.service';
-import { formatCurrency } from '@/lib/debt-planner/format';
 import type { LoanTracker, LoanCategory } from '@/lib/debt-planner/types';
 import { Button } from '@/components/ui/button';
 import { DebtFormModal } from '@/components/finance/debt/DebtForm';
@@ -22,7 +20,6 @@ import {
   Calendar as CalendarIcon,
   CheckCircle,
   AlertTriangle,
-  Info,
   ChevronLeft,
   ChevronRight,
   Plus,
@@ -30,14 +27,11 @@ import {
   TrendingUp,
   ShieldCheck,
   ArrowRight,
-  TrendingDown,
   LayoutGrid,
   Search,
   Bell,
   ChevronDown,
-  User,
 } from 'lucide-react';
-import NumberTicker from '@/components/ui/number-ticker';
 
 // Provider avatar color map based on first letter
 const PROVIDER_COLOR_MAP: Record<string, { bg: string, text: string }> = {
@@ -56,9 +50,9 @@ function getProviderAvatarStyle(name: string) {
 }
 
 export default function PinjolPage() {
-  const { accountId, t, profile } = useApp();
+  const { accountId, profile } = useApp();
   const { toast } = useToast();
-  const { loans, loading, error, refresh } = useDebts(accountId ?? undefined);
+  const { loans, loading, refresh } = useDebts(accountId ?? undefined);
   const forecast = useDebtForecast(accountId ?? undefined, loans);
 
   // Modal & form states
