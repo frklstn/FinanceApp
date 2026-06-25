@@ -391,27 +391,6 @@ export default function PinjolPage() {
                 3
               </span>
             </button>
-
-            {/* Profile Dropdown Pill */}
-            <div className="flex items-center gap-2.5 px-3.5 py-1.5 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl shadow-sm text-left select-none">
-              {profile?.avatar_url ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={profile.avatar_url} alt="Profile" className="w-6 h-6 rounded-full object-cover shadow-sm" />
-              ) : (
-                <div className="w-6 h-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black shadow-sm shadow-violet-500/20 uppercase">
-                  {(profile?.full_name || 'F').substring(0, 1)}
-                </div>
-              )}
-              <div className="flex flex-col leading-none">
-                <span className="text-[10px] font-black text-[var(--nexus-text-primary)] tracking-tight uppercase">
-                  {profile?.full_name || 'FRKLSTN'}
-                </span>
-                <span className="text-[8px] font-bold text-violet-500 uppercase tracking-widest mt-0.5">
-                  {profile?.plan === 'pro' ? 'Premium' : 'Free'}
-                </span>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-[var(--nexus-text-muted)] ml-0.5 shrink-0" />
-            </div>
           </div>
         </header>
 

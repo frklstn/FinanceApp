@@ -9,7 +9,8 @@ import {
   ChevronsRight, 
   ShieldAlert, 
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  ChevronDown
 } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
@@ -75,6 +76,7 @@ export default function Sidebar({ isCollapsed: _isCollapsed, onToggle: _onToggle
   const groups = navigationGroups.map((group) => {
     let items = [...group.items];
     if (group.title === "SETTINGS") {
+      items = items.filter(item => item.name !== "Account");
       if (showAdmin) {
         items.unshift({ name: "Admin Dashboard", path: "/user/admin", icon: ShieldAlert });
       }
@@ -252,7 +254,39 @@ export default function Sidebar({ isCollapsed: _isCollapsed, onToggle: _onToggle
           </button>
         </div>
       )}
-
+      {/* Profile Account Panel */}
+      <div className="mt-auto border-t border-[var(--nexus-glass-border)] p-4">
+        <div 
+          onClick={() => toast('Informasi Akun: ' + (profile?.email || 'Guest'), 'info')}
+          className={cn(
+            "flex items-center gap-2.5 px-3 py-2 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl shadow-sm text-left select-none cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-all",
+            isCollapsed ? "justify-center" : ""
+          )}
+          title={profile?.full_name || 'Account'}
+        >
+          {profile?.avatar_url ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={profile.avatar_url} alt="Profile" className="w-6 h-6 rounded-full object-cover shadow-sm shrink-0" />
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black shadow-sm shadow-violet-500/25 uppercase shrink-0">
+              {(profile?.full_name || 'F').substring(0, 1)}
+            </div>
+          )}
+          {!isCollapsed && (
+            <>
+              <div className="flex flex-col leading-none overflow-hidden flex-1">
+                <span className="text-[10px] font-black text-[var(--nexus-text-primary)] tracking-tight uppercase truncate">
+                  {profile?.full_name || 'FRKLSTN'}
+                </span>
+                <span className="text-[8px] font-bold text-violet-500 uppercase tracking-widest mt-0.5 truncate">
+                  {profile?.plan === 'pro' ? 'Premium' : 'Free'}
+                </span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-[var(--nexus-text-muted)] shrink-0" />
+            </>
+          )}
+        </div>
+      </div>
     </aside>
   )
 }
