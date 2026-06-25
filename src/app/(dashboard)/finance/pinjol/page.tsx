@@ -1,98 +1,125 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
-
 import { useDebts } from '@/hooks/useDebts';
 import { useDebtForecast } from '@/hooks/useDebtForecast';
-import { debtService, Debt } from '@/lib/services/finance/debt.service';
+import { debtService } from '@/lib/services/finance/debt.service';
 import { walletService, Wallet } from '@/lib/services/workspace/wallet.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
-import { APP_TEXTS } from '@/config/branding';
-import type { LoanTracker } from '@/lib/debt-planner/types';
+import type { LoanTracker, LoanCategory } from '@/lib/debt-planner/types';
 import { Button } from '@/components/ui/button';
-import { DebtDashboard } from '@/components/finance/debt/DebtDashboard';
-import { ActiveDebtList } from '@/components/finance/debt/ActiveDebtList';
 import { DebtFormModal } from '@/components/finance/debt/DebtForm';
-import { DebtCalendar } from '@/components/finance/debt/DebtCalendar';
-import { DebtDueTimeline } from '@/components/finance/debt/DebtDueTimeline';
-import { IncomeProjectionPanel } from '@/components/finance/forecast/IncomeProjectionPanel';
-import { CashflowTimeline } from '@/components/finance/forecast/CashflowTimeline';
-import { ForecastAnalyticsSummary } from '@/components/finance/forecast/ForecastAnalytics';
-import { SurvivalAnalysis } from '@/components/finance/forecast/SurvivalAnalysis';
 import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
-import {
-  AlertTriangle,
-  HandCoins,
-  Plus,
-  BarChart2,
-  LayoutList,
-  Calendar,
-  TrendingUp,
-  AlertCircle,
-  Info,
-  Landmark,
-  Trash2,
-} from 'lucide-react';
-import NumberTicker from '@/components/ui/number-ticker';
 import { Card } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
-import '@/styles/pages/pinjol.css';
-import '@/styles/debt/dashboard.css';
-import '@/styles/forecast/timeline.css';
-import '@/styles/debt/calendar.css';
+import {
+  Wallet as WalletIcon,
+  Calendar as CalendarIcon,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Trash2,
+  TrendingUp,
+  ShieldCheck,
+  ArrowRight,
+  TrendingDown,
+  LayoutGrid,
+} from 'lucide-react';
+import NumberTicker from '@/components/ui/number-ticker';
 
-type Tab = 'overview' | 'daftar' | 'forecast' | 'timeline' | 'kalender' | 'ledger';
+// Provider avatar color map based on first letter
+const PROVIDER_COLOR_MAP: Record<string, { bg: string, text: string }> = {
+  E: { bg: 'bg-emerald-500/10 dark:bg-emerald-500/20', text: 'text-emerald-500 dark:text-emerald-400' },
+  K: { bg: 'bg-blue-500/10 dark:bg-blue-500/20', text: 'text-blue-500 dark:text-blue-400' },
+  S: { bg: 'bg-orange-500/10 dark:bg-orange-500/20', text: 'text-orange-500 dark:text-orange-400' },
+  A: { bg: 'bg-violet-500/10 dark:bg-violet-500/20', text: 'text-violet-500 dark:text-violet-400' },
+  I: { bg: 'bg-teal-500/10 dark:bg-teal-500/20', text: 'text-teal-500 dark:text-teal-400' },
+  F: { bg: 'bg-indigo-500/10 dark:bg-indigo-500/20', text: 'text-indigo-500 dark:text-indigo-400' },
+  H: { bg: 'bg-rose-500/10 dark:bg-rose-500/20', text: 'text-rose-500 dark:text-rose-400' },
+};
+
+function getProviderAvatarStyle(name: string) {
+  const char = name.trim().charAt(0).toUpperCase();
+  return PROVIDER_COLOR_MAP[char] || { bg: 'bg-slate-500/10', text: 'text-slate-500' };
+}
 
 export default function PinjolPage() {
-  const { accountId } = useApp();
+  const { accountId, t } = useApp();
   const { toast } = useToast();
   const { loans, loading, error, refresh } = useDebts(accountId ?? undefined);
   const forecast = useDebtForecast(accountId ?? undefined, loans);
 
-  const [activeTab, setActiveTab] = useState<Tab>('overview');
+  // Modal & form states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editingLoan, setEditingLoan] = useState<LoanTracker | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Debt Integrated States
-  const [debts, setDebts] = useState<Debt[]>([]);
-  const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
-  const [debtName, setDebtName] = useState('');
-  const [debtType, setDebtType] = useState<'owe' | 'lend'>('owe');
-  const [debtAmount, setDebtAmount] = useState('');
-  const [contactInfo, setContactInfo] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
-  const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null);
-  const [payWalletId, setPayWalletId] = useState('');
-  const [payAmount, setPayAmount] = useState('');
-  const [payNote, setPayNote] = useState('');
+  // Edit form states
+  const [editAppName, setEditAppName] = useState('');
+  const [editCategory, setEditCategory] = useState<LoanCategory>('pinjol');
+  const [editAmountReceived, setEditAmountReceived] = useState('');
+  const [editTotalRepayment, setEditTotalRepayment] = useState('');
+  const [editMonthlyPayment, setEditMonthlyPayment] = useState('');
+  const [editTenureMonths, setEditTenureMonths] = useState('');
+  const [editDueDay, setEditDueDay] = useState('');
+  const [editStartDate, setEditStartDate] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editStatus, setEditStatus] = useState<'active' | 'paid_off'>('active');
 
-  const loadIntegratedData = React.useCallback(async () => {
-    if (!accountId) return;
-    try {
-      const [dList, wList] = await Promise.all([
-        debtService.getDebts(accountId),
-        walletService.getWallets(accountId),
-      ]);
-      setDebts(dList);
-      setWallets(wList);
-    } catch (err) {
-      console.error('Failed to load ledger data:', err);
+  // Calendar states
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const calendarYear = currentDate.getFullYear();
+  const calendarMonth = currentDate.getMonth();
+
+  // Local storage check-off keys
+  const [paidInstallments, setPaidInstallments] = useState<string[]>([]);
+
+  // Load paid installments from local storage
+  useEffect(() => {
+    const key = `pinjol_paid_${calendarYear}_${String(calendarMonth + 1).padStart(2, '0')}`;
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      try {
+        setPaidInstallments(JSON.parse(stored));
+      } catch {
+        setPaidInstallments([]);
+      }
+    } else {
+      setPaidInstallments([]);
     }
-  }, [accountId]);
+  }, [calendarYear, calendarMonth]);
 
-  React.useEffect(() => {
-    if (accountId) {
-      Promise.resolve().then(() => loadIntegratedData());
-    }
-  }, [accountId, loadIntegratedData, refresh]);
+  // Save paid installments
+  const toggleInstallmentPaid = (loanId: string) => {
+    const key = `pinjol_paid_${calendarYear}_${String(calendarMonth + 1).padStart(2, '0')}`;
+    setPaidInstallments((prev) => {
+      const updated = prev.includes(loanId)
+        ? prev.filter((id) => id !== loanId)
+        : [...prev, loanId];
+      localStorage.setItem(key, JSON.stringify(updated));
+      return updated;
+    });
+    toast('Status pembayaran berhasil diperbarui!', 'success');
+  };
 
+  // Month navigation
+  const prevMonth = () => {
+    setCurrentDate(new Date(calendarYear, calendarMonth - 1, 1));
+  };
+  const nextMonth = () => {
+    setCurrentDate(new Date(calendarYear, calendarMonth + 1, 1));
+  };
+
+  // Create loan handler
   const handleCreate = async (data: Omit<LoanTracker, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>) => {
     if (!accountId) return;
     setSubmitting(true);
@@ -102,371 +129,707 @@ export default function PinjolPage() {
       setIsModalOpen(false);
       await refresh();
     } catch {
-      toast('Gagal menyimpan', 'danger');
+      toast('Gagal menyimpan pinjaman', 'danger');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleCreateDebt = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accountId || !debtName || !debtAmount) return;
+  // Open Edit Modal
+  const openEditModal = (loan: LoanTracker) => {
+    setEditingLoan(loan);
+    setEditAppName(loan.app_name);
+    setEditCategory(loan.category);
+    setEditAmountReceived(String(loan.amount_received));
+    setEditTotalRepayment(String(loan.total_repayment));
+    setEditMonthlyPayment(String(loan.monthly_payment));
+    setEditTenureMonths(String(loan.tenure_months));
+    setEditDueDay(String(loan.due_day));
+    setEditStartDate(loan.start_date);
+    setEditNotes(loan.notes || '');
+    setEditStatus(loan.status);
+    setIsEditModalOpen(true);
+  };
 
+  // Edit submit handler
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLoan || !editAppName || !editStartDate) return;
     setSubmitting(true);
     try {
-      await debtService.createDebt(
-        accountId,
-        debtName,
-        debtType,
-        Number(debtAmount),
-        contactInfo || null,
-        dueDate || null
-      );
-      toast('Rekod utang piutang berhasil disimpan.', 'success');
-      setIsDebtModalOpen(false);
-      setDebtName('');
-      setDebtAmount('');
-      setContactInfo('');
-      setDueDate('');
-      loadIntegratedData();
-    } catch (err: unknown) {
-      toast(err instanceof Error ? err.message : 'Gagal menyimpan', 'danger');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleOpenPayment = (debt: Debt) => {
-    setSelectedDebt(debt);
-    setPayWalletId('');
-    setPayAmount('');
-    setPayNote(`Pelunasan: ${debt.name}`);
-    setIsPayModalOpen(true);
-  };
-
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accountId || !selectedDebt || !payWalletId || !payAmount) return;
-
-    setSubmitting(true);
-    try {
-      await debtService.recordPayment(
-        accountId,
-        selectedDebt.id,
-        Number(payAmount),
-        payWalletId,
-        payNote
-      );
-      toast('Pembayaran berhasil dicatat!', 'success');
-      setIsPayModalOpen(false);
-      setSelectedDebt(null);
-      loadIntegratedData();
-    } catch (err: unknown) {
-      toast(err instanceof Error ? err.message : 'Gagal mencatat', 'danger');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDeleteDebt = async (id: string, name: string) => {
-    if (!confirm(`Hapus rekod "${name}"?`)) return;
-    try {
-      await debtService.deleteDebt(id);
-      toast('Rekod dihapus.', 'success');
-      loadIntegratedData();
-    } catch (err: unknown) {
-      toast(err instanceof Error ? err.message : 'Gagal menghapus', 'danger');
-    }
-  };
-
-  const handleMarkPaid = async (id: string, name: string) => {
-    if (!confirm(`Tandai "${name}" sebagai LUNAS?`)) return;
-    try {
-      await debtService.updateLoanStatus(id, 'paid_off');
-      toast(`${name} ditandai lunas!`, 'success');
+      await debtService.updateLoanTracker(editingLoan.id, {
+        app_name: editAppName.trim(),
+        category: editCategory,
+        amount_received: Number(editAmountReceived),
+        total_repayment: Number(editTotalRepayment),
+        monthly_payment: Number(editMonthlyPayment),
+        tenure_months: Number(editTenureMonths),
+        due_day: Number(editDueDay),
+        start_date: editStartDate,
+        notes: editNotes.trim() || null,
+        status: editStatus,
+      });
+      toast('Pinjaman berhasil diperbarui!', 'success');
+      setIsEditModalOpen(false);
       await refresh();
-    } catch (err: unknown) {
-      toast(err instanceof Error ? err.message : 'Gagal update', 'danger');
+    } catch (err: any) {
+      toast(err.message || 'Gagal memperbarui', 'danger');
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  // Delete handler
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Hapus catatan "${name}"?`)) return;
+    if (!confirm(`Hapus catatan "${name}"? Tindakan ini tidak dapat dibatalkan.`)) return;
     try {
       await debtService.deleteLoanTracker(id);
-      toast(`${name} dihapus`, 'success');
+      toast(`${name} berhasil dihapus.`, 'success');
+      setIsEditModalOpen(false);
       await refresh();
-    } catch (err: unknown) {
-      toast(err instanceof Error ? err.message : 'Gagal menghapus', 'danger');
+    } catch {
+      toast('Gagal menghapus catatan', 'danger');
     }
   };
 
-  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'overview', label: APP_TEXTS.pinjol.tabs.overview, icon: <BarChart2 className="w-3.5 h-3.5" /> },
-    { key: 'ledger', label: APP_TEXTS.pinjol.tabs.ledger, icon: <HandCoins className="w-3.5 h-3.5" /> },
-    { key: 'forecast', label: APP_TEXTS.pinjol.tabs.forecast, icon: <TrendingUp className="w-3.5 h-3.5" /> },
-    { key: 'daftar', label: APP_TEXTS.pinjol.tabs.list, icon: <LayoutList className="w-3.5 h-3.5" /> },
-    { key: 'timeline', label: APP_TEXTS.pinjol.tabs.timeline, icon: <Calendar className="w-3.5 h-3.5" /> },
-    { key: 'kalender', label: APP_TEXTS.pinjol.tabs.calendar, icon: <Calendar className="w-3.5 h-3.5" /> },
+  // Calculate dynamic stats
+  const activeLoans = useMemo(() => loans.filter((l) => l.status === 'active'), [loans]);
+  const activeCount = activeLoans.length;
+
+  const totalPinjamanSum = useMemo(() => {
+    return activeLoans.reduce((sum, l) => sum + Number(l.total_repayment), 0);
+  }, [activeLoans]);
+
+  const totalTagihanBulanIni = useMemo(() => {
+    return activeLoans.reduce((sum, l) => sum + Number(l.monthly_payment), 0);
+  }, [activeLoans]);
+
+  const sudahDibayarSum = useMemo(() => {
+    return activeLoans
+      .filter((l) => paidInstallments.includes(l.id))
+      .reduce((sum, l) => sum + Number(l.monthly_payment), 0);
+  }, [activeLoans, paidInstallments]);
+
+  // Overdue calculation
+  const terlambatLoans = useMemo(() => {
+    const todayDay = new Date().getDate();
+    const isCurrentMonth = new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
+    
+    return activeLoans.filter((l) => {
+      // Overdue if unpaid and due date has passed in calendar month
+      const isPaid = paidInstallments.includes(l.id);
+      if (isPaid) return false;
+      
+      if (isCurrentMonth) {
+        return l.due_day < todayDay;
+      }
+      // If viewed month is in the past, all unpaid loans are late
+      const viewedDate = new Date(calendarYear, calendarMonth, 1);
+      const currentDateNoTime = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      return viewedDate < currentDateNoTime;
+    });
+  }, [activeLoans, paidInstallments, calendarMonth, calendarYear]);
+
+  const terlambatSum = useMemo(() => {
+    return terlambatLoans.reduce((sum, l) => sum + Number(l.monthly_payment), 0);
+  }, [terlambatLoans]);
+
+  const paidPercentage = totalTagihanBulanIni > 0 
+    ? Math.round((sudahDibayarSum / totalTagihanBulanIni) * 100) 
+    : 0;
+
+  // Monthly average remaining balance
+  const rataRataSisa = useMemo(() => {
+    if (activeCount === 0) return 0;
+    const totalRemaining = activeLoans.reduce((sum, l) => {
+      if (l.total_remaining_balance != null && l.total_remaining_balance > 0) {
+        return sum + Number(l.total_remaining_balance);
+      }
+      // fallback calculation
+      const start = new Date(l.start_date);
+      const elapsed = Math.max(0, (calendarYear - start.getFullYear()) * 12 + (calendarMonth - start.getMonth()));
+      const remaining = Math.max(0, l.tenure_months - elapsed);
+      return sum + (remaining * Number(l.monthly_payment));
+    }, 0);
+    return totalRemaining / activeCount;
+  }, [activeLoans, activeCount, calendarMonth, calendarYear]);
+
+  // Income ratio calculation
+  const rasioIncome = useMemo(() => {
+    if (totalTagihanBulanIni === 0 || forecast.incomeTimeline.length === 0) return 0;
+    const latestIncome = forecast.incomeTimeline[0]?.monthly_income || 0;
+    if (latestIncome <= 0) return 0;
+    return Math.round((totalTagihanBulanIni / latestIncome) * 100);
+  }, [totalTagihanBulanIni, forecast.incomeTimeline]);
+
+  // Nearest upcoming payment
+  const nearestPaymentDate = useMemo(() => {
+    if (activeCount === 0) return null;
+    const sorted = [...activeLoans].sort((a, b) => a.due_day - b.due_day);
+    const todayDay = new Date().getDate();
+    // Find next closest due day
+    const upcoming = sorted.find((l) => l.due_day >= todayDay);
+    const closest = upcoming || sorted[0]; // wraps to next month if none left this month
+    
+    let month = calendarMonth;
+    let year = calendarYear;
+    if (!upcoming) {
+      month += 1;
+      if (month > 11) {
+        month = 0;
+        year += 1;
+      }
+    }
+    return new Date(year, month, closest.due_day);
+  }, [activeLoans, activeCount, calendarMonth, calendarYear]);
+
+  // Calendar days generation
+  const calendarDays = useMemo(() => {
+    const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+    const firstDayIndex = (new Date(calendarYear, calendarMonth, 1).getDay() + 6) % 7; // Monday starting
+    
+    const days: { day: number; isCurrentMonth: boolean; date: Date }[] = [];
+    
+    // Previous month padding
+    const prevMonthDays = new Date(calendarYear, calendarMonth, 0).getDate();
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const d = prevMonthDays - i;
+      days.push({
+        day: d,
+        isCurrentMonth: false,
+        date: new Date(calendarYear, calendarMonth - 1, d),
+      });
+    }
+
+    // Current month days
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push({
+        day: i,
+        isCurrentMonth: true,
+        date: new Date(calendarYear, calendarMonth, i),
+      });
+    }
+
+    // Next month padding
+    const totalCells = 42; // 6 rows
+    const nextPadding = totalCells - days.length;
+    for (let i = 1; i <= nextPadding; i++) {
+      days.push({
+        day: i,
+        isCurrentMonth: false,
+        date: new Date(calendarYear, calendarMonth + 1, i),
+      });
+    }
+
+    return days;
+  }, [calendarYear, calendarMonth]);
+
+  // Determine date marker status
+  const getDayMarker = useCallback((date: Date) => {
+    if (date.getMonth() !== calendarMonth || date.getFullYear() !== calendarYear) return null;
+    
+    const day = date.getDate();
+    const matchingLoans = activeLoans.filter((l) => l.due_day === day);
+    if (matchingLoans.length === 0) return null;
+
+    const isToday = new Date().getDate() === day && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
+    const anyUnpaid = matchingLoans.some((l) => !paidInstallments.includes(l.id));
+
+    if (!anyUnpaid) return 'paid'; // All paid
+
+    if (isToday) return 'today';
+    
+    const todayDay = new Date().getDate();
+    const isPast = day < todayDay && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
+    
+    if (isPast) return 'late';
+    return 'upcoming';
+  }, [activeLoans, paidInstallments, calendarMonth, calendarYear]);
+
+  const monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
   ];
 
-  const isLoading = loading || forecast.plannerLoading;
-  const allWarnings = [...forecast.globalWarnings];
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <UpgradeGate>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        {/* Header Section */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-warning" />
-              {APP_TEXTS.pinjol.title}
-            </h2>
-            <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
-              {APP_TEXTS.pinjol.subtitle}
+            <h1 className="text-2xl md:text-3xl font-black text-[var(--nexus-text-primary)] tracking-tight font-outfit uppercase">
+              Pinjol Tracker
+            </h1>
+            <p className="text-xs text-[var(--nexus-text-secondary)] font-medium mt-1">
+              Kelola semua pinjaman online kamu dalam satu tempat
             </p>
           </div>
-          <Button 
-            variant="nexus-emerald" 
-            className="flex items-center gap-2 cursor-pointer" 
-            onClick={() => activeTab === 'ledger' ? setIsDebtModalOpen(true) : setIsModalOpen(true)}
-          >
-            <Plus className="w-4 h-4" />
-            {activeTab === 'ledger' ? 'Tambah Utang/Piutang' : 'Tambah Pinjaman'}
-          </Button>
-        </div>
+        </header>
 
-        <div className="pinjol-tabs">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              className={`pinjol-tab-btn ${activeTab === t.key ? 'active' : ''}`}
-              onClick={() => setActiveTab(t.key)}
-            >
-              {t.icon}
-              {t.label}
-            </button>
-          ))}
-        </div>
+        {/* Dynamic Summary Stat Cards */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Total Pinjaman */}
+          <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider">
+                Total Pinjaman
+              </span>
+              <h3 className="text-lg md:text-xl font-black text-[var(--nexus-text-primary)] tracking-tight">
+                Rp {totalPinjamanSum.toLocaleString('id-ID')}
+              </h3>
+              <p className="text-[11px] text-[var(--nexus-text-muted)] font-semibold uppercase">
+                {activeCount} pinjaman aktif
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-[18px] bg-violet-500/10 flex items-center justify-center text-violet-500 shrink-0">
+              <WalletIcon className="w-5 h-5" />
+            </div>
+          </Card>
 
-        {error && (
-          <div className="pinjol-warning-item danger mb-4">
-            <AlertCircle className="w-4 h-4 pinjol-warning-icon" />
-            {error}
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((n) => (
-              <div key={n} className="pinjol-shimmer-card shimmer" />
-            ))}
-          </div>
-        ) : (
-          <>
-            {(activeTab === 'overview' || activeTab === 'forecast') && (
-              <IncomeProjectionPanel
-                timeline={forecast.incomeTimeline}
-                salaryDay={forecast.salaryDay}
-                onSaveSalaryDay={forecast.saveSalaryDay}
-                onAddEntry={forecast.addIncomeEntry}
-                onRemoveEntry={forecast.removeIncomeEntry}
-              />
-            )}
-
-            {activeTab === 'overview' && (
-              <div className="space-y-5">
-                {forecast.currentForecast && forecast.survivalScore && (
-                  <DebtDashboard
-                    currentForecast={forecast.currentForecast}
-                    survivalScore={forecast.survivalScore}
-                    activeDebtCount={forecast.activeLoans.length}
-                    nextDueDate={forecast.nextDueDate}
-                  />
-                )}
-
-                {allWarnings.length > 0 && (
-                  <div className="pinjol-warnings">
-                    {allWarnings.map((w, i) => (
-                      <div key={i} className={`pinjol-warning-item ${w.level}`}>
-                        <span className="pinjol-warning-icon">
-                          {w.level === 'danger' && <AlertCircle className="w-4 h-4" />}
-                          {w.level === 'warning' && <AlertTriangle className="w-4 h-4" />}
-                          {w.level === 'info' && <Info className="w-4 h-4" />}
-                        </span>
-                        {w.message}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <SurvivalAnalysis
-                  insight={forecast.survivalInsight}
-                  onAnalyze={forecast.requestSurvivalAnalysis}
-                />
-
-                {forecast.analytics && (
-                  <ForecastAnalyticsSummary analytics={forecast.analytics} />
-                )}
+          {/* Card 2: Total Tagihan Bulan Ini */}
+          <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider">
+                Total Tagihan Bulan Ini
+              </span>
+              <h3 className="text-lg md:text-xl font-black text-[var(--nexus-text-primary)] tracking-tight">
+                Rp {totalTagihanBulanIni.toLocaleString('id-ID')}
+              </h3>
+              <div className="flex items-center gap-1 text-emerald-500 text-[11px] font-bold uppercase">
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>12% dari bulan lalu</span>
               </div>
-            )}
+            </div>
+            <div className="w-12 h-12 rounded-[18px] bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
+              <CalendarIcon className="w-5 h-5" />
+            </div>
+          </Card>
 
-            {activeTab === 'forecast' && (
-              <div className="space-y-5">
-                {forecast.analytics && (
-                  <ForecastAnalyticsSummary analytics={forecast.analytics} />
-                )}
-                <h3 className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
-                  Cashflow per Siklus Gaji
+          {/* Card 3: Sudah Dibayar */}
+          <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider">
+                Sudah Dibayar
+              </span>
+              <h3 className="text-lg md:text-xl font-black text-[var(--nexus-text-emerald)] tracking-tight">
+                Rp {sudahDibayarSum.toLocaleString('id-ID')}
+              </h3>
+              <p className="text-[11px] text-[var(--nexus-text-muted)] font-semibold uppercase">
+                {paidPercentage}% dari total tagihan
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-[18px] bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
+              <CheckCircle className="w-5 h-5" />
+            </div>
+          </Card>
+
+          {/* Card 4: Terlambat */}
+          <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider">
+                Terlambat
+              </span>
+              <h3 className="text-lg md:text-xl font-black text-rose-500 tracking-tight animate-pulse">
+                Rp {terlambatSum.toLocaleString('id-ID')}
+              </h3>
+              <p className="text-[11px] text-rose-500 font-bold uppercase tracking-tight">
+                {terlambatLoans.length} tagihan terlambat
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-[18px] bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+          </Card>
+        </section>
+
+        {/* Main Grid: Left (Table + Ringkasan), Right (Calendar + Info) */}
+        <section className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Loan Table & Ringkasan */}
+          <div className="xl:col-span-8 space-y-6">
+            {/* Daftar Pinjaman Table */}
+            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] overflow-hidden shadow-2xl">
+              <div className="p-6 md:p-8 flex justify-between items-center border-b border-[var(--nexus-glass-border)]">
+                <h3 className="text-base font-extrabold uppercase tracking-tight text-[var(--nexus-text-primary)]">
+                  Daftar Pinjaman
                 </h3>
-                <CashflowTimeline periods={forecast.forecastTimeline} />
               </div>
-            )}
 
-            {activeTab === 'daftar' && (
-              <ActiveDebtList
-                loans={loans}
-                onAdd={() => setIsModalOpen(true)}
-                onMarkPaid={handleMarkPaid}
-                onDelete={handleDelete}
-              />
-            )}
-
-            {activeTab === 'timeline' && <DebtDueTimeline loans={loans} />}
-
-            {activeTab === 'kalender' && (
-              <DebtCalendar loans={forecast.activeLoans} salaryDay={forecast.salaryDay} />
-            )}
-
-            {activeTab === 'ledger' && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <Card glass className="p-8 md:p-12 relative group overflow-hidden border-white/5 shadow-2xl">
-                  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/5 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-rose-500/10" />
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-                    <div className="space-y-8">
-                      <div className="space-y-2">
-                        <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em]">Posisi Eksposur Bersih</p>
-                        <div className="flex items-baseline gap-3">
-                          <span className={`text-4xl md:text-7xl font-black tracking-tighter ${(() => {
-                            const owe = debts.filter(d => d.type === 'owe').reduce((s, d) => s + Number(d.remaining_amount), 0);
-                            const lend = debts.filter(d => d.type === 'lend').reduce((s, d) => s + Number(d.remaining_amount), 0);
-                            return lend - owe >= 0 ? 'text-emerald-400' : 'text-rose-500';
-                          })()}`}>
-                            <NumberTicker value={Math.abs(debts.filter(d => d.type === 'lend').reduce((s, d) => s + Number(d.remaining_amount), 0) - debts.filter(d => d.type === 'owe').reduce((s, d) => s + Number(d.remaining_amount), 0))} formatter={formatCurrency} />
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-4">
-                        <div className="px-6 py-3 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
-                          <TrendingUp className="w-4 h-4 text-rose-400" />
-                          <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest">
-                            Utang: {formatCurrency(debts.filter(d => d.type === 'owe').reduce((s, d) => s + Number(d.remaining_amount), 0))}
-                          </span>
-                        </div>
-                        <div className="px-6 py-3 rounded-[24px] bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
-                          <HandCoins className="w-4 h-4 text-emerald-400" />
-                          <span className="text-[11px] font-black text-emerald-400 uppercase tracking-widest">
-                            Piutang: {formatCurrency(debts.filter(d => d.type === 'lend').reduce((s, d) => s + Number(d.remaining_amount), 0))}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-white/[0.02] backdrop-blur-3xl rounded-[40px] border border-white/5 p-8 space-y-6">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-black text-white uppercase tracking-tight">Status Ledger</h4>
-                        <div className="text-2xl font-black text-white italic">{debts.length} <span className="text-xs not-italic text-white/20">Unit</span></div>
-                      </div>
-                      <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-tight">
-                        Audit sistem mendeteksi <span className="text-white">{debts.filter(d => d.type === 'owe').length} kontrak utang</span> dan <span className="text-white">{debts.filter(d => d.type === 'lend').length} piutang aktif</span>.
-                      </p>
-                      <Button variant="nexus-emerald" className="w-full py-6 h-auto" onClick={() => setIsDebtModalOpen(true)}>Inisialisasi Protokol Baru</Button>
-                    </div>
+              {loading ? (
+                <div className="p-8 space-y-4">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="h-16 bg-white/[0.02] rounded-2xl animate-pulse" />
+                  ))}
+                </div>
+              ) : loans.length === 0 ? (
+                <div className="p-12 text-center flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 rounded-[24px] bg-white/[0.03] flex items-center justify-center text-[var(--nexus-text-muted)] mb-4">
+                    <LayoutGrid className="w-6 h-6" />
                   </div>
-                </Card>
+                  <h4 className="font-extrabold uppercase tracking-tight text-[var(--nexus-text-primary)] text-sm mb-1">
+                    Daftar masih kosong
+                  </h4>
+                  <p className="text-xs text-[var(--nexus-text-secondary)] max-w-sm leading-relaxed mb-6">
+                    Belum ada pinjaman online yang dicatat dalam tracker ini.
+                  </p>
+                  <Button variant="nexus-emerald" size="sm" onClick={() => setIsModalOpen(true)}>
+                    <Plus className="w-4 h-4 mr-1.5" /> Tambah Pinjaman
+                  </Button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-[var(--nexus-glass-border)] text-[9px] font-black uppercase tracking-[0.2em] text-[var(--nexus-text-muted)]">
+                        <th className="px-6 py-4">Pinjaman</th>
+                        <th className="px-6 py-4">Total Pinjaman</th>
+                        <th className="px-6 py-4">Sisa Tagihan</th>
+                        <th className="px-6 py-4">Tagihan Berikutnya</th>
+                        <th className="px-6 py-4">Status</th>
+                        <th className="px-6 py-4 text-right"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--nexus-glass-border)]">
+                      {loans.map((loan) => {
+                        const avatarStyle = getProviderAvatarStyle(loan.app_name);
+                        const isPaidThisMonth = paidInstallments.includes(loan.id);
 
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
-                      <Landmark className="w-5 h-5 text-rose-500" /> Utang Personal
-                    </h3>
-                    <div className="space-y-4">
-                      {debts.filter(d => d.type === 'owe').length === 0 ? (
-                        <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center">
-                          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Tidak Ada Utang Aktif</p>
-                        </div>
-                      ) : (
-                        debts.filter(d => d.type === 'owe').map((d) => (
-                          <Card key={d.id} glass className="p-6 border-white/5 space-y-4 relative overflow-hidden group">
-                            <div className="flex justify-between items-start">
+                        // Calculate status
+                        let statusText = 'Akan datang';
+                        let statusClass = 'bg-blue-500/10 text-blue-500 border border-blue-500/20';
+
+                        if (isPaidThisMonth) {
+                          statusText = 'Lunas';
+                          statusClass = 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
+                        } else {
+                          const todayDay = new Date().getDate();
+                          const isCurrentMonth = new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
+                          
+                          if (isCurrentMonth) {
+                            if (loan.due_day < todayDay) {
+                              const diff = todayDay - loan.due_day;
+                              statusText = `Terlambat ${diff} hari`;
+                              statusClass = 'bg-rose-500/10 text-rose-500 border border-rose-500/20';
+                            } else if (loan.due_day === todayDay) {
+                              statusText = 'Jatuh tempo hari ini';
+                              statusClass = 'bg-orange-500/10 text-orange-500 border border-orange-500/20';
+                            }
+                          } else {
+                            // If viewed month is in the past, all unpaid loans are late
+                            const viewedDate = new Date(calendarYear, calendarMonth, 1);
+                            const currentDateNoTime = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                            if (viewedDate < currentDateNoTime) {
+                              statusText = 'Terlambat';
+                              statusClass = 'bg-rose-500/10 text-rose-500 border border-rose-500/20';
+                            }
+                          }
+                        }
+
+                        // Calculate remaining balance percentage
+                        const remaining = loan.total_remaining_balance ?? (loan.tenure_months * loan.monthly_payment);
+                        const remainingPercent = loan.total_repayment > 0 
+                          ? Math.round((remaining / loan.total_repayment) * 100)
+                          : 0;
+
+                        return (
+                          <tr 
+                            key={loan.id} 
+                            className="group hover:bg-white/[0.01] transition-all cursor-pointer"
+                            onClick={() => openEditModal(loan)}
+                          >
+                            {/* Pinjaman column */}
+                            <td className="px-6 py-4.5 flex items-center gap-3.5">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${avatarStyle.bg} ${avatarStyle.text}`}>
+                                {loan.app_name.trim().charAt(0).toUpperCase()}
+                              </div>
                               <div>
-                                <h4 className="font-black text-white uppercase">{d.name}</h4>
-                                <p className="text-[10px] text-white/30 font-bold uppercase">{d.contact_info || 'Tanpa Catatan'}</p>
+                                <p className="text-xs font-extrabold text-[var(--nexus-text-primary)] group-hover:text-emerald-500 transition-colors uppercase">
+                                  {loan.app_name}
+                                </p>
+                                <p className="text-[10px] font-bold text-[var(--nexus-text-muted)] uppercase mt-0.5">
+                                  Pinjam {new Date(loan.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </p>
                               </div>
-                              <button onClick={() => handleDeleteDebt(d.id, d.name)} className="text-white/10 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-[10px] font-black uppercase">
-                                <span className="text-white/20">Progres Pelunasan</span>
-                                <span className="text-white">{formatCurrency(Number(d.amount) - Number(d.remaining_amount))} / {formatCurrency(Number(d.amount))}</span>
+                            </td>
+
+                            {/* Total Pinjaman */}
+                            <td className="px-6 py-4.5">
+                              <span className="text-xs font-extrabold text-[var(--nexus-text-primary)]">
+                                Rp {Number(loan.total_repayment).toLocaleString('id-ID')}
+                              </span>
+                            </td>
+
+                            {/* Sisa Tagihan */}
+                            <td className="px-6 py-4.5">
+                              <div className="space-y-0.5">
+                                <p className={`text-xs font-extrabold ${statusText.startsWith('Terlambat') ? 'text-rose-500' : 'text-[var(--nexus-text-primary)]'}`}>
+                                  Rp {remaining.toLocaleString('id-ID')}
+                                </p>
+                                <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]">
+                                  {remainingPercent}%
+                                </p>
                               </div>
-                              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]" style={{ width: `${((Number(d.amount) - Number(d.remaining_amount)) / Number(d.amount)) * 100}%` }} />
+                            </td>
+
+                            {/* Tagihan Berikutnya */}
+                            <td className="px-6 py-4.5">
+                              <div className="space-y-0.5">
+                                <p className="text-xs font-bold text-[var(--nexus-text-primary)]">
+                                  {loan.due_day} {monthNames[calendarMonth]} {calendarYear}
+                                </p>
+                                <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]">
+                                  Rp {Number(loan.monthly_payment).toLocaleString('id-ID')}
+                                </p>
                               </div>
-                            </div>
-                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                              <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{d.due_date ? `Deadline: ${new Date(d.due_date).toLocaleDateString('id-ID')}` : 'Tenor Terbuka'}</span>
-                              <Button size="sm" variant="outline" className="h-auto py-2 rounded-xl text-[9px] font-black uppercase" onClick={() => handleOpenPayment(d)}>Bayar Cicilan</Button>
-                            </div>
-                          </Card>
-                        ))
-                      )}
-                    </div>
+                            </td>
+
+                            {/* Status */}
+                            <td className="px-6 py-4.5">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // prevent opening Edit Modal
+                                  toggleInstallmentPaid(loan.id);
+                                }}
+                                className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wide cursor-pointer hover:scale-105 active:scale-95 transition-all ${statusClass}`}
+                                title="Klik untuk mengubah status pembayaran angsuran bulan ini"
+                              >
+                                {statusText}
+                              </button>
+                            </td>
+
+                            {/* Arrow icon */}
+                            <td className="px-6 py-4.5 text-right">
+                              <ChevronRight className="w-4 h-4 text-[var(--nexus-text-muted)] group-hover:translate-x-1 group-hover:text-[var(--nexus-text-primary)] transition-all shrink-0 ml-auto" />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Bottom Outlined Actions */}
+              {!loading && loans.length > 0 && (
+                <div className="p-4 bg-white/[0.01] border-t border-[var(--nexus-glass-border)]">
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="w-full py-4.5 rounded-[20px] border border-dashed border-emerald-500/30 hover:border-emerald-500/60 text-emerald-500 hover:bg-emerald-500/5 transition-all duration-300 font-extrabold uppercase tracking-widest text-[10px] flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Tambah Pinjaman Baru
+                  </button>
+                </div>
+              )}
+            </Card>
+
+            {/* Ringkasan Pinjol Horizontal Metrics */}
+            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] p-6 shadow-xl grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+                  <LayoutGrid className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-[var(--nexus-text-primary)]">{activeCount}</h4>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--nexus-text-muted)] mt-0.5">Total Pinjaman</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+                  <WalletIcon className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-[var(--nexus-text-primary)]">Rp {Math.round(rataRataSisa).toLocaleString('id-ID')}</h4>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--nexus-text-muted)] mt-0.5">Rata-rata Sisa</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+                  <CheckCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-[var(--nexus-text-primary)]">{rasioIncome}%</h4>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--nexus-text-muted)] mt-0.5">Rasio Terhadap Income</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+                  <CalendarIcon className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-[var(--nexus-text-primary)]">
+                    {nearestPaymentDate ? nearestPaymentDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '—'}
+                  </h4>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--nexus-text-muted)] mt-0.5">Tagihan Terdekat</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right Column: Calendar Grid & Sidebar panels */}
+          <div className="xl:col-span-4 space-y-6">
+            {/* Agenda Tagihan Month Calendar Card */}
+            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-6 shadow-2xl space-y-6">
+              {/* Calendar Header with navigation */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--nexus-text-primary)]">
+                  Agenda Tagihan
+                </h3>
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={prevMonth}
+                    className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-white/5"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-[var(--nexus-text-primary)] px-2">
+                    {monthNames[calendarMonth].substring(0, 3)} {calendarYear}
+                  </span>
+                  <button 
+                    onClick={nextMonth}
+                    className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-white/5"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Calendar Grid Container */}
+              <div className="space-y-4">
+                {/* Weekday headers */}
+                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-[var(--nexus-text-muted)] uppercase">
+                  <span>Sen</span>
+                  <span>Sel</span>
+                  <span>Rab</span>
+                  <span>Kam</span>
+                  <span>Jum</span>
+                  <span>Sab</span>
+                  <span>Min</span>
+                </div>
+
+                {/* Day numbers grid */}
+                <div className="grid grid-cols-7 gap-1">
+                  {calendarDays.map((cell, idx) => {
+                    const marker = getDayMarker(cell.date);
+                    const isToday = new Date().getDate() === cell.day && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
+                    
+                    let bgClass = 'bg-transparent text-[var(--nexus-text-secondary)] hover:bg-white/[0.02]';
+                    let borderClass = 'border-transparent';
+
+                    if (!cell.isCurrentMonth) {
+                      bgClass = 'bg-transparent text-[var(--nexus-text-muted)]/20 pointer-events-none';
+                    } else if (marker === 'paid') {
+                      bgClass = 'bg-emerald-500/10 text-emerald-500';
+                    } else if (marker === 'late') {
+                      bgClass = 'bg-rose-500/80 text-white font-black animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.4)]';
+                    } else if (marker === 'today') {
+                      bgClass = 'bg-orange-500/20 text-orange-400 font-extrabold';
+                      borderClass = 'border-orange-500/50 border';
+                    } else if (marker === 'upcoming') {
+                      bgClass = 'bg-blue-500/10 text-blue-400 font-bold';
+                      borderClass = 'border-blue-500/30 border-dashed border';
+                    } else if (isToday) {
+                      borderClass = 'border-[var(--nexus-text-muted)]/40 border';
+                    }
+
+                    return (
+                      <button
+                        key={`${cell.day}-${idx}`}
+                        disabled={!cell.isCurrentMonth}
+                        onClick={() => {
+                          // Toggle paid status for first loan matching this due day
+                          const matchingLoan = activeLoans.find((l) => l.due_day === cell.day);
+                          if (matchingLoan) {
+                            toggleInstallmentPaid(matchingLoan.id);
+                          }
+                        }}
+                        className={`w-full aspect-square rounded-full text-[11px] font-bold flex items-center justify-center transition-all ${bgClass} ${borderClass} cursor-pointer`}
+                      >
+                        {cell.day}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Calendar Legend */}
+                <div className="flex items-center justify-between text-[9px] font-black uppercase text-[var(--nexus-text-muted)] tracking-wider border-t border-[var(--nexus-glass-border)] pt-4">
+                  <div className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
+                    <span>Terlambat</span>
                   </div>
-
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
-                      <HandCoins className="w-5 h-5 text-emerald-500" /> Piutang Personal
-                    </h3>
-                    <div className="space-y-4">
-                      {debts.filter(d => d.type === 'lend').length === 0 ? (
-                        <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center">
-                          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Tidak Ada Piutang Aktif</p>
-                        </div>
-                      ) : (
-                        debts.filter(d => d.type === 'lend').map((d) => (
-                          <Card key={d.id} glass className="p-6 border-white/5 space-y-4 relative overflow-hidden group">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h4 className="font-black text-white uppercase">{d.name}</h4>
-                                <p className="text-[10px] text-white/30 font-bold uppercase">{d.contact_info || 'Tanpa Catatan'}</p>
-                              </div>
-                              <button onClick={() => handleDeleteDebt(d.id, d.name)} className="text-white/10 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-[10px] font-black uppercase">
-                                <span className="text-white/20">Progres Penagihan</span>
-                                <span className="text-white">{formatCurrency(Number(d.amount) - Number(d.remaining_amount))} / {formatCurrency(Number(d.amount))}</span>
-                              </div>
-                              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: `${((Number(d.amount) - Number(d.remaining_amount)) / Number(d.amount)) * 100}%` }} />
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                              <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{d.due_date ? `Deadline: ${new Date(d.due_date).toLocaleDateString('id-ID')}` : 'Tenor Terbuka'}</span>
-                              <Button size="sm" variant="outline" className="h-auto py-2 rounded-xl text-[9px] font-black uppercase" onClick={() => handleOpenPayment(d)}>Terima Dana</Button>
-                            </div>
-                          </Card>
-                        ))
-                      )}
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-orange-400 inline-block" />
+                    <span>Hari ini</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block" />
+                    <span>Akan datang</span>
                   </div>
                 </div>
               </div>
-            )}
-          </>
-        )}
 
+              {/* Late warning card box */}
+              {terlambatLoans.length > 0 && (
+                <div className="p-4 rounded-[20px] bg-rose-500/5 border border-rose-500/10 flex items-center justify-between group hover:bg-rose-500/10 transition-all cursor-pointer">
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-extrabold text-rose-500 uppercase tracking-tight">
+                      {terlambatLoans.length} tagihan terlambat
+                    </p>
+                    <p className="text-[9px] font-semibold text-rose-500/50 uppercase tracking-wide">
+                      Total denda: Rp {terlambatSum.toLocaleString('id-ID')}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-rose-500 group-hover:translate-x-1 transition-transform shrink-0" />
+                </div>
+              )}
+            </Card>
+
+            {/* Tips Aman Pinjol Panel */}
+            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-6 shadow-xl space-y-6">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--nexus-text-primary)]">
+                  Tips Aman Pinjol
+                </h3>
+              </div>
+
+              <ul className="space-y-4">
+                {[
+                  'Pastikan pinjol terdaftar di OJK',
+                  'Jangan pinjam melebihi kemampuan',
+                  'Bayar tepat waktu untuk hindari denda',
+                  'Jaga data pribadi kamu',
+                ].map((tip, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
+                      <CheckCircle className="w-3 h-3" />
+                    </span>
+                    <span className="text-[11px] font-bold text-[var(--nexus-text-secondary)] leading-relaxed uppercase tracking-tight">
+                      {tip}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="border-t border-[var(--nexus-glass-border)] pt-4">
+                <a
+                  href="https://www.ojk.go.id"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[9px] font-black uppercase tracking-widest text-emerald-500 hover:text-emerald-400 flex items-center gap-1 transition-all group cursor-pointer"
+                >
+                  Pelajari lebih lanjut
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </div>
+            </Card>
+          </div>
+        </section>
+
+        {/* Existing Add Modal (preserves calculations) */}
         <DebtFormModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -474,104 +837,152 @@ export default function PinjolPage() {
           submitting={submitting}
         />
 
-        <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Initialize Ledger Protocol">
-          <form onSubmit={handleCreateDebt} className="space-y-8 p-2">
-            <div className="grid grid-cols-2 gap-3 bg-white/[0.02] p-2 rounded-[24px] border border-white/5">
-              {(['owe', 'lend'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setDebtType(t)}
-                  className={`py-4 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
-                    debtType === t
-                      ? t === 'owe' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'
-                      : 'text-white/30 hover:text-white'
-                  }`}
-                >
-                  {t === 'owe' ? 'Utang' : 'Piutang'}
-                </button>
-              ))}
-            </div>
-
-            <Input
-              label="Label Protokol"
-              placeholder="e.g. Pinjaman Personal, Modal Usaha"
-              value={debtName}
-              onChange={(e) => setDebtName(e.target.value)}
-              required
-              disabled={submitting}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Edit & Detail Modal */}
+        <Modal 
+          isOpen={isEditModalOpen} 
+          onClose={() => setIsEditModalOpen(false)} 
+          title={`Manajemen Pinjaman: ${editingLoan?.app_name}`}
+        >
+          {editingLoan && (
+            <form onSubmit={handleEditSubmit} className="space-y-6 p-2">
               <Input
-                label="Magnitude (Rp)"
-                placeholder="0"
-                type="number"
-                value={debtAmount}
-                onChange={(e) => setDebtAmount(e.target.value)}
+                label="Nama Aplikasi / Pemberi Pinjaman"
+                value={editAppName}
+                onChange={(e) => setEditAppName(e.target.value)}
                 required
                 disabled={submitting}
               />
-              <DatePicker
-                label="Chronological Deadline"
-                value={dueDate}
-                onChange={(val) => setDueDate(val)}
-                disabled={submitting}
-              />
-            </div>
-            <Input
-              label="Counterparty / Catatan"
-              placeholder="Nama Orang atau Identitas"
-              value={contactInfo}
-              onChange={(e) => setContactInfo(e.target.value)}
-              disabled={submitting}
-            />
 
-            <div className="flex gap-4 pt-4">
-              <Button type="button" variant="outline" className="flex-1 rounded-[24px] py-8" onClick={() => setIsDebtModalOpen(false)} disabled={submitting}>Batal</Button>
-              <Button type="submit" loading={submitting} className="flex-1 rounded-[24px] bg-emerald-500 py-8">Simpan Protokol</Button>
-            </div>
-          </form>
-        </Modal>
-
-        <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title="Execute Repayment Protocol">
-          {selectedDebt && (
-            <form onSubmit={handlePaymentSubmit} className="space-y-8 p-2">
-              <div className="p-6 rounded-[24px] bg-white/[0.02] border border-white/5 space-y-2">
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Target Entitas</p>
-                <h4 className="text-xl font-black text-white uppercase tracking-tight">{selectedDebt.name}</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Select
+                  label="Kategori"
+                  options={[
+                    { value: 'pinjol', label: 'Pinjaman Online' },
+                    { value: 'paylater', label: 'PayLater' },
+                    { value: 'kartu_kredit', label: 'Kartu Kredit' },
+                    { value: 'koperasi', label: 'Koperasi' },
+                    { value: 'teman_keluarga', label: 'Teman / Keluarga' },
+                    { value: 'cicilan_barang', label: 'Cicilan Barang' },
+                    { value: 'custom', label: 'Custom / Lainnya' },
+                  ]}
+                  value={editCategory}
+                  onChange={(e) => setEditCategory(e.target.value as LoanCategory)}
+                  required
+                  disabled={submitting}
+                />
+                
+                <Select
+                  label="Status Kontrak"
+                  options={[
+                    { value: 'active', label: 'Aktif / Berjalan' },
+                    { value: 'paid_off', label: 'Lunas / Selesai' },
+                  ]}
+                  value={editStatus}
+                  onChange={(e) => setEditStatus(e.target.value as 'active' | 'paid_off')}
+                  required
+                  disabled={submitting}
+                />
               </div>
 
-              <Select
-                label={selectedDebt.type === 'owe' ? 'Sumber Dana (Dompet)' : 'Tujuan Dana (Dompet)'}
-                options={[
-                  { value: '', label: '-- Pilih Dompet --' },
-                  ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance))})` })),
-                ]}
-                value={payWalletId}
-                onChange={(e) => setPayWalletId(e.target.value)}
-                required
-                disabled={submitting}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Dana Cair / Diterima (Rp)"
+                  type="number"
+                  value={editAmountReceived}
+                  onChange={(e) => setEditAmountReceived(e.target.value)}
+                  required
+                  disabled={submitting}
+                />
+                <Input
+                  label="Total Kewajiban Pembayaran (Rp)"
+                  type="number"
+                  value={editTotalRepayment}
+                  onChange={(e) => setEditTotalRepayment(e.target.value)}
+                  required
+                  disabled={submitting}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input
+                  label="Cicilan Bulanan (Rp)"
+                  type="number"
+                  value={editMonthlyPayment}
+                  onChange={(e) => setEditMonthlyPayment(e.target.value)}
+                  required
+                  disabled={submitting}
+                />
+                <Input
+                  label="Tenor (Bulan)"
+                  type="number"
+                  value={editTenureMonths}
+                  onChange={(e) => setEditTenureMonths(e.target.value)}
+                  required
+                  disabled={submitting}
+                />
+                <Input
+                  label="Tanggal Jatuh Tempo Bulanan"
+                  type="number"
+                  placeholder="1-31"
+                  value={editDueDay}
+                  onChange={(e) => setEditDueDay(e.target.value)}
+                  required
+                  disabled={submitting}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DatePicker
+                  label="Tanggal Mulai Kontrak"
+                  value={editStartDate}
+                  onChange={(val) => setEditStartDate(val)}
+                  disabled={submitting}
+                />
+                <Input
+                  label="Sisa Kewajiban Manual (Opsional)"
+                  type="number"
+                  placeholder="Kosongkan untuk kalkulasi otomatis"
+                  value={editTotalRepayment}
+                  onChange={(e) => setEditTotalRepayment(e.target.value)}
+                  disabled={submitting}
+                />
+              </div>
+
               <Input
-                label="Nominal Transaksi (Rp)"
-                placeholder="0"
-                type="number"
-                value={payAmount}
-                onChange={(e) => setPayAmount(e.target.value)}
-                required
-                disabled={submitting}
-              />
-              <Input
-                label="Catatan Log"
-                value={payNote}
-                onChange={(e) => setPayNote(e.target.value)}
+                label="Catatan Tambahan"
+                placeholder="No kontrak, limit, atau detail lain..."
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
                 disabled={submitting}
               />
 
-              <div className="flex gap-4 pt-4">
-                <Button type="button" variant="outline" className="flex-1 rounded-[24px] py-8" onClick={() => setIsPayModalOpen(false)} disabled={submitting}>Batal</Button>
-                <Button type="submit" loading={submitting} className={`flex-1 rounded-[24px] py-8 ${selectedDebt.type === 'owe' ? 'bg-rose-500' : 'bg-emerald-400'}`}>
-                  Otorisasi {selectedDebt.type === 'owe' ? 'Pembayaran' : 'Penerimaan'}
+              <div className="flex gap-4 pt-4 border-t border-[var(--nexus-glass-border)]">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="rounded-[20px] py-6 text-rose-500 border-rose-500/20 hover:bg-rose-500/5 hover:border-rose-500/40 cursor-pointer"
+                  onClick={() => handleDelete(editingLoan.id, editingLoan.app_name)}
+                  disabled={submitting}
+                >
+                  <Trash2 className="w-4 h-4 mr-1.5" />
+                  Hapus
+                </Button>
+                <div className="flex-1" />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="rounded-[20px] py-6 cursor-pointer"
+                  onClick={() => setIsEditModalOpen(false)}
+                  disabled={submitting}
+                >
+                  Batal
+                </Button>
+                <Button 
+                  type="submit" 
+                  loading={submitting}
+                  className="rounded-[20px] bg-emerald-500 text-white py-6 cursor-pointer"
+                >
+                  Simpan Perubahan
                 </Button>
               </div>
             </form>
