@@ -4,8 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { debtService, type Debt } from '@/lib/services/finance/debt.service';
 import { type LoanTracker } from '@/lib/debt-planner/types';
 
-import type { LoanTracker as PlannerLoanTracker } from '@/lib/debt-planner/types';
-
 export function useDebts(accountId: string | undefined) {
   const [loans, setLoans] = useState<LoanTracker[]>([]);
   const [loading, setLoading] = useState(true);
