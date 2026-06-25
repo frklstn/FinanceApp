@@ -23,13 +23,15 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ isCollapsed: _isCollapsed, onToggle: _onToggle }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { toast } = useToast()
   const { isSuperAdmin: showAdmin, profile, t } = useApp()
 
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const [isHovered, setIsHovered] = useState(false)
+  const isCollapsed = !isHovered
 
   const handleLogout = async () => {
     try {
@@ -83,37 +85,28 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
   return (
     <aside 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col bg-[var(--nexus-bg-sidebar)] border-r border-[var(--nexus-glass-border)] select-none transition-all duration-300 ease-out",
+        "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col bg-[var(--nexus-bg-sidebar)] border-r border-[var(--nexus-glass-border)] select-none transition-all duration-300 ease-out shadow-2xl",
         isCollapsed ? "w-[84px]" : "w-[260px]"
       )}
     >
       {/* Brand Header */}
       <div className={cn("p-6 flex items-center justify-between", isCollapsed ? "justify-center" : "")}>
         {!isCollapsed ? (
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-violet-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-violet-500/25">
-                F
-              </div>
-              <span className="text-sm font-black tracking-tight text-[var(--nexus-text-primary)] font-outfit uppercase">
-                FRKLSTN
-              </span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-violet-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-violet-500/25">
+              F
             </div>
-            <button 
-              onClick={onToggle}
-              className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] hover:bg-black/10 dark:hover:bg-white/10 transition-all cursor-pointer border border-black/5 dark:border-white/5"
-            >
-              <ChevronsLeft className="w-4 h-4" />
-            </button>
+            <span className="text-sm font-black tracking-tight text-[var(--nexus-text-primary)] font-outfit uppercase">
+              FRKLSTN
+            </span>
           </div>
         ) : (
-          <button 
-            onClick={onToggle}
-            className="w-10 h-10 rounded-xl bg-violet-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-violet-500/25 cursor-pointer hover:scale-105 active:scale-95 transition-all"
-          >
+          <div className="w-10 h-10 rounded-xl bg-violet-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-violet-500/25">
             F
-          </button>
+          </div>
         )}
       </div>
 
@@ -260,17 +253,6 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         </div>
       )}
 
-      {/* Collapsed Toggle Trigger (at bottom if collapsed) */}
-      {isCollapsed && (
-        <div className="p-4 mt-auto border-t border-[var(--nexus-glass-border)] flex justify-center">
-          <button 
-            onClick={onToggle}
-            className="p-2 rounded-lg bg-black/5 dark:bg-white/5 text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] hover:bg-black/10 dark:hover:bg-white/10 transition-all cursor-pointer border border-black/5 dark:border-white/5"
-          >
-            <ChevronsRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
     </aside>
   )
 }

@@ -416,7 +416,7 @@ export default function PinjolPage() {
         </header>
 
         {/* Dynamic Summary Stat Cards */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Pinjaman */}
           <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
             <div className="space-y-1.5">
@@ -673,7 +673,7 @@ export default function PinjolPage() {
             </Card>
 
             {/* Ringkasan Pinjol Horizontal Metrics */}
-            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] p-6 shadow-xl grid grid-cols-2 md:grid-cols-4 gap-6">
+            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] p-6 shadow-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
                   <LayoutGrid className="w-4 h-4" />
