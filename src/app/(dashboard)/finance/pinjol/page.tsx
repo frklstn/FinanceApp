@@ -416,7 +416,7 @@ export default function PinjolPage() {
         </header>
 
         {/* Dynamic Summary Stat Cards */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Pinjaman */}
           <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
             <div className="space-y-1.5">
@@ -530,9 +530,9 @@ export default function PinjolPage() {
                     <thead>
                       <tr className="border-b border-[var(--nexus-glass-border)] text-[9px] font-black uppercase tracking-[0.2em] text-[var(--nexus-text-muted)]">
                         <th className="px-6 py-4">Pinjaman</th>
-                        <th className="px-6 py-4">Total Pinjaman</th>
+                        <th className="px-6 py-4 hidden sm:table-cell">Total Pinjaman</th>
                         <th className="px-6 py-4">Sisa Tagihan</th>
-                        <th className="px-6 py-4">Tagihan Berikutnya</th>
+                        <th className="px-6 py-4 hidden md:table-cell">Tagihan Berikutnya</th>
                         <th className="px-6 py-4">Status</th>
                         <th className="px-6 py-4 text-right"></th>
                       </tr>
@@ -601,7 +601,7 @@ export default function PinjolPage() {
                             </td>
 
                             {/* Total Pinjaman */}
-                            <td className="px-6 py-4.5">
+                            <td className="px-6 py-4.5 hidden sm:table-cell">
                               <span className="text-xs font-extrabold text-[var(--nexus-text-primary)]">
                                 Rp {Number(loan.total_repayment).toLocaleString('id-ID')}
                               </span>
@@ -620,7 +620,7 @@ export default function PinjolPage() {
                             </td>
 
                             {/* Tagihan Berikutnya */}
-                            <td className="px-6 py-4.5">
+                            <td className="px-6 py-4.5 hidden md:table-cell">
                               <div className="space-y-0.5">
                                 <p className="text-xs font-bold text-[var(--nexus-text-primary)]">
                                   {loan.due_day} {monthNames[calendarMonth]} {calendarYear}
