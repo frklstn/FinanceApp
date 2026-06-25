@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { debtService, type Debt } from '@/lib/services/finance/debt.service';
+import { debtService } from '@/lib/services/finance/debt.service';
 import { type LoanTracker } from '@/lib/debt-planner/types';
 
 export function useDebts(accountId: string | undefined) {

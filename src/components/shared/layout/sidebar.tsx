@@ -5,12 +5,10 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
-  ChevronsLeft, 
-  ChevronsRight, 
   ShieldAlert, 
   Sparkles,
-  AlertCircle,
-  ChevronDown
+  ChevronDown,
+  LogOut
 } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
@@ -18,17 +16,11 @@ import { useToast } from "@/components/ui/toast"
 import { useApp } from "@/contexts/app-context"
 import { navigationGroups } from "@/config/navigation"
 import { cn } from "@/lib/utils"
-
-interface SidebarProps {
-  isCollapsed: boolean;
-  onToggle: () => void;
-}
-
-export default function Sidebar({ isCollapsed: _isCollapsed, onToggle: _onToggle }: SidebarProps) {
+export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { toast } = useToast()
-  const { isSuperAdmin: showAdmin, profile, t } = useApp()
+  const { isSuperAdmin: showAdmin, profile } = useApp()
 
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const [isHovered, setIsHovered] = useState(false)
@@ -63,8 +55,9 @@ export default function Sidebar({ isCollapsed: _isCollapsed, onToggle: _onToggle
       if (error) throw error;
       toast("Selamat! Akun Anda berhasil ditingkatkan ke PRO Premium.", "success");
       window.location.reload();
-    } catch (err: any) {
-      toast("Gagal melakukan upgrade: " + err.message, "danger");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Gagal melakukan upgrade";
+      toast("Gagal melakukan upgrade: " + msg, "danger");
     }
   };
 
@@ -74,13 +67,14 @@ export default function Sidebar({ isCollapsed: _isCollapsed, onToggle: _onToggle
 
   // Build groups dynamically based on admin status
   const groups = navigationGroups.map((group) => {
-    let items = [...group.items];
+    const items = [...group.items];
     if (group.title === "SETTINGS") {
-      items = items.filter(item => item.name !== "Account");
+      const filtered = items.filter(item => item.name !== "Account");
       if (showAdmin) {
-        items.unshift({ name: "Admin Dashboard", path: "/user/admin", icon: ShieldAlert });
+        filtered.unshift({ name: "Admin Dashboard", path: "/user/admin", icon: ShieldAlert });
       }
-      items.push({ name: "Log out", path: "#logout", icon: require("lucide-react").LogOut });
+      filtered.push({ name: "Log out", path: "#logout", icon: LogOut });
+      return { ...group, items: filtered };
     }
     return { ...group, items };
   });

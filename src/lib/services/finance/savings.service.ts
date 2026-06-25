@@ -75,7 +75,7 @@ export const savingsService = {
   ): Promise<void> {
     const supabase = createClient();
 
-    const { error } = await (supabase as any).rpc('add_savings_contribution', {
+    const { error } = await (supabase as unknown as { rpc: (name: string, args: Record<string, unknown>) => Promise<{ error: { message: string } | null }> }).rpc('add_savings_contribution', {
       p_workspace_id: workspaceId,
       p_goal_id: goalId,
       p_wallet_id: walletId,

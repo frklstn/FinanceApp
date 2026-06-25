@@ -30,7 +30,6 @@ import {
   LayoutGrid,
   Search,
   Bell,
-  ChevronDown,
 } from 'lucide-react';
 
 // Provider avatar color map based on first letter
@@ -50,7 +49,7 @@ function getProviderAvatarStyle(name: string) {
 }
 
 export default function PinjolPage() {
-  const { accountId, profile } = useApp();
+  const { accountId } = useApp();
   const { toast } = useToast();
   const { loans, loading, refresh } = useDebts(accountId ?? undefined);
   const forecast = useDebtForecast(accountId ?? undefined, loans);
@@ -85,15 +84,17 @@ export default function PinjolPage() {
   useEffect(() => {
     const key = `pinjol_paid_${calendarYear}_${String(calendarMonth + 1).padStart(2, '0')}`;
     const stored = localStorage.getItem(key);
+    let parsed: string[] = [];
     if (stored) {
       try {
-        setPaidInstallments(JSON.parse(stored));
+        parsed = JSON.parse(stored);
       } catch {
-        setPaidInstallments([]);
+        parsed = [];
       }
-    } else {
-      setPaidInstallments([]);
     }
+    Promise.resolve().then(() => {
+      setPaidInstallments(parsed);
+    });
   }, [calendarYear, calendarMonth]);
 
   // Save paid installments
@@ -170,8 +171,9 @@ export default function PinjolPage() {
       toast('Pinjaman berhasil diperbarui!', 'success');
       setIsEditModalOpen(false);
       await refresh();
-    } catch (err: any) {
-      toast(err.message || 'Gagal memperbarui', 'danger');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal memperbarui';
+      toast(msg, 'danger');
     } finally {
       setSubmitting(false);
     }

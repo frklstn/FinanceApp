@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/client';
-import { currencyService } from './currency.service';
 import type { LoanTracker } from '@/lib/debt-planner/types';
 
 export interface Debt {
@@ -94,7 +93,7 @@ export const debtService = {
       .single();
     if (dErr) throw new Error('Debt record not found');
 
-    const { error } = await (supabase as any).rpc('record_debt_payment', {
+    const { error } = await (supabase as unknown as { rpc: (name: string, args: Record<string, unknown>) => Promise<{ error: { message: string } | null }> }).rpc('record_debt_payment', {
       p_workspace_id: workspaceId,
       p_debt_id: debtId,
       p_wallet_id: walletId,

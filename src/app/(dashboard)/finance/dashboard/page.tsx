@@ -294,7 +294,6 @@ export default function DashboardPage() {
       await loadDashboardData();
     };
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadDashboardData]);
 
 

@@ -15,7 +15,6 @@ import {
   Calendar,
   FileText,
   User,
-  LogOut,
   LucideIcon,
 } from 'lucide-react';
 
