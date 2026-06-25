@@ -457,12 +457,12 @@ export default function PinjolPage() {
               {loading ? (
                 <div className="p-8 space-y-4">
                   {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-16 bg-white/[0.02] rounded-2xl animate-pulse" />
+                    <div key={n} className="h-16 bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl animate-pulse" />
                   ))}
                 </div>
               ) : loans.length === 0 ? (
                 <div className="p-12 text-center flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 rounded-[24px] bg-white/[0.03] flex items-center justify-center text-[var(--nexus-text-muted)] mb-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-black/[0.03] dark:bg-white/[0.03] flex items-center justify-center text-[var(--nexus-text-muted)] mb-4">
                     <LayoutGrid className="w-6 h-6" />
                   </div>
                   <h4 className="font-extrabold uppercase tracking-tight text-[var(--nexus-text-primary)] text-sm mb-1">
@@ -533,7 +533,7 @@ export default function PinjolPage() {
                         return (
                           <tr 
                             key={loan.id} 
-                            className="group hover:bg-white/[0.01] transition-all cursor-pointer"
+                            className="group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-all cursor-pointer"
                             onClick={() => openEditModal(loan)}
                           >
                             {/* Pinjaman column */}
@@ -611,7 +611,7 @@ export default function PinjolPage() {
 
               {/* Bottom Outlined Actions */}
               {!loading && loans.length > 0 && (
-                <div className="p-4 bg-white/[0.01] border-t border-[var(--nexus-glass-border)]">
+                <div className="p-4 bg-black/[0.01] dark:bg-white/[0.01] border-t border-[var(--nexus-glass-border)]">
                   <button
                     onClick={() => setIsModalOpen(true)}
                     className="w-full py-4.5 rounded-[20px] border border-dashed border-emerald-500/30 hover:border-emerald-500/60 text-emerald-500 hover:bg-emerald-500/5 transition-all duration-300 font-extrabold uppercase tracking-widest text-[10px] flex items-center justify-center gap-1.5 cursor-pointer"
@@ -681,7 +681,7 @@ export default function PinjolPage() {
                 <div className="flex items-center gap-1">
                   <button 
                     onClick={prevMonth}
-                    className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-white/5"
+                    className="p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.08] dark:hover:bg-white/[0.08] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-black/5 dark:border-white/5"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                   </button>
@@ -690,7 +690,7 @@ export default function PinjolPage() {
                   </span>
                   <button 
                     onClick={nextMonth}
-                    className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-white/5"
+                    className="p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.08] dark:hover:bg-white/[0.08] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-black/5 dark:border-white/5"
                   >
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -716,7 +716,7 @@ export default function PinjolPage() {
                     const marker = getDayMarker(cell.date);
                     const isToday = new Date().getDate() === cell.day && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
                     
-                    let bgClass = 'bg-transparent text-[var(--nexus-text-secondary)] hover:bg-white/[0.02]';
+                    let bgClass = 'bg-transparent text-[var(--nexus-text-secondary)] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]';
                     let borderClass = 'border-transparent';
 
                     if (!cell.isCurrentMonth) {
