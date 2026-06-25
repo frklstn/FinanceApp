@@ -3,10 +3,12 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { budgetService, type Budget } from '@/lib/services/finance/budget.service';
+import { debtService } from '@/lib/services/finance/debt.service';
+
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { categoryService, type Category } from '@/lib/services/finance/category.service';
 import { incomeProjectionService } from '@/lib/services/finance/income-projection.service';
-import { loanService } from '@/lib/services/finance/loan.service';
+
 import { debtPlannerSettingsService } from '@/lib/services/finance/debt-planner-settings.service';
 import { 
   getSalaryPeriods, 
@@ -70,7 +72,7 @@ export default function BudgetsPage() {
         budgetService.getBudgets(accountId, dbPeriod),
         categoryService.getCategories(accountId),
         incomeProjectionService.getTimeline(accountId),
-        loanService.getLoanTrackers(accountId),
+        debtService.getLoanTrackers(accountId),
         debtPlannerSettingsService.getSettings(accountId)
       ]);
       setBudgets(bList);

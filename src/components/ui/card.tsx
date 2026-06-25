@@ -34,7 +34,7 @@ function Card({
       {glass && (
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
       )}
-      {props.children}
+      {props.children as React.ReactNode}
     </motion.div>
   )
 }

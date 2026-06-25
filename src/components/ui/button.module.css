@@ -1,7 +1,7 @@
 @reference "../../styles/global.css";
 
 .btn {
-  @apply inline-flex items-center justify-center rounded-2xl font-bold transition-all duration-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-95;
+  @apply inline-flex items-center justify-center rounded-2xl font-bold transition-transform duration-160 ease-out transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-97;
 }
 
 .btn-sm { @apply px-4 py-2 text-[10px] uppercase tracking-wider; }
