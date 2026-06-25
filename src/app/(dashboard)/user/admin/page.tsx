@@ -81,7 +81,7 @@ export default function AdminPage() {
 
     if (!isSuperAdmin) {
       toast('Akses ditolak: hanya superadmin.', 'danger');
-      router.replace('/dashboard');
+      router.replace('/finance/dashboard');
       return;
     }
 

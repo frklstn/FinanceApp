@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
         setErrorMsg(error.message);
       } else {
         setSuccessMsg('Password berhasil diperbarui! Mengalihkan...');
-        setTimeout(() => router.replace('/dashboard'), 2000);
+        setTimeout(() => router.replace('/finance/dashboard'), 2000);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Terjadi kesalahan yang tidak terduga.';

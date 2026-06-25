@@ -32,7 +32,7 @@ function LandingPageContent() {
             </span>
           </div>
           <Link
-            href="/dashboard"
+            href="/finance/dashboard"
             className="px-6 py-2.5 bg-white text-black font-semibold rounded-full hover:bg-neutral-200 transition-all active:scale-95"
           >
             Masuk Ke Dashboard
@@ -59,7 +59,7 @@ function LandingPageContent() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/dashboard"
+              href="/finance/dashboard"
               className="group px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all flex items-center gap-2 shadow-xl shadow-indigo-500/20 active:scale-95"
             >
               Mulai Sekarang

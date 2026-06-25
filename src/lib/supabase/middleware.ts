@@ -81,13 +81,13 @@ export async function updateSession(request: NextRequest) {
       }
     } else {
       if (path === '/suspended') {
-        const redirectUrl = new URL('/dashboard', `${proto}://${host}`);
+        const redirectUrl = new URL('/finance/dashboard', `${proto}://${host}`);
         return NextResponse.redirect(redirectUrl);
       }
       
       // Allow authenticated users to access /reset-password (recovery mode)
       if (!isResetPasswordPath && (isAuthPath || path === '/')) {
-        const redirectUrl = new URL('/dashboard', `${proto}://${host}`);
+        const redirectUrl = new URL('/finance/dashboard', `${proto}://${host}`);
         return NextResponse.redirect(redirectUrl);
       }
     }
