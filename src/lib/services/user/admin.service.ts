@@ -1,11 +1,23 @@
 import { createClient } from '@/lib/supabase/client';
 
 export const adminService = {
-  async setUserPlan(userId: string, plan: 'free' | 'pro'): Promise<void> {
+  async setUserPlan(userId: string, plan: 'free' | 'pro', expiresAt?: string | null): Promise<void> {
     const supabase = createClient();
+    const updateData: { plan: 'free' | 'pro'; plan_expires_at?: string | null } = { plan };
+    
+    if (expiresAt !== undefined) {
+      updateData.plan_expires_at = expiresAt;
+    } else if (plan === 'pro') {
+      const d = new Date();
+      d.setDate(d.getDate() + 30); // 30 days default
+      updateData.plan_expires_at = d.toISOString();
+    } else {
+      updateData.plan_expires_at = null;
+    }
+
     const { error } = await supabase
       .from('profiles')
-      .update({ plan })
+      .update(updateData)
       .eq('id', userId);
 
     if (error) throw new Error(error.message);

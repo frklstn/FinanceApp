@@ -299,10 +299,10 @@ export default function DashboardPage() {
 
 
   const HeroWidgets = [
-    { label: t('dashboard.hero.netWorth', 'Total Aset Bersih (Gabungan Dompet)'), value: financialStats.totalBalance, icon: Wallet, color: 'text-emerald-400', colorCode: 'var(--nexus-success)', path: '/wallets' },
+    { label: t('dashboard.hero.netWorth', 'Total Aset Bersih (Gabungan Dompet)'), value: financialStats.totalBalance, icon: Wallet, color: 'text-emerald-400', colorCode: 'var(--nexus-success)', path: '/finance/wallets' },
     { label: t('dashboard.widget.income', 'Pemasukan'), value: financialStats.income, icon: TrendingUp, color: 'text-emerald-400', colorCode: 'var(--nexus-success)', action: () => setQuickAdd({ open: true, type: 'income' }) },
     { label: t('dashboard.widget.expense', 'Pengeluaran'), value: financialStats.expense, icon: TrendingDown, color: 'text-rose-400', colorCode: 'var(--nexus-danger)', action: () => setQuickAdd({ open: true, type: 'expense' }) },
-    { label: t('dashboard.widget.savings', 'Sisa Tabungan'), value: financialStats.savings, icon: PiggyBank, color: 'text-amber-400', colorCode: 'var(--nexus-warning)', path: '/savings' },
+    { label: t('dashboard.widget.savings', 'Sisa Tabungan'), value: financialStats.savings, icon: PiggyBank, color: 'text-amber-400', colorCode: 'var(--nexus-warning)', path: '/finance/savings' },
   ];
 
 

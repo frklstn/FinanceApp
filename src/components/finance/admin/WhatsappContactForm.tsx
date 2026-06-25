@@ -12,11 +12,13 @@ import { MessageSquare } from 'lucide-react';
 
 function formatWhatsappNumber(input: string): string {
   const trimmed = input.trim();
-  if (trimmed.startsWith('https://wa.me/')) return trimmed;
+  if (trimmed.startsWith('https://wa.me/')) {
+    return trimmed.replace('https://wa.me/+', 'https://wa.me/');
+  }
   const digits = trimmed.replace(/\D/g, '');
-  if (digits.startsWith('08')) return 'https://wa.me/+62' + digits.substring(1);
-  if (digits.startsWith('628')) return 'https://wa.me/+' + digits;
-  if (digits.startsWith('62')) return 'https://wa.me/+' + digits;
+  if (digits.startsWith('08')) return 'https://wa.me/62' + digits.substring(1);
+  if (digits.startsWith('628')) return 'https://wa.me/' + digits;
+  if (digits.startsWith('62')) return 'https://wa.me/' + digits;
   return trimmed;
 }
 

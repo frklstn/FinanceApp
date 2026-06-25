@@ -35,6 +35,7 @@ interface ProfileUser {
   app_name: string | null;
   app_icon_url: string | null;
   app_title: string | null;
+  plan_expires_at?: string | null;
 }
 
 export default function AdminPage() {
@@ -55,12 +56,13 @@ export default function AdminPage() {
   const [editAppName, setEditAppName] = useState('');
   const [editAppIconUrl, setEditAppIconUrl] = useState('');
   const [editAppTitle, setEditAppTitle] = useState('');
+  const [editPlanExpiresAt, setEditPlanExpiresAt] = useState('');
 
   const fetchAllUsers = useCallback(async () => {
     try {
       const { data: profiles, error } = await supabase
         .from('profiles')
-        .select('id, email, full_name, avatar_url, is_suspended, created_at, plan, app_name, app_icon_url, app_title')
+        .select('id, email, full_name, avatar_url, is_suspended, created_at, plan, app_name, app_icon_url, app_title, plan_expires_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -133,9 +135,13 @@ export default function AdminPage() {
       const newPlan = currentPlan === 'pro' ? 'free' : 'pro';
       await adminService.setUserPlan(userId, newPlan);
 
+      const newExpiresAt = newPlan === 'pro'
+        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+
       // Update state locally
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, plan: newPlan } : u))
+        prev.map((u) => (u.id === userId ? { ...u, plan: newPlan, plan_expires_at: newExpiresAt } : u))
       );
 
       toast(`Plan berhasil diubah ke ${newPlan.toUpperCase()}!`, 'success');
@@ -155,6 +161,7 @@ export default function AdminPage() {
     setEditAppName(profile.app_name || '');
     setEditAppIconUrl(profile.app_icon_url || '');
     setEditAppTitle(profile.app_title || '');
+    setEditPlanExpiresAt(profile.plan_expires_at ? profile.plan_expires_at.split('T')[0] : '');
   };
 
   // Save edited details
@@ -164,11 +171,13 @@ export default function AdminPage() {
 
     setUpdatingUserId(editingUser.id);
     try {
+      const formattedExpiresAt = editPlanExpiresAt ? new Date(editPlanExpiresAt).toISOString() : null;
       const { error } = await supabase
         .from('profiles')
         .update({
           full_name: editName,
           avatar_url: editAvatar,
+          plan_expires_at: formattedExpiresAt,
         })
         .eq('id', editingUser.id);
 
@@ -187,6 +196,7 @@ export default function AdminPage() {
                 ...u,
                 full_name: editName,
                 avatar_url: editAvatar,
+                plan_expires_at: formattedExpiresAt,
                 app_name: editAppName.trim() || null,
                 app_icon_url: editAppIconUrl.trim() || null,
                 app_title: editAppTitle.trim() || null,
@@ -358,15 +368,22 @@ export default function AdminPage() {
 
                     {/* Plan */}
                     <td className="px-5 py-3.5">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          u.plan === 'pro'
-                            ? 'bg-primary/15 text-primary border border-primary/20'
-                            : 'bg-light-text-secondary/15 text-light-text-secondary dark:bg-dark-text-secondary/15 dark:text-dark-text-secondary border border-light-border/40'
-                        }`}
-                      >
-                        {u.plan}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span
+                          className={`inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            u.plan === 'pro'
+                              ? 'bg-primary/15 text-primary border border-primary/20'
+                              : 'bg-light-text-secondary/15 text-light-text-secondary dark:bg-dark-text-secondary/15 dark:text-dark-text-secondary border border-light-border/40'
+                          }`}
+                        >
+                          {u.plan}
+                        </span>
+                        {u.plan === 'pro' && u.plan_expires_at && (
+                          <span className="text-[9px] text-light-text-secondary dark:text-dark-text-secondary font-medium">
+                            Exp: {new Date(u.plan_expires_at).toLocaleDateString('id-ID')}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Suspend Status */}
@@ -504,6 +521,13 @@ export default function AdminPage() {
                 value={editAppTitle}
                 onChange={(e) => setEditAppTitle(e.target.value)}
                 placeholder="Judul tab kustom browser"
+              />
+
+              <Input
+                label="Periode Langganan Berakhir (Expires At)"
+                type="date"
+                value={editPlanExpiresAt}
+                onChange={(e) => setEditPlanExpiresAt(e.target.value)}
               />
 
               <div className="flex justify-end gap-3 pt-4 border-t border-light-border/40 dark:border-dark-border/40">

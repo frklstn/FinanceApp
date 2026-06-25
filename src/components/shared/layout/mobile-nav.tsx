@@ -25,7 +25,7 @@ export default function MobileNav() {
     (item) =>
       !mobileBottomBarPaths.includes(item.path) &&
       (!item.isAdmin || showAdmin) &&
-      item.path !== '/wallets'
+      item.path !== '/finance/wallets'
   );
 
   const handleLogout = async () => {

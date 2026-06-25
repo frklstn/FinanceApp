@@ -480,6 +480,7 @@ export type Database = {
           is_suspended: boolean | null
           language: string | null
           plan: string
+          plan_expires_at: string | null
           timezone: string | null
           tax_rate: number | null
           updated_at: string
@@ -501,6 +502,7 @@ export type Database = {
           is_suspended?: boolean | null
           language?: string | null
           plan?: string
+          plan_expires_at?: string | null
           timezone?: string | null
           tax_rate?: number | null
           updated_at?: string
@@ -522,6 +524,7 @@ export type Database = {
           is_suspended?: boolean | null
           language?: string | null
           plan?: string
+          plan_expires_at?: string | null
           timezone?: string | null
           tax_rate?: number | null
           updated_at?: string
