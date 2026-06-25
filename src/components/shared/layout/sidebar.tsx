@@ -3,27 +3,33 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LogOut } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { 
+  ChevronsLeft, 
+  ChevronsRight, 
+  ShieldAlert, 
+  Sparkles,
+  AlertCircle
+} from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/components/ui/toast"
 import { useApp } from "@/contexts/app-context"
-import { AppBrand } from "./app-brand"
-import { navigationItems } from "@/config/navigation"
+import { navigationGroups } from "@/config/navigation"
 import { cn } from "@/lib/utils"
 
-export default function Sidebar() {
+interface SidebarProps {
+  isCollapsed: boolean;
+  onToggle: () => void;
+}
+
+export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { toast } = useToast()
-  const { isSuperAdmin: showAdmin, t } = useApp()
+  const { isSuperAdmin: showAdmin, profile, t } = useApp()
 
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
-
-  const menuItems = navigationItems.filter(
-    (item) => (!item.isAdmin || showAdmin) && !item.hideFromSidebar
-  )
 
   const handleLogout = async () => {
     try {
@@ -39,69 +45,232 @@ export default function Sidebar() {
     }
   }
 
+  const handleUpgrade = async () => {
+    if (!profile?.id) return;
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          plan: 'pro', 
+          plan_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() 
+        })
+        .eq('id', profile.id);
+      
+      if (error) throw error;
+      toast("Selamat! Akun Anda berhasil ditingkatkan ke PRO Premium.", "success");
+      window.location.reload();
+    } catch (err: any) {
+      toast("Gagal melakukan upgrade: " + err.message, "danger");
+    }
+  };
+
+  const handleMockClick = (name: string) => {
+    toast(`Fitur "${name}" sedang dalam tahap pengembangan.`, "info");
+  };
+
+  // Build groups dynamically based on admin status
+  const groups = navigationGroups.map((group) => {
+    let items = [...group.items];
+    if (group.title === "SETTINGS") {
+      if (showAdmin) {
+        items.unshift({ name: "Admin Dashboard", path: "/user/admin", icon: ShieldAlert });
+      }
+      items.push({ name: "Log out", path: "#logout", icon: require("lucide-react").LogOut });
+    }
+    return { ...group, items };
+  });
+
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[84px] z-50 hidden md:flex flex-col bg-transparent select-none">
-      <div className="p-6 flex items-center justify-center">
-        <AppBrand collapsed={true} />
+    <aside 
+      className={cn(
+        "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col bg-[var(--nexus-bg-sidebar)] border-r border-[var(--nexus-glass-border)] select-none transition-all duration-300 ease-out",
+        isCollapsed ? "w-[84px]" : "w-[260px]"
+      )}
+    >
+      {/* Brand Header */}
+      <div className={cn("p-6 flex items-center justify-between", isCollapsed ? "justify-center" : "")}>
+        {!isCollapsed ? (
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-violet-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-violet-500/25">
+                F
+              </div>
+              <span className="text-sm font-black tracking-tight text-[var(--nexus-text-primary)] font-outfit uppercase">
+                FRKLSTN
+              </span>
+            </div>
+            <button 
+              onClick={onToggle}
+              className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] hover:bg-black/10 dark:hover:bg-white/10 transition-all cursor-pointer border border-black/5 dark:border-white/5"
+            >
+              <ChevronsLeft className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <button 
+            onClick={onToggle}
+            className="w-10 h-10 rounded-xl bg-violet-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-violet-500/25 cursor-pointer hover:scale-105 active:scale-95 transition-all"
+          >
+            F
+          </button>
+        )}
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-3 overflow-y-auto no-scrollbar">
-        {menuItems.map((item) => {
-          const isActive = pathname.startsWith(item.path)
-          const Icon = item.icon
-          const isHovered = hoveredItem === item.path
+      {/* Navigation Groups */}
+      <div className="flex-1 px-3 py-2 space-y-6 overflow-y-auto no-scrollbar">
+        {groups.map((group) => {
+          // Hide groups with empty items
+          if (group.items.length === 0) return null;
 
           return (
-            <div 
-              key={item.path}
-              className="relative flex items-center justify-center group"
-              onMouseEnter={() => setHoveredItem(item.path)}
-              onMouseLeave={() => setHoveredItem(null)}
-            >
-              <Link
-                href={item.path}
-                className={cn(
-                  "w-12 h-12 flex items-center justify-center rounded-[20px] transition-all duration-500 relative z-10",
-                  isActive 
-                    ? "bg-[var(--nexus-bg-card)]/40 backdrop-blur-md text-[var(--nexus-text-primary)] shadow-[0_8px_30px_rgba(0,0,0,0.12)] font-black" 
-                    : "text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] hover:bg-[var(--nexus-bg-card)]/20"
-                )}
-              >
-                <Icon className={cn(
-                  "w-4 h-4 shrink-0 transition-transform duration-500 ease-out", 
-                  isActive ? "scale-110 opacity-100" : "scale-100 opacity-60 group-hover:opacity-100 group-hover:scale-110"
-                )} />
-              </Link>
+            <div key={group.title} className="space-y-2">
+              {/* Group Title */}
+              {!isCollapsed && (
+                <h4 className="px-4 text-[9px] font-black text-[var(--nexus-text-muted)] tracking-[0.25em] uppercase opacity-60">
+                  {group.title}
+                </h4>
+              )}
 
-              {/* Tooltip Hover Bersih */}
-              <AnimatePresence>
-                {isHovered && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -5 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -5 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute left-[72px] px-3 py-1.5 bg-[var(--nexus-bg-panel)]/80 backdrop-blur-xl rounded-lg z-50 pointer-events-none whitespace-nowrap"
-                  >
-                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--nexus-text-primary)]">
-                      {t(`nav.${item.path.replace('/', '')}`, item.name)}
-                    </span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Group Items */}
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isMock = item.path.startsWith("#") && item.path !== "#logout";
+                  const isLogout = item.path === "#logout";
+                  const isActive = pathname.startsWith(item.path) && !isMock && !isLogout;
+                  const Icon = item.icon;
+                  const isHovered = hoveredItem === item.name;
+
+                  const linkClasses = cn(
+                    "w-full flex items-center rounded-xl transition-all duration-200 ease-out cursor-pointer relative group",
+                    isCollapsed ? "justify-center h-12" : "px-4 py-3 gap-3 text-xs font-bold"
+                  );
+
+                  const activeClasses = isActive
+                    ? "bg-black/5 dark:bg-white/5 text-[var(--nexus-text-primary)] border border-black/5 dark:border-white/5"
+                    : "text-[var(--nexus-text-secondary)] hover:text-[var(--nexus-text-primary)] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]";
+
+                  const renderIcon = () => (
+                    <Icon className={cn(
+                      "w-4.5 h-4.5 shrink-0 transition-transform duration-200", 
+                      isActive ? "scale-105 opacity-100" : "opacity-60 group-hover:opacity-100 group-hover:scale-105"
+                    )} />
+                  );
+
+                  const handleClick = (e: React.MouseEvent) => {
+                    if (isLogout) {
+                      e.preventDefault();
+                      handleLogout();
+                    } else if (isMock) {
+                      e.preventDefault();
+                      handleMockClick(item.name);
+                    }
+                  };
+
+                  if (isCollapsed) {
+                    return (
+                      <div 
+                        key={item.name}
+                        className="relative flex items-center justify-center"
+                        onMouseEnter={() => setHoveredItem(item.name)}
+                        onMouseLeave={() => setHoveredItem(null)}
+                      >
+                        {isLogout || isMock ? (
+                          <button 
+                            onClick={handleClick}
+                            className={cn(linkClasses, activeClasses)}
+                          >
+                            {renderIcon()}
+                          </button>
+                        ) : (
+                          <Link 
+                            href={item.path}
+                            className={cn(linkClasses, activeClasses)}
+                          >
+                            {renderIcon()}
+                          </Link>
+                        )}
+
+                        {/* Collapsed Tooltip */}
+                        <AnimatePresence>
+                          {isHovered && (
+                            <motion.div
+                              initial={{ opacity: 0, x: -5 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -5 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute left-[70px] px-3 py-1.5 bg-[var(--nexus-bg-popup)]/95 border border-[var(--nexus-glass-border)] backdrop-blur-xl rounded-lg z-50 pointer-events-none whitespace-nowrap shadow-lg"
+                            >
+                              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--nexus-text-primary)]">
+                                {item.name}
+                              </span>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  }
+
+                  // Expanded view
+                  return isLogout || isMock ? (
+                    <button
+                      key={item.name}
+                      onClick={handleClick}
+                      className={cn(linkClasses, activeClasses)}
+                    >
+                      {renderIcon()}
+                      <span className="truncate uppercase tracking-wider">{item.name}</span>
+                    </button>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.path}
+                      className={cn(linkClasses, activeClasses)}
+                    >
+                      {renderIcon()}
+                      <span className="truncate uppercase tracking-wider">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          )
+          );
         })}
-      </nav>
-
-      <div className="p-4 mt-auto">
-        <button 
-          onClick={handleLogout}
-          className="w-12 h-12 mx-auto flex items-center justify-center rounded-[20px] text-[var(--nexus-text-muted)] hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-300"
-        >
-          <LogOut className="w-4 h-4 opacity-60 hover:opacity-100 transition-opacity" />
-        </button>
       </div>
+
+      {/* Upgrade Promo Card */}
+      {!isCollapsed && profile?.plan !== 'pro' && (
+        <div className="p-4 mx-3 mb-4 rounded-[20px] bg-gradient-to-br from-violet-500/5 to-violet-500/10 border border-violet-500/15 relative overflow-hidden group space-y-3">
+          <div className="absolute -top-12 -right-12 w-24 h-24 bg-violet-500/10 rounded-full blur-xl group-hover:scale-125 transition-all duration-500" />
+          <div className="space-y-1 relative z-10">
+            <div className="flex items-center gap-1.5 text-violet-500">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-black uppercase tracking-wider">Upgrade to Pro</span>
+            </div>
+            <p className="text-[9px] text-[var(--nexus-text-secondary)] font-medium leading-relaxed uppercase tracking-tight">
+              Unlock more insights and advanced analytics.
+            </p>
+          </div>
+          <button 
+            onClick={handleUpgrade}
+            className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-extrabold text-[9px] uppercase tracking-wider text-center cursor-pointer transition-all duration-300 relative z-10 shadow-md shadow-violet-600/20"
+          >
+            Upgrade Now
+          </button>
+        </div>
+      )}
+
+      {/* Collapsed Toggle Trigger (at bottom if collapsed) */}
+      {isCollapsed && (
+        <div className="p-4 mt-auto border-t border-[var(--nexus-glass-border)] flex justify-center">
+          <button 
+            onClick={onToggle}
+            className="p-2 rounded-lg bg-black/5 dark:bg-white/5 text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] hover:bg-black/10 dark:hover:bg-white/10 transition-all cursor-pointer border border-black/5 dark:border-white/5"
+          >
+            <ChevronsRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </aside>
   )
 }

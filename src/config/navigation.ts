@@ -9,6 +9,13 @@ import {
   Sparkles,
   Settings,
   ShieldAlert,
+  TrendingUp,
+  TrendingDown,
+  Calculator,
+  Calendar,
+  FileText,
+  User,
+  LogOut,
   LucideIcon,
 } from 'lucide-react';
 
@@ -18,6 +25,11 @@ export interface NavigationItem {
   icon: LucideIcon;
   isAdmin?: boolean;
   hideFromSidebar?: boolean;
+}
+
+export interface NavigationGroup {
+  title: string;
+  items: NavigationItem[];
 }
 
 export const navigationItems: NavigationItem[] = [
@@ -33,6 +45,36 @@ export const navigationItems: NavigationItem[] = [
   { name: 'Admin', path: '/user/admin', icon: ShieldAlert, isAdmin: true, hideFromSidebar: false },
 ];
 
+export const navigationGroups: NavigationGroup[] = [
+  {
+    title: 'MAIN MENU',
+    items: [
+      { name: 'Financial Health', path: '/finance/dashboard', icon: LayoutDashboard },
+      { name: 'Cashflow', path: '/finance/reports', icon: TrendingUp },
+      { name: 'Transaction', path: '/finance/transactions', icon: ArrowLeftRight },
+      { name: 'Debt Tracker', path: '/finance/debts', icon: TrendingDown },
+      { name: 'Pinjol Tracker', path: '/finance/pinjol', icon: AlertTriangle },
+      { name: 'Goals', path: '/finance/savings', icon: Target },
+      { name: 'Insight', path: '/finance/insights', icon: Sparkles },
+    ],
+  },
+  {
+    title: 'TOOLS',
+    items: [
+      { name: 'Calculator', path: '#calculator', icon: Calculator },
+      { name: 'Calendar', path: '#calendar', icon: Calendar },
+      { name: 'Document', path: '#document', icon: FileText },
+    ],
+  },
+  {
+    title: 'SETTINGS',
+    items: [
+      { name: 'Account', path: '#account', icon: User },
+      { name: 'Settings', path: '/finance/settings', icon: Settings },
+    ],
+  },
+];
+
 // List of paths that should be displayed in the mobile bottom navigation bar
 export const mobileBottomBarPaths = [
   '/finance/dashboard',
@@ -40,4 +82,3 @@ export const mobileBottomBarPaths = [
   '/finance/pinjol',
   '/finance/savings',
 ];
-

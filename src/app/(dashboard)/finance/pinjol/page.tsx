@@ -32,6 +32,10 @@ import {
   ArrowRight,
   TrendingDown,
   LayoutGrid,
+  Search,
+  Bell,
+  ChevronDown,
+  User,
 } from 'lucide-react';
 import NumberTicker from '@/components/ui/number-ticker';
 
@@ -52,7 +56,7 @@ function getProviderAvatarStyle(name: string) {
 }
 
 export default function PinjolPage() {
-  const { accountId, t } = useApp();
+  const { accountId, t, profile } = useApp();
   const { toast } = useToast();
   const { loans, loading, error, refresh } = useDebts(accountId ?? undefined);
   const forecast = useDebtForecast(accountId ?? undefined, loans);
@@ -363,6 +367,51 @@ export default function PinjolPage() {
             <p className="text-xs text-[var(--nexus-text-secondary)] font-medium mt-1">
               Kelola semua pinjaman online kamu dalam satu tempat
             </p>
+          </div>
+
+          {/* Right Header: Search, Bell, Profile dropdown pill */}
+          <div className="flex items-center gap-3 w-full md:w-auto self-end md:self-center">
+            {/* Search */}
+            <button 
+              onClick={() => toast('Fitur pencarian sedang disiapkan.', 'info')}
+              className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-[var(--nexus-text-primary)] border border-black/5 dark:border-white/5 transition-all cursor-pointer shadow-sm"
+              title="Cari pinjaman..."
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            {/* Bell Notifications */}
+            <button 
+              onClick={() => toast('Ada 3 tagihan terlambat yang perlu penanganan.', 'warning')}
+              className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-[var(--nexus-text-primary)] border border-black/5 dark:border-white/5 transition-all relative cursor-pointer shadow-sm"
+              title="Notifikasi"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-rose-500 rounded-full flex items-center justify-center text-[7px] text-white font-black shadow-[0_0_5px_rgba(244,63,94,0.5)]">
+                3
+              </span>
+            </button>
+
+            {/* Profile Dropdown Pill */}
+            <div className="flex items-center gap-2.5 px-3.5 py-1.5 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl shadow-sm text-left select-none">
+              {profile?.avatar_url ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={profile.avatar_url} alt="Profile" className="w-6 h-6 rounded-full object-cover shadow-sm" />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black shadow-sm shadow-violet-500/20 uppercase">
+                  {(profile?.full_name || 'F').substring(0, 1)}
+                </div>
+              )}
+              <div className="flex flex-col leading-none">
+                <span className="text-[10px] font-black text-[var(--nexus-text-primary)] tracking-tight uppercase">
+                  {profile?.full_name || 'FRKLSTN'}
+                </span>
+                <span className="text-[8px] font-bold text-violet-500 uppercase tracking-widest mt-0.5">
+                  {profile?.plan === 'pro' ? 'Premium' : 'Free'}
+                </span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-[var(--nexus-text-muted)] ml-0.5 shrink-0" />
+            </div>
           </div>
         </header>
 
