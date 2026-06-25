@@ -145,7 +145,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           </button>
  
           {isOpen && !props.disabled && (
-            <div className="absolute left-0 right-0 z-[100] mt-2 w-full rounded-2xl bg-[var(--bg-card)]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300 no-scrollbar">
+            <div className="absolute left-0 right-0 z-[100] mt-2 w-full rounded-2xl bg-[var(--bg-card)]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150 ease-out no-scrollbar">
               {options.map((option) => {
                 const isSelected = option.value === currentValue;
                 return (
