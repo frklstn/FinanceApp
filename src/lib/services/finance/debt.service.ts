@@ -86,82 +86,26 @@ export const debtService = {
   ): Promise<void> {
     const supabase = createClient();
 
-    // 1. Fetch debt details
+    // Fetch debt details first to get name for fallback note
     const { data: debt, error: dErr } = await supabase
       .from('debts')
-      .select('*')
+      .select('name')
       .eq('id', debtId)
       .single();
     if (dErr) throw new Error('Debt record not found');
 
-    if (Number(debt.remaining_amount) < amount) {
-      throw new Error('Payment exceeds remaining debt balance.');
-    }
-
-    // 2. Fetch wallet details
-    const { data: wallet, error: wErr } = await supabase
-      .from('wallets')
-      .select('balance')
-      .eq('id', walletId)
-      .single();
-    if (wErr) throw new Error('Wallet not found');
-
-    const amountNum = Number(amount);
-    let newWalletBalance = Number(wallet.balance);
-
-    if (debt.type === 'owe') {
-      // Paying debt we owe: Wallet drops
-      if (newWalletBalance < amountNum) {
-        throw new Error('Insufficient wallet balance to perform this repayment.');
-      }
-      newWalletBalance -= amountNum;
-    } else {
-      // Collecting money lent: Wallet increases
-      newWalletBalance += amountNum;
-    }
-
-    const newRemaining = Number(debt.remaining_amount) - amountNum;
-    const isSettled = newRemaining <= 0;
-
-    // 3. Update wallet balance
-    const { error: wUpdErr } = await supabase
-      .from('wallets')
-      .update({ balance: newWalletBalance })
-      .eq('id', walletId);
-    if (wUpdErr) throw new Error('Failed to update wallet balance');
-
-    // 4. Update debt remaining amount
-    const { error: dUpdErr } = await supabase
-      .from('debts')
-      .update({
-        remaining_amount: newRemaining,
-        status: isSettled ? 'settled' : 'active',
-      })
-      .eq('id', debtId);
-    if (dUpdErr) throw new Error('Failed to update debt remaining balance');
-
-    // 5. Insert payment sub-record
-    const { error: pErr } = await supabase.from('debt_payments').insert({
-      debt_id: debtId,
-      amount,
-      wallet_id: walletId,
-      note: note || `Installment payment for ${debt.name}`,
-    });
-    if (pErr) console.error('Error logging debt payment sub-record:', pErr);
-
-    // 6. Log transaction record
-    const { error: tErr } = await supabase.from('transactions').insert({
-      workspace_id: workspaceId,
-      wallet_id: walletId,
-      amount,
-      type: debt.type === 'owe' ? 'expense' : 'income',
-      note: note || `Repayment contribution: ${debt.name}`,
-      currency: debt.currency || 'IDR',
-      exchange_rate: await currencyService.getExchangeRate(debt.currency || 'IDR', 'IDR'),
-      date: new Date().toISOString(),
+    const { error } = await (supabase as any).rpc('record_debt_payment', {
+      p_workspace_id: workspaceId,
+      p_debt_id: debtId,
+      p_wallet_id: walletId,
+      p_amount: amount,
+      p_note: note || `Repayment contribution: ${debt.name}`,
     });
 
-    if (tErr) console.error('Error logging transaction ledger for debt:', tErr);
+    if (error) {
+      console.error('Error recording debt payment via RPC:', error);
+      throw new Error(error.message);
+    }
   },
 
   /**

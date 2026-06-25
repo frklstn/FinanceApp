@@ -75,57 +75,18 @@ export const savingsService = {
   ): Promise<void> {
     const supabase = createClient();
 
-    // 1. Fetch wallet balance
-    const { data: wallet, error: wErr } = await supabase
-      .from('wallets')
-      .select('balance')
-      .eq('id', walletId)
-      .single();
-    if (wErr) throw new Error('Wallet not found');
-
-    if (Number(wallet.balance) < amount) {
-      throw new Error('Insufficient wallet balance for this contribution.');
-    }
-
-    // 2. Fetch goal current amount
-    const { data: goal, error: gErr } = await supabase
-      .from('savings_goals')
-      .select('current_amount, target_amount')
-      .eq('id', goalId)
-      .single();
-    if (gErr) throw new Error('Savings goal not found');
-
-    const newWalletBalance = Number(wallet.balance) - amount;
-    const newGoalAmount = Number(goal.current_amount) + amount;
-
-    // 3. Update wallet balance
-    const { error: wUpdErr } = await supabase
-      .from('wallets')
-      .update({ balance: newWalletBalance })
-      .eq('id', walletId);
-    if (wUpdErr) throw new Error('Failed to deduct from wallet balance');
-
-    // 4. Update savings goal
-    const { error: gUpdErr } = await supabase
-      .from('savings_goals')
-      .update({
-        current_amount: newGoalAmount,
-        is_completed: newGoalAmount >= Number(goal.target_amount),
-      })
-      .eq('id', goalId);
-    if (gUpdErr) throw new Error('Failed to update savings goal amount');
-
-    // 5. Insert transaction log (type = expense or special transfer)
-    const { error: tErr } = await supabase.from('transactions').insert({
-      workspace_id: workspaceId,
-      wallet_id: walletId,
-      amount,
-      type: 'expense',
-      note: note || `Contribution to goal: ${goalId}`,
-      date: new Date().toISOString(),
+    const { error } = await (supabase as any).rpc('add_savings_contribution', {
+      p_workspace_id: workspaceId,
+      p_goal_id: goalId,
+      p_wallet_id: walletId,
+      p_amount: amount,
+      p_note: note || `Contribution to goal: ${goalId}`,
     });
 
-    if (tErr) console.error('Error logging savings goal transaction:', tErr);
+    if (error) {
+      console.error('Error adding savings contribution via RPC:', error);
+      throw new Error(error.message);
+    }
   },
 
   /**
