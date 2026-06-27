@@ -13,14 +13,13 @@ import { currencyService } from '@/lib/services/finance/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet, TrendingUp, TrendingDown, PiggyBank, Bell, User, ArrowRight, AlertTriangle, ShieldCheck, Zap } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, PiggyBank, Bell, ArrowRight, AlertTriangle, ShieldCheck, Zap } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { BentoGridItem } from '@/components/ui/bento-grid';
 import NumberTicker from '@/components/ui/number-ticker';
 import { QuickAddModal } from '@/components/finance/transaction/QuickAdd';
-import { AccountSettings } from '@/components/user/profile/Settings';
 import { budgetOptimizerService, type OptimizationSuggestion } from '@/lib/services/finance/budget-optimizer.service';
 import { budgetService } from '@/lib/services/finance/budget.service';
 import { BudgetOptimizerWidget } from '@/components/finance/dashboard/BudgetOptimizerWidget';
@@ -53,7 +52,6 @@ export default function DashboardPage() {
   const [chartData, setChartData] = useState<{ date: string; amount: number }[]>([]);
   const [dateFilter, setDateFilter] = useState('thisMonth');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [financialStatusText, setFinancialStatusText] = useState(t('dashboard.status.loading', 'Memuat analisis finansial...'));
   const [quickAdd, setQuickAdd] = useState<{ open: boolean; type: 'income' | 'expense' | 'transfer' }>({
     open: false,
@@ -405,19 +403,6 @@ export default function DashboardPage() {
                 )}
               </AnimatePresence>
             </div>
-
-            <button
-              onClick={() => setIsProfileOpen(true)}
-              className="w-10 h-10 rounded-[20px] bg-white/[0.03] backdrop-blur-3xl border border-white/5 text-white hover:bg-white/[0.08] transition-all relative flex items-center justify-center overflow-hidden cursor-pointer shrink-0"
-              title="Preferensi Akun"
-            >
-              {profile?.avatar_url ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover animate-in fade-in" />
-              ) : (
-                <User className="w-4 h-4 text-white/60 animate-in fade-in" />
-              )}
-            </button>
           </div>
         </div>
       </header>
@@ -677,10 +662,6 @@ export default function DashboardPage() {
         )}
       </AnimatePresence>
 
-      <AccountSettings
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-      />
     </div>
   );
 }

@@ -352,7 +352,7 @@ export default function PinjolPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 -mt-6">
       <UpgradeGate>
         {/* Header Section */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -393,87 +393,95 @@ export default function PinjolPage() {
         {/* Dynamic Summary Stat Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Pinjaman */}
-          <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider">
-                Total Pinjaman
-              </span>
-              <h3 className="text-lg md:text-xl font-black text-[var(--nexus-text-primary)] tracking-tight">
-                Rp {totalPinjamanSum.toLocaleString('id-ID')}
-              </h3>
-              <p className="text-[11px] text-[var(--nexus-text-muted)] font-semibold uppercase">
-                {activeCount} pinjaman aktif
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-[18px] bg-violet-500/10 flex items-center justify-center text-violet-500 shrink-0">
-              <WalletIcon className="w-5 h-5" />
+          <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between w-full gap-3">
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider block">
+                  Total Pinjaman
+                </span>
+                <h3 className="text-base md:text-lg font-black text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
+                  Rp {totalPinjamanSum.toLocaleString('id-ID')}
+                </h3>
+                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold uppercase leading-none mt-1">
+                  {activeCount} pinjaman aktif
+                </p>
+              </div>
+              <div className="w-9 h-9 rounded-[12px] bg-violet-500/10 flex items-center justify-center text-violet-500 shrink-0">
+                <WalletIcon className="w-4 h-4" />
+              </div>
             </div>
           </Card>
 
           {/* Card 2: Total Tagihan Bulan Ini */}
-          <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider">
-                Total Tagihan Bulan Ini
-              </span>
-              <h3 className="text-lg md:text-xl font-black text-[var(--nexus-text-primary)] tracking-tight">
-                Rp {totalTagihanBulanIni.toLocaleString('id-ID')}
-              </h3>
-              <div className="flex items-center gap-1 text-emerald-500 text-[11px] font-bold uppercase">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>12% dari bulan lalu</span>
+          <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between w-full gap-3">
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider block">
+                  Total Tagihan Bulan Ini
+                </span>
+                <h3 className="text-base md:text-lg font-black text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
+                  Rp {totalTagihanBulanIni.toLocaleString('id-ID')}
+                </h3>
+                <div className="flex items-center gap-1 text-emerald-500 text-[10px] font-bold uppercase leading-none mt-1">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>12% dari bulan lalu</span>
+                </div>
               </div>
-            </div>
-            <div className="w-12 h-12 rounded-[18px] bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
-              <CalendarIcon className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-[12px] bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
+                <CalendarIcon className="w-4 h-4" />
+              </div>
             </div>
           </Card>
 
           {/* Card 3: Sudah Dibayar */}
-          <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider">
-                Sudah Dibayar
-              </span>
-              <h3 className="text-lg md:text-xl font-black text-[var(--nexus-text-emerald)] tracking-tight">
-                Rp {sudahDibayarSum.toLocaleString('id-ID')}
-              </h3>
-              <p className="text-[11px] text-[var(--nexus-text-muted)] font-semibold uppercase">
-                {paidPercentage}% dari total tagihan
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-[18px] bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
-              <CheckCircle className="w-5 h-5" />
+          <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between w-full gap-3">
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider block">
+                  Sudah Dibayar
+                </span>
+                <h3 className="text-base md:text-lg font-black text-[var(--nexus-text-emerald)] tracking-tight truncate leading-none">
+                  Rp {sudahDibayarSum.toLocaleString('id-ID')}
+                </h3>
+                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold uppercase leading-none mt-1">
+                  {paidPercentage}% dari total tagihan
+                </p>
+              </div>
+              <div className="w-9 h-9 rounded-[12px] bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
+                <CheckCircle className="w-4 h-4" />
+              </div>
             </div>
           </Card>
 
           {/* Card 4: Terlambat */}
-          <Card className="p-6 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] flex items-center justify-between group hover:shadow-lg transition-all duration-300">
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider">
-                Terlambat
-              </span>
-              <h3 className="text-lg md:text-xl font-black text-rose-500 tracking-tight animate-pulse">
-                Rp {terlambatSum.toLocaleString('id-ID')}
-              </h3>
-              <p className="text-[11px] text-rose-500 font-bold uppercase tracking-tight">
-                {terlambatLoans.length} tagihan terlambat
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-[18px] bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0">
-              <AlertTriangle className="w-5 h-5" />
+          <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between w-full gap-3">
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider block">
+                  Terlambat
+                </span>
+                <h3 className="text-base md:text-lg font-black text-rose-500 tracking-tight truncate leading-none animate-pulse">
+                  Rp {terlambatSum.toLocaleString('id-ID')}
+                </h3>
+                <p className="text-[10px] text-rose-500 font-bold uppercase leading-none mt-1">
+                  {terlambatLoans.length} tagihan terlambat
+                </p>
+              </div>
+              <div className="w-9 h-9 rounded-[12px] bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
             </div>
           </Card>
         </section>
 
         {/* Main Grid: Left (Table + Ringkasan), Right (Calendar + Info) */}
-        <section className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+        <section className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
           {/* Left Column: Loan Table & Ringkasan */}
-          <div className="xl:col-span-8 space-y-6">
+          <div className="xl:col-span-8 space-y-4">
             {/* Daftar Pinjaman Table */}
             <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] overflow-hidden shadow-2xl">
-              <div className="p-6 md:p-8 flex justify-between items-center border-b border-[var(--nexus-glass-border)]">
-                <h3 className="text-base font-extrabold uppercase tracking-tight text-[var(--nexus-text-primary)]">
+              <div className="px-6 py-4 flex justify-between items-center border-b border-[var(--nexus-glass-border)]">
+                <h3 className="text-sm font-extrabold uppercase tracking-tight text-[var(--nexus-text-primary)]">
                   Daftar Pinjaman
                 </h3>
               </div>
@@ -504,12 +512,12 @@ export default function PinjolPage() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-[var(--nexus-glass-border)] text-[9px] font-black uppercase tracking-[0.2em] text-[var(--nexus-text-muted)]">
-                        <th className="px-6 py-4">Pinjaman</th>
-                        <th className="px-6 py-4 hidden sm:table-cell">Total Pinjaman</th>
-                        <th className="px-6 py-4">Sisa Tagihan</th>
-                        <th className="px-6 py-4 hidden md:table-cell">Tagihan Berikutnya</th>
-                        <th className="px-6 py-4">Status</th>
-                        <th className="px-6 py-4 text-right"></th>
+                        <th className="px-6 py-2.5">Pinjaman</th>
+                        <th className="px-6 py-2.5 hidden sm:table-cell">Total Pinjaman</th>
+                        <th className="px-6 py-2.5">Sisa Tagihan</th>
+                        <th className="px-6 py-2.5 hidden md:table-cell">Tagihan Berikutnya</th>
+                        <th className="px-6 py-2.5">Status</th>
+                        <th className="px-6 py-2.5 text-right"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--nexus-glass-border)]">
@@ -561,8 +569,8 @@ export default function PinjolPage() {
                             onClick={() => openEditModal(loan)}
                           >
                             {/* Pinjaman column */}
-                            <td className="px-6 py-4.5 flex items-center gap-3.5">
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${avatarStyle.bg} ${avatarStyle.text}`}>
+                            <td className="px-6 py-2.5 flex items-center gap-3">
+                              <div className={`w-8.5 h-8.5 rounded-full flex items-center justify-center font-black text-xs ${avatarStyle.bg} ${avatarStyle.text}`}>
                                 {loan.app_name.trim().charAt(0).toUpperCase()}
                               </div>
                               <div>
@@ -576,14 +584,14 @@ export default function PinjolPage() {
                             </td>
 
                             {/* Total Pinjaman */}
-                            <td className="px-6 py-4.5 hidden sm:table-cell">
+                            <td className="px-6 py-2.5 hidden sm:table-cell">
                               <span className="text-xs font-extrabold text-[var(--nexus-text-primary)]">
                                 Rp {Number(loan.total_repayment).toLocaleString('id-ID')}
                               </span>
                             </td>
 
                             {/* Sisa Tagihan */}
-                            <td className="px-6 py-4.5">
+                            <td className="px-6 py-2.5">
                               <div className="space-y-0.5">
                                 <p className={`text-xs font-extrabold ${statusText.startsWith('Terlambat') ? 'text-rose-500' : 'text-[var(--nexus-text-primary)]'}`}>
                                   Rp {remaining.toLocaleString('id-ID')}
@@ -595,7 +603,7 @@ export default function PinjolPage() {
                             </td>
 
                             {/* Tagihan Berikutnya */}
-                            <td className="px-6 py-4.5 hidden md:table-cell">
+                            <td className="px-6 py-2.5 hidden md:table-cell">
                               <div className="space-y-0.5">
                                 <p className="text-xs font-bold text-[var(--nexus-text-primary)]">
                                   {loan.due_day} {monthNames[calendarMonth]} {calendarYear}
@@ -607,14 +615,14 @@ export default function PinjolPage() {
                             </td>
 
                             {/* Status */}
-                            <td className="px-6 py-4.5">
+                            <td className="px-6 py-2.5">
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation(); // prevent opening Edit Modal
                                   toggleInstallmentPaid(loan.id);
                                 }}
-                                className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wide cursor-pointer hover:scale-105 active:scale-95 transition-all ${statusClass}`}
+                                className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide cursor-pointer hover:scale-105 active:scale-95 transition-all ${statusClass}`}
                                 title="Klik untuk mengubah status pembayaran angsuran bulan ini"
                               >
                                 {statusText}
@@ -622,7 +630,7 @@ export default function PinjolPage() {
                             </td>
 
                             {/* Arrow icon */}
-                            <td className="px-6 py-4.5 text-right">
+                            <td className="px-6 py-2.5 text-right">
                               <ChevronRight className="w-4 h-4 text-[var(--nexus-text-muted)] group-hover:translate-x-1 group-hover:text-[var(--nexus-text-primary)] transition-all shrink-0 ml-auto" />
                             </td>
                           </tr>
@@ -635,10 +643,10 @@ export default function PinjolPage() {
 
               {/* Bottom Outlined Actions */}
               {!loading && loans.length > 0 && (
-                <div className="p-4 bg-black/[0.01] dark:bg-white/[0.01] border-t border-[var(--nexus-glass-border)]">
+                <div className="p-3 bg-black/[0.01] dark:bg-white/[0.01] border-t border-[var(--nexus-glass-border)]">
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="w-full py-4.5 rounded-[20px] border border-dashed border-emerald-500/30 hover:border-emerald-500/60 text-emerald-500 hover:bg-emerald-500/5 transition-all duration-300 font-extrabold uppercase tracking-widest text-[10px] flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-3 rounded-[20px] border border-dashed border-emerald-500/30 hover:border-emerald-500/60 text-emerald-500 hover:bg-emerald-500/5 transition-all duration-300 font-extrabold uppercase tracking-widest text-[10px] flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     Tambah Pinjaman Baru
@@ -648,9 +656,9 @@ export default function PinjolPage() {
             </Card>
 
             {/* Ringkasan Pinjol Horizontal Metrics */}
-            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] p-6 shadow-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] p-4.5 shadow-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+                <div className="w-8.5 h-8.5 rounded-[12px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
                   <LayoutGrid className="w-4 h-4" />
                 </div>
                 <div>
@@ -660,7 +668,7 @@ export default function PinjolPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+                <div className="w-8.5 h-8.5 rounded-[12px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
                   <WalletIcon className="w-4 h-4" />
                 </div>
                 <div>
@@ -670,7 +678,7 @@ export default function PinjolPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+                <div className="w-8.5 h-8.5 rounded-[12px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
                   <CheckCircle className="w-4 h-4" />
                 </div>
                 <div>
@@ -680,7 +688,7 @@ export default function PinjolPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[14px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+                <div className="w-8.5 h-8.5 rounded-[12px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
                   <CalendarIcon className="w-4 h-4" />
                 </div>
                 <div>
@@ -694,9 +702,9 @@ export default function PinjolPage() {
           </div>
 
           {/* Right Column: Calendar Grid & Sidebar panels */}
-          <div className="xl:col-span-4 space-y-6">
+          <div className="xl:col-span-4 space-y-4">
             {/* Agenda Tagihan Month Calendar Card */}
-            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-6 shadow-2xl space-y-6">
+            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-4.5 shadow-2xl space-y-4">
               {/* Calendar Header with navigation */}
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--nexus-text-primary)]">
@@ -770,7 +778,7 @@ export default function PinjolPage() {
                             toggleInstallmentPaid(matchingLoan.id);
                           }
                         }}
-                        className={`w-full aspect-square rounded-full text-[11px] font-bold flex items-center justify-center transition-all ${bgClass} ${borderClass} cursor-pointer`}
+                        className={`w-full aspect-square rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${bgClass} ${borderClass} cursor-pointer`}
                       >
                         {cell.day}
                       </button>
@@ -779,17 +787,17 @@ export default function PinjolPage() {
                 </div>
 
                 {/* Calendar Legend */}
-                <div className="flex items-center justify-between text-[9px] font-black uppercase text-[var(--nexus-text-muted)] tracking-wider border-t border-[var(--nexus-glass-border)] pt-4">
+                <div className="flex items-center justify-between text-[9px] font-black uppercase text-[var(--nexus-text-muted)] tracking-wider border-t border-[var(--nexus-glass-border)] pt-3">
                   <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
                     <span>Terlambat</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-orange-400 inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-orange-400 inline-block" />
                     <span>Hari ini</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
                     <span>Akan datang</span>
                   </div>
                 </div>
@@ -797,7 +805,7 @@ export default function PinjolPage() {
 
               {/* Late warning card box */}
               {terlambatLoans.length > 0 && (
-                <div className="p-4 rounded-[20px] bg-rose-500/5 border border-rose-500/10 flex items-center justify-between group hover:bg-rose-500/10 transition-all cursor-pointer">
+                <div className="p-3 rounded-[20px] bg-rose-500/5 border border-rose-500/10 flex items-center justify-between group hover:bg-rose-500/10 transition-all cursor-pointer">
                   <div className="space-y-1">
                     <p className="text-[11px] font-extrabold text-rose-500 uppercase tracking-tight">
                       {terlambatLoans.length} tagihan terlambat
@@ -812,7 +820,7 @@ export default function PinjolPage() {
             </Card>
 
             {/* Tips Aman Pinjol Panel */}
-            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-6 shadow-xl space-y-6">
+            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-4.5 shadow-xl space-y-4">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--nexus-text-primary)]">
@@ -820,16 +828,16 @@ export default function PinjolPage() {
                 </h3>
               </div>
 
-              <ul className="space-y-4">
+              <ul className="space-y-2.5">
                 {[
                   'Pastikan pinjol terdaftar di OJK',
                   'Jangan pinjam melebihi kemampuan',
                   'Bayar tepat waktu untuk hindari denda',
                   'Jaga data pribadi kamu',
                 ].map((tip, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
-                      <CheckCircle className="w-3 h-3" />
+                  <li key={index} className="flex items-start gap-2.5">
+                    <span className="w-4.5 h-4.5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
+                      <CheckCircle className="w-2.5 h-2.5" />
                     </span>
                     <span className="text-[11px] font-bold text-[var(--nexus-text-secondary)] leading-relaxed uppercase tracking-tight">
                       {tip}
@@ -838,7 +846,7 @@ export default function PinjolPage() {
                 ))}
               </ul>
 
-              <div className="border-t border-[var(--nexus-glass-border)] pt-4">
+              <div className="border-t border-[var(--nexus-glass-border)] pt-3">
                 <a
                   href="https://www.ojk.go.id"
                   target="_blank"

@@ -14,7 +14,6 @@ import {
   Calculator,
   Calendar,
   FileText,
-  User,
   LucideIcon,
 } from 'lucide-react';
 
@@ -68,7 +67,6 @@ export const navigationGroups: NavigationGroup[] = [
   {
     title: 'SETTINGS',
     items: [
-      { name: 'Account', path: '#account', icon: User },
       { name: 'Settings', path: '/finance/settings', icon: Settings },
     ],
   },

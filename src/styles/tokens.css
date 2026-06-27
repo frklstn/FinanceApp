@@ -13,22 +13,22 @@
   --color-surface-3: #27272A;
   --color-surface-4: #3F3F46;
 
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #A7B0D1;
-  --color-text-muted: #6F7A9E;
+  --color-text-primary: var(--nexus-text-primary);
+  --color-text-secondary: var(--nexus-text-secondary);
+  --color-text-muted: var(--nexus-text-muted);
 
   /* Compatibility aliases */
-  --color-light-bg: #050816;
-  --color-light-card: #0A1028;
-  --color-light-border: rgba(255,255,255,0.05);
-  --color-light-text-primary: #FFFFFF;
-  --color-light-text-secondary: #A7B0D1;
+  --color-light-bg: var(--nexus-bg-main);
+  --color-light-card: var(--nexus-bg-card);
+  --color-light-border: var(--nexus-glass-border);
+  --color-light-text-primary: var(--nexus-text-primary);
+  --color-light-text-secondary: var(--nexus-text-secondary);
 
-  --color-dark-bg: #050816;
-  --color-dark-card: #0A1028;
-  --color-dark-border: rgba(255,255,255,0.05);
-  --color-dark-text-primary: #FFFFFF;
-  --color-dark-text-secondary: #A7B0D1;
+  --color-dark-bg: var(--nexus-bg-main);
+  --color-dark-card: var(--nexus-bg-card);
+  --color-dark-border: var(--nexus-glass-border);
+  --color-dark-text-primary: var(--nexus-text-primary);
+  --color-dark-text-secondary: var(--nexus-text-secondary);
 
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
