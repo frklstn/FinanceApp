@@ -1,60 +1,60 @@
 :root {
-  /* Nexus Core Backgrounds (Light Mode) */
-  --nexus-bg-main: #f8f9fa;
-  --nexus-bg-sidebar: #ffffff;
-  --nexus-bg-card: #ffffff;
-  --nexus-bg-panel: #f1f3f5;
-  --nexus-bg-popup: rgba(255, 255, 255, 0.95);
-  
-  /* Nexus Emerald Palette (Light Mode) */
-  --nexus-emerald: #10B981;
-  --nexus-emerald-glow: rgba(16, 185, 129, 0.08);
-  --nexus-emerald-border: rgba(16, 185, 129, 0.15);
-  --nexus-success: #10B981;
-  --nexus-danger: #f43f5e;
-  --nexus-warning: #f59e0b;
-  
-  /* Nexus Typography (Light Mode) */
-  --nexus-text-primary: #0f172a;
-  --nexus-text-secondary: #475569;
-  --nexus-text-muted: #94a3b8;
+  /* Core Backgrounds (Light Mode) - cream, selaras landing page */
+  --nexus-bg-main: #f6f2ea;
+  --nexus-bg-sidebar: #f6f2ea;
+  --nexus-bg-card: #fffdf8;
+  --nexus-bg-panel: #efe8da;
+  --nexus-bg-popup: rgba(255, 253, 248, 0.98);
+
+  /* Emerald Accent (Light Mode) */
+  --nexus-emerald: #059669;
+  --nexus-emerald-glow: rgba(5, 150, 105, 0.10);
+  --nexus-emerald-border: rgba(5, 150, 105, 0.25);
+  --nexus-success: #059669;
+  --nexus-danger: #e11d48;
+  --nexus-warning: #b45309;
+
+  /* Typography (Light Mode) */
+  --nexus-text-primary: #1b1815;
+  --nexus-text-secondary: #6b6156;
+  --nexus-text-muted: #948a7c;
   --nexus-text-emerald: #059669;
-  
-  /* Glassmorphism & Depth (Light Mode) */
-  --nexus-glass-bg: rgba(255, 255, 255, 0.75);
-  --nexus-glass-border: rgba(0, 0, 0, 0.06);
-  --nexus-glass-blur: blur(40px);
-  
-  /* Industrial Spacing & Radius (Static) */
-  --nexus-radius-main: 32px;
-  --nexus-radius-inner: 24px;
-  --nexus-padding-page: 2.5rem; /* py-10 px-8 equivalent */
+
+  /* Surface & Depth (Light Mode) */
+  --nexus-glass-bg: rgba(255, 253, 248, 0.7);
+  --nexus-glass-border: rgba(27, 24, 21, 0.10);
+  --nexus-glass-blur: blur(12px);
+
+  /* Spacing & Radius (Static) */
+  --nexus-radius-main: 24px;
+  --nexus-radius-inner: 16px;
+  --nexus-padding-page: 2.5rem;
 }
 
 .dark {
-  /* Nexus Core Backgrounds (Dark Mode) */
-  --nexus-bg-main: #050507;
-  --nexus-bg-sidebar: #050507;
-  --nexus-bg-card: #0a0a0c;
-  --nexus-bg-panel: #0d0d0f;
-  --nexus-bg-popup: rgba(5, 5, 7, 0.95);
-  
-  /* Nexus Emerald Palette (Dark Mode) */
-  --nexus-emerald: #10B981;
-  --nexus-emerald-glow: rgba(16, 185, 129, 0.15);
-  --nexus-emerald-border: rgba(16, 185, 129, 0.2);
-  --nexus-success: #10B981;
-  --nexus-danger: #f43f5e;
-  --nexus-warning: #f59e0b;
-  
-  /* Nexus Typography (Dark Mode) */
-  --nexus-text-primary: #FFFFFF;
-  --nexus-text-secondary: #A7B0D1;
-  --nexus-text-muted: #6F7A9E;
-  --nexus-text-emerald: #10B981;
-  
-  /* Glassmorphism & Depth (Dark Mode) */
-  --nexus-glass-bg: rgba(10, 10, 12, 0.7);
-  --nexus-glass-border: rgba(255, 255, 255, 0.05);
-  --nexus-glass-blur: blur(40px);
+  /* Core Backgrounds (Dark Mode) */
+  --nexus-bg-main: #15130f;
+  --nexus-bg-sidebar: #15130f;
+  --nexus-bg-card: #1c1a15;
+  --nexus-bg-panel: #211e18;
+  --nexus-bg-popup: rgba(28, 26, 21, 0.98);
+
+  /* Emerald Accent (Dark Mode) */
+  --nexus-emerald: #34d399;
+  --nexus-emerald-glow: rgba(52, 211, 153, 0.12);
+  --nexus-emerald-border: rgba(52, 211, 153, 0.25);
+  --nexus-success: #34d399;
+  --nexus-danger: #fb7185;
+  --nexus-warning: #f0b429;
+
+  /* Typography (Dark Mode) */
+  --nexus-text-primary: #f3ede3;
+  --nexus-text-secondary: #b8ae9c;
+  --nexus-text-muted: #8a8071;
+  --nexus-text-emerald: #34d399;
+
+  /* Surface & Depth (Dark Mode) */
+  --nexus-glass-bg: rgba(28, 26, 21, 0.85);
+  --nexus-glass-border: rgba(243, 237, 227, 0.10);
+  --nexus-glass-blur: blur(12px);
 }

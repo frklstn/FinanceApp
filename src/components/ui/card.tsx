@@ -25,15 +25,11 @@ function Card({
       whileHover={interactive ? { scale: 1.01, translateY: -2 } : undefined}
       className={cn(
         "nexus-card flex flex-col gap-4 py-6 px-8 text-sm overflow-hidden relative",
-        glass ? "backdrop-blur-3xl" : "bg-card border-border",
         interactive && "cursor-pointer transition-colors hover:bg-[var(--nexus-bg-panel)]/50",
         className
       )}
       {...props}
     >
-      {glass && (
-        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
-      )}
       {props.children as React.ReactNode}
     </motion.div>
   )
@@ -57,7 +53,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-title"
       className={cn(
-        "font-black text-lg tracking-tight text-white",
+        "font-heading text-lg font-semibold tracking-tight text-[var(--nexus-text-primary)]",
         className
       )}
       {...props}
@@ -69,7 +65,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-xs font-bold text-muted-foreground uppercase tracking-widest", className)}
+      className={cn("text-xs font-medium text-muted-foreground tracking-wide", className)}
       {...props}
     />
   )
@@ -103,7 +99,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-footer"
       className={cn(
-        "flex items-center pt-4 border-t border-white/5",
+        "flex items-center pt-4 border-t border-[var(--nexus-glass-border)]",
         className
       )}
       {...props}

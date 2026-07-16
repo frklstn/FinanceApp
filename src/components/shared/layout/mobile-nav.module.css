@@ -6,14 +6,13 @@
   left: 0;
   right: 0;
   z-index: 40;
-  backdrop-filter: blur(16px);
   border-top: 1px solid var(--nexus-glass-border);
   padding: 0.375rem 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
-  background: rgba(10, 10, 12, 0.85);
+  box-shadow: 0 -10px 40px rgba(27, 24, 21, 0.08);
+  background: var(--nexus-bg-sidebar);
 }
 
 /* Hide on Desktop via parent class or media query */
@@ -50,13 +49,12 @@
   border-top-left-radius: 1.5rem;
   border-top-right-radius: 1.5rem;
   padding: 1.5rem;
-  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 -20px 60px rgba(27, 24, 21, 0.18);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   max-height: 80vh;
   overflow-y: auto;
   padding-bottom: 7rem;
   background: var(--nexus-bg-popup);
-  backdrop-filter: blur(40px);
 }
 
 .drawerOpen {

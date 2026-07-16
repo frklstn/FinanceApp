@@ -64,15 +64,16 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="relative min-h-[320px] overflow-hidden rounded-2xl md:rounded-3xl">
+          <div className="relative min-h-[320px] overflow-hidden rounded-2xl md:rounded-3xl bg-[#e9e2d3] dark:bg-[#1c1a15]">
             <Image
-              src="https://picsum.photos/seed/quiet-stone-warm-light/900/1200"
+              src="https://picsum.photos/seed/quiet-linen-still-life-warm/900/1200"
               alt="Suasana tenang mengatur keuangan"
               fill
               sizes="(min-width: 768px) 45vw, 100vw"
-              className="object-cover"
+              className="object-cover saturate-[0.65] contrast-[0.92] brightness-[1.03] sepia-[0.12]"
               priority
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1b1815]/25 via-transparent to-[#f6f2ea]/10 mix-blend-multiply dark:from-black/35 dark:to-transparent" />
           </div>
         </div>
       </div>

@@ -58,7 +58,7 @@ export default function MobileNav() {
               className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
             >
               <Icon className="w-5.5 h-5.5 shrink-0 mb-0.5" />
-              <span className="text-[10px] tracking-tight font-medium uppercase">
+              <span className="text-[10px] font-medium">
                 {t(`nav.${item.path.replace('/', '')}`, item.name)}
               </span>
             </Link>
@@ -71,12 +71,12 @@ export default function MobileNav() {
           onClick={() => setIsMoreOpen(!isMoreOpen)}
           className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-150 cursor-pointer ${
             isMoreOpen
-              ? 'text-[var(--nexus-emerald)] font-bold scale-105'
-              : 'text-white/30 hover:text-white'
+              ? 'text-[var(--nexus-emerald)] font-semibold scale-105'
+              : 'text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)]'
           }`}
         >
           <Menu className="w-5.5 h-5.5 shrink-0 mb-0.5" />
-          <span className="text-[10px] tracking-tight font-medium uppercase">
+          <span className="text-[10px] font-medium">
             {t('nav.more', 'Lainnya')}
           </span>
         </button>
@@ -85,7 +85,7 @@ export default function MobileNav() {
       {/* Backdrop overlay */}
       {isMoreOpen && (
         <div
-          className="fixed inset-0 z-45 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 z-45 bg-black/40 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-300"
           onClick={() => setIsMoreOpen(false)}
         />
       )}
@@ -96,7 +96,7 @@ export default function MobileNav() {
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex flex-col">
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-light-text-primary dark:text-dark-text-primary">
+            <h3 className="font-heading text-base font-semibold text-light-text-primary dark:text-dark-text-primary">
               {t('nav.mainMenu', 'Menu Utama')}
             </h3>
             <p className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
