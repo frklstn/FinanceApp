@@ -64,6 +64,17 @@ function TransactionsContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  const hasActiveFilter = Boolean(searchTerm || filterType || filterWallet || filterStartDate || filterEndDate);
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setFilterType('');
+    setFilterWallet('');
+    setFilterStartDate('');
+    setFilterEndDate('');
+    setPage(1);
+  };
+
   const fetchFiltersData = useCallback(async () => {
     if (!accountId) return;
     try {
@@ -207,36 +218,35 @@ function TransactionsContent() {
 
       <section className="grid grid-cols-1 xl:grid-cols-4 gap-8">
         {/* Advanced Filters */}
-        <Card glass className="xl:col-span-1 p-6 space-y-8 h-fit border-[var(--nexus-glass-border)] relative z-50 group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--nexus-emerald-glow)] blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-[var(--nexus-emerald-glow)] transition-all" />
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center border border-[var(--nexus-emerald-border)]">
-              <Filter className="w-4 h-4 text-[var(--nexus-emerald)]" />
-            </div>
-            <h3 className="text-xs font-semibold   text-[var(--nexus-text-primary)]">Cari & filter</h3>
+        <Card className="xl:col-span-1 p-5 gap-4 h-fit border-[var(--nexus-glass-border)] relative z-50">
+          <div className="flex items-center justify-between">
+            <h3 className="flex items-center gap-2 text-sm font-medium text-[var(--nexus-text-primary)]">
+              <Filter className="w-4 h-4 text-[var(--nexus-emerald)]" /> Cari & filter
+            </h3>
+            {hasActiveFilter && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-xs text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] transition-colors cursor-pointer"
+              >
+                Reset
+              </button>
+            )}
           </div>
-          <div className="space-y-4 relative z-10">
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-semibold text-[var(--nexus-text-muted)]   pl-1">Cari Deskripsi</label>
+
+          {/* Di bawah xl kartu ini melebar penuh, jadi field disusun menyamping biar tidak menjulang. */}
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="space-y-1.5 sm:col-span-2 xl:col-span-1">
+              <label className="text-xs text-[var(--nexus-text-secondary)]">Cari deskripsi</label>
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--nexus-text-muted)]" />
-                <Input placeholder="Cari transaksi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] pl-11 rounded-[14px] py-4 h-auto text-xs" />
+                <Input placeholder="Cari transaksi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] pl-11 py-2.5 h-auto text-xs" />
               </div>
             </div>
-            <div className="space-y-4">
-              <Select label="Tipe" options={[{value: '', label: 'Semua tipe'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer Internal'}]} value={filterType} onChange={(e) => setFilterType(e.target.value)} className="rounded-[14px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] h-auto py-2.5 text-xs" />
-              <Select label="Dompet" options={[{value: '', label: 'Semua dompet'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => setFilterWallet(e.target.value)} className="rounded-[14px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] h-auto py-2.5 text-xs" />
-              <div className="grid grid-cols-2 gap-2">
-                 <DatePicker value={filterStartDate} onChange={setFilterStartDate} className="text-xs" placeholder="Mulai" />
-                 <DatePicker value={filterEndDate} onChange={setFilterEndDate} className="text-xs" placeholder="Selesai" />
-              </div>
-            </div>
-          </div>
-          <div className="pt-4 border-t border-[var(--nexus-glass-border)] space-y-3">
-            <div className="flex items-center justify-between text-[9px] font-semibold   text-[var(--nexus-text-muted)]">
-              <span>Data tersinkron</span>
-              <span className="text-[var(--nexus-emerald)]">Aktif</span>
-            </div>
+            <Select label="Tipe" options={[{value: '', label: 'Semua tipe'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer antar dompet'}]} value={filterType} onChange={(e) => setFilterType(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] h-auto py-2.5 text-xs" />
+            <Select label="Dompet" options={[{value: '', label: 'Semua dompet'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => setFilterWallet(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] h-auto py-2.5 text-xs" />
+            <DatePicker value={filterStartDate} onChange={setFilterStartDate} className="text-xs" placeholder="Mulai" />
+            <DatePicker value={filterEndDate} onChange={setFilterEndDate} className="text-xs" placeholder="Selesai" />
           </div>
         </Card>
 

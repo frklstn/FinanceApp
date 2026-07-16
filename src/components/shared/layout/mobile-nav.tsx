@@ -22,10 +22,7 @@ export default function MobileNav() {
 
   const navItems = navigationItems.filter((item) => mobileBottomBarPaths.includes(item.path));
   const drawerItems = navigationItems.filter(
-    (item) =>
-      !mobileBottomBarPaths.includes(item.path) &&
-      (!item.isAdmin || showAdmin) &&
-      item.path !== '/finance/wallets'
+    (item) => !mobileBottomBarPaths.includes(item.path) && (!item.isAdmin || showAdmin)
   );
 
   const handleLogout = async () => {

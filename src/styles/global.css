@@ -115,7 +115,7 @@
     --chart-3: #b45309;
     --chart-4: #e11d48;
     --chart-5: #6b6156;
-    --radius: 0.625rem;
+    --radius: 0.75rem;
     --sidebar: #f6f2ea;
     --sidebar-foreground: #1b1815;
     --sidebar-primary: #a8532f;
@@ -146,7 +146,7 @@
     --border: rgba(243, 237, 227, 0.12);
     --input: rgba(243, 237, 227, 0.12);
     --ring: #e2916a;
-    --radius: 32px;
+    --radius: 0.75rem;
     --sidebar: #15130f;
     --sidebar-foreground: #f3ede3;
     --sidebar-primary: #e2916a;

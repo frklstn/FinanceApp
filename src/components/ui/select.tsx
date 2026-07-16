@@ -123,7 +123,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               error
                 ? "border-danger/60"
                 : isOpen
-                ? "border-emerald-600 dark:border-emerald-400 ring-4 ring-emerald-500/10"
+                ? "border-[var(--nexus-emerald)] ring-4 ring-[var(--nexus-emerald-glow)]"
                 : "border-[var(--nexus-glass-border)]",
               props.disabled && "opacity-50 cursor-not-allowed",
               className
@@ -138,7 +138,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={cn("w-4 h-4 text-emerald-400 transition-transform duration-300", isOpen && "rotate-180")}
+              className={cn("w-4 h-4 text-[var(--nexus-text-muted)] transition-transform duration-300", isOpen && "rotate-180")}
             >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
@@ -156,13 +156,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     className={cn(
                       "w-full px-5 py-3 text-xs text-left transition-all duration-200 flex items-center justify-between cursor-pointer group/opt",
                       isSelected
-                        ? "text-[var(--nexus-text-emerald)] font-semibold bg-emerald-500/10"
+                        ? "text-[var(--nexus-text-emerald)] font-semibold bg-[var(--nexus-emerald-glow)]"
                         : "text-[var(--nexus-text-secondary)] hover:bg-[var(--nexus-bg-panel)] hover:text-[var(--nexus-text-primary)]"
                     )}
                   >
                     <span className="truncate">{option.label}</span>
                     {isSelected && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--nexus-emerald)]" />
                     )}
                   </button>
                 );

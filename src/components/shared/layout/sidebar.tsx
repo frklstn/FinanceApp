@@ -5,7 +5,6 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
-  ShieldAlert, 
   Sparkles,
   LogOut
 } from "lucide-react"
@@ -60,22 +59,14 @@ export default function Sidebar() {
     }
   };
 
-  const handleMockClick = (name: string) => {
-    toast(`Fitur "${name}" sedang dalam tahap pengembangan.`, "info");
-  };
-
-  // Build groups dynamically based on admin status
-  const groups = navigationGroups.map((group) => {
-    const items = [...group.items];
-    if (group.title === "SETTINGS") {
-      const filtered = [...items];
-      if (showAdmin) {
-        filtered.unshift({ name: "Admin Dashboard", path: "/user/admin", icon: ShieldAlert });
-      }
-      filtered.push({ name: "Log out", path: "#logout", icon: LogOut });
-      return { ...group, items: filtered };
-    }
-    return { ...group, items };
+  // Sembunyikan menu admin untuk non-admin, dan tempelkan Log out di grup terakhir.
+  const groups = navigationGroups.map((group, i) => {
+    const items = group.items.filter((item) => !item.isAdmin || showAdmin);
+    const isLast = i === navigationGroups.length - 1;
+    return {
+      ...group,
+      items: isLast ? [...items, { name: "Log out", path: "#logout", icon: LogOut }] : items,
+    };
   });
 
   return (
@@ -101,16 +92,15 @@ export default function Sidebar() {
               {/* Group Title */}
               {!isCollapsed && (
                 <h4 className="px-4 text-[11px] font-medium text-[var(--nexus-text-muted)] tracking-wide">
-                  {group.title.charAt(0) + group.title.slice(1).toLowerCase()}
+                  {group.title}
                 </h4>
               )}
 
               {/* Group Items */}
               <div className="space-y-1">
                 {group.items.map((item) => {
-                  const isMock = item.path.startsWith("#") && item.path !== "#logout";
                   const isLogout = item.path === "#logout";
-                  const isActive = pathname.startsWith(item.path) && !isMock && !isLogout;
+                  const isActive = pathname.startsWith(item.path) && !isLogout;
                   const Icon = item.icon;
                   const isHovered = hoveredItem === item.name;
 
@@ -134,9 +124,6 @@ export default function Sidebar() {
                     if (isLogout) {
                       e.preventDefault();
                       handleLogout();
-                    } else if (isMock) {
-                      e.preventDefault();
-                      handleMockClick(item.name);
                     }
                   };
 
@@ -148,7 +135,7 @@ export default function Sidebar() {
                         onMouseEnter={() => setHoveredItem(item.name)}
                         onMouseLeave={() => setHoveredItem(null)}
                       >
-                        {isLogout || isMock ? (
+                        {isLogout ? (
                           <button 
                             onClick={handleClick}
                             className={cn(linkClasses, activeClasses)}
@@ -185,7 +172,7 @@ export default function Sidebar() {
                   }
 
                   // Expanded view
-                  return isLogout || isMock ? (
+                  return isLogout ? (
                     <button
                       key={item.name}
                       onClick={handleClick}

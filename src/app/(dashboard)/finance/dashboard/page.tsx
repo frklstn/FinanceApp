@@ -378,7 +378,7 @@ export default function DashboardPage() {
 
                         {financialStats.activeLoansCount > 0 && (
                           <button
-                            onClick={() => { setIsNotificationsOpen(false); router.push('/pinjol'); }}
+                            onClick={() => { setIsNotificationsOpen(false); router.push('/finance/pinjol'); }}
                             className="w-full p-4 rounded-2xl bg-rose-500/5 border border-rose-500/20 text-left hover:bg-rose-500/10 transition-colors group"
                           >
                             <div className="flex justify-between items-start mb-1">
@@ -492,7 +492,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          <Button variant="nexus-emerald" className="w-full mt-4 py-3 h-auto text-xs" onClick={() => router.push('/insights')}>
+          <Button variant="nexus-emerald" className="w-full mt-4 py-3 h-auto text-xs" onClick={() => router.push('/finance/insights')}>
             {t('dashboard.actions.viewRecommendations', 'Lihat rekomendasi')}
           </Button>
         </Card>
@@ -556,7 +556,7 @@ export default function DashboardPage() {
             {recentTxs.slice(0, 3).map((tx) => (
               <button
                 key={tx.id}
-                onClick={() => router.push(`/transactions?id=${tx.id}`)}
+                onClick={() => router.push(`/finance/transactions?id=${tx.id}`)}
                 className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] hover:border-[var(--nexus-emerald-border)] transition-colors cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -574,7 +574,7 @@ export default function DashboardPage() {
           <Button
             variant="ghost"
             className="w-full text-xs text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)]"
-            onClick={() => router.push('/transactions')}
+            onClick={() => router.push('/finance/transactions')}
           >
             {t('dashboard.actions.viewAll', 'Lihat semua transaksi')}
           </Button>
@@ -624,7 +624,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             className="w-full py-3 h-auto text-xs border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-colors"
-            onClick={() => router.push('/pinjol')}
+            onClick={() => router.push('/finance/pinjol')}
           >
             {t('dashboard.actions.manageDebt', 'Kelola utang')}
           </Button>
