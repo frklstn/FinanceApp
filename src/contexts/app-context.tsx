@@ -9,7 +9,6 @@ import {
   DEFAULT_APP_SETTINGS,
   type AppSettings,
 } from '@/lib/services/user/app-settings.service';
-import { isSuperAdmin } from '@/lib/auth/admin';
 import { idTranslations } from '@/locales/id';
 import { enTranslations } from '@/locales/en';
 
@@ -50,6 +49,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [accountId, setAccountId] = useState<string | null>(null);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
+  const [superAdmin, setSuperAdmin] = useState(false);
   
   const bootstrapInProgress = useRef(false);
 
@@ -66,19 +66,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setProfile(null);
       setAccountId(null);
+      setSuperAdmin(false);
       return;
     }
 
     setUser(authUser);
 
-    const [{ data: profileRow }, scopeId] = await Promise.all([
+    // Status admin ditanyakan ke DB (RPC is_superadmin -> tabel allowlist admins)
+    // supaya sumbernya sama dengan RLS. Sebelumnya ditebak dari pola email di
+    // client sehingga UI dan izin sebenarnya bisa berbeda.
+    const [{ data: profileRow }, scopeId, { data: isAdmin }] = await Promise.all([
       supabase
         .from('profiles')
         .select('*')
         .eq('id', authUser.id)
         .maybeSingle(),
       workspaceService.getAccountIdForUser(authUser.id),
+      supabase.rpc('is_superadmin'),
     ]);
+
+    setSuperAdmin(isAdmin === true);
 
     if (profileRow) {
       setProfile({
@@ -133,7 +140,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [bootstrap]);
 
-  const superAdmin = useMemo(() => isSuperAdmin(user), [user]);
   const isPro = useCallback(() => profile?.plan === 'pro', [profile?.plan]);
   const activeLanguage = profile?.language || 'id';
 
