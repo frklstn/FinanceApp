@@ -1,0 +1,61 @@
+name: Cleanup
+
+on:
+  schedule:
+    - cron: '0 17 * * *' # 00:00 WIB
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trim workflow runs (keep 3 newest)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const keep = 3;
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+            runs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const doomed = runs.slice(keep).filter((r) => r.status === 'completed');
+            for (const r of doomed) {
+              try {
+                await github.rest.actions.deleteWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: r.id,
+                });
+                console.log(`deleted run ${r.id} (${r.name})`);
+              } catch (e) {
+                console.log(`skip ${r.id}: ${e.message}`);
+              }
+            }
+            console.log(`kept ${Math.min(keep, runs.length)}, deleted ${doomed.length}`);
+
+      - name: Trim Vercel deployments (keep 3 newest)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          TEAM_ID: team_GpQug6BzmXIWCvFGciQ0nped
+          PROJECT_ID: prj_wGHIETMMMljKdO9hbVnCZzgn1tc4
+        run: |
+          set -euo pipefail
+          list=$(curl -sf "https://api.vercel.com/v6/deployments?projectId=$PROJECT_ID&teamId=$TEAM_ID&limit=100" \
+            -H "Authorization: Bearer $VERCEL_TOKEN")
+          # Produksi READY terbaru tidak boleh dihapus apapun posisinya
+          prod=$(echo "$list" | jq -r '[.deployments[] | select(.target=="production" and .readyState=="READY")] | sort_by(-.createdAt) | .[0].uid // empty')
+          doomed=$(echo "$list" | jq -r --arg prod "$prod" \
+            '.deployments | sort_by(-.createdAt) | .[3:] | map(select(.uid != $prod)) | .[].uid')
+          count=0
+          for uid in $doomed; do
+            echo "deleting $uid"
+            curl -sf -X DELETE "https://api.vercel.com/v13/deployments/$uid?teamId=$TEAM_ID" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" > /dev/null || echo "skip $uid"
+            count=$((count + 1))
+          done
+          echo "deleted $count deployments"
