@@ -4,14 +4,12 @@ import { cn } from "@/lib/utils"
 
 interface CardProps extends React.ComponentProps<typeof motion.div> {
   size?: "default" | "sm"
-  glass?: boolean
   interactive?: boolean
 }
 
 function Card({
   className,
   size = "default",
-  glass = true,
   interactive = false,
   ...props
 }: CardProps) {
@@ -24,7 +22,9 @@ function Card({
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       whileHover={interactive ? { scale: 1.01, translateY: -2 } : undefined}
       className={cn(
-        "nexus-card flex flex-col gap-4 py-6 px-8 text-sm overflow-hidden relative",
+        // Tanpa overflow-hidden: dropdown Select/DatePicker di dalam kartu
+        // diposisikan absolute dan sebelumnya terpotong oleh kartu.
+        "nexus-card flex flex-col gap-4 py-6 px-8 text-sm relative",
         interactive && "cursor-pointer transition-colors hover:bg-[var(--nexus-bg-panel)]/50",
         className
       )}

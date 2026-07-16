@@ -122,8 +122,7 @@ export default function SavingsPage() {
       </header>
 
       <section>
-        <Card glass className="p-10 relative group overflow-hidden border-border/20 bg-gradient-to-br from-[var(--nexus-emerald)] via-[var(--bg-card)] to-[var(--bg-main)]">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[var(--nexus-emerald-glow)] blur-[100px] rounded-full -mr-40 -mt-40 transition-all group-hover:bg-[var(--nexus-emerald-glow)]" />
+        <Card className="p-10 relative group overflow-hidden border-border/20 bg-gradient-to-br from-[var(--nexus-emerald)] via-[var(--bg-card)] to-[var(--bg-main)]">
           <div className="flex items-center justify-between relative z-10">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -163,7 +162,7 @@ export default function SavingsPage() {
                   whileHover={{ y: -5 }}
                   className="group"
                 >
-                  <Card glass className="p-8 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[32px]">
+                  <Card className="p-8 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[32px]">
                     <div className="space-y-6">
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">

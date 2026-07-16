@@ -251,7 +251,7 @@ function TransactionsContent() {
         </Card>
 
         {/* Ledger Table */}
-        <Card glass className="xl:col-span-3 overflow-hidden border-[var(--nexus-glass-border)] rounded-[40px] shadow-2xl bg-[var(--nexus-bg-panel)]">
+        <Card className="xl:col-span-3 overflow-hidden border-[var(--nexus-glass-border)] rounded-[40px] shadow-2xl bg-[var(--nexus-bg-panel)]">
           <div className="overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>

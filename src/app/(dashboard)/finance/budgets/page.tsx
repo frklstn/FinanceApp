@@ -167,8 +167,7 @@ export default function BudgetsPage() {
       </header>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card glass className="lg:col-span-2 p-10 relative group overflow-hidden border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)] rounded-[40px] shadow-2xl">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[var(--nexus-emerald-glow)] blur-[100px] rounded-full -mr-40 -mt-40" />
+        <Card className="lg:col-span-2 p-10 relative group overflow-hidden border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)] rounded-[40px] shadow-2xl">
           <div className="flex items-center justify-between relative z-10">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -188,7 +187,7 @@ export default function BudgetsPage() {
           </div>
         </Card>
 
-        <Card glass className="p-8 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] flex flex-col justify-center items-center text-center space-y-6 rounded-[40px] shadow-2xl">
+        <Card className="p-8 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] flex flex-col justify-center items-center text-center space-y-6 rounded-[40px] shadow-2xl">
           <div className={`w-20 h-20 rounded-[28px] flex items-center justify-center ${totalRemaining < 0 ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border-[var(--nexus-emerald-border)]'} border shadow-2xl`}>
             {totalRemaining < 0 ? <ShieldAlert className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
           </div>
@@ -237,7 +236,7 @@ export default function BudgetsPage() {
                   whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <Card glass className="p-8 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[32px] shadow-xl">
+                  <Card className="p-8 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[32px] shadow-xl">
                     <div className="space-y-8">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-4">

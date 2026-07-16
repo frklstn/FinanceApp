@@ -143,7 +143,6 @@ export default function WalletsPage() {
 
       <section>
         <Card className="p-10 md:p-14 relative group overflow-hidden border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)]">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--nexus-emerald-glow)] blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-[var(--nexus-emerald-glow)]" />
           
           <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
             <div className="space-y-4 text-center md:text-left">
@@ -183,7 +182,7 @@ export default function WalletsPage() {
               whileHover={{ y: -8 }}
               className="relative group h-full"
             >
-              <Card glass className="p-10 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[40px] shadow-2xl">
+              <Card className="p-10 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[40px] shadow-2xl">
                 <div className="flex items-start justify-between mb-10">
                   <div className="w-16 h-16 rounded-[24px] bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] flex items-center justify-center shadow-inner relative overflow-hidden" style={{ boxShadow: `inset 0 0 30px ${wallet.color}25` }}>
                     <div className="absolute inset-0 blur-2xl opacity-20" style={{ backgroundColor: wallet.color }} />

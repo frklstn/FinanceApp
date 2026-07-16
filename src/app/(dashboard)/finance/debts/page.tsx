@@ -206,8 +206,7 @@ export default function DebtsPage() {
 
       {/* Aggregate Hero Section */}
       <section>
-        <Card glass className="p-8 md:p-12 relative group overflow-hidden border-[var(--nexus-glass-border)] shadow-2xl">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/5 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-rose-500/10" />
+        <Card className="p-8 md:p-12 relative group overflow-hidden border-[var(--nexus-glass-border)] shadow-2xl">
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
             <div className="space-y-8">
@@ -325,8 +324,7 @@ export default function DebtsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                     >
-                      <Card glass className="p-8 md:p-10 border-[var(--nexus-glass-border)] hover:bg-[var(--nexus-bg-panel)] transition-all relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-rose-500/10 transition-all" />
+                      <Card className="p-8 md:p-10 border-[var(--nexus-glass-border)] hover:bg-[var(--nexus-bg-panel)] transition-all relative overflow-hidden group">
                         
                         <div className="flex flex-col h-full justify-between space-y-8 relative z-10">
                           <div className="flex items-start justify-between">
@@ -432,8 +430,7 @@ export default function DebtsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                     >
-                      <Card glass className="p-8 md:p-10 border-[var(--nexus-glass-border)] hover:bg-[var(--nexus-bg-panel)] transition-all relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--nexus-emerald-glow)] blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-[var(--nexus-emerald-glow)] transition-all" />
+                      <Card className="p-8 md:p-10 border-[var(--nexus-glass-border)] hover:bg-[var(--nexus-bg-panel)] transition-all relative overflow-hidden group">
                         
                         <div className="flex flex-col h-full justify-between space-y-8 relative z-10">
                           <div className="flex items-start justify-between">
