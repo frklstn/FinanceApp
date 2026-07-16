@@ -396,7 +396,7 @@ export default function AdminPage() {
                         }`}
                       >
                         {u.is_suspended ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-                        {u.is_suspended ? 'NONAKTIF' : 'AKTIF'}
+                        {u.is_suspended ? 'Nonaktif' : 'Aktif'}
                       </span>
                     </td>
 

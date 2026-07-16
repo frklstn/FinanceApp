@@ -85,29 +85,29 @@ export const insightsService = {
       if (expenseRate <= 40) {
         score = 92;
         insights.push({
-          title: 'Superb Budgeting',
-          description: `You are living well within your means. Expenses consume only ${expenseRate.toFixed(0)}% of your monthly income.`,
+          title: 'Pengeluaran terkendali',
+          description: `Pengeluaran kamu cuma ${expenseRate.toFixed(0)}% dari pemasukan bulanan. Pola yang sehat, pertahankan.`,
           type: 'success',
         });
       } else if (expenseRate <= 65) {
         score = 82;
         insights.push({
-          title: 'Healthy Savings',
-          description: `You are saving a healthy ${savingsRate.toFixed(0)}% of your income. Keep building your wealth!`,
+          title: 'Tabungan sehat',
+          description: `Kamu nabung ${savingsRate.toFixed(0)}% dari pemasukan. Terus dijaga ya.`,
           type: 'success',
         });
       } else if (expenseRate < 90) {
         score = 65;
         insights.push({
-          title: 'Tight Margins',
-          description: `Monthly expenses absorb ${expenseRate.toFixed(0)}% of earnings. Try optimizing discretionary categories.`,
+          title: 'Sisa tipis',
+          description: `Pengeluaran menyerap ${expenseRate.toFixed(0)}% pemasukan. Coba tekan kategori yang tidak wajib.`,
           type: 'warning',
         });
       } else {
         score = 45;
         insights.push({
-          title: 'Unhealthy Deficit Warning',
-          description: `Critical cash drain: Expenses absorb ${expenseRate.toFixed(0)}% of income. Risk of overspending this cycle.`,
+          title: 'Defisit, perlu perhatian',
+          description: `Pengeluaran menyerap ${expenseRate.toFixed(0)}% pemasukan. Arus kas kritis, rem belanja bulan ini.`,
           type: 'danger',
         });
       }
@@ -116,15 +116,15 @@ export const insightsService = {
       if (expense > 0) {
         score = 50;
         insights.push({
-          title: 'No Active Income Recorded',
-          description: 'You are currently burning liquid capital with zero logged income for the current billing cycle.',
+          title: 'Belum ada pemasukan',
+          description: 'Periode ini kamu cuma mengeluarkan uang tanpa ada pemasukan tercatat.',
           type: 'warning',
         });
       } else {
         score = 100; // Fresh workspace/account
         insights.push({
-          title: 'Fresh Slate Workspace',
-          description: 'Log your first income transaction to initialize your dynamic financial health scoring.',
+          title: 'Mulai dari sini',
+          description: 'Catat transaksi pemasukan pertamamu supaya skor kesehatan finansial bisa dihitung.',
           type: 'info',
         });
       }
@@ -137,22 +137,22 @@ export const insightsService = {
       if (runwayMonths >= 6) {
         score = Math.min(score + 8, 100);
         insights.push({
-          title: 'Fortress Reserve',
-          description: `Excellent liquidity! Aggregate wallets can support current expenses for ${runwayMonths.toFixed(1)} months.`,
+          title: 'Dana darurat kuat',
+          description: `Saldo dompetmu cukup menutup pengeluaran selama ${runwayMonths.toFixed(1)} bulan.`,
           type: 'success',
         });
       } else if (runwayMonths >= 3) {
         score = Math.min(score + 4, 100);
         insights.push({
-          title: 'Adequate Emergency Buffer',
-          description: `Healthy emergency liquidity covering ${runwayMonths.toFixed(1)} months of average expenses.`,
+          title: 'Dana darurat cukup',
+          description: `Dana daruratmu menutup ${runwayMonths.toFixed(1)} bulan rata-rata pengeluaran.`,
           type: 'info',
         });
       } else {
         score = Math.max(score - 6, 20);
         insights.push({
-          title: 'Low Liquidity Alarm',
-          description: `Liquid assets cover less than 3 months of expenses. Avoid locking cash in illiquid pools.`,
+          title: 'Dana darurat menipis',
+          description: `Saldo cair kamu kurang dari 3 bulan pengeluaran. Jangan kunci uang di aset yang susah dicairkan.`,
           type: 'danger',
         });
       }

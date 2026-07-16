@@ -97,7 +97,7 @@ export default function InsightsPage() {
         <div>
           <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-[var(--nexus-text-primary)] flex items-center gap-2 ">
             <Sparkles className="w-6 h-6 text-[var(--nexus-emerald)]" />
-            Intelijen Finansial
+            Insight keuangan
           </h2>
           <p className="text-xs md:text-sm text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
             Rangkuman skor kesehatan finansial, analisis anggaran belanja, dan rekomendasi dinamis untuk Anda.
@@ -177,7 +177,7 @@ export default function InsightsPage() {
             <Card className="p-6 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary   flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[var(--nexus-emerald)]" />
-                Rekomendasi &amp; Peringatan Sistem
+                Rekomendasi &amp; peringatan
               </h3>
 
               <div className="space-y-4">

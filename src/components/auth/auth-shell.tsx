@@ -15,7 +15,7 @@ export function AuthAlert({ tone, children }: { tone: 'error' | 'success'; child
   const cls =
     tone === 'error'
       ? 'border-rose-500/25 bg-rose-500/10 text-rose-600 dark:text-rose-300'
-      : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300';
+      : 'border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)]';
   return <div className={`rounded-xl border px-4 py-3 text-sm ${cls}`}>{children}</div>;
 }
 

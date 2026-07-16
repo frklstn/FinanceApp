@@ -537,7 +537,7 @@ export default function DashboardPage() {
               { label: t('dashboard.categories.needs', 'Kebutuhan'), value: 'Rp4.8jt', color: 'text-[var(--nexus-text-emerald)]' },
               { label: t('dashboard.categories.installments', 'Cicilan'), value: 'Rp1.2jt', color: 'text-rose-600 dark:text-rose-400' },
               { label: t('dashboard.categories.savings', 'Tabungan'), value: 'Rp800rb', color: 'text-amber-600 dark:text-amber-400' },
-              { label: t('dashboard.categories.others', 'Lainnya'), value: 'Rp450rb', color: 'text-sky-600 dark:text-sky-400' },
+              { label: t('dashboard.categories.others', 'Lainnya'), value: 'Rp450rb', color: 'text-[var(--nexus-text-secondary)]' },
             ].map((cat) => (
               <div key={cat.label} className="p-3.5 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] flex flex-col justify-center">
                 <p className="text-[10px] text-[var(--nexus-text-secondary)]">{cat.label}</p>

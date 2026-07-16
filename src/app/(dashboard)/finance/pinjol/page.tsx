@@ -35,17 +35,17 @@ import {
 // Provider avatar color map based on first letter
 const PROVIDER_COLOR_MAP: Record<string, { bg: string, text: string }> = {
   E: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
-  K: { bg: 'bg-blue-500/10 dark:bg-blue-500/20', text: 'text-blue-500 dark:text-blue-400' },
+  K: { bg: 'bg-amber-500/10 dark:bg-amber-500/20', text: 'text-amber-600 dark:text-amber-400' },
   S: { bg: 'bg-orange-500/10 dark:bg-orange-500/20', text: 'text-orange-500 dark:text-orange-400' },
   A: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
-  I: { bg: 'bg-teal-500/10 dark:bg-teal-500/20', text: 'text-teal-500 dark:text-teal-400' },
+  I: { bg: 'bg-stone-500/10 dark:bg-stone-500/20', text: 'text-stone-600 dark:text-stone-300' },
   F: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
   H: { bg: 'bg-rose-500/10 dark:bg-rose-500/20', text: 'text-rose-500 dark:text-rose-400' },
 };
 
 function getProviderAvatarStyle(name: string) {
   const char = name.trim().charAt(0).toUpperCase();
-  return PROVIDER_COLOR_MAP[char] || { bg: 'bg-slate-500/10', text: 'text-slate-500' };
+  return PROVIDER_COLOR_MAP[char] || { bg: 'bg-[var(--nexus-bg-panel)]', text: 'text-[var(--nexus-text-muted)]' };
 }
 
 export default function PinjolPage() {
@@ -427,7 +427,7 @@ export default function PinjolPage() {
                   <span>12% dari bulan lalu</span>
                 </div>
               </div>
-              <div className="w-9 h-9 rounded-[12px] bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
+              <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
                 <CalendarIcon className="w-4 h-4" />
               </div>
             </div>
@@ -527,7 +527,7 @@ export default function PinjolPage() {
 
                         // Calculate status
                         let statusText = 'Akan datang';
-                        let statusClass = 'bg-blue-500/10 text-blue-500 border border-blue-500/20';
+                        let statusClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border border-[var(--nexus-emerald-border)]';
 
                         if (isPaidThisMonth) {
                           statusText = 'Lunas';
@@ -761,8 +761,8 @@ export default function PinjolPage() {
                       bgClass = 'bg-orange-500/20 text-orange-400 font-extrabold';
                       borderClass = 'border-orange-500/50 border';
                     } else if (marker === 'upcoming') {
-                      bgClass = 'bg-blue-500/10 text-blue-400 font-bold';
-                      borderClass = 'border-blue-500/30 border-dashed border';
+                      bgClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] font-semibold';
+                      borderClass = 'border-[var(--nexus-emerald-border)] border-dashed border';
                     } else if (isToday) {
                       borderClass = 'border-[var(--nexus-text-muted)]/40 border';
                     }
@@ -797,7 +797,7 @@ export default function PinjolPage() {
                     <span>Hari ini</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--nexus-emerald)] inline-block" />
                     <span>Akan datang</span>
                   </div>
                 </div>
