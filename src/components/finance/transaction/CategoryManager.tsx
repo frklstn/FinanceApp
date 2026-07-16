@@ -81,7 +81,7 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Kelola Kategori Keuangan">
       <div className="space-y-6">
-        <form onSubmit={handleSave} className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+        <form onSubmit={handleSave} className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Nama Kategori" value={name} onChange={(e) => setName(e.target.value)} required />
             <Select 
@@ -109,11 +109,11 @@ export function CategoryManagerModal({ isOpen, onClose, workspaceId }: CategoryM
 
         <div className="max-h-[300px] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
           {loading ? <div className="shimmer h-20 rounded-xl" /> : categories.map(cat => (
-            <div key={cat.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-all">
+            <div key={cat.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] group hover:bg-[var(--nexus-bg-panel)] transition-all">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
-                <span className="text-sm font-bold text-white">{cat.name}</span>
-                <span className="text-[10px] uppercase font-bold text-[#6F7A9E] opacity-50">{cat.type}</span>
+                <span className="text-sm font-bold text-[var(--nexus-text-primary)]">{cat.name}</span>
+                <span className="text-[10px]  font-bold text-[#6F7A9E] opacity-50">{cat.type}</span>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => { setEditingCategory(cat); setName(cat.name); setType(cat.type as 'income' | 'expense'); setColor(cat.color || '#6366f1'); }} className="p-1.5 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>

@@ -21,7 +21,7 @@ export function SpendingChart({ data }: SpendingChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">
+        <p className="text-xs text-[var(--nexus-text-muted)]">
           Tidak ada data pengeluaran
         </p>
       </div>
@@ -33,14 +33,14 @@ export function SpendingChart({ data }: SpendingChartProps) {
       <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
         <defs>
           <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--nexus-emerald)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="var(--nexus-emerald)" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--nexus-glass-border)" />
         <XAxis
           dataKey="date"
-          tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700 }}
+          tick={{ fill: 'var(--nexus-text-muted)', fontSize: 10, fontWeight: 600 }}
           axisLine={false}
           tickLine={false}
           interval={xInterval}
@@ -51,30 +51,30 @@ export function SpendingChart({ data }: SpendingChartProps) {
             if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
             return `${v}`;
           }}
-          tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700 }}
+          tick={{ fill: 'var(--nexus-text-muted)', fontSize: 10, fontWeight: 600 }}
           axisLine={false}
           tickLine={false}
           width={45}
         />
         <Tooltip
           contentStyle={{
-            background: '#0a0a0c',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--nexus-bg-popup)',
+            border: '1px solid var(--nexus-glass-border)',
             borderRadius: '16px',
             padding: '10px 16px',
           }}
-          labelStyle={{ color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}
-          itemStyle={{ color: '#10b981', fontSize: 12, fontWeight: 800 }}
+          labelStyle={{ color: 'var(--nexus-text-secondary)', fontSize: 10, fontWeight: 600 }}
+          itemStyle={{ color: 'var(--nexus-emerald)', fontSize: 12, fontWeight: 600 }}
           formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Pengeluaran']}
         />
         <Area
           type="monotone"
           dataKey="amount"
-          stroke="#10b981"
+          stroke="var(--nexus-emerald)"
           strokeWidth={3}
           fill="url(#colorSpend)"
           dot={false}
-          activeDot={{ r: 4, fill: '#10b981', strokeWidth: 0 }}
+          activeDot={{ r: 4, fill: 'var(--nexus-emerald)', strokeWidth: 0 }}
           isAnimationActive={true}
           animationDuration={1500}
           animationEasing="ease-out"

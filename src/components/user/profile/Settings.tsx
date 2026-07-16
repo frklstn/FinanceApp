@@ -111,10 +111,10 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
   return (
     <Tabs defaultValue="account" className="w-full">
       <TabsList className="w-full grid grid-cols-4 mb-6 p-1 bg-light-border/40 dark:bg-dark-border/40 rounded-xl">
-        <TabsTrigger value="account" className="text-xs font-bold uppercase py-2">Akun</TabsTrigger>
-        <TabsTrigger value="plan" className="text-xs font-bold uppercase py-2">Plan</TabsTrigger>
-        <TabsTrigger value="preferences" className="text-xs font-bold uppercase py-2">Preferensi</TabsTrigger>
-        <TabsTrigger value="data" className="text-xs font-bold uppercase py-2">Data</TabsTrigger>
+        <TabsTrigger value="account" className="text-xs font-bold  py-2">Akun</TabsTrigger>
+        <TabsTrigger value="plan" className="text-xs font-bold  py-2">Plan</TabsTrigger>
+        <TabsTrigger value="preferences" className="text-xs font-bold  py-2">Preferensi</TabsTrigger>
+        <TabsTrigger value="data" className="text-xs font-bold  py-2">Data</TabsTrigger>
       </TabsList>
 
       <form onSubmit={handleSubmit}>
@@ -161,7 +161,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           </div>
 
           <div className="pt-4 border-t border-light-border/40 dark:border-dark-border/40">
-            <label className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3 block">
+            <label className="text-[10px] font-semibold   text-[var(--nexus-emerald)] mb-3 block">
               Foto Profil
             </label>
             
@@ -208,8 +208,8 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
         <TabsContent value="plan" className="space-y-6">
           <SubscriptionStatus plan={profile?.plan} expiresAt={profile?.plan_expires_at} />
           {profile?.plan === 'free' && (
-            <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
-              <p className="text-xs text-white mb-3">Upgrade ke Pro untuk fitur tanpa batas dan analisis lebih mendalam.</p>
+            <div className="p-4 rounded-xl border border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)]">
+              <p className="text-xs text-[var(--nexus-text-primary)] mb-3">Upgrade ke Pro untuk fitur tanpa batas dan analisis lebih mendalam.</p>
               <Button type="button" variant="nexus-emerald" className="w-full">Upgrade ke Pro Sekarang</Button>
             </div>
           )}
@@ -219,7 +219,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           <div className="space-y-3">
             <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
               <div className="flex items-center gap-3">
-                <Monitor className="w-4 h-4 text-emerald-500" />
+                <Monitor className="w-4 h-4 text-[var(--nexus-emerald)]" />
                 <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Mode Tampilan</span>
               </div>
               <Button variant="outline" size="sm" onClick={toggleTheme} className="capitalize font-bold cursor-pointer">
@@ -229,7 +229,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
 
             <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
               <div className="flex items-center gap-3">
-                <Languages className="w-4 h-4 text-emerald-500" />
+                <Languages className="w-4 h-4 text-[var(--nexus-emerald)]" />
                 <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Bahasa</span>
               </div>
               <span className="text-xs text-light-text-secondary">Bahasa Indonesia</span>
@@ -237,23 +237,23 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
             
             <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
               <div className="flex items-center gap-3">
-                <RefreshCw className="w-4 h-4 text-emerald-500" />
+                <RefreshCw className="w-4 h-4 text-[var(--nexus-emerald)]" />
                 <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Sinkronisasi Data</span>
               </div>
-              <span className="text-xs text-emerald-500">2 min ago</span>
+              <span className="text-xs text-[var(--nexus-emerald)]">2 min ago</span>
             </div>
           </div>
         </TabsContent>
 
         <TabsContent value="data" className="space-y-6">
           <div className="space-y-4">
-            <h4 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary uppercase tracking-wider flex items-center gap-2">
+            <h4 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary   flex items-center gap-2">
               Ekspor Data Keuangan
             </h4>
             <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary leading-relaxed">
               Unduh seluruh transaksi akun Anda dalam format `.xlsx` (kategori, dompet, nominal, catatan).
             </p>
-            <Button type="button" variant="outline" className="flex items-center gap-2 cursor-pointer w-full py-6 rounded-2xl border-white/5 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest" onClick={handleExcelExport}>
+            <Button type="button" variant="outline" className="flex items-center gap-2 cursor-pointer w-full py-6 rounded-2xl border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] text-[10px] font-semibold  " onClick={handleExcelExport}>
               <Download className="w-4 h-4 mr-2" />
               Ekspor Buku Besar ke Excel (.xlsx)
             </Button>
@@ -262,11 +262,11 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
 
         <div className="flex justify-end gap-4 pt-8 border-t border-light-border/40 dark:border-dark-border/40 mt-8">
           {isModal && (
-            <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6 font-black uppercase tracking-widest text-[10px]">
+            <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6 font-semibold   text-[10px]">
               Batal
             </Button>
           )}
-          <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6 font-black uppercase tracking-widest text-[10px]">
+          <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6 font-semibold   text-[10px]">
             Simpan Perubahan
           </Button>
         </div>

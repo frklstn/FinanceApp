@@ -195,7 +195,7 @@ export default function ReportsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-            <BarChart3 className="w-5.5 h-5.5 text-emerald-500" />
+            <BarChart3 className="w-5.5 h-5.5 text-[var(--nexus-emerald)]" />
             {t('reports.title', 'Laporan Keuangan & Estimasi Pajak')}
           </h2>
           <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
@@ -223,20 +223,20 @@ export default function ReportsPage() {
       <div className="flex gap-4 border-b border-light-border/40 dark:border-dark-border/40 pb-2">
         <button
           onClick={() => setActiveSubTab('analytics')}
-          className={`flex items-center gap-2 pb-2 text-xs font-bold uppercase transition-all duration-150 cursor-pointer ${
+          className={`flex items-center gap-2 pb-2 text-xs font-bold  transition-all duration-150 cursor-pointer ${
             activeSubTab === 'analytics'
-              ? 'border-b-2 border-emerald-500 text-emerald-500'
+              ? 'border-b-2 border-[var(--nexus-emerald-border)] text-[var(--nexus-emerald)]'
               : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
           }`}
         >
-          <BarChart3 className="w-4.5 h-4.5 text-emerald-400" />
+          <BarChart3 className="w-4.5 h-4.5 text-[var(--nexus-emerald)]" />
           {t('reports.tab.analytics', 'Analisis Pengeluaran')}
         </button>
         <button
           onClick={() => setActiveSubTab('tax')}
-          className={`flex items-center gap-2 pb-2 text-xs font-bold uppercase transition-all duration-150 cursor-pointer ${
+          className={`flex items-center gap-2 pb-2 text-xs font-bold  transition-all duration-150 cursor-pointer ${
             activeSubTab === 'tax'
-              ? 'border-b-2 border-emerald-500 text-emerald-500'
+              ? 'border-b-2 border-[var(--nexus-emerald-border)] text-[var(--nexus-emerald)]'
               : 'text-light-text-secondary dark:text-dark-text-secondary hover:text-light-text-primary'
           }`}
         >
@@ -257,7 +257,7 @@ export default function ReportsPage() {
           <div className="space-y-6 md:col-span-1">
             <Card className="p-5 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
-                <TrendingUpDown className="w-4.5 h-4.5 text-emerald-500" />
+                <TrendingUpDown className="w-4.5 h-4.5 text-[var(--nexus-emerald)]" />
                 {t('reports.analytics.netCashflow', 'Aliran Kas Bersih')}
               </h3>
               
@@ -274,7 +274,7 @@ export default function ReportsPage() {
                 
                 <div className="flex justify-between items-center text-sm font-extrabold">
                   <span className="text-light-text-primary dark:text-dark-text-primary">{t('reports.analytics.netMargin', 'Margin Bersih')}</span>
-                  <span className={reportStats.savings >= 0 ? 'text-emerald-500' : 'text-danger'}>
+                  <span className={reportStats.savings >= 0 ? 'text-[var(--nexus-emerald)]' : 'text-danger'}>
                     {reportStats.savings >= 0 ? '+' : '-'}{formatCurrency(Math.abs(reportStats.savings))}
                   </span>
                 </div>
@@ -283,13 +283,13 @@ export default function ReportsPage() {
 
             {/* Savings Rate Card */}
             <Card className="p-5 space-y-3">
-              <span className="text-[10px] uppercase font-semibold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">
+              <span className="text-[10px]  font-semibold text-light-text-secondary dark:text-dark-text-secondary ">
                 {t('reports.analytics.monthlySavingsRate', 'Rasio Menabung Bulanan')}
               </span>
-              <h4 className="text-2xl font-extrabold text-emerald-500 dark:text-white">
+              <h4 className="text-2xl font-extrabold text-[var(--nexus-emerald)] dark:text-[var(--nexus-text-primary)]">
                 {reportStats.savingsRate}%
               </h4>
-              <Progress value={reportStats.savingsRate} className="bg-emerald-500" />
+              <Progress value={reportStats.savingsRate} className="bg-[var(--nexus-emerald)]" />
               <p className="text-[10.5px] font-medium text-light-text-secondary dark:text-dark-text-secondary/60 leading-relaxed pt-1">
                 {t('reports.analytics.savingsMsg', 'Anda menyisihkan {savings} dari total pemasukan {income} pada siklus ini.')
                   .replace('{savings}', formatCurrency(reportStats.savings))
@@ -302,7 +302,7 @@ export default function ReportsPage() {
           <div className="md:col-span-2">
             <Card className="p-6 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
-                <BarChart3 className="w-4.5 h-4.5 text-emerald-500" />
+                <BarChart3 className="w-4.5 h-4.5 text-[var(--nexus-emerald)]" />
                 {t('reports.analytics.categoryRanking', 'Peringkat Pengeluaran Kategori')}
               </h3>
               
@@ -356,13 +356,13 @@ export default function ReportsPage() {
           <div className="md:col-span-1 space-y-6">
             <Card className="p-5 space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
-                <Percent className="w-4.5 h-4.5 text-emerald-500" />
+                <Percent className="w-4.5 h-4.5 text-[var(--nexus-emerald)]" />
                 {t('reports.tax.variables', 'Variabel Tarif Pajak')}
               </h3>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1">
+                  <label className="block text-xs font-semibold  text-light-text-secondary dark:text-dark-text-secondary mb-1">
                     {t('reports.tax.estimatedBracket', 'Estimasi Golongan Pajak')} ({taxRate}%)
                   </label>
                   <input
@@ -373,7 +373,7 @@ export default function ReportsPage() {
                     onChange={(e) => setTaxRate(Number(e.target.value))}
                     onMouseUp={(e) => persistTaxRate(Number((e.target as HTMLInputElement).value))}
                     onTouchEnd={(e) => persistTaxRate(Number((e.target as HTMLInputElement).value))}
-                    className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-emerald-500"
+                    className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-[var(--nexus-emerald)]"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">
                     <span>5% ({t('reports.tax.low', 'Rendah')})</span>
@@ -382,7 +382,7 @@ export default function ReportsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-light-text-secondary dark:text-dark-text-secondary mb-1">
+                  <label className="block text-xs font-semibold  text-light-text-secondary dark:text-dark-text-secondary mb-1">
                     {t('reports.tax.deductiblesRatio', 'Pengeluaran Bebas Pajak')} ({deductiblesRatio}%)
                   </label>
                   <input
@@ -391,7 +391,7 @@ export default function ReportsPage() {
                     max="100"
                     value={deductiblesRatio}
                     onChange={(e) => setDeductiblesRatio(Number(e.target.value))}
-                    className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-emerald-500"
+                    className="w-full h-2 rounded-lg bg-light-border dark:bg-dark-border appearance-none cursor-pointer accent-[var(--nexus-emerald)]"
                   />
                   <div className="flex justify-between text-[10px] text-light-text-secondary mt-1">
                     <span>0% ({t('reports.tax.zero', 'Nihil')})</span>
@@ -444,7 +444,7 @@ export default function ReportsPage() {
 
                 <div className="flex justify-between items-center pt-3.5 border-t-2 border-primary/20">
                   <div className="space-y-0.5">
-                    <span className="text-sm font-extrabold text-emerald-500">{t('reports.tax.estimatedTax', 'Estimasi Proyeksi Pajak')}</span>
+                    <span className="text-sm font-extrabold text-[var(--nexus-emerald)]">{t('reports.tax.estimatedTax', 'Estimasi Proyeksi Pajak')}</span>
                     <p className="text-[10px] text-light-text-secondary/60 font-medium">
                       {t('reports.tax.estimatedTaxDesc', 'Menerapkan perkiraan tarif pajak sebesar {rate}%')
                         .replace('{rate}', String(taxRate))}
@@ -457,7 +457,7 @@ export default function ReportsPage() {
               </div>
 
               <div className="flex items-start gap-2.5 p-3.5 rounded-xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/40 dark:bg-dark-bg/25">
-                <Info className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
+                <Info className="w-4.5 h-4.5 text-[var(--nexus-emerald)] shrink-0 mt-0.5" />
                 <p className="text-[10.5px] font-medium text-light-text-secondary leading-relaxed">
                   {t('reports.tax.disclaimer', 'Disclaimer: Proyeksi ini dibuat murni untuk kemudahan perencanaan dan kejelasan anggaran. Ini tidak merupakan saran pajak profesional. Konsultasikan dengan Akuntan Pajak resmi untuk pelaporan SPT formal Anda.')}
                 </p>

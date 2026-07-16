@@ -1,9 +1,9 @@
 @theme {
-  --color-primary: #10B981;
-  --color-primary-dim: #059669;
-  --color-primary-hover: #34D399;
+  --color-primary: #a8532f;
+  --color-primary-dim: #8a4526;
+  --color-primary-hover: #c2693f;
 
-  --color-success: #10B981;
+  --color-success: #a8532f;
   --color-danger: #F43F5E;
   --color-warning: #F59E0B;
   --color-info: #3B82F6;
@@ -63,9 +63,9 @@
   --bg-card: #fffdf8;
   --bg-surface: #efe8da;
 
-  --primary: #059669;
-  --primary-glow: rgba(5, 150, 105, 0.15);
-  --success: #059669;
+  --primary: #a8532f;
+  --primary-glow: rgba(168, 83, 47, 0.15);
+  --success: #a8532f;
   --danger: #e11d48;
   --warning: #b45309;
 
@@ -74,7 +74,7 @@
   --text-muted: #948a7c;
 
   --shadow-premium: 0 10px 30px rgba(27, 24, 21, 0.06);
-  --shadow-neon: 0 8px 24px rgba(5, 150, 105, 0.15);
+  --shadow-neon: 0 8px 24px rgba(168, 83, 47, 0.15);
 
   /* Glass Effects (Light Mode) */
   --glass-bg: rgba(255, 253, 248, 0.7);
@@ -82,7 +82,7 @@
   --glass-blur: blur(12px);
 
   /* Premium Gradients (Light Mode) */
-  --grad-primary: linear-gradient(135deg, #059669 0%, #34D399 100%);
+  --grad-primary: linear-gradient(135deg, #a8532f 0%, #c2693f 100%);
   --grad-surface: linear-gradient(180deg, rgba(27,24,21,0.02) 0%, rgba(27,24,21,0) 100%);
   --grad-dark: linear-gradient(180deg, #fffdf8 0%, #f6f2ea 100%);
 
@@ -99,9 +99,9 @@
   --bg-card: #1c1a15;
   --bg-surface: #211e18;
 
-  --primary: #34D399;
-  --primary-glow: rgba(52, 211, 153, 0.2);
-  --success: #34D399;
+  --primary: #e2916a;
+  --primary-glow: rgba(226, 145, 106, 0.2);
+  --success: #e2916a;
   --danger: #fb7185;
   --warning: #f0b429;
 
@@ -110,7 +110,7 @@
   --text-muted: #8a8071;
 
   --shadow-premium: 0 30px 60px rgba(0, 0, 0, 0.45);
-  --shadow-neon: 0 8px 24px rgba(52, 211, 153, 0.18);
+  --shadow-neon: 0 8px 24px rgba(226, 145, 106, 0.18);
 
   /* Glass Effects (Dark Mode) */
   --glass-bg: rgba(28, 26, 21, 0.85);
@@ -118,7 +118,7 @@
   --glass-blur: blur(12px);
 
   /* Premium Gradients (Dark Mode) */
-  --grad-primary: linear-gradient(135deg, #34D399 0%, #059669 100%);
+  --grad-primary: linear-gradient(135deg, #e2916a 0%, #c2693f 100%);
   --grad-surface: linear-gradient(180deg, rgba(243,237,227,0.05) 0%, rgba(243,237,227,0) 100%);
   --grad-dark: linear-gradient(180deg, #1c1a15 0%, #15130f 100%);
 }

@@ -1,11 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Lora } from 'next/font/google';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useApp } from '@/contexts/app-context';
-import { ArrowRight } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { authInputClass } from '@/components/auth/auth-shell';
+import { ArrowRight, Mail, Lock, Eye, EyeOff, X } from 'lucide-react';
 
 const serif = Lora({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-serif' });
 
@@ -13,6 +16,42 @@ export default function LandingPage() {
   const { appSettings } = useApp();
   const appName = appSettings?.app_name || 'FinanceApp';
   const brandMark = appName === 'FinanceApp' ? 'FRKLSTN' : appName;
+
+  const router = useRouter();
+  const reduceMotion = useReducedMotion();
+  const [showLogin, setShowLogin] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !password) {
+      setErrorMsg('Username dan password wajib diisi.');
+      return;
+    }
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) {
+        setErrorMsg(error.message);
+        setLoading(false);
+        return;
+      }
+      router.push('/finance/dashboard');
+      router.refresh();
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Terjadi kesalahan, coba lagi.');
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -47,33 +86,185 @@ export default function LandingPage() {
               Score yang selaras dengan gajianmu.
             </p>
 
-            <div className="flex flex-col items-start gap-3">
-              <Link
-                href="/login"
-                className="group inline-flex items-center gap-2 text-sm font-medium transition-all hover:gap-3"
-              >
-                Mulai gratis
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/login"
-                className="text-xs text-[#1b1815]/50 hover:underline dark:text-[#f3ede3]/50"
-              >
-                Sudah punya akun? Masuk
-              </Link>
+            <div className="w-full max-w-xs">
+              <AnimatePresence mode="wait" initial={false}>
+                {!showLogin ? (
+                  <motion.div
+                    key="cta"
+                    initial={reduceMotion ? undefined : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={reduceMotion ? undefined : { opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex flex-col items-start gap-3"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setShowLogin(true)}
+                      className="group inline-flex items-center gap-2 text-sm font-medium transition-all hover:gap-3 cursor-pointer"
+                    >
+                      Mulai gratis
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowLogin(true)}
+                      className="text-xs text-[#1b1815]/50 hover:underline dark:text-[#f3ede3]/50 cursor-pointer"
+                    >
+                      Sudah punya akun? Masuk
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.form
+                    key="login-form"
+                    onSubmit={handleLogin}
+                    initial={reduceMotion ? undefined : { opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={reduceMotion ? undefined : { opacity: 0, height: 0 }}
+                    transition={{ type: 'spring', stiffness: 340, damping: 30 }}
+                    className="space-y-2.5 overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[#1b1815]/50 dark:text-[#f3ede3]/50">Masuk ke akunmu</span>
+                      <button
+                        type="button"
+                        onClick={() => { setShowLogin(false); setErrorMsg(null); }}
+                        className="text-[#1b1815]/40 hover:text-[#1b1815]/70 dark:text-[#f3ede3]/40 dark:hover:text-[#f3ede3]/70 cursor-pointer"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+
+                    {errorMsg && (
+                      <p className="text-xs text-rose-600 dark:text-rose-400">{errorMsg}</p>
+                    )}
+
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Username"
+                        disabled={loading}
+                        autoFocus
+                        className={`${authInputClass} pl-11 pr-4`}
+                      />
+                    </div>
+
+                    <div className="relative">
+                      <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
+                        disabled={loading}
+                        className={`${authInputClass} pl-11 pr-11`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1b1815]/35 hover:text-[#1b1815]/70 dark:text-[#f3ede3]/35 dark:hover:text-[#f3ede3]/70 cursor-pointer"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-4 pt-1">
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="rounded-xl bg-[#1b1815] px-6 py-2.5 text-sm font-medium text-[#f6f2ea] transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-[#f3ede3] dark:text-[#15130f] cursor-pointer"
+                      >
+                        {loading ? 'Memproses...' : 'Masuk'}
+                      </button>
+                      <Link
+                        href="/forgot-password"
+                        className="text-xs text-[#1b1815]/55 hover:underline dark:text-[#f3ede3]/55"
+                      >
+                        Lupa sandi?
+                      </Link>
+                    </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
-          <div className="relative min-h-[320px] overflow-hidden rounded-2xl md:rounded-3xl bg-[#e9e2d3] dark:bg-[#1c1a15]">
-            <Image
-              src="https://picsum.photos/seed/quiet-linen-still-life-warm/900/1200"
-              alt="Suasana tenang mengatur keuangan"
-              fill
-              sizes="(min-width: 768px) 45vw, 100vw"
-              className="object-cover saturate-[0.65] contrast-[0.92] brightness-[1.03] sepia-[0.12]"
-              priority
+          <div
+            className="relative min-h-[320px] overflow-hidden rounded-2xl md:rounded-3xl"
+            style={{
+              background:
+                'linear-gradient(155deg, #e7ddc7 0%, #d9cbac 45%, #c2b190 100%)',
+            }}
+            role="img"
+            aria-label="Plakat batu bertanda F, simbol arus kas yang tenang"
+          >
+            {/* grain/depth, bukan foto stok generik */}
+            <div
+              className="absolute inset-0 opacity-70 mix-blend-overlay"
+              style={{
+                backgroundImage:
+                  'radial-gradient(circle at 18% 22%, rgba(255,255,255,0.55), transparent 38%), radial-gradient(circle at 82% 78%, rgba(27,24,21,0.35), transparent 42%)',
+              }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1b1815]/25 via-transparent to-[#f6f2ea]/10 mix-blend-multiply dark:from-black/35 dark:to-transparent" />
+            {/* lipatan kain linen di pojok bawah */}
+            <div
+              className="absolute -bottom-6 -right-10 h-40 w-56 opacity-80 dark:opacity-60"
+              style={{
+                background:
+                  'linear-gradient(115deg, transparent 40%, rgba(221,205,175,0.9) 55%, rgba(198,180,148,0.95) 75%, rgba(178,158,124,0.9) 100%)',
+                filter: 'blur(0.5px)',
+              }}
+            />
+
+            <div className="absolute inset-0 flex items-center justify-center p-10">
+              <div className="relative flex flex-col items-center gap-7">
+                {/* ranting kecil, bukan hiasan generik */}
+                <svg width="56" height="76" viewBox="0 0 56 76" fill="none" className="text-[#7a6f5c]">
+                  <path d="M28 76 L28 14" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                  {[
+                    [28, 44, 10, 34, -28],
+                    [28, 36, 46, 22, 30],
+                    [28, 26, 8, 14, -24],
+                    [28, 18, 44, 6, 26],
+                  ].map(([x1, y1, x2, y2, rot], i) => (
+                    <ellipse
+                      key={i}
+                      cx={(x1 + x2) / 2}
+                      cy={(y1 + y2) / 2}
+                      rx="9"
+                      ry="4"
+                      transform={`rotate(${rot} ${(x1 + x2) / 2} ${(y1 + y2) / 2})`}
+                      fill="currentColor"
+                      opacity="0.55"
+                    />
+                  ))}
+                </svg>
+
+                {/* plakat batu berukir F */}
+                <div
+                  className="flex h-40 w-32 items-center justify-center rounded-2xl"
+                  style={{
+                    background: 'linear-gradient(160deg, #f1ead9 0%, #e3d7bc 100%)',
+                    boxShadow:
+                      'inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -3px 6px rgba(120,104,74,0.25), 0 24px 40px -12px rgba(60,48,30,0.35)',
+                  }}
+                >
+                  <span
+                    className="text-6xl font-semibold"
+                    style={{
+                      fontFamily: 'var(--font-serif)',
+                      color: '#d9cbac',
+                      textShadow:
+                        '1px 1.5px 0 rgba(255,255,255,0.75), -1px -1px 1.5px rgba(120,104,74,0.45)',
+                    }}
+                  >
+                    F
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

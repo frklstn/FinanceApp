@@ -25,7 +25,7 @@ function FlowMark() {
   return (
     <div className="relative hidden min-h-[320px] items-center justify-center overflow-hidden rounded-2xl bg-[#1b1815]/[0.035] dark:bg-white/[0.03] md:flex md:rounded-3xl">
       <motion.div
-        className="absolute h-[65%] w-[65%] rounded-full bg-emerald-500/15 blur-3xl"
+        className="absolute h-[65%] w-[65%] rounded-full bg-[var(--nexus-emerald)]/15 blur-3xl"
         animate={reduce ? undefined : { scale: [1, 1.12, 1], opacity: [0.45, 0.75, 0.45] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
       />
@@ -40,12 +40,12 @@ function FlowMark() {
           fill="none"
           strokeWidth="9"
           strokeLinecap="round"
-          className="stroke-emerald-600 dark:stroke-emerald-400"
+          className="stroke-[var(--nexus-emerald)]"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
         />
-        <circle cx="168" cy="62" r="9" className="fill-emerald-600 dark:fill-emerald-400" />
+        <circle cx="168" cy="62" r="9" className="fill-[var(--nexus-emerald)]" />
       </motion.svg>
     </div>
   );

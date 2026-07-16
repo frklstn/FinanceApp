@@ -180,7 +180,7 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
 
         {calcPreview && (
           <div className="pinjol-calc-preview">
-            <p className="text-xs font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary mb-2">
+            <p className="text-xs font-bold   text-light-text-secondary dark:text-dark-text-secondary mb-2">
               Kalkulasi Otomatis
             </p>
             <div className="pinjol-calc-preview-row">

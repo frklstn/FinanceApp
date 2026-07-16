@@ -8,7 +8,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl md:text-3xl font-black text-[var(--nexus-text-primary)] tracking-tight font-outfit uppercase">
+        <h1 className="text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight  ">
           Pengaturan
         </h1>
         <p className="text-xs text-[var(--nexus-text-secondary)] font-medium mt-1">

@@ -181,45 +181,45 @@ export default function DebtsPage() {
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase"
+            className="text-3xl md:text-5xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter "
           >
-            {t('debts.title', 'Liabilitas')} <span className="text-rose-500">{t('debts.title.sub', 'Terminal')}</span>
+            {t('debts.title', 'Utang & Piutang')}
           </motion.h1>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">
+          <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  tracking-[0.4em]">
             {t('debts.subtitle', 'Infrastruktur Audit Utang & Piutang • v2.0')}
           </p>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Button 
-            className="flex-1 md:flex-none bg-rose-500 hover:bg-rose-600 px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-rose-500/10 border-none"
+            className="flex-1 md:flex-none bg-[var(--nexus-emerald)] hover:opacity-90 px-8 py-6 h-auto text-[11px] font-semibold rounded-2xl border-none text-white"
             onClick={() => setIsDebtModalOpen(true)}
           >
             <Plus className="w-5 h-5 mr-2" /> {t('debts.addBtn', 'Inisialisasi Protokol')}
           </Button>
-          <button className="p-4 rounded-[24px] bg-white/[0.03] backdrop-blur-3xl border border-white/5 text-white hover:bg-white/[0.08] transition-all relative">
+          <button className="p-4 rounded-[24px] bg-[var(--nexus-bg-panel)] backdrop-blur-3xl border border-[var(--nexus-glass-border)] text-[var(--nexus-text-primary)] hover:bg-[var(--nexus-bg-panel)] transition-all relative">
             <Bell className="w-5 h-5" />
-            <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(244,63,94,1)]" />
+            <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
           </button>
         </div>
       </header>
 
       {/* Aggregate Hero Section */}
       <section>
-        <Card glass className="p-8 md:p-12 relative group overflow-hidden border-white/5 shadow-2xl">
+        <Card glass className="p-8 md:p-12 relative group overflow-hidden border-[var(--nexus-glass-border)] shadow-2xl">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/5 blur-[120px] rounded-full -mr-48 -mt-48 transition-all group-hover:bg-rose-500/10" />
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
             <div className="space-y-8">
               <div className="space-y-2">
-                <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em]">
+                <p className="text-[10px] font-semibold text-rose-400  tracking-[0.4em]">
                   {t('debts.netPosition', 'Posisi Eksposur Bersih')}
                 </p>
                 <div className="flex items-baseline gap-3">
-                  <span className={`text-5xl md:text-8xl font-black tracking-tighter ${netPosition >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
+                  <span className={`text-5xl md:text-8xl font-semibold tracking-tighter ${netPosition >= 0 ? 'text-[var(--nexus-emerald)]' : 'text-rose-500'}`}>
                     <NumberTicker value={Math.abs(netPosition)} formatter={formatCurrency} />
                   </span>
-                  <span className="text-xs font-black text-white/20 uppercase tracking-widest">
+                  <span className="text-xs font-semibold text-[var(--nexus-text-muted)]  ">
                     {netPosition >= 0 ? t('debts.surplus', 'Surplus') : t('debts.deficit', 'Defisit')}
                   </span>
                 </div>
@@ -228,52 +228,52 @@ export default function DebtsPage() {
               <div className="flex flex-wrap gap-4">
                 <div className="px-6 py-3 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
                   <TrendingDown className="w-4 h-4 text-rose-400" />
-                  <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest">
+                  <span className="text-[11px] font-semibold text-rose-400  ">
                     {t('debts.pay', 'Bayar:')} <NumberTicker value={totalOwe} formatter={formatCurrency} />
                   </span>
                 </div>
-                <div className="px-6 py-3 rounded-[24px] bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
-                  <HandCoins className="w-4 h-4 text-emerald-400" />
-                  <span className="text-[11px] font-black text-emerald-400 uppercase tracking-widest">
+                <div className="px-6 py-3 rounded-[24px] bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex items-center gap-3">
+                  <HandCoins className="w-4 h-4 text-[var(--nexus-emerald)]" />
+                  <span className="text-[11px] font-semibold text-[var(--nexus-emerald)]  ">
                     {t('debts.receive', 'Terima:')} <NumberTicker value={totalLend} formatter={formatCurrency} />
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white/[0.02] backdrop-blur-3xl rounded-[40px] border border-white/5 p-8 md:p-10 space-y-8">
+            <div className="bg-[var(--nexus-bg-panel)] backdrop-blur-3xl rounded-[40px] border border-[var(--nexus-glass-border)] p-8 md:p-10 space-y-8">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-[24px] bg-rose-500/10 flex items-center justify-center border border-rose-500/20 shadow-inner">
                     <ShieldAlert className="w-7 h-7 text-rose-400" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-white uppercase tracking-tight">
+                    <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]  tracking-tight">
                       {t('debts.auditTitle', 'Audit Liabilitas')}
                     </h4>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">
+                    <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]  tracking-[0.2em]">
                       {t('debts.systemMonitor', 'Pemantauan Sistem')}
                     </p>
                   </div>
                 </div>
-                <div className="text-4xl font-black text-white italic tracking-tighter">
-                  {debts.length} <span className="text-xs not-italic text-white/20">{t('debts.unit', 'Unit')}</span>
+                <div className="text-4xl font-semibold text-[var(--nexus-text-primary)] italic tracking-tighter">
+                  {debts.length} <span className="text-xs not-italic text-[var(--nexus-text-muted)]">{t('debts.unit', 'Unit')}</span>
                 </div>
               </div>
               <div className="space-y-3">
-                <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
-                  <span className="text-white/30">{t('debts.repaymentRatio', 'Repayment Ratio')}</span>
-                  <span className="text-white">{t('debts.calculated', 'Calculated')}</span>
+                <div className="flex justify-between text-[10px] font-semibold  tracking-[0.2em]">
+                  <span className="text-[var(--nexus-text-muted)]">{t('debts.repaymentRatio', 'Repayment Ratio')}</span>
+                  <span className="text-[var(--nexus-text-primary)]">{t('debts.calculated', 'Calculated')}</span>
                 </div>
-                <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                <div className="w-full h-3 bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)]">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${(totalLend / (totalOwe + totalLend || 1)) * 100}%` }}
-                    className="h-full bg-gradient-to-r from-rose-600 to-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.4)]" 
+                    className="h-full bg-gradient-to-r from-rose-600 to-rose-400" 
                   />
                 </div>
               </div>
-              <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-tight">
+              <p className="text-[11px] font-bold text-[var(--nexus-text-muted)] leading-relaxed  tracking-tight">
                 {t('debts.status.riskMsg', 'Current audit identifies {loans} liability contracts and {receivables} asset receivables. Risk level: {risk}.')
                   .replace('{loans}', `${debts.filter(d => d.type === 'owe').length}`)
                   .replace('{receivables}', `${debts.filter(d => d.type === 'lend').length}`)
@@ -290,10 +290,10 @@ export default function DebtsPage() {
         <div className="space-y-8">
           <div className="flex items-center justify-between px-2">
             <div className="space-y-1">
-              <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+              <h3 className="text-xl font-semibold text-[var(--nexus-text-primary)]  tracking-tight flex items-center gap-3">
                 <Landmark className="w-6 h-6 text-rose-500" /> {t('debts.liabilityLedger', 'Liability Ledger')}
               </h3>
-              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+              <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]  ">
                 {t('debts.activeObligations', 'Active Obligations')}
               </p>
             </div>
@@ -302,11 +302,11 @@ export default function DebtsPage() {
           <div className="grid grid-cols-1 gap-6">
             <AnimatePresence mode="wait">
               {loading ? (
-                [1, 2].map((n) => <div key={n} className="h-48 rounded-[32px] border border-white/5 bg-white/[0.02] animate-pulse" />)
+                [1, 2].map((n) => <div key={n} className="h-48 rounded-[32px] border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
               ) : debts.filter(d => d.type === 'owe').length === 0 ? (
-                <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-4">
-                  <ShieldCheck className="w-12 h-12 text-white/10" />
-                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
+                <div className="p-12 rounded-[32px] bg-[var(--nexus-bg-panel)] border border-dashed border-[var(--nexus-glass-border)] flex flex-col items-center justify-center text-center space-y-4">
+                  <ShieldCheck className="w-12 h-12 text-[var(--nexus-text-muted)]" />
+                  <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  tracking-[0.3em]">
                     {t('debts.emptyLiability', 'Tidak Ada Liabilitas Terdeteksi')}
                   </p>
                 </div>
@@ -325,19 +325,19 @@ export default function DebtsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                     >
-                      <Card glass className="p-8 md:p-10 border-white/5 hover:bg-white/[0.04] transition-all relative overflow-hidden group">
+                      <Card glass className="p-8 md:p-10 border-[var(--nexus-glass-border)] hover:bg-[var(--nexus-bg-panel)] transition-all relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-rose-500/10 transition-all" />
                         
                         <div className="flex flex-col h-full justify-between space-y-8 relative z-10">
                           <div className="flex items-start justify-between">
                             <div className="space-y-2">
-                              <h4 className="text-lg font-black text-white uppercase tracking-tight">{debt.name}</h4>
+                              <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)]  tracking-tight">{debt.name}</h4>
                               <div className="flex items-center gap-4">
-                                <span className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[9px] font-black text-rose-400 uppercase tracking-widest">
+                                <span className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[9px] font-semibold text-rose-400  ">
                                   {t('debts.type.liability', 'Liability')}
                                 </span>
                                 {debt.contact_info && (
-                                  <span className="text-[10px] text-white/30 font-bold uppercase tracking-tight flex items-center gap-2">
+                                  <span className="text-[10px] text-[var(--nexus-text-muted)] font-bold  tracking-tight flex items-center gap-2">
                                     <User className="w-3.5 h-3.5" /> {debt.contact_info}
                                   </span>
                                 )}
@@ -345,42 +345,42 @@ export default function DebtsPage() {
                             </div>
                             <button 
                               onClick={() => handleDeleteDebt(debt.id)}
-                              className="p-3 rounded-2xl bg-white/5 text-white/20 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                              className="p-3 rounded-2xl bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-muted)] hover:text-rose-500 hover:bg-rose-500/10 transition-all"
                             >
                               <Trash2 className="w-5 h-5" />
                             </button>
                           </div>
 
                           <div className="space-y-4">
-                            <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.2em]">
-                              <span className="text-white/30">{t('debts.repaymentAudit', 'Repayment Audit')}</span>
-                              <span className="text-white">
+                            <div className="flex justify-between items-end text-[10px] font-semibold  tracking-[0.2em]">
+                              <span className="text-[var(--nexus-text-muted)]">{t('debts.repaymentAudit', 'Repayment Audit')}</span>
+                              <span className="text-[var(--nexus-text-primary)]">
                                 <NumberTicker value={paid} formatter={(v) => formatCurrency(v, debt.currency || 'IDR')} /> / {formatCurrency(tot, debt.currency || 'IDR')}
                               </span>
                             </div>
-                            <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                            <div className="h-2.5 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)] shadow-inner">
                               <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progress}%` }}
-                                className="h-full bg-gradient-to-r from-rose-600 to-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]" 
+                                className="h-full bg-gradient-to-r from-rose-600 to-rose-400" 
                               />
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                            <div className="flex items-center gap-3 text-[10px] font-black text-white/30 uppercase tracking-widest">
+                          <div className="flex items-center justify-between pt-6 border-t border-[var(--nexus-glass-border)]">
+                            <div className="flex items-center gap-3 text-[10px] font-semibold text-[var(--nexus-text-muted)]  ">
                               <Calendar className="w-4 h-4" />
                               {debt.due_date ? t('debts.deadline', 'Deadline: {date}').replace('{date}', new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })) : t('debts.infiniteCycle', 'Infinite Cycle')}
                             </div>
                             {isPaid ? (
-                              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] text-[var(--nexus-emerald)] text-[10px] font-semibold  tracking-[0.2em]">
                                 <ShieldCheck className="w-4 h-4" /> {t('debts.status.secured', 'Secured')}
                               </div>
                             ) : (
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                className="rounded-2xl border-white/5 bg-white/[0.03] text-[9px] font-black uppercase tracking-[0.2em] px-6 py-5 h-auto hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all" 
+                                className="rounded-2xl border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] text-[9px] font-semibold  tracking-[0.2em] px-6 py-5 h-auto hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all" 
                                 onClick={() => handleOpenPayment(debt)}
                               >
                                 <Zap className="w-4 h-4 mr-2" /> {t('debts.action.executePayment', 'Execute Payment')}
@@ -401,21 +401,21 @@ export default function DebtsPage() {
         <div className="space-y-8">
           <div className="flex items-center justify-between px-2">
             <div className="space-y-1">
-              <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
-                <HandCoins className="w-6 h-6 text-emerald-500" /> {t('debts.assetReceivable', 'Asset Receivable')}
+              <h3 className="text-xl font-semibold text-[var(--nexus-text-primary)]  tracking-tight flex items-center gap-3">
+                <HandCoins className="w-6 h-6 text-[var(--nexus-emerald)]" /> {t('debts.assetReceivable', 'Asset Receivable')}
               </h3>
-              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{t('debts.activeCredits', 'Active Credits')}</p>
+              <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]  ">{t('debts.activeCredits', 'Active Credits')}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6">
             <AnimatePresence mode="wait">
               {loading ? (
-                [1, 2].map((n) => <div key={n} className="h-48 rounded-[32px] border border-white/5 bg-white/[0.02] animate-pulse" />)
+                [1, 2].map((n) => <div key={n} className="h-48 rounded-[32px] border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
               ) : debts.filter(d => d.type === 'lend').length === 0 ? (
-                <div className="p-12 rounded-[32px] bg-white/[0.01] border border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-4">
-                  <Target className="w-12 h-12 text-white/10" />
-                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">{t('debts.emptyReceivable', 'No Active Receivables')}</p>
+                <div className="p-12 rounded-[32px] bg-[var(--nexus-bg-panel)] border border-dashed border-[var(--nexus-glass-border)] flex flex-col items-center justify-center text-center space-y-4">
+                  <Target className="w-12 h-12 text-[var(--nexus-text-muted)]" />
+                  <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  tracking-[0.3em]">{t('debts.emptyReceivable', 'No Active Receivables')}</p>
                 </div>
               ) : (
                 debts.filter(d => d.type === 'lend').map((debt, i) => {
@@ -432,19 +432,19 @@ export default function DebtsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                     >
-                      <Card glass className="p-8 md:p-10 border-white/5 hover:bg-white/[0.04] transition-all relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-all" />
+                      <Card glass className="p-8 md:p-10 border-[var(--nexus-glass-border)] hover:bg-[var(--nexus-bg-panel)] transition-all relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--nexus-emerald-glow)] blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-[var(--nexus-emerald-glow)] transition-all" />
                         
                         <div className="flex flex-col h-full justify-between space-y-8 relative z-10">
                           <div className="flex items-start justify-between">
                             <div className="space-y-2">
-                              <h4 className="text-lg font-black text-white uppercase tracking-tight">{debt.name}</h4>
+                              <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)]  tracking-tight">{debt.name}</h4>
                               <div className="flex items-center gap-4">
-                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+                                <span className="px-3 py-1 rounded-full bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] text-[9px] font-semibold text-[var(--nexus-emerald)]  ">
                                   {t('debts.type.asset', 'Asset')}
                                 </span>
                                 {debt.contact_info && (
-                                  <span className="text-[10px] text-white/30 font-bold uppercase tracking-tight flex items-center gap-2">
+                                  <span className="text-[10px] text-[var(--nexus-text-muted)] font-bold  tracking-tight flex items-center gap-2">
                                     <User className="w-3.5 h-3.5" /> {debt.contact_info}
                                   </span>
                                 )}
@@ -452,42 +452,42 @@ export default function DebtsPage() {
                             </div>
                             <button 
                               onClick={() => handleDeleteDebt(debt.id)}
-                              className="p-3 rounded-2xl bg-white/5 text-white/20 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                              className="p-3 rounded-2xl bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-muted)] hover:text-rose-500 hover:bg-rose-500/10 transition-all"
                             >
                               <Trash2 className="w-5 h-5" />
                             </button>
                           </div>
 
                           <div className="space-y-4">
-                            <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.2em]">
-                              <span className="text-white/30">{t('debts.collectionAudit', 'Collection Audit')}</span>
-                              <span className="text-white">
+                            <div className="flex justify-between items-end text-[10px] font-semibold  tracking-[0.2em]">
+                              <span className="text-[var(--nexus-text-muted)]">{t('debts.collectionAudit', 'Collection Audit')}</span>
+                              <span className="text-[var(--nexus-text-primary)]">
                                 <NumberTicker value={paid} formatter={(v) => formatCurrency(v, debt.currency || 'IDR')} /> / {formatCurrency(tot, debt.currency || 'IDR')}
                               </span>
                             </div>
-                            <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                            <div className="h-2.5 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)] shadow-inner">
                               <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progress}%` }}
-                                className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.3)]" 
+                                className="h-full bg-gradient-to-r from-[var(--nexus-emerald)] to-[var(--nexus-emerald)] shadow-[0_0_15px_rgba(52,211,153,0.3)]" 
                               />
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                            <div className="flex items-center gap-3 text-[10px] font-black text-white/30 uppercase tracking-widest">
+                          <div className="flex items-center justify-between pt-6 border-t border-[var(--nexus-glass-border)]">
+                            <div className="flex items-center gap-3 text-[10px] font-semibold text-[var(--nexus-text-muted)]  ">
                               <Calendar className="w-4 h-4" />
                               {debt.due_date ? t('debts.inflow', 'Inflow: {date}').replace('{date}', new Date(debt.due_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })) : t('debts.infiniteCycle', 'Infinite Cycle')}
                             </div>
                             {isPaid ? (
-                              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] text-[var(--nexus-emerald)] text-[10px] font-semibold  tracking-[0.2em]">
                                 <ShieldCheck className="w-4 h-4" /> {t('debts.status.collected', 'Collected')}
                               </div>
                             ) : (
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                className="rounded-2xl border-white/5 bg-white/[0.03] text-[9px] font-black uppercase tracking-[0.2em] px-6 py-5 h-auto hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-400 transition-all" 
+                                className="rounded-2xl border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] text-[9px] font-semibold  tracking-[0.2em] px-6 py-5 h-auto hover:bg-[var(--nexus-emerald-glow)] hover:border-[var(--nexus-emerald-border)] hover:text-[var(--nexus-emerald)] transition-all" 
                                 onClick={() => handleOpenPayment(debt)}
                               >
                                 <ArrowRightLeft className="w-4 h-4 mr-2" /> {t('debts.action.receiveInflow', 'Receive Inflow')}
@@ -508,18 +508,18 @@ export default function DebtsPage() {
       {/* Add Debt/Lend record modal */}
       <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title={t('debts.modal.addTitle', 'Initialize Ledger Protocol')}>
         <form onSubmit={handleCreateDebt} className="space-y-8 p-2">
-          <div className="grid grid-cols-2 gap-3 bg-white/[0.02] p-2 rounded-[24px] border border-white/5 shadow-inner">
+          <div className="grid grid-cols-2 gap-3 bg-[var(--nexus-bg-panel)] p-2 rounded-[24px] border border-[var(--nexus-glass-border)] shadow-inner">
             {(['owe', 'lend'] as const).map((dt) => (
               <button
                 key={dt}
                 type="button"
                 onClick={() => setDebtType(dt)}
-                className={`py-4 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-xl ${
+                className={`py-4 rounded-[18px] text-[10px] font-semibold  tracking-[0.2em] transition-all duration-300 shadow-xl ${
                   debtType === dt
                     ? dt === 'owe'
-                      ? 'bg-rose-500 text-white shadow-rose-500/20'
-                      : 'bg-emerald-500 text-white shadow-emerald-500/20'
-                    : 'text-white/30 hover:text-white hover:bg-white/5'
+                      ? 'bg-rose-500 text-[var(--nexus-text-primary)] shadow-rose-500/20'
+                      : 'bg-[var(--nexus-emerald)] text-[var(--nexus-text-primary)]'
+                    : 'text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] hover:bg-[var(--nexus-bg-panel)]'
                 }`}
               >
                 {dt === 'owe' ? t('debts.type.liability', 'Liability') : t('debts.type.asset', 'Asset')}
@@ -534,7 +534,7 @@ export default function DebtsPage() {
             onChange={(e) => setDebtName(e.target.value)}
             required
             disabled={submitting}
-            className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
+            className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-6"
           />
           <Select
             label={t('debts.modal.currency', 'Currency Base')}
@@ -542,7 +542,7 @@ export default function DebtsPage() {
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
             disabled={submitting}
-            className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto"
+            className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-4 h-auto"
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
@@ -553,7 +553,7 @@ export default function DebtsPage() {
               onChange={(e) => setAmount(e.target.value)}
               required
               disabled={submitting}
-              className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
+              className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-6"
             />
             <DatePicker
               label={t('debts.modal.deadline', 'Chronological Deadline')}
@@ -568,14 +568,14 @@ export default function DebtsPage() {
             value={contactInfo}
             onChange={(e) => setContactInfo(e.target.value)}
             disabled={submitting}
-            className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
+            className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-6"
           />
 
           <div className="flex gap-4 pt-4">
             <Button
               type="button"
               variant="outline"
-              className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest"
+              className="flex-1 rounded-[24px] border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] py-8 text-[11px] font-semibold  "
               onClick={() => setIsDebtModalOpen(false)}
               disabled={submitting}
             >
@@ -584,7 +584,7 @@ export default function DebtsPage() {
             <Button 
               type="submit" 
               loading={submitting}
-              className="flex-1 rounded-[24px] bg-emerald-500 hover:bg-emerald-600 py-8 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 border-none"
+              className="flex-1 rounded-[24px] bg-[var(--nexus-emerald)] hover:bg-[var(--nexus-emerald)] py-8 text-[11px] font-semibold   shadow-xl border-none"
             >
               {t('debts.modal.submitAdd', 'Authorize Protocol')}
             </Button>
@@ -596,9 +596,9 @@ export default function DebtsPage() {
       <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title={t('debts.modal.payTitle', 'Execute Repayment Protocol')}>
         {selectedDebt && (
           <form onSubmit={handlePaymentSubmit} className="space-y-8 p-2">
-            <div className="p-6 rounded-[24px] bg-white/[0.02] border border-white/5 space-y-2">
-              <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t('debts.modal.targetEntity', 'Target Entity')}</p>
-              <h4 className="text-xl font-black text-white uppercase tracking-tight">{selectedDebt.name}</h4>
+            <div className="p-6 rounded-[24px] bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-2">
+              <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  ">{t('debts.modal.targetEntity', 'Target Entity')}</p>
+              <h4 className="text-xl font-semibold text-[var(--nexus-text-primary)]  tracking-tight">{selectedDebt.name}</h4>
             </div>
 
             <Select
@@ -611,7 +611,7 @@ export default function DebtsPage() {
               onChange={(e) => setPayWalletId(e.target.value)}
               required
               disabled={submitting}
-              className="rounded-[20px] bg-white/[0.03] border-white/5 py-4 h-auto"
+              className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-4 h-auto"
             />
             <Input
               label={t('debts.modal.authMagnitude', 'Authorization Magnitude ({currency})').replace('{currency}', selectedDebt.currency || 'Rp')}
@@ -621,21 +621,21 @@ export default function DebtsPage() {
               onChange={(e) => setPayAmount(e.target.value)}
               required
               disabled={submitting}
-              className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
+              className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-6"
             />
             <Input
               label={t('debts.modal.txNote', 'Transaction Log Note')}
               value={payNote}
               onChange={(e) => setPayNote(e.target.value)}
               disabled={submitting}
-              className="rounded-[20px] bg-white/[0.03] border-white/5 py-6"
+              className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-6"
             />
 
             <div className="flex gap-4 pt-4">
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 rounded-[24px] border-white/5 bg-white/[0.03] py-8 text-[11px] font-black uppercase tracking-widest"
+                className="flex-1 rounded-[24px] border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] py-8 text-[11px] font-semibold  "
                 onClick={() => setIsPayModalOpen(false)}
                 disabled={submitting}
               >
@@ -644,10 +644,10 @@ export default function DebtsPage() {
               <Button 
                 type="submit" 
                 loading={submitting}
-                className={`flex-1 rounded-[24px] py-8 text-[11px] font-black uppercase tracking-widest shadow-xl border-none ${
+                className={`flex-1 rounded-[24px] py-8 text-[11px] font-semibold   shadow-xl border-none ${
                   selectedDebt.type === 'owe' 
                     ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/20' 
-                    : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
+                    : 'bg-[var(--nexus-emerald)] hover:bg-[var(--nexus-emerald)]'
                 }`}
               >
                 {selectedDebt.type === 'owe' ? t('debts.modal.submitPay', 'Authorize Payment') : t('debts.modal.submitInflow', 'Authorize Inflow')}

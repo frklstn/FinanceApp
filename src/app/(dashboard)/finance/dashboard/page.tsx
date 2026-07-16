@@ -453,7 +453,7 @@ export default function DashboardPage() {
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-[var(--nexus-text-secondary)]">
                 <span>{t('dashboard.hero.scoreLabel', 'Skor kesehatan')}</span>
-                <span className={financialStats.score > 70 ? "text-[var(--nexus-text-emerald)]" : "text-amber-600 dark:text-amber-400"}>
+                <span className={financialStats.score > 70 ? "text-[var(--nexus-success)]" : "text-amber-600 dark:text-amber-400"}>
                   {financialStats.score > 70 ? t('dashboard.health.optimal', 'Optimal') : t('dashboard.health.needAudit', 'Perlu audit')}
                 </span>
               </div>
@@ -462,7 +462,7 @@ export default function DashboardPage() {
                   initial={{ width: 0 }}
                   animate={{ width: `${financialStats.score}%` }}
                   transition={{ delay: 0.5 }}
-                  className={`h-full ${financialStats.score > 70 ? "bg-[var(--nexus-emerald)]" : "bg-amber-500"}`}
+                  className={`h-full ${financialStats.score > 70 ? "bg-[var(--nexus-success)]" : "bg-amber-500"}`}
                 />
               </div>
             </div>
@@ -477,7 +477,7 @@ export default function DashboardPage() {
                   <p className="text-[10px] text-[var(--nexus-text-muted)]">
                     {t('dashboard.metrics.trend', 'Tren')}
                   </p>
-                  <p className={`text-xs font-semibold ${financialStats.savingsDiff >= 0 ? 'text-[var(--nexus-text-emerald)]' : 'text-rose-600 dark:text-rose-400'}`}>
+                  <p className={`text-xs font-semibold ${financialStats.savingsDiff >= 0 ? 'text-[var(--nexus-success)]' : 'text-rose-600 dark:text-rose-400'}`}>
                     {financialStats.savingsDiff >= 0 ? '▲' : '▼'} {Math.abs(financialStats.savingsDiff).toFixed(1)}%
                   </p>
                 </div>
@@ -485,7 +485,7 @@ export default function DashboardPage() {
                   <p className="text-[10px] text-[var(--nexus-text-muted)]">
                     {t('dashboard.metrics.debt', 'Utang')}
                   </p>
-                  <p className={`text-xs font-semibold ${financialStats.activeLoansCount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-[var(--nexus-text-emerald)]'}`}>
+                  <p className={`text-xs font-semibold ${financialStats.activeLoansCount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-[var(--nexus-success)]'}`}>
                     {financialStats.activeLoansCount > 0 ? `${financialStats.activeLoansCount} ${t('dashboard.metrics.active', 'aktif')}` : t('dashboard.metrics.clean', 'Bersih')}
                   </p>
                 </div>
@@ -560,12 +560,12 @@ export default function DashboardPage() {
                 className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] hover:border-[var(--nexus-emerald-border)] transition-colors cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tx.type === 'income' ? 'bg-emerald-500/10 text-[var(--nexus-text-emerald)]' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tx.type === 'income' ? 'bg-[var(--nexus-success)]/10 text-[var(--nexus-success)]' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
                     {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                   </div>
                   <span className="text-xs font-medium text-[var(--nexus-text-primary)] truncate">{tx.note || '-'}</span>
                 </div>
-                <span className={`text-xs font-semibold shrink-0 ${tx.type === 'income' ? 'text-[var(--nexus-text-emerald)]' : 'text-rose-600 dark:text-rose-400'}`}>
+                <span className={`text-xs font-semibold shrink-0 ${tx.type === 'income' ? 'text-[var(--nexus-success)]' : 'text-rose-600 dark:text-rose-400'}`}>
                   {tx.type === 'income' ? '+' : '-'}{formatCurrency(Number(tx.amount))}
                 </span>
               </button>

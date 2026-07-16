@@ -130,12 +130,12 @@ export default function BudgetsPage() {
       await Promise.all(pendingBudgets.map(b => 
         budgetService.createBudget(accountId!, b.categoryId, b.amount, dbPeriod)
       ));
-      toast('Margin operasional berhasil diotorisasi.', 'success');
+      toast('Anggaran berhasil disimpan.', 'success');
       setPendingBudgets([]);
       setIsModalOpen(false);
       fetchBudgets();
     } catch {
-      toast('Gagal mengotorisasi budget.', 'danger');
+      toast('Gagal menyimpan anggaran.', 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -150,75 +150,75 @@ export default function BudgetsPage() {
     <div className="space-y-10">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Batas <span className="text-emerald-500">{appSettings.app_name || 'Nexus'}</span></h1>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.4em]">Kontrol Margin Operasional • v2.1</p>
+          <h1 className="text-4xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter ">Batas <span className="text-[var(--nexus-emerald)]">{appSettings.app_name || 'Nexus'}</span></h1>
+          <p className="text-[10px] font-bold text-muted-foreground  tracking-[0.4em]">Atur batas pengeluaran per kategori</p>
         </div>
         <div className="flex items-center gap-3">
            <Select
             options={periods.map((p: SalaryPeriod, i: number) => ({ value: i.toString(), label: p.label.toUpperCase() }))}
             value={selectedPeriodIndex.toString()}
             onChange={(e) => setSelectedPeriodIndex(parseInt(e.target.value))}
-            className="rounded-[20px] bg-white/[0.03] border-white/5 py-3 h-auto text-[10px] font-black uppercase tracking-widest min-w-[220px]"
+            className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-3 h-auto text-[10px] font-semibold   min-w-[220px]"
           />
-          <Button variant="nexus-emerald" className="rounded-[20px] px-8 py-6 h-auto text-[11px] font-black uppercase tracking-widest" onClick={() => setIsModalOpen(true)}>
+          <Button variant="nexus-emerald" className="rounded-[20px] px-8 py-6 h-auto text-[11px] font-semibold  " onClick={() => setIsModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" /> Konfigurasi
           </Button>
         </div>
       </header>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card glass className="lg:col-span-2 p-10 relative group overflow-hidden border-white/5 bg-[#0A0A0C] rounded-[40px] shadow-2xl">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 blur-[100px] rounded-full -mr-40 -mt-40" />
+        <Card glass className="lg:col-span-2 p-10 relative group overflow-hidden border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)] rounded-[40px] shadow-2xl">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[var(--nexus-emerald-glow)] blur-[100px] rounded-full -mr-40 -mt-40" />
           <div className="flex items-center justify-between relative z-10">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Margin Terpakai • {currentPeriod.label}</h3>
+                <PieChart className="w-4 h-4 text-[var(--nexus-emerald)]" />
+                <h3 className="text-[10px] font-semibold  tracking-[0.4em] text-[var(--nexus-text-muted)]">Anggaran terpakai • {currentPeriod.label}</h3>
               </div>
-              <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter italic">
+              <h2 className="text-5xl md:text-7xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter italic">
                 <NumberTicker value={totalSpent} formatter={(v) => formatCurrency(v)} />
               </h2>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-white/20 uppercase tracking-widest pt-2">
+              <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--nexus-text-muted)]   pt-2">
                 <Target className="w-3.5 h-3.5" /> Alokasi Maksimal: {formatCurrency(totalBudget)}
               </div>
             </div>
-            <div className="w-24 h-24 rounded-[32px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xl group-hover:scale-110 transition-transform duration-500">
+            <div className="w-24 h-24 rounded-[32px] bg-[var(--nexus-bg-panel)] backdrop-blur-3xl border border-[var(--nexus-glass-border)] flex items-center justify-center text-[var(--nexus-emerald)] shadow-2xl group-hover:scale-110 transition-transform duration-500">
               <TrendingDown className="w-10 h-10" />
             </div>
           </div>
         </Card>
 
-        <Card glass className="p-8 border-white/5 bg-white/[0.02] flex flex-col justify-center items-center text-center space-y-6 rounded-[40px] shadow-2xl">
-          <div className={`w-20 h-20 rounded-[28px] flex items-center justify-center ${totalRemaining < 0 ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'} border shadow-2xl`}>
+        <Card glass className="p-8 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] flex flex-col justify-center items-center text-center space-y-6 rounded-[40px] shadow-2xl">
+          <div className={`w-20 h-20 rounded-[28px] flex items-center justify-center ${totalRemaining < 0 ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border-[var(--nexus-emerald-border)]'} border shadow-2xl`}>
             {totalRemaining < 0 ? <ShieldAlert className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Operational Buffer</p>
-            <p className={`text-3xl font-black tracking-tighter ${totalRemaining < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+            <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  tracking-[0.3em]">Sisa anggaran</p>
+            <p className={`text-3xl font-semibold tracking-tighter ${totalRemaining < 0 ? 'text-rose-400' : 'text-[var(--nexus-emerald)]'}`}>
               {formatCurrency(totalRemaining)}
             </p>
           </div>
-          <p className="text-[9px] font-black text-white/40 leading-relaxed px-4 uppercase tracking-tighter">
+          <p className="text-[9px] font-semibold text-[var(--nexus-text-muted)] leading-relaxed px-4  tracking-tighter">
             {totalRemaining < 0 
-              ? 'Warning: Aggregate boundaries breached. Immediate liquidity relocation required.'
-              : 'Protocol Secure: Consumption velocity within authorized margins.'}
+              ? 'Peringatan: total anggaran terlampaui. Segera sesuaikan alokasi.'
+              : 'Aman: laju pengeluaran masih dalam batas anggaran.'}
           </p>
         </Card>
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          [1, 2, 3].map((n) => <div key={n} className="h-48 rounded-[32px] border border-white/5 bg-white/[0.02] animate-pulse" />)
+          [1, 2, 3].map((n) => <div key={n} className="h-48 rounded-[32px] border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
         ) : budgets.length === 0 ? (
-          <div className="md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-20 text-center space-y-6 bg-white/[0.01] rounded-[40px] border border-dashed border-white/5">
-            <div className="w-20 h-20 rounded-[32px] bg-white/[0.03] border border-white/10 flex items-center justify-center text-white/10">
+          <div className="md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-20 text-center space-y-6 bg-[var(--nexus-bg-panel)] rounded-[40px] border border-dashed border-[var(--nexus-glass-border)]">
+            <div className="w-20 h-20 rounded-[32px] bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] flex items-center justify-center text-[var(--nexus-text-muted)]">
               <PiggyBank className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h4 className="text-lg font-black text-white uppercase tracking-tight">No Boundaries Defined</h4>
-              <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest max-w-sm"> Initialize category limits to establish operational margin control.</p>
+              <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)]  tracking-tight">Belum ada anggaran</h4>
+              <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]   max-w-sm"> Tetapkan batas per kategori untuk mengontrol pengeluaran.</p>
             </div>
-            <Button className="rounded-2xl px-12 py-6 h-auto text-[11px] font-black uppercase tracking-widest bg-emerald-500 shadow-xl shadow-emerald-500/20 border-none" onClick={() => setIsModalOpen(true)}>Initialize Budget</Button>
+            <Button className="rounded-2xl px-12 py-6 h-auto text-[11px] font-semibold   bg-[var(--nexus-emerald)] shadow-xl border-none" onClick={() => setIsModalOpen(true)}>Buat anggaran</Button>
           </div>
         ) : (
           <AnimatePresence>
@@ -237,49 +237,49 @@ export default function BudgetsPage() {
                   whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <Card glass className="p-8 h-full border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all flex flex-col justify-between rounded-[32px] shadow-xl">
+                  <Card glass className="p-8 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[32px] shadow-xl">
                     <div className="space-y-8">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="w-4 h-4 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.1)] border border-white/10" style={{ backgroundColor: b.categories?.color }} />
-                          <h4 className="text-lg font-black text-white uppercase tracking-tight truncate max-w-[150px]">
+                          <div className="w-4 h-4 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.1)] border border-[var(--nexus-glass-border)]" style={{ backgroundColor: b.categories?.color }} />
+                          <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)]  tracking-tight truncate max-w-[150px]">
                             {b.categories?.name}
                           </h4>
                         </div>
                         <button 
                           onClick={() => budgetService.deleteBudget(b.id).then(() => fetchBudgets())}
-                          className="p-3 rounded-xl bg-white/5 hover:bg-rose-500/20 text-white/20 hover:text-rose-400 transition-all border border-white/5"
+                          className="p-3 rounded-xl bg-[var(--nexus-bg-panel)] hover:bg-rose-500/20 text-[var(--nexus-text-muted)] hover:text-rose-400 transition-all border border-[var(--nexus-glass-border)]"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
                       <div className="space-y-4">
-                        <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-widest">
-                          <span className="text-white/30">Utilization</span>
-                          <span className={isOver ? 'text-rose-400 font-black' : 'text-white'}>{Math.round(progress)}%</span>
+                        <div className="flex justify-between items-end text-[10px] font-semibold  ">
+                          <span className="text-[var(--nexus-text-muted)]">Utilization</span>
+                          <span className={isOver ? 'text-rose-400 font-semibold' : 'text-[var(--nexus-text-primary)]'}>{Math.round(progress)}%</span>
                         </div>
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-0.5">
+                        <div className="h-1.5 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)] p-0.5">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
-                            className={`h-full rounded-full shadow-[0_0_15px_rgba(99,102,241,0.2)] ${isOver ? 'bg-rose-500 shadow-rose-500/40' : progress > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                            className={`h-full rounded-full shadow-[0_0_15px_rgba(99,102,241,0.2)] ${isOver ? 'bg-rose-500 shadow-rose-500/40' : progress > 80 ? 'bg-amber-500' : 'bg-[var(--nexus-emerald)]'}`}
                           />
                         </div>
-                        <div className="flex justify-between text-[13px] font-black text-white tracking-tighter">
+                        <div className="flex justify-between text-[13px] font-semibold text-[var(--nexus-text-primary)] tracking-tighter">
                           <span>{formatCurrency(spent, b.currency || 'IDR')}</span>
-                          <span className="text-white/20">{formatCurrency(limit, b.currency || 'IDR')}</span>
+                          <span className="text-[var(--nexus-text-muted)]">{formatCurrency(limit, b.currency || 'IDR')}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-white/5 flex items-center gap-2">
+                    <div className="mt-8 pt-6 border-t border-[var(--nexus-glass-border)] flex items-center gap-2">
                       {isOver ? (
-                        <div className="flex items-center gap-2 text-[10px] font-black text-rose-400 uppercase tracking-widest bg-rose-500/5 px-4 py-2.5 rounded-xl border border-rose-500/10 w-full justify-center">
+                        <div className="flex items-center gap-2 text-[10px] font-semibold text-rose-400   bg-rose-500/5 px-4 py-2.5 rounded-xl border border-rose-500/10 w-full justify-center">
                           <AlertCircle className="w-3.5 h-3.5" /> Deficit {formatCurrency(Math.abs(remaining), b.currency || 'IDR')}
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/5 px-4 py-2.5 rounded-xl border border-emerald-500/10 w-full justify-center">
+                        <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--nexus-emerald)]   bg-[var(--nexus-emerald-glow)] px-4 py-2.5 rounded-xl border border-[var(--nexus-emerald-border)] w-full justify-center">
                           <Zap className="w-3.5 h-3.5" /> Margin {formatCurrency(remaining, b.currency || 'IDR')}
                         </div>
                       )}
@@ -292,24 +292,24 @@ export default function BudgetsPage() {
         )}
       </section>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="OTORISASI MARGIN OPERASIONAL">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Atur anggaran">
         <div className="space-y-6 p-2">
           {/* Limitation Panel */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <div className="p-5 rounded-[24px] bg-white/[0.03] border border-white/5 space-y-1">
-               <label className="text-[9px] font-black uppercase text-white/30 tracking-widest">Gaji Estimasi</label>
-               <div className="text-xl font-black text-white tracking-tight">{formatCurrency(currentIncome)}</div>
+             <div className="p-5 rounded-[24px] bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
+               <label className="text-[9px] font-semibold  text-[var(--nexus-text-muted)] ">Gaji Estimasi</label>
+               <div className="text-xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">{formatCurrency(currentIncome)}</div>
              </div>
-             <div className="p-5 rounded-[24px] bg-white/[0.03] border border-white/5 space-y-1">
-               <label className="text-[9px] font-black uppercase text-rose-500/40 tracking-widest">Kewajiban Tagihan</label>
-               <div className="text-xl font-black text-rose-400 tracking-tight">-{formatCurrency(currentDebt)}</div>
+             <div className="p-5 rounded-[24px] bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
+               <label className="text-[9px] font-semibold  text-rose-500/40 ">Kewajiban Tagihan</label>
+               <div className="text-xl font-semibold text-rose-400 tracking-tight">-{formatCurrency(currentDebt)}</div>
              </div>
-             <div className="md:col-span-2 p-5 rounded-[24px] bg-emerald-500/5 border border-emerald-500/10 flex justify-between items-center">
+             <div className="md:col-span-2 p-5 rounded-[24px] bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex justify-between items-center">
                 <div className="space-y-0.5">
-                  <label className="text-[9px] font-black uppercase text-emerald-400 tracking-widest">Limitasi Saldo Aman</label>
-                  <p className="text-[8px] font-bold text-emerald-400/40 uppercase">Tersedia untuk alokasi budget</p>
+                  <label className="text-[9px] font-semibold  text-[var(--nexus-emerald)] ">Limitasi Saldo Aman</label>
+                  <p className="text-[8px] font-bold text-[var(--nexus-emerald)] ">Tersedia untuk alokasi budget</p>
                 </div>
-                <div className={`text-xl font-black tracking-tighter italic ${remainingLimit < 0 ? 'text-rose-500' : remainingLimit === 0 ? 'text-amber-500' : 'text-emerald-400'}`}>
+                <div className={`text-xl font-semibold tracking-tighter italic ${remainingLimit < 0 ? 'text-rose-500' : remainingLimit === 0 ? 'text-amber-500' : 'text-[var(--nexus-emerald)]'}`}>
                   {remainingLimit < 0 
                     ? `Defisit: -${formatCurrency(Math.abs(remainingLimit))}` 
                     : remainingLimit === 0 
@@ -319,7 +319,7 @@ export default function BudgetsPage() {
              </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-white/[0.02] p-4 rounded-[24px] border border-white/5">
+          <div className="flex items-center gap-4 bg-[var(--nexus-bg-panel)] p-4 rounded-[24px] border border-[var(--nexus-glass-border)]">
             <div className="flex-1">
                <Select
                 options={[{ value: '', label: '-- Pilih Kategori --' }, ...categories.map(c => ({ value: c.id, label: c.name }))]}
@@ -336,10 +336,10 @@ export default function BudgetsPage() {
                 value={limitAmount}
                 onChange={(e) => setLimitAmount(e.target.value)}
                 disabled={submitting}
-                className="rounded-xl text-lg font-black"
+                className="rounded-xl text-lg font-semibold"
               />
             </div>
-            <Button onClick={handleAddToBatch} className="rounded-xl bg-indigo-500 p-6 shadow-xl shadow-indigo-500/20 border-none">
+            <Button onClick={handleAddToBatch} className="rounded-xl bg-[var(--nexus-emerald)] p-6 shadow-xl border-none">
               <Plus className="w-5 h-5" />
             </Button>
           </div>
@@ -348,7 +348,7 @@ export default function BudgetsPage() {
             onClick={handleSaveAll} 
             loading={submitting} 
             disabled={pendingBudgets.length === 0}
-            className="w-full h-16 rounded-[24px] bg-emerald-500 text-[11px] font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(16,185,129,0.3)]"
+            className="w-full h-16 rounded-[24px] bg-[var(--nexus-emerald)] text-[11px] font-semibold   shadow-[0_10px_30px_rgba(16,185,129,0.3)]"
           >
             Simpan Semua Budget
           </Button>

@@ -85,8 +85,8 @@ export default function InsightsPage() {
       style: 'bg-danger/5 border-danger/15 text-light-text-primary dark:text-dark-text-primary',
     },
     default: {
-      icon: <Info className="w-5 h-5 text-emerald-500 shrink-0" />,
-      style: 'bg-emerald-500/5 border-emerald-500/15 text-light-text-primary dark:text-dark-text-primary',
+      icon: <Info className="w-5 h-5 text-[var(--nexus-emerald)] shrink-0" />,
+      style: 'bg-[var(--nexus-emerald-glow)] border-[var(--nexus-emerald-border)] text-light-text-primary dark:text-dark-text-primary',
     },
   };
 
@@ -95,8 +95,8 @@ export default function InsightsPage() {
       <UpgradeGate>
         {/* Title */}
         <div>
-          <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2 uppercase">
-            <Sparkles className="w-6 h-6 text-emerald-500" />
+          <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-[var(--nexus-text-primary)] flex items-center gap-2 ">
+            <Sparkles className="w-6 h-6 text-[var(--nexus-emerald)]" />
             Intelijen Finansial
           </h2>
           <p className="text-xs md:text-sm text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
@@ -114,7 +114,7 @@ export default function InsightsPage() {
             {/* Health Score Banner */}
             <Card className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-3 text-center md:text-left">
-                <span className="text-[10px] uppercase font-black text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full tracking-[0.2em] border border-emerald-500/20">
+                <span className="text-[10px]  font-semibold text-[var(--nexus-emerald)] bg-[var(--nexus-emerald-glow)] px-3 py-1.5 rounded-full tracking-[0.2em] border border-[var(--nexus-emerald-border)]">
                   Skor Kesehatan {appSettings.app_name || 'FinanceApp'}
                 </span>
                 <h3 className="text-2xl font-extrabold text-light-text-primary dark:text-dark-text-primary">
@@ -137,14 +137,14 @@ export default function InsightsPage() {
 
               {/* Score Display (no progress ring, only score container) */}
               <div className="flex flex-col items-center justify-center shrink-0">
-                <div className="nexus-panel p-5 border-emerald-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-emerald-500/5">
-                  <span className="text-[9px] uppercase font-bold text-white/40 tracking-widest mb-0.5">
+                <div className="nexus-panel p-5 border-[var(--nexus-emerald-border)] flex flex-col items-center justify-center min-w-[110px] shadow-lg">
+                  <span className="text-[9px]  font-bold text-[var(--nexus-text-muted)]  mb-0.5">
                     Skor
                   </span>
-                  <span className="text-4xl font-black text-emerald-400 tracking-tighter">
+                  <span className="text-4xl font-semibold text-[var(--nexus-emerald)] tracking-tighter">
                     {stats.score}
                   </span>
-                  <span className="text-[10px] font-bold text-white/40 mt-0.5">
+                  <span className="text-[10px] font-bold text-[var(--nexus-text-muted)] mt-0.5">
                     / 100
                   </span>
                 </div>
@@ -158,14 +158,14 @@ export default function InsightsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Card className="p-4 flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">Pemasukan Bulan Ini</span>
+                  <span className="text-[9px]  font-bold text-light-text-secondary dark:text-dark-text-secondary ">Pemasukan Bulan Ini</span>
                   <p className="text-lg font-bold text-success">+{formatCurrency(stats.income)}</p>
                 </div>
                 <TrendingUp className="w-5 h-5 text-success/70" />
               </Card>
               <Card className="p-4 flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-[9px] uppercase font-bold text-light-text-secondary dark:text-dark-text-secondary tracking-wider">Pengeluaran Bulan Ini</span>
+                  <span className="text-[9px]  font-bold text-light-text-secondary dark:text-dark-text-secondary ">Pengeluaran Bulan Ini</span>
                   <p className="text-lg font-bold text-danger">-{formatCurrency(stats.expense)}</p>
                 </div>
                 <TrendingDown className="w-5 h-5 text-danger/70" />
@@ -175,15 +175,15 @@ export default function InsightsPage() {
 
             {/* Detailed list of insights */}
             <Card className="p-6 space-y-4">
-              <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary uppercase tracking-wider flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-500" />
+              <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary   flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[var(--nexus-emerald)]" />
                 Rekomendasi &amp; Peringatan Sistem
               </h3>
 
               <div className="space-y-4">
                 {insights.length === 0 ? (
                   <div className="flex items-center gap-3 p-4 rounded-xl border border-light-border dark:border-dark-border text-xs text-light-text-secondary font-medium">
-                    <Info className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <Info className="w-5 h-5 text-[var(--nexus-emerald)] shrink-0" />
                     Semua sistem aman! Kami tidak mendeteksi kebiasaan buruk atau peringatan keuangan pada siklus ini.
                   </div>
                 ) : (

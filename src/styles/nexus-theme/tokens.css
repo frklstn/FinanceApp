@@ -6,11 +6,11 @@
   --nexus-bg-panel: #efe8da;
   --nexus-bg-popup: rgba(255, 253, 248, 0.98);
 
-  /* Emerald Accent (Light Mode) */
-  --nexus-emerald: #059669;
-  --nexus-emerald-glow: rgba(5, 150, 105, 0.10);
-  --nexus-emerald-border: rgba(5, 150, 105, 0.25);
-  --nexus-success: #059669;
+  /* Brand Accent - Terracotta (Light Mode) */
+  --nexus-emerald: #a8532f;
+  --nexus-emerald-glow: rgba(168, 83, 47, 0.10);
+  --nexus-emerald-border: rgba(168, 83, 47, 0.26);
+  --nexus-success: #a8532f;
   --nexus-danger: #e11d48;
   --nexus-warning: #b45309;
 
@@ -18,7 +18,7 @@
   --nexus-text-primary: #1b1815;
   --nexus-text-secondary: #6b6156;
   --nexus-text-muted: #948a7c;
-  --nexus-text-emerald: #059669;
+  --nexus-text-emerald: #a8532f;
 
   /* Surface & Depth (Light Mode) */
   --nexus-glass-bg: rgba(255, 253, 248, 0.7);
@@ -39,11 +39,11 @@
   --nexus-bg-panel: #211e18;
   --nexus-bg-popup: rgba(28, 26, 21, 0.98);
 
-  /* Emerald Accent (Dark Mode) */
-  --nexus-emerald: #34d399;
-  --nexus-emerald-glow: rgba(52, 211, 153, 0.12);
-  --nexus-emerald-border: rgba(52, 211, 153, 0.25);
-  --nexus-success: #34d399;
+  /* Brand Accent - Terracotta (Dark Mode) */
+  --nexus-emerald: #e2916a;
+  --nexus-emerald-glow: rgba(226, 145, 106, 0.14);
+  --nexus-emerald-border: rgba(226, 145, 106, 0.28);
+  --nexus-success: #e2916a;
   --nexus-danger: #fb7185;
   --nexus-warning: #f0b429;
 
@@ -51,7 +51,7 @@
   --nexus-text-primary: #f3ede3;
   --nexus-text-secondary: #b8ae9c;
   --nexus-text-muted: #8a8071;
-  --nexus-text-emerald: #34d399;
+  --nexus-text-emerald: #e2916a;
 
   /* Surface & Depth (Dark Mode) */
   --nexus-glass-bg: rgba(28, 26, 21, 0.85);
