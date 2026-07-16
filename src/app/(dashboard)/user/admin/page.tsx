@@ -92,6 +92,13 @@ export default function AdminPage() {
 
   // Toggle user suspension
   const handleToggleSuspend = async (userId: string, currentSuspendedState: boolean) => {
+    // Menonaktifkan akun sendiri = terkunci permanen: middleware mengalihkan
+    // semua path terproteksi (termasuk /user/admin) ke /suspended, jadi tidak
+    // ada jalan mengaktifkannya kembali lewat UI -- hanya lewat SQL.
+    if (userId === user?.id && !currentSuspendedState) {
+      toast('Tidak bisa menonaktifkan akun sendiri: kamu akan terkunci dari panel ini.', 'warning');
+      return;
+    }
     setUpdatingUserId(userId);
     try {
       await adminService.bulkUpdateStatus([userId], !currentSuspendedState);
@@ -114,11 +121,17 @@ export default function AdminPage() {
   };
 
   const handleBulkSuspend = async (isSuspended: boolean) => {
-    const ids = Array.from(selectedUserIds);
+    // Alasan sama seperti handleToggleSuspend: "pilih semua" ikut menyeret akun
+    // sendiri, jadi dikeluarkan sebelum aksi massal dijalankan.
+    const ids = Array.from(selectedUserIds).filter((id) => !(isSuspended && id === user?.id));
+    if (ids.length === 0) {
+      toast('Tidak ada akun yang bisa diproses (akun sendiri dilewati).', 'warning');
+      return;
+    }
     setUpdatingUserId('bulk');
     try {
       await adminService.bulkUpdateStatus(ids, isSuspended);
-      setUsers(prev => prev.map(u => selectedUserIds.has(u.id) ? { ...u, is_suspended: isSuspended } : u));
+      setUsers(prev => prev.map(u => ids.includes(u.id) ? { ...u, is_suspended: isSuspended } : u));
       setSelectedUserIds(new Set());
       toast(`Berhasil ${isSuspended ? 'menonaktifkan' : 'mengaktifkan'} ${ids.length} pengguna`, 'success');
     } catch {
@@ -421,13 +434,17 @@ export default function AdminPage() {
 
                       <button
                         onClick={() => handleToggleSuspend(u.id, u.is_suspended)}
-                        disabled={updatingUserId === u.id}
-                        className={`inline-flex items-center justify-center p-1.5 rounded-lg border transition-all duration-150 cursor-pointer ${
+                        disabled={updatingUserId === u.id || (u.id === user?.id && !u.is_suspended)}
+                        className={`inline-flex items-center justify-center p-1.5 rounded-lg border transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                           u.is_suspended
                             ? 'border-success/30 text-success hover:bg-success/5 hover:border-success'
                             : 'border-danger/30 text-danger hover:bg-danger/5 hover:border-danger'
                         }`}
-                        title={u.is_suspended ? 'Aktifkan akun' : 'Nonaktifkan akun'}
+                        title={
+                          u.id === user?.id && !u.is_suspended
+                            ? 'Tidak bisa menonaktifkan akun sendiri'
+                            : u.is_suspended ? 'Aktifkan akun' : 'Nonaktifkan akun'
+                        }
                       >
                         <Ban className="w-3.5 h-3.5" />
                       </button>
