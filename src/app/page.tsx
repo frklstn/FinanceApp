@@ -49,7 +49,7 @@ export default function LandingPage() {
 
             <div className="flex flex-col items-start gap-3">
               <Link
-                href="/register"
+                href="/login"
                 className="group inline-flex items-center gap-2 text-sm font-medium transition-all hover:gap-3"
               >
                 Mulai gratis

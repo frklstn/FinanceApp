@@ -55,7 +55,7 @@ export async function updateSession(request: NextRequest) {
   const proto = request.headers.get('x-forwarded-proto') || 'https';
   const host = request.headers.get('host') || request.nextUrl.host;
 
-  if (!user && (isProtectedPath || path === '/')) {
+  if (!user && isProtectedPath) {
     const redirectUrl = new URL('/login', `${proto}://${host}`);
     return NextResponse.redirect(redirectUrl);
   }
@@ -86,7 +86,7 @@ export async function updateSession(request: NextRequest) {
       }
       
       // Allow authenticated users to access /reset-password (recovery mode)
-      if (!isResetPasswordPath && (isAuthPath || path === '/')) {
+      if (!isResetPasswordPath && isAuthPath) {
         const redirectUrl = new URL('/finance/dashboard', `${proto}://${host}`);
         return NextResponse.redirect(redirectUrl);
       }
