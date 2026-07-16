@@ -4,14 +4,10 @@ export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Lora } from 'next/font/google';
 import { createClient } from '@/lib/supabase/client';
-import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-
-const serif = Lora({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-serif' });
+import { AuthShell, AuthAlert, authInputClass } from '@/components/auth/auth-shell';
 
 function GoogleIcon() {
   return (
@@ -99,127 +95,85 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      className={`${serif.variable} min-h-[100dvh] bg-[#f6f2ea] text-[#1b1815] dark:bg-[#15130f] dark:text-[#f3ede3]`}
+    <AuthShell
+      title="Masuk"
+      subtitle="Lanjutkan ke akunmu."
+      topRight={
+        <Link href="/register" className="hover:underline">
+          Belum punya akun? Daftar
+        </Link>
+      }
     >
-      <div className="mx-auto flex min-h-[100dvh] max-w-[1400px] flex-col px-6 py-6 md:px-10 md:py-8">
-        <div className="flex items-center justify-between text-sm text-[#1b1815]/70 dark:text-[#f3ede3]/70">
-          <Link href="/" className="font-medium tracking-tight">
-            FRKLSTN
-          </Link>
-          <Link href="/register" className="hover:underline">
-            Belum punya akun? Daftar
-          </Link>
+      {errorMsg && <AuthAlert tone="error">{errorMsg}</AuthAlert>}
+      {successMsg && <AuthAlert tone="success">{successMsg}</AuthAlert>}
+
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="relative">
+          <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            disabled={loading}
+            className={`${authInputClass} pl-11 pr-4`}
+          />
         </div>
 
-        <div className="mt-6 grid flex-1 min-h-0 items-center gap-8 md:grid-cols-2 md:gap-12">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto w-full max-w-md rounded-2xl border border-[#1b1815]/10 bg-white/70 p-8 backdrop-blur-sm dark:border-[#f3ede3]/10 dark:bg-white/[0.04] md:rounded-3xl md:p-10"
-          >
-            <h1
-              className="mb-1 text-3xl"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              Masuk
-            </h1>
-            <p className="mb-6 text-sm text-[#1b1815]/60 dark:text-[#f3ede3]/60">
-              Lanjutkan ke akunmu.
-            </p>
-
-            {errorMsg && (
-              <div className="mb-4 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-600 dark:text-rose-300">
-                {errorMsg}
-              </div>
-            )}
-            {successMsg && (
-              <div className="mb-4 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
-                {successMsg}
-              </div>
-            )}
-
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email"
-                  disabled={loading}
-                  className="w-full rounded-xl border border-[#1b1815]/15 bg-white/70 py-3 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-[#1b1815]/35 focus:border-[#1b1815]/40 dark:border-[#f3ede3]/15 dark:bg-white/[0.04] dark:placeholder:text-[#f3ede3]/35 dark:focus:border-[#f3ede3]/40"
-                />
-              </div>
-
-              <div>
-                <div className="relative">
-                  <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Kata sandi"
-                    disabled={loading}
-                    className="w-full rounded-xl border border-[#1b1815]/15 bg-white/70 py-3 pl-11 pr-11 text-sm outline-none transition-colors placeholder:text-[#1b1815]/35 focus:border-[#1b1815]/40 dark:border-[#f3ede3]/15 dark:bg-white/[0.04] dark:placeholder:text-[#f3ede3]/35 dark:focus:border-[#f3ede3]/40"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1b1815]/35 hover:text-[#1b1815]/70 dark:text-[#f3ede3]/35 dark:hover:text-[#f3ede3]/70"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                <div className="mt-2 text-right">
-                  <Link href="/forgot-password" className="text-xs text-[#1b1815]/55 hover:underline dark:text-[#f3ede3]/55">
-                    Lupa sandi?
-                  </Link>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-xl bg-[#1b1815] py-3 text-sm font-medium text-[#f6f2ea] transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-[#f3ede3] dark:text-[#15130f]"
-              >
-                {loading ? 'Memproses...' : 'Masuk'}
-              </button>
-
-              <div className="flex items-center gap-3 py-1 text-xs text-[#1b1815]/40 dark:text-[#f3ede3]/40">
-                <span className="h-px flex-1 bg-[#1b1815]/15 dark:bg-[#f3ede3]/15" />
-                atau
-                <span className="h-px flex-1 bg-[#1b1815]/15 dark:bg-[#f3ede3]/15" />
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: { redirectTo: `${window.location.origin}/auth/callback` },
-                  })
-                }
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#1b1815]/15 bg-white/70 py-3 text-sm font-medium transition-colors hover:bg-white dark:border-[#f3ede3]/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
-              >
-                <GoogleIcon />
-                Lanjutkan dengan Google
-              </button>
-            </form>
-          </motion.div>
-
-          <div className="relative hidden min-h-[320px] overflow-hidden rounded-2xl md:block md:rounded-3xl">
-            <Image
-              src="https://picsum.photos/seed/quiet-stone-warm-light/900/1200"
-              alt="Suasana tenang mengatur keuangan"
-              fill
-              sizes="45vw"
-              className="object-cover"
+        <div>
+          <div className="relative">
+            <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Kata sandi"
+              disabled={loading}
+              className={`${authInputClass} pl-11 pr-11`}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1b1815]/35 hover:text-[#1b1815]/70 dark:text-[#f3ede3]/35 dark:hover:text-[#f3ede3]/70"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+          <div className="mt-2 text-right">
+            <Link href="/forgot-password" className="text-xs text-[#1b1815]/55 hover:underline dark:text-[#f3ede3]/55">
+              Lupa sandi?
+            </Link>
           </div>
         </div>
-      </div>
-    </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl bg-[#1b1815] py-3 text-sm font-medium text-[#f6f2ea] transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-[#f3ede3] dark:text-[#15130f]"
+        >
+          {loading ? 'Memproses...' : 'Masuk'}
+        </button>
+
+        <div className="flex items-center gap-3 py-1 text-xs text-[#1b1815]/40 dark:text-[#f3ede3]/40">
+          <span className="h-px flex-1 bg-[#1b1815]/15 dark:bg-[#f3ede3]/15" />
+          atau
+          <span className="h-px flex-1 bg-[#1b1815]/15 dark:bg-[#f3ede3]/15" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() =>
+            supabase.auth.signInWithOAuth({
+              provider: 'google',
+              options: { redirectTo: `${window.location.origin}/auth/callback` },
+            })
+          }
+          className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#1b1815]/15 bg-white/70 py-3 text-sm font-medium transition-colors hover:bg-white dark:border-[#f3ede3]/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+        >
+          <GoogleIcon />
+          Lanjutkan dengan Google
+        </button>
+      </form>
+    </AuthShell>
   );
 }
