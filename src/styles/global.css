@@ -8,168 +8,129 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/**
+ * Pemetaan utility Tailwind -> palet di tokens.css.
+ *
+ * Semuanya `inline` + var() supaya utility ikut berubah saat .dark aktif.
+ * Tidak ada hex di file ini: satu-satunya tempat hex adalah tokens.css.
+ */
 @theme inline {
-
     --font-heading: var(--font-serif);
 
-    --font-sans: var(--font-sans);
+    /* Aksen & sinyal */
+    --color-primary: var(--primary);
+    --color-primary-dim: var(--primary-dim);
+    --color-primary-hover: var(--primary-hover);
+    --color-success: var(--success);
+    --color-danger: var(--danger);
+    --color-warning: var(--warning);
 
+    /* Teks */
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-muted: var(--text-muted);
+
+    /* Alias warisan (light-… dan dark-…) yang masih dipakai komponen lama.
+       Keduanya menunjuk palet yang sama karena mode gelap sudah ditangani
+       oleh blok .dark di tokens.css. */
+    --color-light-bg: var(--bg-main);
+    --color-light-card: var(--bg-card);
+    --color-light-border: var(--border-line);
+    --color-light-text-primary: var(--text-primary);
+    --color-light-text-secondary: var(--text-secondary);
+    --color-dark-bg: var(--bg-main);
+    --color-dark-card: var(--bg-card);
+    --color-dark-border: var(--border-line);
+    --color-dark-text-primary: var(--text-primary);
+    --color-dark-text-secondary: var(--text-secondary);
+
+    /* Token shadcn (dipakai tabs, toast, button, dsb) */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    --color-sidebar-border: var(--sidebar-border);
-
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-
-    --color-sidebar-accent: var(--sidebar-accent);
-
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-
-    --color-sidebar-primary: var(--sidebar-primary);
-
-    --color-sidebar-foreground: var(--sidebar-foreground);
-
-    --color-sidebar: var(--sidebar);
-
-    --color-chart-5: var(--chart-5);
-
-    --color-chart-4: var(--chart-4);
-
-    --color-chart-3: var(--chart-3);
-
-    --color-chart-2: var(--chart-2);
-
-    --color-chart-1: var(--chart-1);
-
-    --color-ring: var(--ring);
-
-    --color-input: var(--input);
-
-    --color-border: var(--border);
-
-    --color-destructive: var(--destructive);
-
-    --color-accent-foreground: var(--accent-foreground);
-
-    --color-accent: var(--accent);
-
-    --color-muted-foreground: var(--muted-foreground);
-
-    --color-muted: var(--muted);
-
-    --color-secondary-foreground: var(--secondary-foreground);
-
-    --color-secondary: var(--secondary);
-
-    --color-primary-foreground: var(--primary-foreground);
-
-    --color-primary: var(--primary);
-
-    --color-popover-foreground: var(--popover-foreground);
-
-    --color-popover: var(--popover);
-
-    --color-card-foreground: var(--card-foreground);
-
-    --color-card: var(--card);
-
-    --color-foreground: var(--foreground);
-
-    --color-background: var(--background);
-
     --radius-sm: calc(var(--radius) * 0.6);
-
     --radius-md: calc(var(--radius) * 0.8);
-
     --radius-lg: var(--radius);
-
     --radius-xl: calc(var(--radius) * 1.4);
-
     --radius-2xl: calc(var(--radius) * 1.8);
-
     --radius-3xl: calc(var(--radius) * 2.2);
-
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Nama shadcn -> palet. Sekali saja; mode gelap ikut .dark di tokens.css. */
 :root {
-    --background: #f6f2ea;
-    --foreground: #1b1815;
-    --card: #fffdf8;
-    --card-foreground: #1b1815;
-    --popover: #fffdf8;
-    --popover-foreground: #1b1815;
-    --primary: #a8532f;
-    --primary-foreground: #fffdf8;
-    --secondary: #efe8da;
-    --secondary-foreground: #1b1815;
-    --muted: #efe8da;
-    --muted-foreground: #6b6156;
-    --accent: #efe8da;
-    --accent-foreground: #1b1815;
-    --destructive: #e11d48;
-    --border: rgba(27, 24, 21, 0.12);
-    --input: rgba(27, 24, 21, 0.12);
-    --ring: #a8532f;
-    --chart-1: #a8532f;
-    --chart-2: #0e7490;
-    --chart-3: #b45309;
-    --chart-4: #e11d48;
-    --chart-5: #6b6156;
+    --background: var(--bg-main);
+    --foreground: var(--text-primary);
+    --card: var(--bg-card);
+    --card-foreground: var(--text-primary);
+    --popover: var(--bg-card);
+    --popover-foreground: var(--text-primary);
+    --primary-foreground: var(--bg-card);
+    --secondary: var(--bg-surface);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--bg-surface);
+    --muted-foreground: var(--text-secondary);
+    --accent: var(--bg-surface);
+    --accent-foreground: var(--text-primary);
+    --destructive: var(--danger);
+    --destructive-foreground: var(--bg-card);
+    --border: var(--border-line);
+    --input: var(--border-line);
+    --ring: var(--primary);
+
+    --chart-1: var(--primary);
+    --chart-2: var(--primary-dim);
+    --chart-3: var(--warning);
+    --chart-4: var(--danger);
+    --chart-5: var(--text-secondary);
+
     --radius: 0.75rem;
-    --sidebar: #f6f2ea;
-    --sidebar-foreground: #1b1815;
-    --sidebar-primary: #a8532f;
-    --sidebar-primary-foreground: #fffdf8;
-    --sidebar-accent: #efe8da;
-    --sidebar-accent-foreground: #1b1815;
-    --sidebar-border: rgba(27, 24, 21, 0.12);
-    --sidebar-ring: #a8532f;
+
+    --sidebar: var(--bg-sidebar);
+    --sidebar-foreground: var(--text-primary);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--bg-card);
+    --sidebar-accent: var(--bg-surface);
+    --sidebar-accent-foreground: var(--text-primary);
+    --sidebar-border: var(--border-line);
+    --sidebar-ring: var(--primary);
 }
-
-.dark {
-    --background: #15130f;
-    --foreground: #f3ede3;
-    --card: #1c1a15;
-    --card-foreground: #f3ede3;
-    --popover: #1c1a15;
-    --popover-foreground: #f3ede3;
-    --primary: #e2916a;
-    --primary-foreground: #15130f;
-    --secondary: #211e18;
-    --secondary-foreground: #f3ede3;
-    --muted: #211e18;
-    --muted-foreground: #b8ae9c;
-    --accent: #211e18;
-    --accent-foreground: #f3ede3;
-    --destructive: #fb7185;
-    --destructive-foreground: #15130f;
-    --border: rgba(243, 237, 227, 0.12);
-    --input: rgba(243, 237, 227, 0.12);
-    --ring: #e2916a;
-    --radius: 0.75rem;
-    --sidebar: #15130f;
-    --sidebar-foreground: #f3ede3;
-    --sidebar-primary: #e2916a;
-    --sidebar-primary-foreground: #15130f;
-    --sidebar-accent: #211e18;
-    --sidebar-accent-foreground: #f3ede3;
-    --sidebar-border: rgba(243, 237, 227, 0.12);
-    --sidebar-ring: #e2916a;
-
-    /* Glassmorphism Tokens */
-    --glass-bg: rgba(28, 26, 21, 0.85);
-    --glass-border: rgba(243, 237, 227, 0.10);
-    --glass-blur: blur(12px);
-}
-
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
     }
   body {
-  background-color: var(--nexus-bg-main) !important;
-  color: var(--nexus-text-primary);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }

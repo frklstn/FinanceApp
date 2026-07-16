@@ -1,46 +1,18 @@
+/**
+ * SUMBER TUNGGAL PALET.
+ *
+ * Hex hanya boleh ditulis di file ini. Dua lapis di atasnya cuma memetakan:
+ *   - global.css @theme inline  -> utility Tailwind (bg-primary, text-danger, ...)
+ *   - nexus-theme/tokens.css    -> alias --nexus-* yang dipakai komponen lama
+ * Sebelumnya tiap hex ditulis ulang di ketiga file, dan --primary di-set ganda
+ * di tokens.css + global.css sehingga yang dimuat terakhir diam-diam menang.
+ */
+
 @theme {
-  --color-primary: #a8532f;
-  --color-primary-dim: #8a4526;
-  --color-primary-hover: #c2693f;
+  /* Font: dimuat oleh next/font di src/app/layout.tsx. */
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
 
-  --color-success: #a8532f;
-  --color-danger: #F43F5E;
-  --color-warning: #F59E0B;
-  --color-info: #3B82F6;
-
-  --color-surface-1: #09090B;
-  --color-surface-2: #18181B;
-  --color-surface-3: #27272A;
-  --color-surface-4: #3F3F46;
-
-  --color-text-primary: var(--nexus-text-primary);
-  --color-text-secondary: var(--nexus-text-secondary);
-  --color-text-muted: var(--nexus-text-muted);
-
-  /* Compatibility aliases */
-  --color-light-bg: var(--nexus-bg-main);
-  --color-light-card: var(--nexus-bg-card);
-  --color-light-border: var(--nexus-glass-border);
-  --color-light-text-primary: var(--nexus-text-primary);
-  --color-light-text-secondary: var(--nexus-text-secondary);
-
-  --color-dark-bg: var(--nexus-bg-main);
-  --color-dark-card: var(--nexus-bg-card);
-  --color-dark-border: var(--nexus-glass-border);
-  --color-dark-text-primary: var(--nexus-text-primary);
-  --color-dark-text-secondary: var(--nexus-text-secondary);
-
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
-  --radius-2xl: 32px;
-  --radius-3xl: 40px;
-
-  /* Impeccable Animations */
   --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
   --animate-scale-up: scale-up 0.4s var(--ease-premium) forwards;
 
@@ -57,14 +29,19 @@
 }
 
 :root {
-  /* Light Mode Colors - cream, selaras landing page */
+  /* Permukaan - cream, selaras landing page */
   --bg-main: #f6f2ea;
   --bg-sidebar: #f6f2ea;
   --bg-card: #fffdf8;
   --bg-surface: #efe8da;
 
+  /* Aksen tunggal: terracotta. Tidak ada warna merek kedua. */
   --primary: #a8532f;
+  --primary-dim: #8a4526;
+  --primary-hover: #c2693f;
   --primary-glow: rgba(168, 83, 47, 0.15);
+
+  /* Sinyal. success = aksen (hijau sudah dibuang dari palet). */
   --success: #a8532f;
   --danger: #e11d48;
   --warning: #b45309;
@@ -73,34 +50,32 @@
   --text-secondary: #6b6156;
   --text-muted: #948a7c;
 
-  --shadow-premium: 0 10px 30px rgba(27, 24, 21, 0.06);
-  --shadow-neon: 0 8px 24px rgba(168, 83, 47, 0.15);
+  --border-line: rgba(27, 24, 21, 0.10);
 
-  /* Glass Effects (Light Mode) */
+  --shadow-premium: 0 10px 30px rgba(27, 24, 21, 0.06);
+
   --glass-bg: rgba(255, 253, 248, 0.7);
   --glass-border: rgba(27, 24, 21, 0.10);
   --glass-blur: blur(12px);
 
-  /* Premium Gradients (Light Mode) */
-  --grad-primary: linear-gradient(135deg, #a8532f 0%, #c2693f 100%);
-  --grad-surface: linear-gradient(180deg, rgba(27,24,21,0.02) 0%, rgba(27,24,21,0) 100%);
-  --grad-dark: linear-gradient(180deg, #fffdf8 0%, #f6f2ea 100%);
+  --grad-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
 
-  /* Impeccable Typography (Static) */
   --tracking-tightest: -0.05em;
   --tracking-tighter: -0.02em;
   --tracking-wide: 0.05em;
 }
 
 .dark {
-  /* Dark Mode Colors */
   --bg-main: #15130f;
   --bg-sidebar: #15130f;
   --bg-card: #1c1a15;
   --bg-surface: #211e18;
 
   --primary: #e2916a;
+  --primary-dim: #c2693f;
+  --primary-hover: #eda684;
   --primary-glow: rgba(226, 145, 106, 0.2);
+
   --success: #e2916a;
   --danger: #fb7185;
   --warning: #f0b429;
@@ -109,16 +84,11 @@
   --text-secondary: #b8ae9c;
   --text-muted: #8a8071;
 
-  --shadow-premium: 0 30px 60px rgba(0, 0, 0, 0.45);
-  --shadow-neon: 0 8px 24px rgba(226, 145, 106, 0.18);
+  --border-line: rgba(243, 237, 227, 0.10);
 
-  /* Glass Effects (Dark Mode) */
+  --shadow-premium: 0 30px 60px rgba(0, 0, 0, 0.45);
+
   --glass-bg: rgba(28, 26, 21, 0.85);
   --glass-border: rgba(243, 237, 227, 0.10);
   --glass-blur: blur(12px);
-
-  /* Premium Gradients (Dark Mode) */
-  --grad-primary: linear-gradient(135deg, #e2916a 0%, #c2693f 100%);
-  --grad-surface: linear-gradient(180deg, rgba(243,237,227,0.05) 0%, rgba(243,237,227,0) 100%);
-  --grad-dark: linear-gradient(180deg, #1c1a15 0%, #15130f 100%);
 }

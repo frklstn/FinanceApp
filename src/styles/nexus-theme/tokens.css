@@ -1,60 +1,37 @@
+/**
+ * Alias --nexus-* -> palet di tokens.css.
+ *
+ * Nama "nexus" adalah warisan tema lama dan masih dipakai ~20 file komponen,
+ * jadi dipertahankan agar diff tetap kecil. TIDAK ADA hex di sini: kalau warna
+ * perlu berubah, ubah tokens.css. Karena semuanya alias, mode gelap ikut
+ * otomatis dari .dark di tokens.css -- tidak perlu blok .dark kedua.
+ */
+
 :root {
-  /* Core Backgrounds (Light Mode) - cream, selaras landing page */
-  --nexus-bg-main: #f6f2ea;
-  --nexus-bg-sidebar: #f6f2ea;
-  --nexus-bg-card: #fffdf8;
-  --nexus-bg-panel: #efe8da;
-  --nexus-bg-popup: rgba(255, 253, 248, 0.98);
+  --nexus-bg-main: var(--bg-main);
+  --nexus-bg-sidebar: var(--bg-sidebar);
+  --nexus-bg-card: var(--bg-card);
+  --nexus-bg-panel: var(--bg-surface);
+  --nexus-bg-popup: var(--bg-card);
 
-  /* Brand Accent - Terracotta (Light Mode) */
-  --nexus-emerald: #a8532f;
-  --nexus-emerald-glow: rgba(168, 83, 47, 0.10);
-  --nexus-emerald-border: rgba(168, 83, 47, 0.26);
-  --nexus-success: #a8532f;
-  --nexus-danger: #e11d48;
-  --nexus-warning: #b45309;
+  /* "emerald" = nama warisan, isinya aksen terracotta. */
+  --nexus-emerald: var(--primary);
+  --nexus-emerald-glow: var(--primary-glow);
+  --nexus-emerald-border: color-mix(in srgb, var(--primary) 26%, transparent);
+  --nexus-success: var(--success);
+  --nexus-danger: var(--danger);
+  --nexus-warning: var(--warning);
 
-  /* Typography (Light Mode) */
-  --nexus-text-primary: #1b1815;
-  --nexus-text-secondary: #6b6156;
-  --nexus-text-muted: #948a7c;
-  --nexus-text-emerald: #a8532f;
+  --nexus-text-primary: var(--text-primary);
+  --nexus-text-secondary: var(--text-secondary);
+  --nexus-text-muted: var(--text-muted);
+  --nexus-text-emerald: var(--primary);
 
-  /* Surface & Depth (Light Mode) */
-  --nexus-glass-bg: rgba(255, 253, 248, 0.7);
-  --nexus-glass-border: rgba(27, 24, 21, 0.10);
-  --nexus-glass-blur: blur(12px);
+  --nexus-glass-bg: var(--glass-bg);
+  --nexus-glass-border: var(--border-line);
+  --nexus-glass-blur: var(--glass-blur);
 
-  /* Spacing & Radius (Static) */
   --nexus-radius-main: 24px;
   --nexus-radius-inner: 16px;
   --nexus-padding-page: 2.5rem;
-}
-
-.dark {
-  /* Core Backgrounds (Dark Mode) */
-  --nexus-bg-main: #15130f;
-  --nexus-bg-sidebar: #15130f;
-  --nexus-bg-card: #1c1a15;
-  --nexus-bg-panel: #211e18;
-  --nexus-bg-popup: rgba(28, 26, 21, 0.98);
-
-  /* Brand Accent - Terracotta (Dark Mode) */
-  --nexus-emerald: #e2916a;
-  --nexus-emerald-glow: rgba(226, 145, 106, 0.14);
-  --nexus-emerald-border: rgba(226, 145, 106, 0.28);
-  --nexus-success: #e2916a;
-  --nexus-danger: #fb7185;
-  --nexus-warning: #f0b429;
-
-  /* Typography (Dark Mode) */
-  --nexus-text-primary: #f3ede3;
-  --nexus-text-secondary: #b8ae9c;
-  --nexus-text-muted: #8a8071;
-  --nexus-text-emerald: #e2916a;
-
-  /* Surface & Depth (Dark Mode) */
-  --nexus-glass-bg: rgba(28, 26, 21, 0.85);
-  --nexus-glass-border: rgba(243, 237, 227, 0.10);
-  --nexus-glass-blur: blur(12px);
 }

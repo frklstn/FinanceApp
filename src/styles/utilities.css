@@ -13,9 +13,10 @@
   }
 }
 
-/* Skeleton loading. */
+/* Skeleton loading. Sebelumnya merujuk --border-color dan --bg-primary yang
+   tidak pernah didefinisikan, jadi gradiennya transparan (animasi tak terlihat). */
 .shimmer {
-  background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-primary) 50%, var(--border-color) 75%);
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-card) 50%, var(--bg-surface) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
 }

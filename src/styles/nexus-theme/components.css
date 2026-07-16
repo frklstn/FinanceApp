@@ -1,11 +1,7 @@
 @import "./tokens.css";
 
-@layer base {
-  body {
-    background-color: var(--nexus-bg-main) !important;
-    color: var(--nexus-text-primary);
-  }
-}
+/* Warna body diatur sekali di global.css. Aturan body di sini sebelumnya
+   menduplikasinya dengan !important. */
 
 @layer components {
   .nexus-card {
@@ -42,6 +38,6 @@
   }
 
   .nexus-btn-emerald:hover {
-    background-color: var(--color-primary-hover);
+    background-color: var(--primary-hover);
   }
 }
