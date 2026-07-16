@@ -50,14 +50,16 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Lupa sandi"
-      subtitle="Kirim tautan pemulihan ke emailmu."
-      imageSeed="soft-tones-still-life"
+      topRight={
+        <Link href="/register" className="hover:underline">
+          Belum punya akun? Daftar
+        </Link>
+      }
     >
       {errorMsg && <AuthAlert tone="error">{errorMsg}</AuthAlert>}
       {successMsg && <AuthAlert tone="success">{successMsg}</AuthAlert>}
 
-      <form onSubmit={handleResetRequest} className="space-y-4">
+      <form onSubmit={handleResetRequest} className="space-y-3">
         <div className="relative">
           <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input

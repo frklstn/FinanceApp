@@ -2,13 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Lora } from 'next/font/google';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const serif = Lora({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-serif' });
 
-// Kelas input bersama untuk semua form auth (gaya cream/dark baru).
+// Kelas input bersama untuk semua form auth (gaya cream/dark).
 export const authInputClass =
   'w-full rounded-xl border border-[#1b1815]/15 bg-white/70 py-3 text-sm outline-none transition-colors placeholder:text-[#1b1815]/35 focus:border-[#1b1815]/40 dark:border-[#f3ede3]/15 dark:bg-white/[0.04] dark:placeholder:text-[#f3ede3]/35 dark:focus:border-[#f3ede3]/40';
 
@@ -17,21 +16,47 @@ export function AuthAlert({ tone, children }: { tone: 'error' | 'success'; child
     tone === 'error'
       ? 'border-rose-500/25 bg-rose-500/10 text-rose-600 dark:text-rose-300'
       : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300';
-  return <div className={`mb-4 rounded-xl border px-4 py-3 text-sm ${cls}`}>{children}</div>;
+  return <div className={`rounded-xl border px-4 py-3 text-sm ${cls}`}>{children}</div>;
+}
+
+// Mark arus kas animasi, gantikan foto stok yang tidak relevan dengan produk finansial.
+function FlowMark() {
+  const reduce = useReducedMotion();
+  return (
+    <div className="relative hidden min-h-[320px] items-center justify-center overflow-hidden rounded-2xl bg-[#1b1815]/[0.035] dark:bg-white/[0.03] md:flex md:rounded-3xl">
+      <motion.div
+        className="absolute h-[65%] w-[65%] rounded-full bg-emerald-500/15 blur-3xl"
+        animate={reduce ? undefined : { scale: [1, 1.12, 1], opacity: [0.45, 0.75, 0.45] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.svg
+        viewBox="0 0 200 200"
+        className="relative h-40 w-40 md:h-56 md:w-56"
+        animate={reduce ? undefined : { scale: [1, 1.04, 1] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <motion.path
+          d="M32 128 Q 70 55 100 100 T 168 62"
+          fill="none"
+          strokeWidth="9"
+          strokeLinecap="round"
+          className="stroke-emerald-600 dark:stroke-emerald-400"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+        />
+        <circle cx="168" cy="62" r="9" className="fill-emerald-600 dark:fill-emerald-400" />
+      </motion.svg>
+    </div>
+  );
 }
 
 export function AuthShell({
-  title,
-  subtitle,
   topRight,
   children,
-  imageSeed = 'quiet-stone-warm-light',
 }: {
-  title: string;
-  subtitle: string;
   topRight?: React.ReactNode;
   children: React.ReactNode;
-  imageSeed?: string;
 }) {
   return (
     <div
@@ -46,28 +71,27 @@ export function AuthShell({
         </div>
 
         <div className="mt-6 grid flex-1 min-h-0 items-center gap-8 md:grid-cols-2 md:gap-12">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto w-full max-w-md rounded-2xl border border-[#1b1815]/10 bg-white/70 p-8 backdrop-blur-sm dark:border-[#f3ede3]/10 dark:bg-white/[0.04] md:rounded-3xl md:p-10"
-          >
-            <h1 className="mb-1 text-3xl" style={{ fontFamily: 'var(--font-serif)' }}>
-              {title}
+          <div className="flex flex-col justify-center gap-6 py-10 md:py-0 md:pr-10">
+            <h1
+              className="text-4xl leading-[1.1] md:text-5xl lg:text-6xl"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              Kendalikan
+              <br />
+              arus kas,
+              <br />
+              bebas pinjol.
             </h1>
-            <p className="mb-6 text-sm text-[#1b1815]/60 dark:text-[#f3ede3]/60">{subtitle}</p>
-            {children}
-          </motion.div>
 
-          <div className="relative hidden min-h-[320px] overflow-hidden rounded-2xl md:block md:rounded-3xl">
-            <Image
-              src={`https://picsum.photos/seed/${imageSeed}/900/1200`}
-              alt="Suasana tenang mengatur keuangan"
-              fill
-              sizes="45vw"
-              className="object-cover"
-            />
+            <p className="max-w-[34ch] text-sm leading-relaxed text-[#1b1815]/60 md:text-base dark:text-[#f3ede3]/60">
+              Catat transaksi, atur anggaran, dan pantau cicilan pinjaman online lewat Survival
+              Score yang selaras dengan gajianmu.
+            </p>
+
+            <div className="max-w-sm space-y-3">{children}</div>
           </div>
+
+          <FlowMark />
         </div>
       </div>
     </div>

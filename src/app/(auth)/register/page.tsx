@@ -87,9 +87,6 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      title="Buat akun"
-      subtitle="Mulai kelola keuanganmu."
-      imageSeed="calm-warm-morning-light"
       topRight={
         <Link href="/login" className="hover:underline">
           Sudah punya akun? Masuk
@@ -99,7 +96,7 @@ export default function RegisterPage() {
       {errorMsg && <AuthAlert tone="error">{errorMsg}</AuthAlert>}
       {successMsg && <AuthAlert tone="success">{successMsg}</AuthAlert>}
 
-      <form onSubmit={handleRegister} className="space-y-4">
+      <form onSubmit={handleRegister} className="space-y-3">
         <div className="relative">
           <User className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input

@@ -80,9 +80,12 @@ export default function ResetPasswordPage() {
 
   if (checking) {
     return (
-      <AuthShell title="Sebentar" subtitle="Memverifikasi tautan pemulihan...">
-        <div className="flex min-h-[120px] items-center justify-center">
-          <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#1b1815]/20 border-t-[#1b1815] dark:border-[#f3ede3]/20 dark:border-t-[#f3ede3]" />
+      <AuthShell>
+        <p className="text-sm text-[#1b1815]/60 dark:text-[#f3ede3]/60">
+          Memverifikasi tautan pemulihan...
+        </p>
+        <div className="flex min-h-[80px] items-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1b1815]/20 border-t-[#1b1815] dark:border-[#f3ede3]/20 dark:border-t-[#f3ede3]" />
         </div>
       </AuthShell>
     );
@@ -97,15 +100,11 @@ export default function ResetPasswordPage() {
   const strengthColors = ['bg-rose-500', 'bg-amber-500', 'bg-sky-500', 'bg-emerald-500'];
 
   return (
-    <AuthShell
-      title="Sandi baru"
-      subtitle="Pilih kata sandi baru yang kuat."
-      imageSeed="quiet-stone-warm-light"
-    >
+    <AuthShell>
       {errorMsg && <AuthAlert tone="error">{errorMsg}</AuthAlert>}
       {successMsg && <AuthAlert tone="success">{successMsg}</AuthAlert>}
 
-      <form onSubmit={handleResetPassword} className="space-y-4">
+      <form onSubmit={handleResetPassword} className="space-y-3">
         <div className="relative">
           <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input
