@@ -64,7 +64,7 @@ export const enTranslations = {
   "dashboard.chart.trendsTitle": "Daily Spending Trends",
   "dashboard.chart.trendsPeriod": "Last 7 Days",
   "dashboard.chart.categoriesTitle": "Category Breakdown",
-  "dashboard.chart.noExpense": "No expenses recorded yet.",
+  "dashboard.chart.noExpense": "No expenses in this period.",
   "dashboard.chart.expandedPie": "Spending Category Breakdown Detail",
   "dashboard.chart.breakdownTitle": "Detailed Category Expenses",
   "dashboard.chart.historyTitle": "Daily Spending History",
@@ -73,13 +73,16 @@ export const enTranslations = {
   "dashboard.insights.title": "Smart Financial Analysis",
   "dashboard.insights.empty": "All safe! No financial alerts detected this cycle.",
   "dashboard.insights.recentActivity": "Recent Financial Activity",
-  "dashboard.insights.noRecent": "No recent transactions.",
+  "dashboard.insights.noRecent": "No transactions in this period.",
 
   // Date Filters
   "common.today": "Today",
   "common.thisWeek": "This Week",
   "common.thisMonth": "This Month",
   "common.last3Months": "Last 3 Months",
+  "common.customRange": "Pick dates",
+  "common.from": "From",
+  "common.to": "To",
 
   // Dashboard status messages
   "dashboard.status.loading": "Loading financial analysis...",

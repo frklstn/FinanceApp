@@ -17,6 +17,7 @@ import { Wallet, TrendingUp, TrendingDown, PiggyBank, Bell, ArrowRight, AlertTri
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import NumberTicker from '@/components/ui/number-ticker';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { QuickAddModal } from '@/components/finance/transaction/QuickAdd';
@@ -49,9 +50,12 @@ export default function DashboardPage() {
   });
 
   const [recentTxs, setRecentTxs] = useState<PopulatedTransaction[]>([]);
+  /** 4 kategori pengeluaran terbesar pada periode terpilih. */
+  const [categoryBreakdown, setCategoryBreakdown] = useState<{ name: string; amount: number; share: number }[]>([]);
   const [chartData, setChartData] = useState<{ date: string; amount: number }[]>([]);
   const [dateFilter, setDateFilter] = useState('thisMonth');
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
   const [financialStatusText, setFinancialStatusText] = useState(t('dashboard.status.loading', 'Memuat analisis finansial...'));
   const [quickAdd, setQuickAdd] = useState<{ open: boolean; type: 'income' | 'expense' | 'transfer' }>({
     open: false,
@@ -62,10 +66,15 @@ export default function DashboardPage() {
 
   const loadDashboardData = useCallback(async () => {
     if (!accountId) return;
+    // Rentang kustom belum lengkap: tahan dulu, jangan query dengan tanggal kosong.
+    if (dateFilter === 'custom' && (!customStart || !customEnd)) return;
     try {
       const now = new Date();
       const startDate = new Date();
       const widerStartDate = new Date();
+      // Batas akhir periode. Selain rentang kustom, periode selalu berakhir
+      // sekarang.
+      let endDate = now;
 
       type BucketMode = 'hour' | 'day' | 'weekday' | 'month';
       let bucketMode: BucketMode = 'day';
@@ -89,6 +98,17 @@ export default function DashboardPage() {
           widerStartDate.setTime(subMonths(startDate, 3).getTime());
           break;
         }
+        case 'custom': {
+          // DatePicker mengirim YYYY-MM-DD tanpa jam; tanggal akhir dijadikan
+          // akhir hari supaya transaksi pada tanggal itu ikut terhitung.
+          startDate.setTime(startOfDay(new Date(customStart)).getTime());
+          endDate = new Date(`${customEnd}T23:59:59.999`);
+          const spanDays = (endDate.getTime() - startDate.getTime()) / 86_400_000;
+          bucketMode = spanDays > 92 ? 'month' : 'day';
+          // Periode pembanding: rentang sepanjang periode terpilih, tepat sebelumnya.
+          widerStartDate.setTime(startDate.getTime() - (endDate.getTime() - startDate.getTime()));
+          break;
+        }
         case 'thisMonth':
         default: {
           startDate.setTime(startOfMonth(now).getTime());
@@ -100,10 +120,11 @@ export default function DashboardPage() {
 
       const { data: allTxs } = await transactionService.getTransactions(accountId, {
         startDate: widerStartDate.toISOString(),
+        endDate: endDate.toISOString(),
         limit: 2000,
       });
 
-      const txs = allTxs.filter(tx => new Date(tx.date) >= startDate);
+      const txs = allTxs.filter(tx => new Date(tx.date) >= startDate && new Date(tx.date) <= endDate);
       const prevTxs = allTxs.filter(tx => new Date(tx.date) >= widerStartDate && new Date(tx.date) < startDate);
 
       const [insightData, wallets, trackers, suggestions] = await Promise.all([
@@ -197,6 +218,27 @@ export default function DashboardPage() {
 
       setRecentTxs(txs.slice(0, 6));
 
+      // Rincian kategori dihitung dari transaksi periode ini. Sebelumnya kartu
+      // ini menampilkan angka hardcoded (65% / Rp4.8jt / dst) yang tidak ada
+      // hubungannya dengan data pengguna.
+      const catTotals = new Map<string, number>();
+      txs.forEach((tx) => {
+        if (tx.type !== 'expense') return;
+        const name = tx.categories?.name || t('dashboard.categories.others', 'Lainnya');
+        catTotals.set(name, (catTotals.get(name) || 0) + Number(tx.amount));
+      });
+      const totalExpense = [...catTotals.values()].reduce((sum, v) => sum + v, 0);
+      setCategoryBreakdown(
+        [...catTotals.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 4)
+          .map(([name, amount]) => ({
+            name,
+            amount,
+            share: totalExpense > 0 ? Math.round((amount / totalExpense) * 100) : 0,
+          }))
+      );
+
       const HARI = language === 'en'
         ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
         : ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -266,7 +308,7 @@ export default function DashboardPage() {
     } catch {
       toast(t('dashboard.error.loadFailed', 'Terjadi kesalahan saat memuat data dashboard.'), 'danger');
     }
-  }, [accountId, dateFilter, toast, language, t]);
+  }, [accountId, dateFilter, customStart, customEnd, toast, language, t]);
 
   const handleApplyOptimization = async (suggestion: OptimizationSuggestion) => {
     if (!accountId) return;
@@ -320,81 +362,19 @@ export default function DashboardPage() {
                 { value: 'thisWeek', label: t('common.thisWeek', 'Minggu Ini') },
                 { value: 'thisMonth', label: t('common.thisMonth', 'Bulan Ini') },
                 { value: 'last3Months', label: t('common.last3Months', '3 Bulan Terakhir') },
+                { value: 'custom', label: t('common.customRange', 'Pilih tanggal') },
               ]}
               className="min-w-[180px]"
             />
           </div>
 
-          <div className="flex items-center gap-2.5">
-            <div className="relative">
-              <button
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="p-3.5 rounded-2xl bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] text-[var(--nexus-text-primary)] hover:border-[var(--nexus-emerald-border)] transition-colors relative cursor-pointer"
-              >
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-3 right-3 w-2 h-2 bg-[var(--nexus-emerald)] rounded-full" />
-              </button>
-
-              <AnimatePresence>
-                {isNotificationsOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-20"
-                      onClick={() => setIsNotificationsOpen(false)}
-                    />
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-80 p-6 rounded-3xl bg-[var(--nexus-bg-popup)] border border-[var(--nexus-glass-border)] shadow-2xl z-30"
-                    >
-                      <div className="flex items-center justify-between mb-6">
-                        <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">
-                          {t('dashboard.notifications', 'Notifikasi')}
-                        </h4>
-                        <span className="text-[10px] font-medium text-[var(--nexus-text-emerald)] bg-[var(--nexus-emerald-glow)] px-2 py-1 rounded-md">
-                          {t('dashboard.notifications.new', 'Baru')}
-                        </span>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
-                          <p className="text-xs font-semibold text-[var(--nexus-text-primary)]">
-                            {t('dashboard.notifications.statusInsight', 'Status kesehatan')}
-                          </p>
-                          <p className="text-xs text-[var(--nexus-text-secondary)] leading-relaxed">
-                            {financialStats.score >= 80 ? t('dashboard.notifications.scoreOptimal', 'Kesehatan finansial optimal. Pertahankan rasio tabungan.') :
-                             financialStats.score >= 50 ? t('dashboard.notifications.scoreStable', 'Kondisi stabil namun perlu waspada pengeluaran impulsif.') :
-                             t('dashboard.notifications.scoreCritical', 'Peringatan: arus kas kritis, segera audit pengeluaran.')}
-                          </p>
-                        </div>
-
-                        {financialStats.activeLoansCount > 0 && (
-                          <button
-                            onClick={() => { setIsNotificationsOpen(false); router.push('/finance/pinjol'); }}
-                            className="w-full p-4 rounded-2xl bg-rose-500/5 border border-rose-500/20 text-left hover:bg-rose-500/10 transition-colors group"
-                          >
-                            <div className="flex justify-between items-start mb-1">
-                              <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">
-                                {t('dashboard.notifications.debtWarning', 'Peringatan utang')}
-                              </p>
-                              <ArrowRight className="w-3 h-3 text-rose-600 dark:text-rose-400 group-hover:translate-x-1 transition-transform" />
-                            </div>
-                            <p className="text-xs text-rose-600/70 dark:text-rose-400/70 leading-relaxed">
-                              {t('dashboard.notifications.debtWarningDesc', 'Ada {count} tagihan aktif. Klik untuk kelola pelunasan.').replace('{count}', String(financialStats.activeLoansCount))}
-                            </p>
-                          </button>
-                        )}
-
-                        <button onClick={() => setIsNotificationsOpen(false)} className="w-full py-2.5 text-xs font-medium text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] transition-colors">
-                          {t('common.close', 'Tutup')}
-                        </button>
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
+          {dateFilter === 'custom' && (
+            <div className="flex items-center gap-2">
+              <DatePicker value={customStart} onChange={setCustomStart} placeholder={t('common.from', 'Dari')} className="min-w-[150px]" />
+              <DatePicker value={customEnd} onChange={setCustomEnd} placeholder={t('common.to', 'Sampai')} className="min-w-[150px]" />
             </div>
-          </div>
+          )}
+
           </>
         }
       />
@@ -422,8 +402,8 @@ export default function DashboardPage() {
       </section>
 
       {/* Main Analysis Section */}
-      <section className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        <Card className="xl:col-span-3 p-6">
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <Card className="md:col-span-2 p-6">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-heading text-base font-semibold text-[var(--nexus-text-primary)] flex items-center gap-2.5">
               <Zap className="w-4 h-4 text-[var(--nexus-text-emerald)]" /> {t('dashboard.chart.expenseTrendsTitle', 'Grafik pengeluaran')}
@@ -490,89 +470,6 @@ export default function DashboardPage() {
           </Button>
         </Card>
 
-        {/* AI Budget Optimizer Widget */}
-        <div className="xl:col-span-1">
-          <BudgetOptimizerWidget 
-            suggestions={optimizerSuggestions} 
-            onApply={handleApplyOptimization}
-          />
-        </div>
-      </section>
-
-
-
-      <div className="py-4" /> {/* Compact spacer between above-the-fold and below-the-fold content */}
-
-      {/* Bottom Grid: Analysis + Activity + Debt */}
-      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {/* Widget 1: Tren Kategori */}
-        <Card className="p-6 flex flex-col h-full gap-4">
-          <CardHeader className="pb-0">
-            <CardTitle>{t('dashboard.chart.categoriesTitle', 'Tren kategori')}</CardTitle>
-            <CardDescription>{t('dashboard.chart.categoriesDesc', 'Alokasi pengeluaran')}</CardDescription>
-          </CardHeader>
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-end">
-              <span className="text-xs text-[var(--nexus-text-secondary)]">
-                {t('dashboard.metrics.fundAllocation', 'Alokasi dana')}
-              </span>
-              <span className="text-lg font-semibold text-[var(--nexus-text-emerald)]">65% <span className="text-xs font-normal text-[var(--nexus-text-muted)]">{t('dashboard.metrics.efficient', 'efisien')}</span></span>
-            </div>
-            <div className="h-4 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden flex p-0.5 border border-[var(--nexus-glass-border)]">
-              <div className="h-full bg-[var(--nexus-emerald)] rounded-full" style={{ width: '65%' }} />
-              <div className="h-full bg-rose-500/70 rounded-full mx-0.5" style={{ width: '25%' }} />
-              <div className="h-full bg-amber-500/70 rounded-full" style={{ width: '10%' }} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 flex-1">
-            {[
-              { label: t('dashboard.categories.needs', 'Kebutuhan'), value: 'Rp4.8jt', color: 'text-[var(--nexus-text-emerald)]' },
-              { label: t('dashboard.categories.installments', 'Cicilan'), value: 'Rp1.2jt', color: 'text-rose-600 dark:text-rose-400' },
-              { label: t('dashboard.categories.savings', 'Tabungan'), value: 'Rp800rb', color: 'text-amber-600 dark:text-amber-400' },
-              { label: t('dashboard.categories.others', 'Lainnya'), value: 'Rp450rb', color: 'text-[var(--nexus-text-secondary)]' },
-            ].map((cat) => (
-              <div key={cat.label} className="p-3.5 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] flex flex-col justify-center">
-                <p className="text-[10px] text-[var(--nexus-text-secondary)]">{cat.label}</p>
-                <p className={`text-sm font-semibold ${cat.color}`}>{cat.value}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-6 flex flex-col h-full justify-between gap-4">
-          <CardHeader className="pb-0">
-            <CardTitle>{t('dashboard.insights.recentActivity', 'Aktivitas terbaru')}</CardTitle>
-            <CardDescription>{t('dashboard.insights.recentActivityDesc', '3 transaksi terakhir')}</CardDescription>
-          </CardHeader>
-          <div className="space-y-3">
-            {recentTxs.slice(0, 3).map((tx) => (
-              <button
-                key={tx.id}
-                onClick={() => router.push(`/finance/transactions?id=${tx.id}`)}
-                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] hover:border-[var(--nexus-emerald-border)] transition-colors cursor-pointer text-left"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tx.type === 'income' ? 'bg-[var(--nexus-success)]/10 text-[var(--nexus-success)]' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
-                    {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                  </div>
-                  <span className="text-xs font-medium text-[var(--nexus-text-primary)] truncate">{tx.note || '-'}</span>
-                </div>
-                <span className={`text-xs font-semibold shrink-0 ${tx.type === 'income' ? 'text-[var(--nexus-success)]' : 'text-rose-600 dark:text-rose-400'}`}>
-                  {tx.type === 'income' ? '+' : '-'}{formatCurrency(Number(tx.amount))}
-                </span>
-              </button>
-            ))}
-          </div>
-          <Button
-            variant="ghost"
-            className="w-full text-xs text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)]"
-            onClick={() => router.push('/finance/transactions')}
-          >
-            {t('dashboard.actions.viewAll', 'Lihat semua transaksi')}
-          </Button>
-        </Card>
-
         <Card className="p-6 flex flex-col h-full justify-between gap-4">
           <CardHeader className="pb-0">
             <CardTitle className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
@@ -622,6 +519,112 @@ export default function DashboardPage() {
             {t('dashboard.actions.manageDebt', 'Kelola utang')}
           </Button>
         </Card>
+      </section>
+
+      {/* Widget optimizer hanya dirender bila ada saran; sebelumnya pembungkusnya
+          selalu ada sehingga menyisakan sel grid kosong. */}
+      {optimizerSuggestions.length > 0 && (
+        <BudgetOptimizerWidget
+          suggestions={optimizerSuggestions}
+          onApply={handleApplyOptimization}
+        />
+      )}
+
+
+
+      <div className="py-4" /> {/* Compact spacer between above-the-fold and below-the-fold content */}
+
+      {/* Bottom Grid: Analysis + Activity + Debt */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Widget 1: Tren Kategori */}
+        <Card className="p-6 flex flex-col h-full gap-4">
+          <CardHeader className="pb-0">
+            <CardTitle>{t('dashboard.chart.categoriesTitle', 'Tren kategori')}</CardTitle>
+            <CardDescription>{t('dashboard.chart.categoriesDesc', 'Alokasi pengeluaran')}</CardDescription>
+          </CardHeader>
+          {categoryBreakdown.length === 0 ? (
+            <div className="p-6 text-center rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] flex-1 flex items-center justify-center">
+              <p className="text-xs text-[var(--nexus-text-muted)]">
+                {t('dashboard.chart.noExpense', 'Belum ada pengeluaran pada periode ini.')}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-end">
+                  <span className="text-xs text-[var(--nexus-text-secondary)]">
+                    {t('dashboard.metrics.fundAllocation', 'Alokasi dana')}
+                  </span>
+                  <span className="text-lg font-semibold text-[var(--nexus-text-emerald)]">
+                    {categoryBreakdown[0].share}%{' '}
+                    <span className="text-xs font-normal text-[var(--nexus-text-muted)]">{categoryBreakdown[0].name}</span>
+                  </span>
+                </div>
+                <div className="h-4 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden flex gap-0.5 p-0.5 border border-[var(--nexus-glass-border)]">
+                  {categoryBreakdown.map((cat, i) => (
+                    <div
+                      key={cat.name}
+                      className={`h-full rounded-full ${['bg-[var(--nexus-emerald)]', 'bg-rose-500/70', 'bg-amber-500/70', 'bg-[var(--nexus-text-muted)]'][i]}`}
+                      style={{ width: `${cat.share}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 flex-1">
+                {categoryBreakdown.map((cat, i) => (
+                  <div key={cat.name} className="p-3.5 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] flex flex-col justify-center">
+                    <p className="text-[10px] text-[var(--nexus-text-secondary)] truncate">{cat.name}</p>
+                    <p className={`text-sm font-semibold ${['text-[var(--nexus-text-emerald)]', 'text-rose-600 dark:text-rose-400', 'text-amber-600 dark:text-amber-400', 'text-[var(--nexus-text-secondary)]'][i]}`}>
+                      {formatCurrency(cat.amount)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </Card>
+
+        <Card className="p-6 flex flex-col h-full justify-between gap-4">
+          <CardHeader className="pb-0">
+            <CardTitle>{t('dashboard.insights.recentActivity', 'Aktivitas terbaru')}</CardTitle>
+            <CardDescription>{t('dashboard.insights.recentActivityDesc', '3 transaksi terakhir')}</CardDescription>
+          </CardHeader>
+          <div className="space-y-3 flex-1">
+            {recentTxs.length === 0 && (
+              <div className="p-6 text-center rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)]">
+                <p className="text-xs text-[var(--nexus-text-muted)]">
+                  {t('dashboard.insights.noRecent', 'Belum ada transaksi pada periode ini.')}
+                </p>
+              </div>
+            )}
+            {recentTxs.slice(0, 3).map((tx) => (
+              <button
+                key={tx.id}
+                onClick={() => router.push(`/finance/transactions?id=${tx.id}`)}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] hover:border-[var(--nexus-emerald-border)] transition-colors cursor-pointer text-left"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tx.type === 'income' ? 'bg-[var(--nexus-success)]/10 text-[var(--nexus-success)]' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
+                    {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                  </div>
+                  <span className="text-xs font-medium text-[var(--nexus-text-primary)] truncate">{tx.note || '-'}</span>
+                </div>
+                <span className={`text-xs font-semibold shrink-0 ${tx.type === 'income' ? 'text-[var(--nexus-success)]' : 'text-rose-600 dark:text-rose-400'}`}>
+                  {tx.type === 'income' ? '+' : '-'}{formatCurrency(Number(tx.amount))}
+                </span>
+              </button>
+            ))}
+          </div>
+          <Button
+            variant="ghost"
+            className="w-full text-xs text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)]"
+            onClick={() => router.push('/finance/transactions')}
+          >
+            {t('dashboard.actions.viewAll', 'Lihat semua transaksi')}
+          </Button>
+        </Card>
+
       </section>
 
       <AnimatePresence>

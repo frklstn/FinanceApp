@@ -64,7 +64,7 @@ export const idTranslations = {
   "dashboard.chart.trendsTitle": "Tren Pengeluaran Harian",
   "dashboard.chart.trendsPeriod": "7 Hari Terakhir",
   "dashboard.chart.categoriesTitle": "Konsentrasi Kategori",
-  "dashboard.chart.noExpense": "Belum ada pengeluaran yang dicatat.",
+  "dashboard.chart.noExpense": "Belum ada pengeluaran pada periode ini.",
   "dashboard.chart.expandedPie": "Detail Konsentrasi Pengeluaran",
   "dashboard.chart.breakdownTitle": "Rincian Kategori Pengeluaran",
   "dashboard.chart.historyTitle": "Riwayat Pengeluaran Harian",
@@ -73,13 +73,16 @@ export const idTranslations = {
   "dashboard.insights.title": "Analisis Keuangan Pintar",
   "dashboard.insights.empty": "Semua aman! Tidak ada peringatan finansial terdeteksi siklus ini.",
   "dashboard.insights.recentActivity": "Aktivitas Keuangan Terbaru",
-  "dashboard.insights.noRecent": "Belum ada transaksi terbaru.",
+  "dashboard.insights.noRecent": "Belum ada transaksi pada periode ini.",
 
   // Date Filters
   "common.today": "Hari Ini",
   "common.thisWeek": "Minggu Ini",
   "common.thisMonth": "Bulan Ini",
   "common.last3Months": "3 Bulan Terakhir",
+  "common.customRange": "Pilih tanggal",
+  "common.from": "Dari",
+  "common.to": "Sampai",
 
   // Dashboard status messages
   "dashboard.status.loading": "Memuat analisis finansial...",

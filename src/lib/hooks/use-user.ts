@@ -55,5 +55,30 @@ export function useUser() {
     }
   }, [supabase, toast, refreshSession]);
 
-  return { updateProfile, submitting };
+  const updateLanguage = useCallback(async (language: 'id' | 'en') => {
+    setSubmitting(true);
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error('Pengguna tidak terotentikasi');
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ language })
+        .eq('id', currentUser.id);
+
+      if (error) throw error;
+
+      await refreshSession();
+      toast(language === 'id' ? 'Bahasa diubah ke Indonesia.' : 'Language changed to English.', 'success');
+      return true;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengubah bahasa.';
+      toast(msg, 'danger');
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
+  }, [supabase, toast, refreshSession]);
+
+  return { updateProfile, updateLanguage, submitting };
 }

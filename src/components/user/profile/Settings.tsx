@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useApp } from '@/contexts/app-context';
-import { User, Monitor, Languages, RefreshCw, Trash2, Download } from 'lucide-react';
+import { User, Monitor, Languages, Trash2, Download } from 'lucide-react';
 import { SubscriptionStatus } from '../subscription/subscription-status';
 import { useUser } from '@/lib/hooks/use-user';
 import * as XLSX from 'xlsx';
@@ -22,8 +22,10 @@ interface SettingsFormProps {
 export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
   const { user, profile, accountId, appSettings, t } = useApp();
   const { toast } = useToast();
-  const { updateProfile, submitting } = useUser();
+  const { updateProfile, updateLanguage, submitting } = useUser();
   const { theme, toggleTheme } = useTheme();
+
+  const handleToggleLanguage = () => updateLanguage(profile?.language === 'en' ? 'id' : 'en');
 
   const handleExcelExport = async () => {
     if (!accountId) {
@@ -227,20 +229,24 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               </Button>
             </div>
 
+            {/* Sebelumnya baris ini hanya label statis bertuliskan "Bahasa
+                Indonesia" padahal kolom profiles.language bisa bernilai 'en',
+                dan tidak ada cara mengubahnya dari UI. */}
             <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
               <div className="flex items-center gap-3">
                 <Languages className="w-4 h-4 text-[var(--nexus-emerald)]" />
                 <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Bahasa</span>
               </div>
-              <span className="text-xs text-light-text-secondary">Bahasa Indonesia</span>
-            </div>
-            
-            <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
-              <div className="flex items-center gap-3">
-                <RefreshCw className="w-4 h-4 text-[var(--nexus-emerald)]" />
-                <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Sinkronisasi Data</span>
-              </div>
-              <span className="text-xs text-[var(--nexus-emerald)]">2 min ago</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                loading={submitting}
+                className="font-bold cursor-pointer"
+                onClick={handleToggleLanguage}
+              >
+                {profile?.language === 'en' ? 'English' : 'Bahasa Indonesia'}
+              </Button>
             </div>
           </div>
         </TabsContent>
