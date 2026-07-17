@@ -237,7 +237,7 @@ export function DatePicker({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2 w-full min-w-[300px] z-[110] p-5 rounded-3xl bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] shadow-xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute left-0 top-full mt-2 w-full min-w-[300px] z-30 p-5 rounded-3xl bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] shadow-xl animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <button

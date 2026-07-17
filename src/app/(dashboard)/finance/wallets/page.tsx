@@ -24,17 +24,16 @@ import {
   Pencil,
   Trash2,
   Wallet as WalletIcon,
-  Zap,
   Activity,
-  Database,
   Terminal,
   ShieldCheck
 } from 'lucide-react';
 import NumberTicker from '@/components/ui/number-ticker';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function WalletsPage() {
-  const { accountId, appSettings, t } = useApp();
+  const { accountId, t } = useApp();
   const { toast } = useToast();
 
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -112,59 +111,45 @@ export default function WalletsPage() {
 
   return (
     <div className="space-y-8 no-scrollbar">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1">
-          <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-3xl md:text-5xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter "
-          >
-            {t('wallets.title', 'Brankas')} <span className="text-[var(--nexus-emerald)]">{appSettings.app_name || 'Nexus'}</span>
-          </motion.h1>
-          <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  tracking-[0.4em]">{t('wallets.subtitle', 'Infrastruktur Alokasi Aset • v2.0')}</p>
-        </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button 
-            variant="outline" 
-            className="flex-1 md:flex-none rounded-[24px] border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] backdrop-blur-3xl px-8 py-6 h-auto text-[11px] font-semibold  "
-            onClick={() => setIsTransferModalOpen(true)}
-          >
-            <ArrowRightLeft className="w-4 h-4 mr-2 text-[var(--nexus-emerald)]" /> {t('wallets.transfer', 'Pindahkan')}
-          </Button>
-          <Button 
-            variant="nexus-emerald"
-            className="flex-1 md:flex-none px-8 py-6 h-auto"
-            onClick={() => { setEditingWallet(null); setName(''); setBalance('0'); setIsWalletModalOpen(true); }}
-          >
-            <Plus className="w-5 h-5 mr-2" /> {t('wallets.newAsset', 'Aset Baru')}
-          </Button>
-        </div>
-      </header>
+      <PageHeader
+        title={t('wallets.title', 'Dompet')}
+        subtitle={t('wallets.subtitle', 'Kelola semua dompet & saldomu')}
+        actions={
+          <>
+            <Button
+              variant="outline"
+              className="flex-1 md:flex-none"
+              onClick={() => setIsTransferModalOpen(true)}
+            >
+              <ArrowRightLeft className="w-4 h-4 mr-2 text-[var(--nexus-emerald)]" /> {t('wallets.transfer', 'Pindahkan')}
+            </Button>
+            <Button
+              variant="nexus-emerald"
+              className="flex-1 md:flex-none"
+              onClick={() => { setEditingWallet(null); setName(''); setBalance('0'); setIsWalletModalOpen(true); }}
+            >
+              <Plus className="w-4 h-4 mr-2" /> {t('wallets.newAsset', 'Dompet baru')}
+            </Button>
+          </>
+        }
+      />
 
       <section>
-        <Card className="p-10 md:p-14 relative group overflow-hidden border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)]">
-          
-          <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
-            <div className="space-y-4 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-3">
-                <Zap className="w-5 h-5 text-[var(--nexus-emerald)]" />
-                <h3 className="text-[11px] font-semibold  tracking-[0.5em] text-[var(--nexus-text-muted)]">{t('wallets.cumulativeLiquidity', 'Cumulative Liquidity Position')}</h3>
-              </div>
-              <h2 className="text-5xl md:text-8xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter">
+        <Card className="p-6">
+          <div className="flex items-start justify-between gap-6">
+            <div className="space-y-1">
+              <p className="text-xs text-[var(--nexus-text-secondary)]">
+                {t('wallets.cumulativeLiquidity', 'Total saldo')}
+              </p>
+              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">
                 <NumberTicker value={totalBalance} formatter={formatCurrency} />
               </h2>
-              <div className="flex items-center justify-center md:justify-start gap-4">
-                <div className="px-4 py-2 rounded-full bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] text-[9px] font-semibold text-[var(--nexus-emerald)]  ">
-                  {t('wallets.auditActive', 'Live Audit Active')}
-                </div>
-                <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--nexus-text-muted)]  ">
-                  <Database className="w-3.5 h-3.5" /> {t('wallets.synchronized', 'Synchronized with {count} Nodes').replace('{count}', String(wallets.length))}
-                </div>
-              </div>
+              <p className="text-xs text-[var(--nexus-text-muted)]">
+                {t('wallets.synchronized', '{count} dompet aktif').replace('{count}', String(wallets.length))}
+              </p>
             </div>
-            
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-[40px] bg-[var(--nexus-bg-panel)] backdrop-blur-3xl border border-[var(--nexus-glass-border)] flex items-center justify-center text-[var(--nexus-emerald)] shadow-2xl group-hover:scale-110 transition-transform duration-500">
-              <WalletIcon className="w-12 h-12 md:w-16 md:h-16" />
+            <div className="w-10 h-10 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
+              <WalletIcon className="w-5 h-5" />
             </div>
           </div>
         </Card>

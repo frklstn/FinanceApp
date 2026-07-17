@@ -11,6 +11,7 @@ import { DebtFormModal } from '@/components/finance/debt/DebtForm';
 import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -28,8 +29,6 @@ import {
   ShieldCheck,
   ArrowRight,
   LayoutGrid,
-  Search,
-  Bell,
 } from 'lucide-react';
 
 // Provider avatar color map based on first letter
@@ -355,40 +354,10 @@ export default function PinjolPage() {
     <div className="space-y-4 -mt-6">
       <UpgradeGate>
         {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight  ">
-              Pinjol Tracker
-            </h1>
-            <p className="text-xs text-[var(--nexus-text-secondary)] font-medium mt-1">
-              Kelola semua pinjaman online kamu dalam satu tempat
-            </p>
-          </div>
-
-          {/* Right Header: Search, Bell, Profile dropdown pill */}
-          <div className="flex items-center gap-3 w-full md:w-auto self-end md:self-center">
-            {/* Search */}
-            <button 
-              onClick={() => toast('Fitur pencarian sedang disiapkan.', 'info')}
-              className="p-3 rounded-2xl bg-black/5 dark:bg-[var(--nexus-bg-panel)] hover:bg-black/10 dark:hover:bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] border border-black/5 dark:border-[var(--nexus-glass-border)] transition-all cursor-pointer shadow-sm"
-              title="Cari pinjaman..."
-            >
-              <Search className="w-4 h-4" />
-            </button>
-
-            {/* Bell Notifications */}
-            <button 
-              onClick={() => toast('Ada 3 tagihan terlambat yang perlu penanganan.', 'warning')}
-              className="p-3 rounded-2xl bg-black/5 dark:bg-[var(--nexus-bg-panel)] hover:bg-black/10 dark:hover:bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] border border-black/5 dark:border-[var(--nexus-glass-border)] transition-all relative cursor-pointer shadow-sm"
-              title="Notifikasi"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-rose-500 rounded-full flex items-center justify-center text-[7px] text-[var(--nexus-text-primary)] font-semibold shadow-[0_0_5px_rgba(244,63,94,0.5)]">
-                3
-              </span>
-            </button>
-          </div>
-        </header>
+        <PageHeader
+          title="Pinjol"
+          subtitle="Kelola semua pinjaman online kamu dalam satu tempat"
+        />
 
         {/* Dynamic Summary Stat Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

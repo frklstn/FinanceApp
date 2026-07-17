@@ -5,6 +5,7 @@ import { useApp } from '@/contexts/app-context';
 import { transactionService, PopulatedTransaction } from '@/lib/services/workspace/transaction.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -177,7 +178,7 @@ export default function ReportsPage() {
     toast(t('reports.toast.exportInit', 'Ekspor Excel dimulai. Memproses kompilasi...'), 'info');
     setTimeout(() => {
       toast(t('reports.toast.redirect', 'Mengalihkan ke modul ekspor data...'), 'success');
-      window.location.href = '/settings?tab=data';
+      window.location.href = '/finance/settings?tab=data';
     }, 1000);
   };
 
@@ -191,33 +192,28 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Title Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-            <BarChart3 className="w-5.5 h-5.5 text-[var(--nexus-emerald)]" />
-            {t('reports.title', 'Laporan Keuangan & Estimasi Pajak')}
-          </h2>
-          <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-            {t('reports.subtitle', 'Analisis konsentrasi kategori pengeluaran, margin, dan kinerja tabungan Anda')}
-          </p>
-        </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <Select
-            options={[
-              { value: 'month', label: t('common.thisMonth', 'Bulan Ini') },
-              { value: 'last_month', label: t('common.lastMonth', 'Bulan Lalu') },
-              { value: 'ytd', label: t('common.ytd', 'Tahun ke Tanggal (YTD)') },
-            ]}
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-          />
-          <Button variant="outline" className="flex items-center gap-1.5 cursor-pointer" onClick={handleExportData}>
-            <Download className="w-4 h-4 mr-2" />
-            {t('reports.exportLedger', 'Ekspor Buku Besar')}
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title={t('reports.title', 'Laporan')}
+        subtitle={t('reports.subtitle', 'Analisis pengeluaran, margin, dan kinerja tabunganmu')}
+        actions={
+          <>
+            <Select
+              options={[
+                { value: 'month', label: t('common.thisMonth', 'Bulan Ini') },
+                { value: 'last_month', label: t('common.lastMonth', 'Bulan Lalu') },
+                { value: 'ytd', label: t('common.ytd', 'Tahun ke Tanggal (YTD)') },
+              ]}
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              className="min-w-[180px]"
+            />
+            <Button variant="outline" onClick={handleExportData}>
+              <Download className="w-4 h-4 mr-2" />
+              {t('reports.exportLedger', 'Ekspor laporan')}
+            </Button>
+          </>
+        }
+      />
 
       {/* Sub tabs selectors */}
       <div className="flex gap-4 border-b border-light-border/40 dark:border-dark-border/40 pb-2">

@@ -7,6 +7,7 @@ import { walletService, Wallet } from '@/lib/services/workspace/wallet.service';
 import { currencyService } from '@/lib/services/finance/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -25,7 +26,6 @@ import {
   Zap,
   TrendingDown,
   ArrowRightLeft,
-  Bell,
   Target
 } from 'lucide-react';
 import NumberTicker from '@/components/ui/number-ticker';
@@ -176,49 +176,34 @@ export default function DebtsPage() {
 
   return (
     <div className="space-y-8 no-scrollbar">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1">
-          <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-3xl md:text-5xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter "
-          >
-            {t('debts.title', 'Utang & Piutang')}
-          </motion.h1>
-          <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  tracking-[0.4em]">
-            {t('debts.subtitle', 'Infrastruktur Audit Utang & Piutang • v2.0')}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button 
-            className="flex-1 md:flex-none bg-[var(--nexus-emerald)] hover:opacity-90 px-8 py-6 h-auto text-[11px] font-semibold rounded-2xl border-none text-white"
+      <PageHeader
+        title={t('debts.title', 'Utang & Piutang')}
+        subtitle={t('debts.subtitle', 'Pantau utang dan piutangmu')}
+        actions={
+          <Button
+            variant="nexus-emerald"
+            className="flex-1 md:flex-none"
             onClick={() => setIsDebtModalOpen(true)}
           >
-            <Plus className="w-5 h-5 mr-2" /> {t('debts.addBtn', 'Inisialisasi Protokol')}
+            <Plus className="w-4 h-4 mr-2" /> {t('debts.addBtn', 'Tambah catatan')}
           </Button>
-          <button className="p-4 rounded-[24px] bg-[var(--nexus-bg-panel)] backdrop-blur-3xl border border-[var(--nexus-glass-border)] text-[var(--nexus-text-primary)] hover:bg-[var(--nexus-bg-panel)] transition-all relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
-          </button>
-        </div>
-      </header>
+        }
+      />
 
       {/* Aggregate Hero Section */}
       <section>
-        <Card className="p-8 md:p-12 relative group overflow-hidden border-[var(--nexus-glass-border)] shadow-2xl">
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-            <div className="space-y-8">
-              <div className="space-y-2">
-                <p className="text-[10px] font-semibold text-rose-400  tracking-[0.4em]">
-                  {t('debts.netPosition', 'Posisi Eksposur Bersih')}
+        <Card className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-xs text-[var(--nexus-text-secondary)]">
+                  {t('debts.netPosition', 'Posisi bersih')}
                 </p>
                 <div className="flex items-baseline gap-3">
-                  <span className={`text-5xl md:text-8xl font-semibold tracking-tighter ${netPosition >= 0 ? 'text-[var(--nexus-emerald)]' : 'text-rose-500'}`}>
+                  <span className={`text-2xl md:text-3xl font-semibold tracking-tight ${netPosition >= 0 ? 'text-[var(--nexus-emerald)]' : 'text-rose-500'}`}>
                     <NumberTicker value={Math.abs(netPosition)} formatter={formatCurrency} />
                   </span>
-                  <span className="text-xs font-semibold text-[var(--nexus-text-muted)]  ">
+                  <span className="text-xs text-[var(--nexus-text-muted)]">
                     {netPosition >= 0 ? t('debts.surplus', 'Surplus') : t('debts.deficit', 'Defisit')}
                   </span>
                 </div>

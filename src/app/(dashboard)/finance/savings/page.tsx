@@ -6,6 +6,7 @@ import { savingsService, type SavingsGoal } from '@/lib/services/finance/savings
 import { walletService, type Wallet } from '@/lib/services/workspace/wallet.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -111,33 +112,32 @@ export default function SavingsPage() {
 
   return (
     <div className="space-y-10">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter ">Tabungan <span className="text-[var(--nexus-emerald)]">Kas</span></h1>
-          <p className="text-xs font-bold text-muted-foreground  tracking-[0.3em]">Kumpulkan dana untuk tiap tujuanmu</p>
-        </div>
-        <Button className="rounded-2xl  bg-[var(--nexus-emerald)] hover:bg-[var(--nexus-emerald)] border-none" onClick={() => setIsGoalModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" /> Target baru
-        </Button>
-      </header>
+      <PageHeader
+        title="Tabungan"
+        subtitle="Kumpulkan dana untuk tiap tujuanmu"
+        actions={
+          <Button variant="nexus-emerald" onClick={() => setIsGoalModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" /> Target baru
+          </Button>
+        }
+      />
 
       <section>
-        <Card className="p-10 relative group overflow-hidden border-border/20 bg-gradient-to-br from-[var(--nexus-emerald)] via-[var(--bg-card)] to-[var(--bg-main)]">
-          <div className="flex items-center justify-between relative z-10">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[var(--nexus-emerald)]" />
-                <h3 className="text-xs font-semibold  tracking-[0.4em] text-text-secondary/50">Total tabungan</h3>
-              </div>
-              <h2 className="text-5xl md:text-7xl font-semibold text-text-primary tracking-tighter">
+        <Card className="p-6">
+          <div className="flex items-start justify-between gap-6">
+            <div className="space-y-1">
+              <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
+                <TrendingUp className="w-3.5 h-3.5 text-[var(--nexus-emerald)]" /> Total tabungan
+              </p>
+              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">
                 <NumberTicker value={totalSaved} formatter={(v) => formatCurrency(v)} />
               </h2>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-text-muted   mt-2">
-                <Target className="w-3.5 h-3.5" /> Target: {formatCurrency(totalTarget)}
-              </div>
+              <p className="text-xs text-[var(--nexus-text-muted)]">
+                Target: {formatCurrency(totalTarget)}
+              </p>
             </div>
-            <div className="w-20 h-20 rounded-[32px] bg-border/10 backdrop-blur-3xl border border-border/20 flex items-center justify-center text-[var(--nexus-emerald)] shadow-2xl">
-              <PiggyBank className="w-10 h-10" />
+            <div className="w-10 h-10 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
+              <PiggyBank className="w-5 h-5" />
             </div>
           </div>
         </Card>

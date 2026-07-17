@@ -18,6 +18,7 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/ca
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import NumberTicker from '@/components/ui/number-ticker';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { QuickAddModal } from '@/components/finance/transaction/QuickAdd';
 import { budgetOptimizerService, type OptimizationSuggestion } from '@/lib/services/finance/budget-optimizer.service';
 import { budgetService } from '@/lib/services/finance/budget.service';
@@ -304,21 +305,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="space-y-1">
-          <motion.h1
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="font-heading text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight"
-          >
-            {t('dashboard.greeting', 'Halo, ')}<span className="text-[var(--nexus-text-emerald)]">{profile?.full_name || 'User'}</span>
-          </motion.h1>
-          <p className="text-xs text-[var(--nexus-text-secondary)]">
-            {financialStatusText}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 w-full md:w-auto">
+      <PageHeader
+        title={t('dashboard.greeting', 'Halo,')}
+        accent={profile?.full_name || 'User'}
+        subtitle={financialStatusText}
+        actions={
+          <>
           <div className="flex-1 md:flex-none">
             <Select
               value={dateFilter}
@@ -347,14 +339,14 @@ export default function DashboardPage() {
                 {isNotificationsOpen && (
                   <>
                     <div
-                      className="fixed inset-0 z-[90]"
+                      className="fixed inset-0 z-20"
                       onClick={() => setIsNotificationsOpen(false)}
                     />
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-80 p-6 rounded-3xl bg-[var(--nexus-bg-popup)] border border-[var(--nexus-glass-border)] shadow-2xl z-[100]"
+                      className="absolute right-0 mt-3 w-80 p-6 rounded-3xl bg-[var(--nexus-bg-popup)] border border-[var(--nexus-glass-border)] shadow-2xl z-30"
                     >
                       <div className="flex items-center justify-between mb-6">
                         <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">
@@ -403,8 +395,9 @@ export default function DashboardPage() {
               </AnimatePresence>
             </div>
           </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {/* Hero 4 Widgets */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">

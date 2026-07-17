@@ -459,7 +459,7 @@ export default function AdminPage() {
 
       {/* Edit User Modal Overlay */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
           <Card className="w-full max-w-md p-6 space-y-6 shadow-2xl border border-light-border/40 dark:border-dark-border/40 bg-light-card dark:bg-dark-card animate-scale-up">
             <div className="flex items-center justify-between pb-3 border-b border-light-border/40 dark:border-dark-border/40">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5">

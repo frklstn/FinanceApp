@@ -8,6 +8,18 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Skala z-index (pakai ini, jangan karang angka baru):
+     auto   konten halaman -- jangan beri z pada kartu/section, karena membuat
+            stacking context yang mengalahkan chrome di bawahnya
+     20     backdrop penangkap klik untuk popover
+     30     dropdown & popover (Select, DatePicker, notifikasi)
+     40     bottom bar mobile
+     45     backdrop drawer mobile
+     50     sidebar, drawer mobile
+     100    modal + backdrop-nya
+     200    toast -- harus di atas modal, kalau tidak toast error saat modal
+            terbuka tidak terlihat */
+
 /**
  * Pemetaan utility Tailwind -> palet di tokens.css.
  *

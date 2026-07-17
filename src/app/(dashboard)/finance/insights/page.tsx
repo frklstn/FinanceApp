@@ -6,6 +6,7 @@ import { insightsService, FinancialInsight } from '@/lib/services/finance/insigh
 import { transactionService } from '@/lib/services/workspace/transaction.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import { EmergencyRunwayCard } from '@/components/finance/insights/emergency-runway-card';
@@ -93,16 +94,10 @@ export default function InsightsPage() {
   return (
     <div className="space-y-8">
       <UpgradeGate>
-        {/* Title */}
-        <div>
-          <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-[var(--nexus-text-primary)] flex items-center gap-2 ">
-            <Sparkles className="w-6 h-6 text-[var(--nexus-emerald)]" />
-            Insight keuangan
-          </h2>
-          <p className="text-xs md:text-sm text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
-            Rangkuman skor kesehatan finansial, analisis anggaran belanja, dan rekomendasi dinamis untuk Anda.
-          </p>
-        </div>
+        <PageHeader
+          title="Insight keuangan"
+          subtitle="Rangkuman skor kesehatan finansial, analisis belanja, dan rekomendasi untukmu"
+        />
 
         {loading ? (
           <div className="space-y-6">

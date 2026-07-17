@@ -17,6 +17,7 @@ import {
 } from '@/lib/debt-planner/calculations';
 import type { IncomeTimelineEntry, LoanTracker, SalaryPeriod } from '@/lib/debt-planner/types';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -38,7 +39,7 @@ import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function BudgetsPage() {
-  const { accountId, appSettings } = useApp();
+  const { accountId } = useApp();
   const { toast } = useToast();
 
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -148,41 +149,40 @@ export default function BudgetsPage() {
 
   return (
     <div className="space-y-10">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter ">Batas <span className="text-[var(--nexus-emerald)]">{appSettings.app_name || 'Nexus'}</span></h1>
-          <p className="text-[10px] font-bold text-muted-foreground  tracking-[0.4em]">Atur batas pengeluaran per kategori</p>
-        </div>
-        <div className="flex items-center gap-3">
-           <Select
-            options={periods.map((p: SalaryPeriod, i: number) => ({ value: i.toString(), label: p.label.toUpperCase() }))}
-            value={selectedPeriodIndex.toString()}
-            onChange={(e) => setSelectedPeriodIndex(parseInt(e.target.value))}
-            className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-3 h-auto text-[10px] font-semibold   min-w-[220px]"
-          />
-          <Button variant="nexus-emerald" className="rounded-[20px] px-8 py-6 h-auto text-[11px] font-semibold  " onClick={() => setIsModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" /> Konfigurasi
-          </Button>
-        </div>
-      </header>
+      <PageHeader
+        title="Anggaran"
+        subtitle="Atur batas pengeluaran per kategori"
+        actions={
+          <>
+            <Select
+              options={periods.map((p: SalaryPeriod, i: number) => ({ value: i.toString(), label: p.label }))}
+              value={selectedPeriodIndex.toString()}
+              onChange={(e) => setSelectedPeriodIndex(parseInt(e.target.value))}
+              className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-2.5 h-auto text-xs min-w-[200px]"
+            />
+            <Button variant="nexus-emerald" onClick={() => setIsModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" /> Atur
+            </Button>
+          </>
+        }
+      />
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-10 relative group overflow-hidden border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)] rounded-[40px] shadow-2xl">
-          <div className="flex items-center justify-between relative z-10">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-[var(--nexus-emerald)]" />
-                <h3 className="text-[10px] font-semibold  tracking-[0.4em] text-[var(--nexus-text-muted)]">Anggaran terpakai • {currentPeriod.label}</h3>
-              </div>
-              <h2 className="text-5xl md:text-7xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter italic">
+        <Card className="lg:col-span-2 p-6">
+          <div className="flex items-start justify-between gap-6">
+            <div className="space-y-1">
+              <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
+                <PieChart className="w-3.5 h-3.5 text-[var(--nexus-emerald)]" /> Anggaran terpakai • {currentPeriod.label}
+              </p>
+              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">
                 <NumberTicker value={totalSpent} formatter={(v) => formatCurrency(v)} />
               </h2>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--nexus-text-muted)]   pt-2">
-                <Target className="w-3.5 h-3.5" /> Alokasi Maksimal: {formatCurrency(totalBudget)}
-              </div>
+              <p className="text-xs text-[var(--nexus-text-muted)]">
+                Alokasi maksimal: {formatCurrency(totalBudget)}
+              </p>
             </div>
-            <div className="w-24 h-24 rounded-[32px] bg-[var(--nexus-bg-panel)] backdrop-blur-3xl border border-[var(--nexus-glass-border)] flex items-center justify-center text-[var(--nexus-emerald)] shadow-2xl group-hover:scale-110 transition-transform duration-500">
-              <TrendingDown className="w-10 h-10" />
+            <div className="w-10 h-10 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
+              <TrendingDown className="w-5 h-5" />
             </div>
           </div>
         </Card>

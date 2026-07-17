@@ -31,6 +31,7 @@ import {
   Activity
 } from 'lucide-react';
 import { CategoryManagerModal } from '@/components/finance/transaction/CategoryManager';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function TransactionsContent() {
@@ -188,37 +189,33 @@ function TransactionsContent() {
 
   return (
     <div className="space-y-8 no-scrollbar">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1">
-          <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-3xl md:text-5xl font-semibold text-[var(--nexus-text-primary)] tracking-tighter "
-          >
-            Semua <span className="text-[var(--nexus-emerald)]">Catatan</span>
-          </motion.h1>
-          <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  tracking-[0.4em]">Semua catatan transaksimu</p>
-        </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button 
-            variant="outline" 
-            className="flex-1 md:flex-none rounded-[24px] border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] backdrop-blur-3xl px-8 py-6 h-auto text-[11px] font-semibold  "
-            onClick={() => setIsCategoryModalOpen(true)}
-          >
-            <Tags className="w-4 h-4 mr-2 text-[var(--nexus-emerald)]" /> Klasifikasi
-          </Button>
-          <Button 
-            className="flex-1 md:flex-none rounded-[24px]  bg-[var(--nexus-emerald)] hover:bg-[var(--nexus-emerald)] border-none px-8 py-6 h-auto text-[11px] font-semibold  "
-            onClick={() => { setIsEditing(false); setIsModalOpen(true); }}
-          >
-            <Plus className="w-5 h-5 mr-2" /> Baru
-          </Button>
-        </div>
-      </header>
+      <PageHeader
+        title="Semua"
+        accent="Catatan"
+        subtitle="Semua catatan transaksimu"
+        actions={
+          <>
+            <Button
+              variant="outline"
+              className="flex-1 md:flex-none"
+              onClick={() => setIsCategoryModalOpen(true)}
+            >
+              <Tags className="w-4 h-4 mr-2 text-[var(--nexus-emerald)]" /> Kategori
+            </Button>
+            <Button
+              variant="nexus-emerald"
+              className="flex-1 md:flex-none"
+              onClick={() => { setIsEditing(false); setIsModalOpen(true); }}
+            >
+              <Plus className="w-4 h-4 mr-2" /> Baru
+            </Button>
+          </>
+        }
+      />
 
       <section className="grid grid-cols-1 xl:grid-cols-4 gap-8">
         {/* Advanced Filters */}
-        <Card className="xl:col-span-1 p-5 gap-4 h-fit border-[var(--nexus-glass-border)] relative z-50">
+        <Card className="xl:col-span-1 p-5 gap-4 h-fit border-[var(--nexus-glass-border)]">
           <div className="flex items-center justify-between">
             <h3 className="flex items-center gap-2 text-sm font-medium text-[var(--nexus-text-primary)]">
               <Filter className="w-4 h-4 text-[var(--nexus-emerald)]" /> Cari & filter
