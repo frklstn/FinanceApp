@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Mail, ArrowLeft } from 'lucide-react';
-import { AuthShell, AuthAlert, authInputClass } from '@/components/auth/auth-shell';
+import { AuthShell, AuthAlert, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
 
 export default function ForgotPasswordPage() {
   const supabase = createClient();
@@ -49,13 +49,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuthShell
-      topRight={
-        <Link href="/register" className="hover:underline">
-          Belum punya akun? Daftar
-        </Link>
-      }
-    >
+    <AuthShell>
       {errorMsg && <AuthAlert tone="error">{errorMsg}</AuthAlert>}
       {successMsg && <AuthAlert tone="success">{successMsg}</AuthAlert>}
 
@@ -75,7 +69,7 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#1b1815] py-3 text-sm font-medium text-[#f6f2ea] transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-[#f3ede3] dark:text-[#15130f]"
+          className={authButtonClass}
         >
           {loading ? 'Memproses...' : 'Kirim tautan pemulihan'}
         </button>
@@ -87,6 +81,13 @@ export default function ForgotPasswordPage() {
           <ArrowLeft className="h-3.5 w-3.5" />
           Kembali ke halaman masuk
         </Link>
+
+        <p className="pt-1 text-xs text-[#1b1815]/50 dark:text-[#f3ede3]/50">
+          Belum punya akun?{' '}
+          <Link href="/register" className="underline hover:no-underline">
+            Daftar
+          </Link>
+        </p>
       </form>
     </AuthShell>
   );

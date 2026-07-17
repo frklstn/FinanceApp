@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Lock, ShieldCheck, Eye, EyeOff } from 'lucide-react';
-import { AuthShell, AuthAlert, authInputClass } from '@/components/auth/auth-shell';
+import { AuthShell, AuthAlert, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -174,7 +174,7 @@ export default function ResetPasswordPage() {
         <button
           type="submit"
           disabled={loading || !!successMsg}
-          className="w-full rounded-xl bg-[#1b1815] py-3 text-sm font-medium text-[#f6f2ea] transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-[#f3ede3] dark:text-[#15130f]"
+          className={authButtonClass}
         >
           {loading ? 'Memproses...' : 'Perbarui kata sandi'}
         </button>

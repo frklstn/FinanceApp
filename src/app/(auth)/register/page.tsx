@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useApp } from '@/contexts/app-context';
 import { User, Mail, Lock, ShieldCheck, Eye, EyeOff } from 'lucide-react';
-import { AuthShell, AuthAlert, authInputClass } from '@/components/auth/auth-shell';
+import { AuthShell, AuthAlert, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -86,13 +86,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthShell
-      topRight={
-        <Link href="/login" className="hover:underline">
-          Sudah punya akun? Masuk
-        </Link>
-      }
-    >
+    <AuthShell>
       {errorMsg && <AuthAlert tone="error">{errorMsg}</AuthAlert>}
       {successMsg && <AuthAlert tone="success">{successMsg}</AuthAlert>}
 
@@ -155,10 +149,17 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#1b1815] py-3 text-sm font-medium text-[#f6f2ea] transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-[#f3ede3] dark:text-[#15130f]"
+          className={authButtonClass}
         >
           {loading ? t('auth.register.loadingButton', 'Membuat akun...') : t('auth.register.submitButton', 'Buat akun')}
         </button>
+
+        <p className="pt-1 text-xs text-[#1b1815]/50 dark:text-[#f3ede3]/50">
+          Sudah punya akun?{' '}
+          <Link href="/login" className="underline hover:no-underline">
+            Masuk
+          </Link>
+        </p>
       </form>
     </AuthShell>
   );
