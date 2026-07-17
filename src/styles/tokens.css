@@ -9,9 +9,9 @@
  */
 
 @theme {
-  /* Font: dimuat oleh next/font di src/app/layout.tsx. */
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  /* Font sengaja tidak didefinisikan di sini: default Tailwind
+     (ui-sans-serif / ui-serif / ui-monospace) sudah memakai font bawaan OS
+     tempat aplikasi berjalan. Tidak ada webfont yang diunduh. */
 
   --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
   --animate-scale-up: scale-up 0.4s var(--ease-premium) forwards;

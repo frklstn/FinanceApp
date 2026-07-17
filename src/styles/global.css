@@ -27,6 +27,8 @@
  * Tidak ada hex di file ini: satu-satunya tempat hex adalah tokens.css.
  */
 @theme inline {
+    /* Judul memakai serif bawaan OS (ui-serif). Seluruh font di aplikasi ini
+       adalah font sistem; tidak ada webfont yang diunduh. */
     --font-heading: var(--font-serif);
 
     /* Aksen & sinyal */

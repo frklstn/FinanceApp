@@ -3,14 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Lora } from 'next/font/google';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useApp } from '@/contexts/app-context';
 import { createClient } from '@/lib/supabase/client';
 import { authInputClass } from '@/components/auth/auth-shell';
 import { ArrowRight, Mail, Lock, Eye, EyeOff, X } from 'lucide-react';
-
-const serif = Lora({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-serif' });
 
 export default function LandingPage() {
   const { appSettings } = useApp();
@@ -55,7 +52,7 @@ export default function LandingPage() {
 
   return (
     <div
-      className={`${serif.variable} min-h-[100dvh] bg-[#f6f2ea] text-[#1b1815] dark:bg-[#15130f] dark:text-[#f3ede3]`}
+      className="min-h-[100dvh] bg-[#f6f2ea] text-[#1b1815] dark:bg-[#15130f] dark:text-[#f3ede3]"
     >
       <div className="mx-auto flex min-h-[100dvh] max-w-[1400px] flex-col px-6 py-6 md:px-10 md:py-8">
         {/* Top labels, bukan nav fungsional - fungsi & teks berkumpul di kolom kiri bawah */}
@@ -70,10 +67,7 @@ export default function LandingPage() {
         {/* Dua kolom penuh: kiri teks+fungsi rata kiri tengah, kanan gambar */}
         <div className="mt-6 grid flex-1 min-h-0 gap-8 md:grid-cols-2 md:gap-12">
           <div className="flex flex-col justify-center gap-6 py-10 md:py-0 md:pr-10">
-            <h1
-              className="text-4xl leading-[1.1] md:text-5xl lg:text-6xl"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
+            <h1 className="font-serif text-4xl leading-[1.1] md:text-5xl lg:text-6xl">
               Kendalikan
               <br />
               arus kas,
@@ -252,9 +246,8 @@ export default function LandingPage() {
                   }}
                 >
                   <span
-                    className="text-6xl font-semibold"
+                    className="font-serif text-6xl font-semibold"
                     style={{
-                      fontFamily: 'var(--font-serif)',
                       color: '#d9cbac',
                       textShadow:
                         '1px 1.5px 0 rgba(255,255,255,0.75), -1px -1px 1.5px rgba(120,104,74,0.45)',

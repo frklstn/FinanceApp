@@ -2,10 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Lora } from 'next/font/google';
 import { motion, useReducedMotion } from 'framer-motion';
-
-const serif = Lora({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-serif' });
 
 // Kelas input bersama untuk semua form auth (gaya cream/dark).
 export const authInputClass =
@@ -60,7 +57,7 @@ export function AuthShell({
 }) {
   return (
     <div
-      className={`${serif.variable} min-h-[100dvh] bg-[#f6f2ea] text-[#1b1815] dark:bg-[#15130f] dark:text-[#f3ede3]`}
+      className="min-h-[100dvh] bg-[#f6f2ea] text-[#1b1815] dark:bg-[#15130f] dark:text-[#f3ede3]"
     >
       <div className="mx-auto flex min-h-[100dvh] max-w-[1400px] flex-col px-6 py-6 md:px-10 md:py-8">
         <div className="flex items-center justify-between text-sm text-[#1b1815]/70 dark:text-[#f3ede3]/70">
@@ -72,10 +69,7 @@ export function AuthShell({
 
         <div className="mt-6 grid flex-1 min-h-0 items-center gap-8 md:grid-cols-2 md:gap-12">
           <div className="flex flex-col justify-center gap-6 py-10 md:py-0 md:pr-10">
-            <h1
-              className="text-4xl leading-[1.1] md:text-5xl lg:text-6xl"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
+            <h1 className="font-serif text-4xl leading-[1.1] md:text-5xl lg:text-6xl">
               Kendalikan
               <br />
               arus kas,
