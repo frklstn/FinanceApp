@@ -11,6 +11,7 @@ import { DebtFormModal } from '@/components/finance/debt/DebtForm';
 import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -28,24 +29,22 @@ import {
   ShieldCheck,
   ArrowRight,
   LayoutGrid,
-  Search,
-  Bell,
 } from 'lucide-react';
 
 // Provider avatar color map based on first letter
 const PROVIDER_COLOR_MAP: Record<string, { bg: string, text: string }> = {
-  E: { bg: 'bg-emerald-500/10 dark:bg-emerald-500/20', text: 'text-emerald-500 dark:text-emerald-400' },
-  K: { bg: 'bg-blue-500/10 dark:bg-blue-500/20', text: 'text-blue-500 dark:text-blue-400' },
+  E: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
+  K: { bg: 'bg-amber-500/10 dark:bg-amber-500/20', text: 'text-amber-600 dark:text-amber-400' },
   S: { bg: 'bg-orange-500/10 dark:bg-orange-500/20', text: 'text-orange-500 dark:text-orange-400' },
-  A: { bg: 'bg-violet-500/10 dark:bg-violet-500/20', text: 'text-violet-500 dark:text-violet-400' },
-  I: { bg: 'bg-teal-500/10 dark:bg-teal-500/20', text: 'text-teal-500 dark:text-teal-400' },
-  F: { bg: 'bg-indigo-500/10 dark:bg-indigo-500/20', text: 'text-indigo-500 dark:text-indigo-400' },
+  A: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
+  I: { bg: 'bg-stone-500/10 dark:bg-stone-500/20', text: 'text-stone-600 dark:text-stone-300' },
+  F: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
   H: { bg: 'bg-rose-500/10 dark:bg-rose-500/20', text: 'text-rose-500 dark:text-rose-400' },
 };
 
 function getProviderAvatarStyle(name: string) {
   const char = name.trim().charAt(0).toUpperCase();
-  return PROVIDER_COLOR_MAP[char] || { bg: 'bg-slate-500/10', text: 'text-slate-500' };
+  return PROVIDER_COLOR_MAP[char] || { bg: 'bg-[var(--nexus-bg-panel)]', text: 'text-[var(--nexus-text-muted)]' };
 }
 
 export default function PinjolPage() {
@@ -355,40 +354,10 @@ export default function PinjolPage() {
     <div className="space-y-4 -mt-6">
       <UpgradeGate>
         {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black text-[var(--nexus-text-primary)] tracking-tight font-outfit uppercase">
-              Pinjol Tracker
-            </h1>
-            <p className="text-xs text-[var(--nexus-text-secondary)] font-medium mt-1">
-              Kelola semua pinjaman online kamu dalam satu tempat
-            </p>
-          </div>
-
-          {/* Right Header: Search, Bell, Profile dropdown pill */}
-          <div className="flex items-center gap-3 w-full md:w-auto self-end md:self-center">
-            {/* Search */}
-            <button 
-              onClick={() => toast('Fitur pencarian sedang disiapkan.', 'info')}
-              className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-[var(--nexus-text-primary)] border border-black/5 dark:border-white/5 transition-all cursor-pointer shadow-sm"
-              title="Cari pinjaman..."
-            >
-              <Search className="w-4 h-4" />
-            </button>
-
-            {/* Bell Notifications */}
-            <button 
-              onClick={() => toast('Ada 3 tagihan terlambat yang perlu penanganan.', 'warning')}
-              className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-[var(--nexus-text-primary)] border border-black/5 dark:border-white/5 transition-all relative cursor-pointer shadow-sm"
-              title="Notifikasi"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-rose-500 rounded-full flex items-center justify-center text-[7px] text-white font-black shadow-[0_0_5px_rgba(244,63,94,0.5)]">
-                3
-              </span>
-            </button>
-          </div>
-        </header>
+        <PageHeader
+          title="Pinjol"
+          subtitle="Kelola semua pinjaman online kamu dalam satu tempat"
+        />
 
         {/* Dynamic Summary Stat Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -396,17 +365,17 @@ export default function PinjolPage() {
           <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between w-full gap-3">
               <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider block">
+                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)]   block">
                   Total Pinjaman
                 </span>
-                <h3 className="text-base md:text-lg font-black text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
+                <h3 className="text-base md:text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
                   Rp {totalPinjamanSum.toLocaleString('id-ID')}
                 </h3>
-                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold uppercase leading-none mt-1">
+                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold  leading-none mt-1">
                   {activeCount} pinjaman aktif
                 </p>
               </div>
-              <div className="w-9 h-9 rounded-[12px] bg-violet-500/10 flex items-center justify-center text-violet-500 shrink-0">
+              <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
                 <WalletIcon className="w-4 h-4" />
               </div>
             </div>
@@ -416,18 +385,18 @@ export default function PinjolPage() {
           <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between w-full gap-3">
               <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider block">
+                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)]   block">
                   Total Tagihan Bulan Ini
                 </span>
-                <h3 className="text-base md:text-lg font-black text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
+                <h3 className="text-base md:text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
                   Rp {totalTagihanBulanIni.toLocaleString('id-ID')}
                 </h3>
-                <div className="flex items-center gap-1 text-emerald-500 text-[10px] font-bold uppercase leading-none mt-1">
+                <div className="flex items-center gap-1 text-[var(--nexus-emerald)] text-[10px] font-bold  leading-none mt-1">
                   <TrendingUp className="w-3 h-3" />
                   <span>12% dari bulan lalu</span>
                 </div>
               </div>
-              <div className="w-9 h-9 rounded-[12px] bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
+              <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
                 <CalendarIcon className="w-4 h-4" />
               </div>
             </div>
@@ -437,17 +406,17 @@ export default function PinjolPage() {
           <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between w-full gap-3">
               <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider block">
+                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)]   block">
                   Sudah Dibayar
                 </span>
-                <h3 className="text-base md:text-lg font-black text-[var(--nexus-text-emerald)] tracking-tight truncate leading-none">
+                <h3 className="text-base md:text-lg font-semibold text-[var(--nexus-text-emerald)] tracking-tight truncate leading-none">
                   Rp {sudahDibayarSum.toLocaleString('id-ID')}
                 </h3>
-                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold uppercase leading-none mt-1">
+                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold  leading-none mt-1">
                   {paidPercentage}% dari total tagihan
                 </p>
               </div>
-              <div className="w-9 h-9 rounded-[12px] bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
+              <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
                 <CheckCircle className="w-4 h-4" />
               </div>
             </div>
@@ -457,13 +426,13 @@ export default function PinjolPage() {
           <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between w-full gap-3">
               <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)] uppercase tracking-wider block">
+                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)]   block">
                   Terlambat
                 </span>
-                <h3 className="text-base md:text-lg font-black text-rose-500 tracking-tight truncate leading-none animate-pulse">
+                <h3 className="text-base md:text-lg font-semibold text-rose-500 tracking-tight truncate leading-none animate-pulse">
                   Rp {terlambatSum.toLocaleString('id-ID')}
                 </h3>
-                <p className="text-[10px] text-rose-500 font-bold uppercase leading-none mt-1">
+                <p className="text-[10px] text-rose-500 font-bold  leading-none mt-1">
                   {terlambatLoans.length} tagihan terlambat
                 </p>
               </div>
@@ -481,7 +450,7 @@ export default function PinjolPage() {
             {/* Daftar Pinjaman Table */}
             <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] overflow-hidden shadow-2xl">
               <div className="px-6 py-4 flex justify-between items-center border-b border-[var(--nexus-glass-border)]">
-                <h3 className="text-sm font-extrabold uppercase tracking-tight text-[var(--nexus-text-primary)]">
+                <h3 className="text-sm font-extrabold  tracking-tight text-[var(--nexus-text-primary)]">
                   Daftar Pinjaman
                 </h3>
               </div>
@@ -489,15 +458,15 @@ export default function PinjolPage() {
               {loading ? (
                 <div className="p-8 space-y-4">
                   {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-16 bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl animate-pulse" />
+                    <div key={n} className="h-16 bg-black/[0.02] dark:bg-[var(--nexus-bg-panel)] rounded-2xl animate-pulse" />
                   ))}
                 </div>
               ) : loans.length === 0 ? (
                 <div className="p-12 text-center flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 rounded-[24px] bg-black/[0.03] dark:bg-white/[0.03] flex items-center justify-center text-[var(--nexus-text-muted)] mb-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-black/[0.03] dark:bg-[var(--nexus-bg-panel)] flex items-center justify-center text-[var(--nexus-text-muted)] mb-4">
                     <LayoutGrid className="w-6 h-6" />
                   </div>
-                  <h4 className="font-extrabold uppercase tracking-tight text-[var(--nexus-text-primary)] text-sm mb-1">
+                  <h4 className="font-extrabold  tracking-tight text-[var(--nexus-text-primary)] text-sm mb-1">
                     Daftar masih kosong
                   </h4>
                   <p className="text-xs text-[var(--nexus-text-secondary)] max-w-sm leading-relaxed mb-6">
@@ -511,7 +480,7 @@ export default function PinjolPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-[var(--nexus-glass-border)] text-[9px] font-black uppercase tracking-[0.2em] text-[var(--nexus-text-muted)]">
+                      <tr className="border-b border-[var(--nexus-glass-border)] text-[9px] font-semibold  tracking-[0.2em] text-[var(--nexus-text-muted)]">
                         <th className="px-6 py-2.5">Pinjaman</th>
                         <th className="px-6 py-2.5 hidden sm:table-cell">Total Pinjaman</th>
                         <th className="px-6 py-2.5">Sisa Tagihan</th>
@@ -527,11 +496,11 @@ export default function PinjolPage() {
 
                         // Calculate status
                         let statusText = 'Akan datang';
-                        let statusClass = 'bg-blue-500/10 text-blue-500 border border-blue-500/20';
+                        let statusClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border border-[var(--nexus-emerald-border)]';
 
                         if (isPaidThisMonth) {
                           statusText = 'Lunas';
-                          statusClass = 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
+                          statusClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border border-[var(--nexus-emerald-border)]';
                         } else {
                           const todayDay = new Date().getDate();
                           const isCurrentMonth = new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
@@ -565,19 +534,19 @@ export default function PinjolPage() {
                         return (
                           <tr 
                             key={loan.id} 
-                            className="group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-all cursor-pointer"
+                            className="group hover:bg-black/[0.01] dark:hover:bg-[var(--nexus-bg-panel)] transition-all cursor-pointer"
                             onClick={() => openEditModal(loan)}
                           >
                             {/* Pinjaman column */}
                             <td className="px-6 py-2.5 flex items-center gap-3">
-                              <div className={`w-8.5 h-8.5 rounded-full flex items-center justify-center font-black text-xs ${avatarStyle.bg} ${avatarStyle.text}`}>
+                              <div className={`w-8.5 h-8.5 rounded-full flex items-center justify-center font-semibold text-xs ${avatarStyle.bg} ${avatarStyle.text}`}>
                                 {loan.app_name.trim().charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="text-xs font-extrabold text-[var(--nexus-text-primary)] group-hover:text-emerald-500 transition-colors uppercase">
+                                <p className="text-xs font-extrabold text-[var(--nexus-text-primary)] group-hover:text-[var(--nexus-emerald)] transition-colors ">
                                   {loan.app_name}
                                 </p>
-                                <p className="text-[10px] font-bold text-[var(--nexus-text-muted)] uppercase mt-0.5">
+                                <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]  mt-0.5">
                                   Pinjam {new Date(loan.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                 </p>
                               </div>
@@ -622,7 +591,7 @@ export default function PinjolPage() {
                                   e.stopPropagation(); // prevent opening Edit Modal
                                   toggleInstallmentPaid(loan.id);
                                 }}
-                                className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide cursor-pointer hover:scale-105 active:scale-95 transition-all ${statusClass}`}
+                                className={`px-2.5 py-0.5 rounded-full text-[9px] font-semibold  tracking-wide cursor-pointer hover:scale-105 active:scale-95 transition-all ${statusClass}`}
                                 title="Klik untuk mengubah status pembayaran angsuran bulan ini"
                               >
                                 {statusText}
@@ -643,10 +612,10 @@ export default function PinjolPage() {
 
               {/* Bottom Outlined Actions */}
               {!loading && loans.length > 0 && (
-                <div className="p-3 bg-black/[0.01] dark:bg-white/[0.01] border-t border-[var(--nexus-glass-border)]">
+                <div className="p-3 bg-black/[0.01] dark:bg-[var(--nexus-bg-panel)] border-t border-[var(--nexus-glass-border)]">
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="w-full py-3 rounded-[20px] border border-dashed border-emerald-500/30 hover:border-emerald-500/60 text-emerald-500 hover:bg-emerald-500/5 transition-all duration-300 font-extrabold uppercase tracking-widest text-[10px] flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-3 rounded-[20px] border border-dashed border-[var(--nexus-emerald-border)] hover:border-[var(--nexus-emerald-border)] text-[var(--nexus-emerald)] hover:bg-[var(--nexus-emerald-glow)] transition-all duration-300 font-extrabold   text-[10px] flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     Tambah Pinjaman Baru
@@ -662,8 +631,8 @@ export default function PinjolPage() {
                   <LayoutGrid className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-[var(--nexus-text-primary)]">{activeCount}</h4>
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--nexus-text-muted)] mt-0.5">Total Pinjaman</p>
+                  <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">{activeCount}</h4>
+                  <p className="text-[9px] font-bold   text-[var(--nexus-text-muted)] mt-0.5">Total Pinjaman</p>
                 </div>
               </div>
 
@@ -672,8 +641,8 @@ export default function PinjolPage() {
                   <WalletIcon className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-[var(--nexus-text-primary)]">Rp {Math.round(rataRataSisa).toLocaleString('id-ID')}</h4>
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--nexus-text-muted)] mt-0.5">Rata-rata Sisa</p>
+                  <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">Rp {Math.round(rataRataSisa).toLocaleString('id-ID')}</h4>
+                  <p className="text-[9px] font-bold   text-[var(--nexus-text-muted)] mt-0.5">Rata-rata Sisa</p>
                 </div>
               </div>
 
@@ -682,8 +651,8 @@ export default function PinjolPage() {
                   <CheckCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-[var(--nexus-text-primary)]">{rasioIncome}%</h4>
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--nexus-text-muted)] mt-0.5">Rasio Terhadap Income</p>
+                  <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">{rasioIncome}%</h4>
+                  <p className="text-[9px] font-bold   text-[var(--nexus-text-muted)] mt-0.5">Rasio Terhadap Income</p>
                 </div>
               </div>
 
@@ -692,10 +661,10 @@ export default function PinjolPage() {
                   <CalendarIcon className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-[var(--nexus-text-primary)]">
+                  <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">
                     {nearestPaymentDate ? nearestPaymentDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '—'}
                   </h4>
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--nexus-text-muted)] mt-0.5">Tagihan Terdekat</p>
+                  <p className="text-[9px] font-bold   text-[var(--nexus-text-muted)] mt-0.5">Tagihan Terdekat</p>
                 </div>
               </div>
             </Card>
@@ -707,22 +676,22 @@ export default function PinjolPage() {
             <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-4.5 shadow-2xl space-y-4">
               {/* Calendar Header with navigation */}
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--nexus-text-primary)]">
+                <h3 className="text-xs font-semibold  tracking-[0.2em] text-[var(--nexus-text-primary)]">
                   Agenda Tagihan
                 </h3>
                 <div className="flex items-center gap-1">
                   <button 
                     onClick={prevMonth}
-                    className="p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.08] dark:hover:bg-white/[0.08] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-black/5 dark:border-white/5"
+                    className="p-2 rounded-xl bg-black/[0.03] dark:bg-[var(--nexus-bg-panel)] hover:bg-black/[0.08] dark:hover:bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-black/5 dark:border-[var(--nexus-glass-border)]"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                   </button>
-                  <span className="text-[11px] font-black uppercase tracking-widest text-[var(--nexus-text-primary)] px-2">
+                  <span className="text-[11px] font-semibold   text-[var(--nexus-text-primary)] px-2">
                     {monthNames[calendarMonth].substring(0, 3)} {calendarYear}
                   </span>
                   <button 
                     onClick={nextMonth}
-                    className="p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.08] dark:hover:bg-white/[0.08] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-black/5 dark:border-white/5"
+                    className="p-2 rounded-xl bg-black/[0.03] dark:bg-[var(--nexus-bg-panel)] hover:bg-black/[0.08] dark:hover:bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-black/5 dark:border-[var(--nexus-glass-border)]"
                   >
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -732,7 +701,7 @@ export default function PinjolPage() {
               {/* Calendar Grid Container */}
               <div className="space-y-4">
                 {/* Weekday headers */}
-                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-[var(--nexus-text-muted)] uppercase">
+                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[var(--nexus-text-muted)] ">
                   <span>Sen</span>
                   <span>Sel</span>
                   <span>Rab</span>
@@ -748,21 +717,21 @@ export default function PinjolPage() {
                     const marker = getDayMarker(cell.date);
                     const isToday = new Date().getDate() === cell.day && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
                     
-                    let bgClass = 'bg-transparent text-[var(--nexus-text-secondary)] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]';
+                    let bgClass = 'bg-transparent text-[var(--nexus-text-secondary)] hover:bg-black/[0.02] dark:hover:bg-[var(--nexus-bg-panel)]';
                     let borderClass = 'border-transparent';
 
                     if (!cell.isCurrentMonth) {
                       bgClass = 'bg-transparent text-[var(--nexus-text-muted)]/20 pointer-events-none';
                     } else if (marker === 'paid') {
-                      bgClass = 'bg-emerald-500/10 text-emerald-500';
+                      bgClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)]';
                     } else if (marker === 'late') {
-                      bgClass = 'bg-rose-500/80 text-white font-black animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.4)]';
+                      bgClass = 'bg-rose-500/80 text-[var(--nexus-text-primary)] font-semibold animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.4)]';
                     } else if (marker === 'today') {
                       bgClass = 'bg-orange-500/20 text-orange-400 font-extrabold';
                       borderClass = 'border-orange-500/50 border';
                     } else if (marker === 'upcoming') {
-                      bgClass = 'bg-blue-500/10 text-blue-400 font-bold';
-                      borderClass = 'border-blue-500/30 border-dashed border';
+                      bgClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] font-semibold';
+                      borderClass = 'border-[var(--nexus-emerald-border)] border-dashed border';
                     } else if (isToday) {
                       borderClass = 'border-[var(--nexus-text-muted)]/40 border';
                     }
@@ -787,7 +756,7 @@ export default function PinjolPage() {
                 </div>
 
                 {/* Calendar Legend */}
-                <div className="flex items-center justify-between text-[9px] font-black uppercase text-[var(--nexus-text-muted)] tracking-wider border-t border-[var(--nexus-glass-border)] pt-3">
+                <div className="flex items-center justify-between text-[9px] font-semibold  text-[var(--nexus-text-muted)]  border-t border-[var(--nexus-glass-border)] pt-3">
                   <div className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
                     <span>Terlambat</span>
@@ -797,7 +766,7 @@ export default function PinjolPage() {
                     <span>Hari ini</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--nexus-emerald)] inline-block" />
                     <span>Akan datang</span>
                   </div>
                 </div>
@@ -807,10 +776,10 @@ export default function PinjolPage() {
               {terlambatLoans.length > 0 && (
                 <div className="p-3 rounded-[20px] bg-rose-500/5 border border-rose-500/10 flex items-center justify-between group hover:bg-rose-500/10 transition-all cursor-pointer">
                   <div className="space-y-1">
-                    <p className="text-[11px] font-extrabold text-rose-500 uppercase tracking-tight">
+                    <p className="text-[11px] font-extrabold text-rose-500  tracking-tight">
                       {terlambatLoans.length} tagihan terlambat
                     </p>
-                    <p className="text-[9px] font-semibold text-rose-500/50 uppercase tracking-wide">
+                    <p className="text-[9px] font-semibold text-rose-500/50  tracking-wide">
                       Total denda: Rp {terlambatSum.toLocaleString('id-ID')}
                     </p>
                   </div>
@@ -822,8 +791,8 @@ export default function PinjolPage() {
             {/* Tips Aman Pinjol Panel */}
             <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-4.5 shadow-xl space-y-4">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
-                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--nexus-text-primary)]">
+                <ShieldCheck className="w-5 h-5 text-[var(--nexus-emerald)] shrink-0" />
+                <h3 className="text-xs font-semibold  tracking-[0.2em] text-[var(--nexus-text-primary)]">
                   Tips Aman Pinjol
                 </h3>
               </div>
@@ -836,10 +805,10 @@ export default function PinjolPage() {
                   'Jaga data pribadi kamu',
                 ].map((tip, index) => (
                   <li key={index} className="flex items-start gap-2.5">
-                    <span className="w-4.5 h-4.5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="w-4.5 h-4.5 rounded-full bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] flex items-center justify-center shrink-0 mt-0.5">
                       <CheckCircle className="w-2.5 h-2.5" />
                     </span>
-                    <span className="text-[11px] font-bold text-[var(--nexus-text-secondary)] leading-relaxed uppercase tracking-tight">
+                    <span className="text-[11px] font-bold text-[var(--nexus-text-secondary)] leading-relaxed  tracking-tight">
                       {tip}
                     </span>
                   </li>
@@ -851,7 +820,7 @@ export default function PinjolPage() {
                   href="https://www.ojk.go.id"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[9px] font-black uppercase tracking-widest text-emerald-500 hover:text-emerald-400 flex items-center gap-1 transition-all group cursor-pointer"
+                  className="text-[9px] font-semibold   text-[var(--nexus-emerald)] hover:text-[var(--nexus-emerald)] flex items-center gap-1 transition-all group cursor-pointer"
                 >
                   Pelajari lebih lanjut
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
@@ -1012,7 +981,7 @@ export default function PinjolPage() {
                 <Button 
                   type="submit" 
                   loading={submitting}
-                  className="rounded-[20px] bg-emerald-500 text-white py-6 cursor-pointer"
+                  className="rounded-[20px] bg-[var(--nexus-emerald)] text-[var(--nexus-text-primary)] py-6 cursor-pointer"
                 >
                   Simpan Perubahan
                 </Button>

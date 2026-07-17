@@ -5,7 +5,6 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
-  ShieldAlert, 
   Sparkles,
   LogOut
 } from "lucide-react"
@@ -60,22 +59,14 @@ export default function Sidebar() {
     }
   };
 
-  const handleMockClick = (name: string) => {
-    toast(`Fitur "${name}" sedang dalam tahap pengembangan.`, "info");
-  };
-
-  // Build groups dynamically based on admin status
-  const groups = navigationGroups.map((group) => {
-    const items = [...group.items];
-    if (group.title === "SETTINGS") {
-      const filtered = [...items];
-      if (showAdmin) {
-        filtered.unshift({ name: "Admin Dashboard", path: "/user/admin", icon: ShieldAlert });
-      }
-      filtered.push({ name: "Log out", path: "#logout", icon: LogOut });
-      return { ...group, items: filtered };
-    }
-    return { ...group, items };
+  // Sembunyikan menu admin untuk non-admin, dan tempelkan Log out di grup terakhir.
+  const groups = navigationGroups.map((group, i) => {
+    const items = group.items.filter((item) => !item.isAdmin || showAdmin);
+    const isLast = i === navigationGroups.length - 1;
+    return {
+      ...group,
+      items: isLast ? [...items, { name: "Log out", path: "#logout", icon: LogOut }] : items,
+    };
   });
 
   return (
@@ -83,7 +74,7 @@ export default function Sidebar() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col bg-[var(--nexus-bg-sidebar)] border-r border-[var(--nexus-glass-border)] select-none transition-all duration-300 ease-out shadow-2xl",
+        "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col bg-[var(--nexus-bg-sidebar)] border-r border-[var(--nexus-glass-border)] select-none transition-all duration-300 ease-out",
         isCollapsed ? "w-[84px]" : "w-[260px]"
       )}
     >
@@ -100,7 +91,7 @@ export default function Sidebar() {
             <div key={group.title} className="space-y-2">
               {/* Group Title */}
               {!isCollapsed && (
-                <h4 className="px-4 text-[9px] font-black text-[var(--nexus-text-muted)] tracking-[0.25em] uppercase opacity-60">
+                <h4 className="px-4 text-[11px] font-medium text-[var(--nexus-text-muted)] tracking-wide">
                   {group.title}
                 </h4>
               )}
@@ -108,15 +99,14 @@ export default function Sidebar() {
               {/* Group Items */}
               <div className="space-y-1">
                 {group.items.map((item) => {
-                  const isMock = item.path.startsWith("#") && item.path !== "#logout";
                   const isLogout = item.path === "#logout";
-                  const isActive = pathname.startsWith(item.path) && !isMock && !isLogout;
+                  const isActive = pathname.startsWith(item.path) && !isLogout;
                   const Icon = item.icon;
                   const isHovered = hoveredItem === item.name;
 
                   const linkClasses = cn(
                     "w-full flex items-center rounded-xl transition-all duration-200 ease-out cursor-pointer relative group",
-                    isCollapsed ? "justify-center h-12" : "px-4 py-3 gap-3 text-xs font-bold"
+                    isCollapsed ? "justify-center h-12" : "px-4 py-3 gap-3 text-sm font-medium"
                   );
 
                   const activeClasses = isActive
@@ -134,9 +124,6 @@ export default function Sidebar() {
                     if (isLogout) {
                       e.preventDefault();
                       handleLogout();
-                    } else if (isMock) {
-                      e.preventDefault();
-                      handleMockClick(item.name);
                     }
                   };
 
@@ -148,7 +135,7 @@ export default function Sidebar() {
                         onMouseEnter={() => setHoveredItem(item.name)}
                         onMouseLeave={() => setHoveredItem(null)}
                       >
-                        {isLogout || isMock ? (
+                        {isLogout ? (
                           <button 
                             onClick={handleClick}
                             className={cn(linkClasses, activeClasses)}
@@ -172,9 +159,9 @@ export default function Sidebar() {
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, x: -5 }}
                               transition={{ duration: 0.15 }}
-                              className="absolute left-[70px] px-3 py-1.5 bg-[var(--nexus-bg-popup)]/95 border border-[var(--nexus-glass-border)] backdrop-blur-xl rounded-lg z-50 pointer-events-none whitespace-nowrap shadow-lg"
+                              className="absolute left-[70px] px-3 py-1.5 bg-[var(--nexus-bg-popup)] border border-[var(--nexus-glass-border)] rounded-lg z-50 pointer-events-none whitespace-nowrap shadow-lg"
                             >
-                              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--nexus-text-primary)]">
+                              <span className="text-xs font-medium text-[var(--nexus-text-primary)]">
                                 {item.name}
                               </span>
                             </motion.div>
@@ -185,14 +172,14 @@ export default function Sidebar() {
                   }
 
                   // Expanded view
-                  return isLogout || isMock ? (
+                  return isLogout ? (
                     <button
                       key={item.name}
                       onClick={handleClick}
                       className={cn(linkClasses, activeClasses)}
                     >
                       {renderIcon()}
-                      <span className="truncate uppercase tracking-wider">{item.name}</span>
+                      <span className="truncate">{item.name}</span>
                     </button>
                   ) : (
                     <Link
@@ -201,7 +188,7 @@ export default function Sidebar() {
                       className={cn(linkClasses, activeClasses)}
                     >
                       {renderIcon()}
-                      <span className="truncate uppercase tracking-wider">{item.name}</span>
+                      <span className="truncate">{item.name}</span>
                     </Link>
                   );
                 })}
@@ -213,22 +200,21 @@ export default function Sidebar() {
 
       {/* Upgrade Promo Card */}
       {!isCollapsed && profile?.plan !== 'pro' && (
-        <div className="p-4 mx-3 mb-4 rounded-[20px] bg-gradient-to-br from-violet-500/5 to-violet-500/10 border border-violet-500/15 relative overflow-hidden group space-y-3">
-          <div className="absolute -top-12 -right-12 w-24 h-24 bg-violet-500/10 rounded-full blur-xl group-hover:scale-125 transition-all duration-500" />
-          <div className="space-y-1 relative z-10">
-            <div className="flex items-center gap-1.5 text-violet-500">
+        <div className="p-4 mx-3 mb-4 rounded-[20px] bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] space-y-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-[var(--nexus-text-emerald)]">
               <Sparkles className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-black uppercase tracking-wider">Upgrade to Pro</span>
+              <span className="text-xs font-semibold">Upgrade ke Pro</span>
             </div>
-            <p className="text-[9px] text-[var(--nexus-text-secondary)] font-medium leading-relaxed uppercase tracking-tight">
-              Unlock more insights and advanced analytics.
+            <p className="text-xs text-[var(--nexus-text-secondary)] leading-relaxed">
+              Buka insight dan analitik lanjutan.
             </p>
           </div>
-          <button 
+          <button
             onClick={handleUpgrade}
-            className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-extrabold text-[9px] uppercase tracking-wider text-center cursor-pointer transition-all duration-300 relative z-10 shadow-md shadow-violet-600/20"
+            className="w-full py-2.5 rounded-xl bg-[var(--nexus-emerald)] hover:opacity-90 text-white font-medium text-xs text-center cursor-pointer transition-opacity duration-200"
           >
-            Upgrade Now
+            Upgrade sekarang
           </button>
         </div>
       )}

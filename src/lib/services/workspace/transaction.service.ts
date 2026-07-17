@@ -80,7 +80,10 @@ export const transactionService = {
       query = query.gte('date', filters.startDate);
     }
     if (filters.endDate) {
-      query = query.lte('date', filters.endDate);
+      // DatePicker mengirim YYYY-MM-DD tanpa jam; tanpa akhir-hari, transaksi
+      // pada tanggal itu sendiri ikut terpotong (dibandingkan ke 00:00).
+      const end = filters.endDate.length === 10 ? `${filters.endDate}T23:59:59.999` : filters.endDate;
+      query = query.lte('date', end);
     }
     if (filters.search) {
       query = query.ilike('note', `%${filters.search}%`);

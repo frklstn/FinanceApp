@@ -7,10 +7,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useApp } from '@/contexts/app-context';
-import { motion } from 'framer-motion';
-import { User, Mail, Lock, ShieldCheck, ArrowRight, Activity, Terminal, Eye, EyeOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { User, Mail, Lock, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { AuthShell, AuthAlert, authInputClass } from '@/components/auth/auth-shell';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -66,18 +64,21 @@ export default function RegisterPage() {
       } else {
         const isSessionActive = data.session !== null;
         if (isSessionActive) {
-          setSuccessMsg(t('auth.register.successInitializing', 'Registration Authorized. Initializing Node...'));
+          setSuccessMsg(t('auth.register.successInitializing', 'Akun berhasil dibuat. Mengalihkan...'));
           setTimeout(() => {
             router.push('/finance/dashboard');
             router.refresh();
           }, 1500);
         } else {
-          setSuccessMsg(t('auth.register.successVerification', 'Entity Registered. Verify Communication via Inbox.'));
-          setFullName(''); setEmail(''); setPassword(''); setConfirmPassword('');
+          setSuccessMsg(t('auth.register.successVerification', 'Akun terdaftar. Cek email untuk verifikasi.'));
+          setFullName('');
+          setEmail('');
+          setPassword('');
+          setConfirmPassword('');
         }
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t('auth.register.errorGeneric', 'System Failure: Unexpected error.');
+      const msg = err instanceof Error ? err.message : t('auth.register.errorGeneric', 'Terjadi kesalahan, coba lagi.');
       setErrorMsg(msg);
     } finally {
       setLoading(false);
@@ -85,152 +86,80 @@ export default function RegisterPage() {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="relative"
+    <AuthShell
+      topRight={
+        <Link href="/login" className="hover:underline">
+          Sudah punya akun? Masuk
+        </Link>
+      }
     >
-      <div className="absolute inset-0 bg-emerald-500/5 blur-[80px] rounded-full -z-10" />
+      {errorMsg && <AuthAlert tone="error">{errorMsg}</AuthAlert>}
+      {successMsg && <AuthAlert tone="success">{successMsg}</AuthAlert>}
 
-      <div className="glass-card p-8 md:p-12 w-full border-white/5 bg-white/[0.01] backdrop-blur-3xl rounded-[40px] shadow-2xl space-y-8">
-        {/* Header Removed as requested */}
-
-        {errorMsg && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-[20px] bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-3"
-          >
-            <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
-            <span>{errorMsg}</span>
-          </motion.div>
-        )}
-
-        {successMsg && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-[20px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-3"
-          >
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            <span>{successMsg}</span>
-          </motion.div>
-        )}
-
-        <form onSubmit={handleRegister} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">
-                {t('auth.register.fullNameLabel', 'Nama Lengkap / Username')}
-              </label>
-              <div className="relative group">
-                <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
-                <Input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder={t('auth.register.fullNamePlaceholder', 'Masukkan nama lengkap')}
-                  disabled={loading}
-                  description={t('auth.register.fullNameDesc', 'Gunakan nama lengkap atau nama unik Anda untuk profil')}
-                  className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">
-                {t('auth.register.emailLabel', 'Email')}
-              </label>
-              <div className="relative group">
-                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('auth.register.emailPlaceholder', 'nama@email.com')}
-                  disabled={loading}
-                  description={t('auth.register.emailDesc', 'Gunakan alamat email aktif untuk verifikasi masuk')}
-                  className="pl-14 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">
-                {t('auth.register.passwordLabel', 'Password')}
-              </label>
-              <div className="relative group">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t('auth.register.passwordPlaceholder', '••••••••')}
-                  disabled={loading}
-                  description={t('auth.register.passwordDesc', 'Password minimal 6 karakter untuk keamanan brankas')}
-                  className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">
-                {t('auth.register.confirmPasswordLabel', 'Konfirmasi Password')}
-              </label>
-              <div className="relative group">
-                <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-emerald-500 transition-colors" />
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder={t('auth.register.confirmPasswordPlaceholder', '••••••••')}
-                  disabled={loading}
-                  description={t('auth.register.confirmPasswordDesc', 'Ulangi password untuk menghindari salah ketik')}
-                  className="pl-14 pr-12 rounded-[20px] bg-white/[0.03] border-white/5 py-7 text-sm font-bold tracking-tight h-auto w-full"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 hover:text-emerald-500 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <Button
-            type="submit"
+      <form onSubmit={handleRegister} className="space-y-3">
+        <div className="relative">
+          <User className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder={t('auth.register.fullNamePlaceholder', 'Nama lengkap')}
             disabled={loading}
-            className="w-full rounded-[24px] bg-indigo-500 hover:bg-indigo-600 border-none py-8 text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-indigo-500/20 transition-all active:scale-[0.98]"
-          >
-            {loading ? (
-              <div className="flex items-center gap-3">
-                <Activity className="w-4 h-4 animate-spin" />
-                <span>{t('auth.register.loadingButton', 'Membuat Akun...')}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <Terminal className="w-4 h-4" />
-                <span>{t('auth.register.submitButton', 'Buat Akun Sekarang')}</span>
-                <ArrowRight className="w-4 h-4" />
-              </div>
-            )}
-          </Button>
-        </form>
-
-        <div className="pt-6 text-center">
-          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">
-            {t('auth.register.hasAccount', 'Sudah punya akun? ')}{' '}
-            <Link href="/login" className="text-emerald-500 hover:text-emerald-400 transition-all underline decoration-emerald-500/20 underline-offset-4">
-              {t('auth.register.loginLink', 'Masuk')}
-            </Link>
-          </p>
+            className={`${authInputClass} pl-11 pr-4`}
+          />
         </div>
-      </div>
-    </motion.div>
+
+        <div className="relative">
+          <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            disabled={loading}
+            className={`${authInputClass} pl-11 pr-4`}
+          />
+        </div>
+
+        <div className="relative">
+          <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+          <input
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Kata sandi (min. 6 karakter)"
+            disabled={loading}
+            className={`${authInputClass} pl-11 pr-11`}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1b1815]/35 hover:text-[#1b1815]/70 dark:text-[#f3ede3]/35 dark:hover:text-[#f3ede3]/70"
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
+
+        <div className="relative">
+          <ShieldCheck className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+          <input
+            type={showPassword ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Ulangi kata sandi"
+            disabled={loading}
+            className={`${authInputClass} pl-11 pr-4`}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl bg-[#1b1815] py-3 text-sm font-medium text-[#f6f2ea] transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-[#f3ede3] dark:text-[#15130f]"
+        >
+          {loading ? t('auth.register.loadingButton', 'Membuat akun...') : t('auth.register.submitButton', 'Buat akun')}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

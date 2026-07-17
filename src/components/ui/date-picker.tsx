@@ -153,7 +153,7 @@ export function DatePicker({
       <>
         <div className="grid grid-cols-7 gap-1 mb-2">
           {WEEKDAYS.map(d => (
-            <span key={d} className="text-[10px] font-black text-[var(--nexus-text-muted)]/40 uppercase text-center">{d}</span>
+            <span key={d} className="text-[10px] font-medium text-[var(--nexus-text-muted)] text-center">{d}</span>
           ))}
         </div>
         <div className="grid grid-cols-7 gap-1">
@@ -165,8 +165,8 @@ export function DatePicker({
                 type="button"
                 onClick={() => c.current && handleSelectDay(c.day)}
                 className={cn(
-                  "h-9 rounded-xl text-xs font-bold transition-all cursor-pointer",
-                  !c.current ? "text-[var(--nexus-text-muted)]/10" : isSelected ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "text-[var(--nexus-text-secondary)] hover:bg-[var(--nexus-bg-panel)] hover:text-[var(--nexus-text-primary)]"
+                  "h-9 rounded-xl text-xs font-medium transition-colors cursor-pointer",
+                  !c.current ? "text-[var(--nexus-text-muted)]/30" : isSelected ? "bg-[var(--nexus-emerald)] text-white" : "text-[var(--nexus-text-secondary)] hover:bg-[var(--nexus-bg-panel)] hover:text-[var(--nexus-text-primary)]"
                 )}
               >
                 {c.day}
@@ -187,7 +187,7 @@ export function DatePicker({
           onClick={() => { setViewMonth(i); setViewMode('days'); }}
           className={cn(
             "py-4 rounded-xl text-xs font-bold transition-all cursor-pointer",
-            viewMonth === i ? "bg-emerald-500 text-white" : "text-[var(--nexus-text-muted)] hover:bg-[var(--nexus-bg-panel)] hover:text-[var(--nexus-text-primary)]"
+            viewMonth === i ? "bg-[var(--nexus-emerald)] text-white" : "text-[var(--nexus-text-muted)] hover:bg-[var(--nexus-bg-panel)] hover:text-[var(--nexus-text-primary)]"
           )}
         >
           {m.substring(0, 3)}
@@ -209,7 +209,7 @@ export function DatePicker({
             onClick={() => { setViewYear(y); setViewMode('months'); }}
             className={cn(
               "py-4 rounded-xl text-xs font-bold transition-all cursor-pointer",
-              viewYear === y ? "bg-emerald-500 text-white" : "text-[var(--nexus-text-muted)] hover:bg-[var(--nexus-bg-panel)] hover:text-[var(--nexus-text-primary)]"
+              viewYear === y ? "bg-[var(--nexus-emerald)] text-white" : "text-[var(--nexus-text-muted)] hover:bg-[var(--nexus-bg-panel)] hover:text-[var(--nexus-text-primary)]"
             )}
           >
             {y}
@@ -221,36 +221,36 @@ export function DatePicker({
 
   return (
     <div className={cn("w-full relative", className)} ref={containerRef}>
-      {label && <label className="block text-[10px] font-black uppercase text-[var(--nexus-text-muted)]/60 tracking-widest mb-1.5">{label}</label>}
+      {label && <label className="block text-xs font-medium text-[var(--nexus-text-secondary)] mb-1.5">{label}</label>}
       <button
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center gap-3 px-5 py-3 rounded-2xl bg-[var(--bg-main)]/50 border text-sm text-[var(--nexus-text-primary)] transition-all cursor-pointer backdrop-blur-xl",
-          error ? "border-rose-500/50" : isOpen ? "border-emerald-500 ring-4 ring-emerald-500/10" : "border-[var(--nexus-glass-border)] hover:border-emerald-500/50"
+          "w-full flex items-center gap-3 px-5 py-3 rounded-2xl bg-[var(--nexus-bg-card)] border text-sm text-[var(--nexus-text-primary)] transition-colors cursor-pointer",
+          error ? "border-rose-500/50" : isOpen ? "border-[var(--nexus-emerald)] ring-4 ring-[var(--nexus-emerald-glow)]" : "border-[var(--nexus-glass-border)] hover:border-[var(--nexus-emerald-border)]"
         )}
       >
-        <CalendarIcon className="w-4 h-4 text-emerald-500" />
-        <span className="truncate font-bold uppercase tracking-tight">{getDisplayValue()}</span>
-        <ChevronDown className={cn("ml-auto w-4 h-4 text-[var(--nexus-text-muted)]/30 transition-transform", isOpen && "rotate-180")} />
+        <CalendarIcon className="w-4 h-4 text-[var(--nexus-emerald)]" />
+        <span className="truncate font-medium">{getDisplayValue()}</span>
+        <ChevronDown className={cn("ml-auto w-4 h-4 text-[var(--nexus-text-muted)] transition-transform", isOpen && "rotate-180")} />
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2 w-full min-w-[300px] z-[110] p-5 rounded-[32px] bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] shadow-[0_30px_60px_rgba(0,0,0,0.15)] backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute left-0 top-full mt-2 w-full min-w-[300px] z-30 p-5 rounded-3xl bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] shadow-xl animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setViewMode(viewMode === 'days' ? 'months' : 'days')}
-                className="text-sm font-black text-[var(--nexus-text-primary)] uppercase tracking-widest hover:text-emerald-400 transition-colors cursor-pointer"
+                className="text-sm font-semibold text-[var(--nexus-text-primary)] hover:text-[var(--nexus-emerald)] transition-colors cursor-pointer"
               >
                 {INDO_MONTHS[viewMonth]}
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setViewMode('years')}
-                className="text-sm font-black text-[var(--nexus-text-muted)] uppercase tracking-widest hover:text-[var(--nexus-text-primary)] transition-colors cursor-pointer"
+                className="text-sm font-medium text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] transition-colors cursor-pointer"
               >
                 {viewYear}
               </button>
@@ -268,8 +268,8 @@ export function DatePicker({
           </div>
 
           <div className="flex gap-3 mt-6 pt-5 border-t border-[var(--nexus-glass-border)]">
-            <button type="button" onClick={() => setIsOpen(false)} className="flex-1 py-3 text-[10px] font-black uppercase bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] rounded-xl transition-all cursor-pointer tracking-widest border border-[var(--nexus-glass-border)]">Batal</button>
-            <button type="button" onClick={handleSave} className="flex-1 py-3 text-[10px] font-black uppercase bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all cursor-pointer tracking-widest">Terapkan</button>
+            <button type="button" onClick={() => setIsOpen(false)} className="flex-1 py-2.5 text-xs font-medium bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] rounded-xl transition-colors cursor-pointer border border-[var(--nexus-glass-border)]">Batal</button>
+            <button type="button" onClick={handleSave} className="flex-1 py-2.5 text-xs font-medium bg-[var(--nexus-emerald)] text-white rounded-xl hover:opacity-90 transition-opacity cursor-pointer">Terapkan</button>
           </div>
         </div>
       )}

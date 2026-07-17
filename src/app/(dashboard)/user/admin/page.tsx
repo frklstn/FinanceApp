@@ -92,6 +92,13 @@ export default function AdminPage() {
 
   // Toggle user suspension
   const handleToggleSuspend = async (userId: string, currentSuspendedState: boolean) => {
+    // Menonaktifkan akun sendiri = terkunci permanen: middleware mengalihkan
+    // semua path terproteksi (termasuk /user/admin) ke /suspended, jadi tidak
+    // ada jalan mengaktifkannya kembali lewat UI -- hanya lewat SQL.
+    if (userId === user?.id && !currentSuspendedState) {
+      toast('Tidak bisa menonaktifkan akun sendiri: kamu akan terkunci dari panel ini.', 'warning');
+      return;
+    }
     setUpdatingUserId(userId);
     try {
       await adminService.bulkUpdateStatus([userId], !currentSuspendedState);
@@ -114,11 +121,17 @@ export default function AdminPage() {
   };
 
   const handleBulkSuspend = async (isSuspended: boolean) => {
-    const ids = Array.from(selectedUserIds);
+    // Alasan sama seperti handleToggleSuspend: "pilih semua" ikut menyeret akun
+    // sendiri, jadi dikeluarkan sebelum aksi massal dijalankan.
+    const ids = Array.from(selectedUserIds).filter((id) => !(isSuspended && id === user?.id));
+    if (ids.length === 0) {
+      toast('Tidak ada akun yang bisa diproses (akun sendiri dilewati).', 'warning');
+      return;
+    }
     setUpdatingUserId('bulk');
     try {
       await adminService.bulkUpdateStatus(ids, isSuspended);
-      setUsers(prev => prev.map(u => selectedUserIds.has(u.id) ? { ...u, is_suspended: isSuspended } : u));
+      setUsers(prev => prev.map(u => ids.includes(u.id) ? { ...u, is_suspended: isSuspended } : u));
       setSelectedUserIds(new Set());
       toast(`Berhasil ${isSuspended ? 'menonaktifkan' : 'mengaktifkan'} ${ids.length} pengguna`, 'success');
     } catch {
@@ -260,7 +273,7 @@ export default function AdminPage() {
               placeholder="Cari nama atau email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-[16px] border border-white/5 bg-white/[0.03] text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-150"
+              className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-[16px] border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] focus:outline-none focus:border-[var(--nexus-emerald-border)] focus:ring-1 focus:ring-[var(--nexus-emerald)] transition-all duration-150"
             />
         </div>
       </div>
@@ -271,8 +284,8 @@ export default function AdminPage() {
       </div>
 
       {selectedUserIds.size > 0 && (
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-light-bg/50 dark:bg-dark-bg/50 border border-emerald-500/20">
-          <span className="text-xs font-bold text-emerald-500">{selectedUserIds.size} pengguna dipilih:</span>
+        <div className="flex items-center gap-3 p-4 rounded-2xl bg-light-bg/50 dark:bg-dark-bg/50 border border-[var(--nexus-emerald-border)]">
+          <span className="text-xs font-bold text-[var(--nexus-emerald)]">{selectedUserIds.size} pengguna dipilih:</span>
           <Button size="sm" variant="outline" onClick={() => handleBulkSuspend(true)} loading={updatingUserId === 'bulk'}>Suspend</Button>
           <Button size="sm" variant="outline" onClick={() => handleBulkSuspend(false)} loading={updatingUserId === 'bulk'}>Aktifkan</Button>
         </div>
@@ -283,7 +296,7 @@ export default function AdminPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-light-border/40 dark:border-dark-border/40 bg-light-bg/30 dark:bg-dark-bg/20 text-[10px] font-bold uppercase tracking-wider text-light-text-secondary dark:text-dark-text-secondary">
+              <tr className="border-b border-light-border/40 dark:border-dark-border/40 bg-light-bg/30 dark:bg-dark-bg/20 text-[10px] font-bold   text-light-text-secondary dark:text-dark-text-secondary">
                 <th className="px-5 py-3 w-10">
                   <input 
                     type="checkbox" 
@@ -370,7 +383,7 @@ export default function AdminPage() {
                     <td className="px-5 py-3.5">
                       <div className="flex flex-col gap-1">
                         <span
-                          className={`inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          className={`inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-bold  ${
                             u.plan === 'pro'
                               ? 'bg-primary/15 text-primary border border-primary/20'
                               : 'bg-light-text-secondary/15 text-light-text-secondary dark:bg-dark-text-secondary/15 dark:text-dark-text-secondary border border-light-border/40'
@@ -396,7 +409,7 @@ export default function AdminPage() {
                         }`}
                       >
                         {u.is_suspended ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-                        {u.is_suspended ? 'NONAKTIF' : 'AKTIF'}
+                        {u.is_suspended ? 'Nonaktif' : 'Aktif'}
                       </span>
                     </td>
 
@@ -421,13 +434,17 @@ export default function AdminPage() {
 
                       <button
                         onClick={() => handleToggleSuspend(u.id, u.is_suspended)}
-                        disabled={updatingUserId === u.id}
-                        className={`inline-flex items-center justify-center p-1.5 rounded-lg border transition-all duration-150 cursor-pointer ${
+                        disabled={updatingUserId === u.id || (u.id === user?.id && !u.is_suspended)}
+                        className={`inline-flex items-center justify-center p-1.5 rounded-lg border transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                           u.is_suspended
                             ? 'border-success/30 text-success hover:bg-success/5 hover:border-success'
                             : 'border-danger/30 text-danger hover:bg-danger/5 hover:border-danger'
                         }`}
-                        title={u.is_suspended ? 'Aktifkan akun' : 'Nonaktifkan akun'}
+                        title={
+                          u.id === user?.id && !u.is_suspended
+                            ? 'Tidak bisa menonaktifkan akun sendiri'
+                            : u.is_suspended ? 'Aktifkan akun' : 'Nonaktifkan akun'
+                        }
                       >
                         <Ban className="w-3.5 h-3.5" />
                       </button>
@@ -442,7 +459,7 @@ export default function AdminPage() {
 
       {/* Edit User Modal Overlay */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
           <Card className="w-full max-w-md p-6 space-y-6 shadow-2xl border border-light-border/40 dark:border-dark-border/40 bg-light-card dark:bg-dark-card animate-scale-up">
             <div className="flex items-center justify-between pb-3 border-b border-light-border/40 dark:border-dark-border/40">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-1.5">

@@ -1,46 +1,18 @@
+/**
+ * SUMBER TUNGGAL PALET.
+ *
+ * Hex hanya boleh ditulis di file ini. Dua lapis di atasnya cuma memetakan:
+ *   - global.css @theme inline  -> utility Tailwind (bg-primary, text-danger, ...)
+ *   - nexus-theme/tokens.css    -> alias --nexus-* yang dipakai komponen lama
+ * Sebelumnya tiap hex ditulis ulang di ketiga file, dan --primary di-set ganda
+ * di tokens.css + global.css sehingga yang dimuat terakhir diam-diam menang.
+ */
+
 @theme {
-  --color-primary: #10B981;
-  --color-primary-dim: #059669;
-  --color-primary-hover: #34D399;
+  /* Font sengaja tidak didefinisikan di sini: default Tailwind
+     (ui-sans-serif / ui-serif / ui-monospace) sudah memakai font bawaan OS
+     tempat aplikasi berjalan. Tidak ada webfont yang diunduh. */
 
-  --color-success: #10B981;
-  --color-danger: #F43F5E;
-  --color-warning: #F59E0B;
-  --color-info: #3B82F6;
-
-  --color-surface-1: #09090B;
-  --color-surface-2: #18181B;
-  --color-surface-3: #27272A;
-  --color-surface-4: #3F3F46;
-
-  --color-text-primary: var(--nexus-text-primary);
-  --color-text-secondary: var(--nexus-text-secondary);
-  --color-text-muted: var(--nexus-text-muted);
-
-  /* Compatibility aliases */
-  --color-light-bg: var(--nexus-bg-main);
-  --color-light-card: var(--nexus-bg-card);
-  --color-light-border: var(--nexus-glass-border);
-  --color-light-text-primary: var(--nexus-text-primary);
-  --color-light-text-secondary: var(--nexus-text-secondary);
-
-  --color-dark-bg: var(--nexus-bg-main);
-  --color-dark-card: var(--nexus-bg-card);
-  --color-dark-border: var(--nexus-glass-border);
-  --color-dark-text-primary: var(--nexus-text-primary);
-  --color-dark-text-secondary: var(--nexus-text-secondary);
-
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
-  --radius-2xl: 32px;
-  --radius-3xl: 40px;
-
-  /* Impeccable Animations */
   --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
   --animate-scale-up: scale-up 0.4s var(--ease-premium) forwards;
 
@@ -57,68 +29,66 @@
 }
 
 :root {
-  /* Light Mode Colors */
-  --bg-main: #f8f9fa;
-  --bg-sidebar: #ffffff;
-  --bg-card: #ffffff;
-  --bg-surface: #e9ecef;
-  
-  --primary: #10B981;
-  --primary-glow: rgba(16, 185, 129, 0.2);
-  --success: #28D17C;
-  --danger: #FF4B5C;
-  --warning: #FFB347;
-  
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  
-  --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.05);
-  --shadow-neon: 0 0 15px var(--primary-glow);
+  /* Permukaan - cream, selaras landing page */
+  --bg-main: #f6f2ea;
+  --bg-sidebar: #f6f2ea;
+  --bg-card: #fffdf8;
+  --bg-surface: #efe8da;
 
-  /* Glass Effects (Light Mode) */
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-blur: blur(24px);
+  /* Aksen tunggal: terracotta. Tidak ada warna merek kedua. */
+  --primary: #a8532f;
+  --primary-dim: #8a4526;
+  --primary-hover: #c2693f;
+  --primary-glow: rgba(168, 83, 47, 0.15);
 
-  /* Premium Gradients (Light Mode) */
-  --grad-primary: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-  --grad-surface: linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0) 100%);
-  --grad-dark: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  /* Sinyal. success = aksen (hijau sudah dibuang dari palet). */
+  --success: #a8532f;
+  --danger: #e11d48;
+  --warning: #b45309;
 
-  /* Impeccable Typography (Static) */
+  --text-primary: #1b1815;
+  --text-secondary: #6b6156;
+  --text-muted: #948a7c;
+
+  --border-line: rgba(27, 24, 21, 0.10);
+
+  --shadow-premium: 0 10px 30px rgba(27, 24, 21, 0.06);
+
+  --glass-bg: rgba(255, 253, 248, 0.7);
+  --glass-border: rgba(27, 24, 21, 0.10);
+  --glass-blur: blur(12px);
+
+  --grad-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+
   --tracking-tightest: -0.05em;
   --tracking-tighter: -0.02em;
   --tracking-wide: 0.05em;
 }
 
 .dark {
-  /* Dark Mode Colors */
-  --bg-main: #09090B;
-  --bg-sidebar: #09090B;
-  --bg-card: #18181B;
-  --bg-surface: #27272A;
-  
-  --primary: #10B981;
-  --primary-glow: rgba(16, 185, 129, 0.4);
-  --success: #28D17C;
-  --danger: #FF4B5C;
-  --warning: #FFB347;
-  
-  --text-primary: #FFFFFF;
-  --text-secondary: #A7B0D1;
-  --text-muted: #6F7A9E;
-  
-  --shadow-premium: 0 30px 60px rgba(0, 0, 0, 0.6);
-  --shadow-neon: 0 0 25px var(--primary-glow);
+  --bg-main: #15130f;
+  --bg-sidebar: #15130f;
+  --bg-card: #1c1a15;
+  --bg-surface: #211e18;
 
-  /* Glass Effects (Dark Mode) */
-  --glass-bg: rgba(24, 24, 27, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: blur(24px);
+  --primary: #e2916a;
+  --primary-dim: #c2693f;
+  --primary-hover: #eda684;
+  --primary-glow: rgba(226, 145, 106, 0.2);
 
-  /* Premium Gradients (Dark Mode) */
-  --grad-primary: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-  --grad-surface: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
-  --grad-dark: linear-gradient(180deg, #18181B 0%, #09090B 100%);
+  --success: #e2916a;
+  --danger: #fb7185;
+  --warning: #f0b429;
+
+  --text-primary: #f3ede3;
+  --text-secondary: #b8ae9c;
+  --text-muted: #8a8071;
+
+  --border-line: rgba(243, 237, 227, 0.10);
+
+  --shadow-premium: 0 30px 60px rgba(0, 0, 0, 0.45);
+
+  --glass-bg: rgba(28, 26, 21, 0.85);
+  --glass-border: rgba(243, 237, 227, 0.10);
+  --glass-blur: blur(12px);
 }

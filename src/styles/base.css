@@ -8,11 +8,8 @@
 }
 
 body {
-  @apply bg-[#050816] text-white selection:bg-primary/30 min-h-screen overflow-x-hidden;
-  font-family: var(--font-sans);
-  background: radial-gradient(circle at top right, #0a1028 0%, #050816 100%);
-  background-attachment: fixed;
-  letter-spacing: -0.02em;
+  min-height: 100vh;
+  overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 

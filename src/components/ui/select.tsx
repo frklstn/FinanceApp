@@ -88,7 +88,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full space-y-1.5" ref={containerRef}>
         {label && (
-          <label className="block text-xs font-bold text-text-secondary tracking-wide uppercase">
+          <label className="block text-xs font-medium text-text-secondary tracking-wide">
             {label}
           </label>
         )}
@@ -123,7 +123,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               error
                 ? "border-danger/60"
                 : isOpen
-                ? "border-emerald-500 ring-4 ring-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
+                ? "border-[var(--nexus-emerald)] ring-4 ring-[var(--nexus-emerald-glow)]"
                 : "border-[var(--nexus-glass-border)]",
               props.disabled && "opacity-50 cursor-not-allowed",
               className
@@ -138,14 +138,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={cn("w-4 h-4 text-emerald-400 transition-transform duration-300", isOpen && "rotate-180")}
+              className={cn("w-4 h-4 text-[var(--nexus-text-muted)] transition-transform duration-300", isOpen && "rotate-180")}
             >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </button>
  
           {isOpen && !props.disabled && (
-            <div className="absolute left-0 right-0 z-[100] mt-2 w-full rounded-2xl bg-[var(--bg-card)]/95 backdrop-blur-xl border border-[var(--nexus-glass-border)] shadow-[0_20px_50px_rgba(0,0,0,0.2)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150 ease-out no-scrollbar">
+            <div className="absolute left-0 right-0 z-30 mt-2 w-full rounded-2xl bg-[var(--bg-card)]/95 backdrop-blur-xl border border-[var(--nexus-glass-border)] shadow-[0_20px_50px_rgba(0,0,0,0.2)] py-2 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150 ease-out no-scrollbar">
               {options.map((option) => {
                 const isSelected = option.value === currentValue;
                 return (
@@ -156,13 +156,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     className={cn(
                       "w-full px-5 py-3 text-xs text-left transition-all duration-200 flex items-center justify-between cursor-pointer group/opt",
                       isSelected
-                        ? "text-[var(--nexus-text-emerald)] font-black bg-emerald-500/10"
+                        ? "text-[var(--nexus-text-emerald)] font-semibold bg-[var(--nexus-emerald-glow)]"
                         : "text-[var(--nexus-text-secondary)] hover:bg-[var(--nexus-bg-panel)] hover:text-[var(--nexus-text-primary)]"
                     )}
                   >
-                    <span className="truncate uppercase tracking-wider">{option.label}</span>
+                    <span className="truncate">{option.label}</span>
                     {isSelected && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--nexus-emerald)]" />
                     )}
                   </button>
                 );
@@ -172,7 +172,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         </div>
  
         {error && (
-          <p className="text-[10px] text-danger font-bold uppercase tracking-tight flex items-center gap-1.5">
+          <p className="text-[10px] text-danger font-medium flex items-center gap-1.5">
             {error}
           </p>
         )}

@@ -8,161 +8,143 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Skala z-index (pakai ini, jangan karang angka baru):
+     auto   konten halaman -- jangan beri z pada kartu/section, karena membuat
+            stacking context yang mengalahkan chrome di bawahnya
+     20     backdrop penangkap klik untuk popover
+     30     dropdown & popover (Select, DatePicker, notifikasi)
+     40     bottom bar mobile
+     45     backdrop drawer mobile
+     50     sidebar, drawer mobile
+     100    modal + backdrop-nya
+     200    toast -- harus di atas modal, kalau tidak toast error saat modal
+            terbuka tidak terlihat */
+
+/**
+ * Pemetaan utility Tailwind -> palet di tokens.css.
+ *
+ * Semuanya `inline` + var() supaya utility ikut berubah saat .dark aktif.
+ * Tidak ada hex di file ini: satu-satunya tempat hex adalah tokens.css.
+ */
 @theme inline {
+    /* Judul memakai serif bawaan OS (ui-serif). Seluruh font di aplikasi ini
+       adalah font sistem; tidak ada webfont yang diunduh. */
+    --font-heading: var(--font-serif);
 
-    --font-heading: var(--font-sans);
+    /* Aksen & sinyal */
+    --color-primary: var(--primary);
+    --color-primary-dim: var(--primary-dim);
+    --color-primary-hover: var(--primary-hover);
+    --color-success: var(--success);
+    --color-danger: var(--danger);
+    --color-warning: var(--warning);
 
-    --font-sans: var(--font-sans);
+    /* Teks */
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-muted: var(--text-muted);
 
+    /* Alias warisan (light-… dan dark-…) yang masih dipakai komponen lama.
+       Keduanya menunjuk palet yang sama karena mode gelap sudah ditangani
+       oleh blok .dark di tokens.css. */
+    --color-light-bg: var(--bg-main);
+    --color-light-card: var(--bg-card);
+    --color-light-border: var(--border-line);
+    --color-light-text-primary: var(--text-primary);
+    --color-light-text-secondary: var(--text-secondary);
+    --color-dark-bg: var(--bg-main);
+    --color-dark-card: var(--bg-card);
+    --color-dark-border: var(--border-line);
+    --color-dark-text-primary: var(--text-primary);
+    --color-dark-text-secondary: var(--text-secondary);
+
+    /* Token shadcn (dipakai tabs, toast, button, dsb) */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    --color-sidebar-border: var(--sidebar-border);
-
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-
-    --color-sidebar-accent: var(--sidebar-accent);
-
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-
-    --color-sidebar-primary: var(--sidebar-primary);
-
-    --color-sidebar-foreground: var(--sidebar-foreground);
-
-    --color-sidebar: var(--sidebar);
-
-    --color-chart-5: var(--chart-5);
-
-    --color-chart-4: var(--chart-4);
-
-    --color-chart-3: var(--chart-3);
-
-    --color-chart-2: var(--chart-2);
-
-    --color-chart-1: var(--chart-1);
-
-    --color-ring: var(--ring);
-
-    --color-input: var(--input);
-
-    --color-border: var(--border);
-
-    --color-destructive: var(--destructive);
-
-    --color-accent-foreground: var(--accent-foreground);
-
-    --color-accent: var(--accent);
-
-    --color-muted-foreground: var(--muted-foreground);
-
-    --color-muted: var(--muted);
-
-    --color-secondary-foreground: var(--secondary-foreground);
-
-    --color-secondary: var(--secondary);
-
-    --color-primary-foreground: var(--primary-foreground);
-
-    --color-primary: var(--primary);
-
-    --color-popover-foreground: var(--popover-foreground);
-
-    --color-popover: var(--popover);
-
-    --color-card-foreground: var(--card-foreground);
-
-    --color-card: var(--card);
-
-    --color-foreground: var(--foreground);
-
-    --color-background: var(--background);
-
     --radius-sm: calc(var(--radius) * 0.6);
-
     --radius-md: calc(var(--radius) * 0.8);
-
     --radius-lg: var(--radius);
-
     --radius-xl: calc(var(--radius) * 1.4);
-
     --radius-2xl: calc(var(--radius) * 1.8);
-
     --radius-3xl: calc(var(--radius) * 2.2);
-
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Nama shadcn -> palet. Sekali saja; mode gelap ikut .dark di tokens.css. */
 :root {
-    --background: oklch(0.985 0.005 240);
-    --foreground: oklch(0.18 0.01 240);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.18 0.01 240);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.18 0.01 240);
-    --primary: oklch(0.62 0.16 155);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.95 0.01 240);
-    --secondary-foreground: oklch(0.25 0.01 240);
-    --muted: oklch(0.95 0.01 240);
-    --muted-foreground: oklch(0.55 0.01 240);
-    --accent: oklch(0.95 0.01 240);
-    --accent-foreground: oklch(0.25 0.01 240);
-    --destructive: oklch(0.60 0.18 25);
-    --border: oklch(0.92 0.01 240);
-    --input: oklch(0.92 0.01 240);
-    --ring: oklch(0.62 0.16 155);
-    --chart-1: oklch(0.62 0.16 155);
-    --chart-2: oklch(0.48 0.15 220);
-    --chart-3: oklch(0.82 0.14 85);
-    --chart-4: oklch(0.60 0.18 25);
-    --chart-5: oklch(0.35 0.05 240);
-    --radius: 0.625rem;
-    --sidebar: oklch(1 0 0);
-    --sidebar-foreground: oklch(0.18 0.01 240);
-    --sidebar-primary: oklch(0.62 0.16 155);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.95 0.01 240);
-    --sidebar-accent-foreground: oklch(0.25 0.01 240);
-    --sidebar-border: oklch(0.92 0.01 240);
-    --sidebar-ring: oklch(0.62 0.16 155);
-}
+    --background: var(--bg-main);
+    --foreground: var(--text-primary);
+    --card: var(--bg-card);
+    --card-foreground: var(--text-primary);
+    --popover: var(--bg-card);
+    --popover-foreground: var(--text-primary);
+    --primary-foreground: var(--bg-card);
+    --secondary: var(--bg-surface);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--bg-surface);
+    --muted-foreground: var(--text-secondary);
+    --accent: var(--bg-surface);
+    --accent-foreground: var(--text-primary);
+    --destructive: var(--danger);
+    --destructive-foreground: var(--bg-card);
+    --border: var(--border-line);
+    --input: var(--border-line);
+    --ring: var(--primary);
 
-.dark {
-    --background: oklch(0.12 0.01 240);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.16 0.01 240);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.16 0.01 240);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.70 0.19 155);
-    --primary-foreground: oklch(0.12 0.01 240);
-    --secondary: oklch(0.22 0.01 240);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.22 0.01 240);
-    --muted-foreground: oklch(0.65 0.01 240);
-    --accent: oklch(0.22 0.01 240);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.55 0.18 25);
-    --destructive-foreground: oklch(0.985 0 0);
-    --border: oklch(0.20 0.01 240);
-    --input: oklch(0.20 0.01 240);
-    --ring: oklch(0.70 0.19 155);
-    --radius: 32px;
-    
-    /* Glassmorphism Tokens */
-    --glass-bg: rgba(24, 24, 27, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-blur: blur(24px);
-}
+    --chart-1: var(--primary);
+    --chart-2: var(--primary-dim);
+    --chart-3: var(--warning);
+    --chart-4: var(--danger);
+    --chart-5: var(--text-secondary);
 
+    --radius: 0.75rem;
+
+    --sidebar: var(--bg-sidebar);
+    --sidebar-foreground: var(--text-primary);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--bg-card);
+    --sidebar-accent: var(--bg-surface);
+    --sidebar-accent-foreground: var(--text-primary);
+    --sidebar-border: var(--border-line);
+    --sidebar-ring: var(--primary);
+}
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
     }
   body {
-  background-color: var(--nexus-bg-main) !important;
-  color: var(--foreground);
-  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
