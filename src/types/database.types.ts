@@ -919,11 +919,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_my_account: { Args: never; Returns: undefined }
       is_superadmin: { Args: never; Returns: boolean }
       is_workspace_member: {
         Args: { user_id: string; workspace_id: string }
         Returns: boolean
       }
+      reset_my_data: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

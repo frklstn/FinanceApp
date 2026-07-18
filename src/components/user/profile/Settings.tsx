@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useApp } from '@/contexts/app-context';
-import { User, Monitor, Languages, Download } from 'lucide-react';
+import { User, Monitor, Languages, Download, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { SubscriptionStatus } from '../subscription/subscription-status';
 import { useUser } from '@/lib/hooks/use-user';
 import { profileService } from '@/lib/services/user/user.service';
@@ -23,8 +24,31 @@ interface SettingsFormProps {
 export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
   const { user, profile, accountId, appSettings, t } = useApp();
   const { toast } = useToast();
-  const { updateProfile, updateLanguage, submitting } = useUser();
+  const { updateProfile, updateLanguage, resetData, deleteAccount, submitting } = useUser();
   const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
+
+  // Zona berbahaya: kata konfirmasi harus diketik ulang persis sebelum aksi
+  // destruktif aktif. 'reset' mengosongkan data, 'delete' menghapus akun.
+  const [tab, setTab] = useState('account');
+  const [danger, setDanger] = useState<null | 'reset' | 'delete'>(null);
+  const [confirmText, setConfirmText] = useState('');
+  const dangerWord = danger === 'delete' ? 'HAPUS' : 'RESET';
+
+  const handleReset = async () => {
+    const ok = await resetData();
+    if (ok) {
+      setDanger(null);
+      setConfirmText('');
+      router.refresh();
+      window.location.href = '/finance/dashboard';
+    }
+  };
+
+  const handleDelete = async () => {
+    const ok = await deleteAccount();
+    if (ok) window.location.href = '/';
+  };
 
   const handleToggleLanguage = () => updateLanguage(profile?.language === 'en' ? 'id' : 'en');
 
@@ -133,12 +157,12 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
   };
 
   return (
-    <Tabs defaultValue="account" className="w-full">
-      <TabsList className="w-full grid grid-cols-4 mb-6 p-1 bg-light-border/40 dark:bg-dark-border/40 rounded-xl">
-        <TabsTrigger value="account" className="text-xs font-bold  py-2">Akun</TabsTrigger>
-        <TabsTrigger value="plan" className="text-xs font-bold  py-2">Plan</TabsTrigger>
-        <TabsTrigger value="preferences" className="text-xs font-bold  py-2">Preferensi</TabsTrigger>
-        <TabsTrigger value="data" className="text-xs font-bold  py-2">Data</TabsTrigger>
+    <Tabs value={tab} onValueChange={(v) => setTab(v as string)} className="w-full">
+      <TabsList className="w-full grid grid-cols-4 mb-6 rounded-xl bg-[var(--nexus-bg-panel)]">
+        <TabsTrigger value="account" className="py-2">Akun</TabsTrigger>
+        <TabsTrigger value="plan" className="py-2">Plan</TabsTrigger>
+        <TabsTrigger value="preferences" className="py-2">Preferensi</TabsTrigger>
+        <TabsTrigger value="data" className="py-2">Data</TabsTrigger>
       </TabsList>
 
       <form onSubmit={handleSubmit}>
@@ -277,19 +301,104 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               Ekspor ke Excel (.xlsx)
             </Button>
           </div>
+
+          {/* Zona berbahaya */}
+          <div className="pt-4 border-t border-danger/20 space-y-3">
+            <h4 className="text-sm font-semibold text-danger flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" /> Zona Berbahaya
+            </h4>
+
+            <div className="flex flex-col gap-3 rounded-2xl border border-danger/20 bg-danger/[0.04] p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[var(--nexus-text-primary)]">Reset data</p>
+                  <p className="text-xs text-[var(--nexus-text-secondary)]">Kosongkan semua transaksi, dompet, dan catatan. Akun tetap ada, mulai dari nol.</p>
+                </div>
+                <Button type="button" variant="outline" className="shrink-0 gap-2" onClick={() => { setDanger('reset'); setConfirmText(''); }}>
+                  <RotateCcw className="w-4 h-4" /> Reset
+                </Button>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-danger/15">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-danger">Hapus akun</p>
+                  <p className="text-xs text-[var(--nexus-text-secondary)]">Menghapus akun dan seluruh data secara permanen. Tidak bisa dibatalkan.</p>
+                </div>
+                <Button type="button" variant="destructive" className="shrink-0 gap-2" onClick={() => { setDanger('delete'); setConfirmText(''); }}>
+                  <Trash2 className="w-4 h-4" /> Hapus akun
+                </Button>
+              </div>
+            </div>
+          </div>
         </TabsContent>
 
-        <div className="flex justify-end gap-4 pt-8 border-t border-light-border/40 dark:border-dark-border/40 mt-8">
-          {isModal && (
-            <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6">
-              Batal
+        {/* Footer simpan hanya relevan untuk tab Akun; Preferensi & Data
+            menyimpan aksinya masing-masing secara langsung. */}
+        {tab === 'account' && (
+          <div className="flex justify-end gap-4 pt-8 border-t border-[var(--nexus-glass-border)] mt-8">
+            {isModal && (
+              <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6">
+                Batal
+              </Button>
+            )}
+            <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6">
+              Simpan Perubahan
             </Button>
-          )}
-          <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6">
-            Simpan Perubahan
-          </Button>
-        </div>
+          </div>
+        )}
       </form>
+
+      {danger && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+          onClick={() => { setDanger(null); setConfirmText(''); }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)] p-6 space-y-4 shadow-2xl animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-1.5">
+              <h3 className="font-heading text-base font-semibold tracking-tight text-danger flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                {danger === 'delete' ? 'Hapus akun permanen' : 'Reset semua data'}
+              </h3>
+              <p className="text-sm text-[var(--nexus-text-secondary)]">
+                {danger === 'delete'
+                  ? 'Akun dan seluruh data akan dihapus permanen dan tidak bisa dipulihkan.'
+                  : 'Semua transaksi, dompet, dan catatan akan dikosongkan. Akun tetap ada.'}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs text-[var(--nexus-text-secondary)]">
+                Ketik <span className="font-semibold text-[var(--nexus-text-primary)]">{dangerWord}</span> untuk konfirmasi
+              </label>
+              <Input
+                label=""
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder={dangerWord}
+                autoFocus
+              />
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => { setDanger(null); setConfirmText(''); }} disabled={submitting}>
+                Batal
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                loading={submitting}
+                disabled={confirmText.trim().toUpperCase() !== dangerWord}
+                onClick={danger === 'delete' ? handleDelete : handleReset}
+              >
+                {danger === 'delete' ? 'Hapus akun' : 'Reset data'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Tabs>
   );
 }

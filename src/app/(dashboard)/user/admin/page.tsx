@@ -66,6 +66,7 @@ export default function AdminPage() {
   const [editAppName, setEditAppName] = useState('');
   const [editAppIconUrl, setEditAppIconUrl] = useState('');
   const [editAppTitle, setEditAppTitle] = useState('');
+  const [editPlan, setEditPlan] = useState<'free' | 'pro'>('free');
   const [editPlanExpiresAt, setEditPlanExpiresAt] = useState('');
 
   const fetchAllUsers = useCallback(async () => {
@@ -184,7 +185,17 @@ export default function AdminPage() {
     setEditAppName(profile.app_name || '');
     setEditAppIconUrl(profile.app_icon_url || '');
     setEditAppTitle(profile.app_title || '');
+    setEditPlan(profile.plan);
     setEditPlanExpiresAt(profile.plan_expires_at ? profile.plan_expires_at.split('T')[0] : '');
+  };
+
+  // Set tanggal berakhir = hari ini + n hari, dalam format YYYY-MM-DD untuk
+  // input date. Dipakai tombol durasi cepat pada modal edit.
+  const setExpiryFromNow = (days: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    setEditPlan('pro');
+    setEditPlanExpiresAt(d.toISOString().split('T')[0]);
   };
 
   // Save edited details
@@ -194,12 +205,16 @@ export default function AdminPage() {
 
     setUpdatingUserId(editingUser.id);
     try {
-      const formattedExpiresAt = editPlanExpiresAt ? new Date(editPlanExpiresAt).toISOString() : null;
+      // Free mengabaikan tanggal berakhir: plan free tidak punya masa aktif.
+      const formattedExpiresAt = editPlan === 'pro' && editPlanExpiresAt
+        ? new Date(editPlanExpiresAt).toISOString()
+        : null;
       const { error } = await supabase
         .from('profiles')
         .update({
           full_name: editName,
           avatar_url: editAvatar,
+          plan: editPlan,
           plan_expires_at: formattedExpiresAt,
         })
         .eq('id', editingUser.id);
@@ -219,6 +234,7 @@ export default function AdminPage() {
                 ...u,
                 full_name: editName,
                 avatar_url: editAvatar,
+                plan: editPlan,
                 plan_expires_at: formattedExpiresAt,
                 app_name: editAppName.trim() || null,
                 app_icon_url: editAppIconUrl.trim() || null,
@@ -545,12 +561,46 @@ export default function AdminPage() {
                 placeholder="Judul tab kustom browser"
               />
 
-              <Input
-                label="Periode Langganan Berakhir (Expires At)"
-                type="date"
-                value={editPlanExpiresAt}
-                onChange={(e) => setEditPlanExpiresAt(e.target.value)}
-              />
+              {/* Langganan: set plan + masa aktif Pro. Tombol durasi menghitung
+                  tanggal berakhir dari hari ini dan otomatis menandai Pro. */}
+              <div className="space-y-3 rounded-xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-[var(--nexus-text-primary)]">Langganan</span>
+                  <div className="flex rounded-lg border border-[var(--nexus-glass-border)] overflow-hidden text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => setEditPlan('free')}
+                      className={`px-3 py-1.5 cursor-pointer transition-colors ${editPlan === 'free' ? 'bg-[var(--nexus-emerald)] text-white' : 'text-[var(--nexus-text-secondary)]'}`}
+                    >
+                      Free
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditPlan('pro')}
+                      className={`px-3 py-1.5 cursor-pointer transition-colors ${editPlan === 'pro' ? 'bg-[var(--nexus-emerald)] text-white' : 'text-[var(--nexus-text-secondary)]'}`}
+                    >
+                      Pro
+                    </button>
+                  </div>
+                </div>
+
+                {editPlan === 'pro' && (
+                  <>
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" variant="outline" size="sm" onClick={() => setExpiryFromNow(30)}>+30 hari</Button>
+                      <Button type="button" variant="outline" size="sm" onClick={() => setExpiryFromNow(90)}>+90 hari</Button>
+                      <Button type="button" variant="outline" size="sm" onClick={() => setExpiryFromNow(365)}>+1 tahun</Button>
+                    </div>
+                    <Input
+                      label="Berakhir pada"
+                      type="date"
+                      value={editPlanExpiresAt}
+                      onChange={(e) => setEditPlanExpiresAt(e.target.value)}
+                      description={editPlanExpiresAt ? undefined : 'Kosong = Pro tanpa batas waktu.'}
+                    />
+                  </>
+                )}
+              </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-light-border/40 dark:border-dark-border/40">
                 <Button
