@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
+import { PinjolCalcPanel } from '@/components/finance/pinjol/pinjol-calc-panel';
 import type { LoanCategory, LoanTracker } from '@/lib/debt-planner/types';
-import { calcRemainingMonths, calcEndDate, LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
+import { LOAN_CATEGORY_LABELS } from '@/lib/debt-planner/calculations';
 
 const CATEGORY_OPTIONS = Object.entries(LOAN_CATEGORY_LABELS)
   .filter(([key]) => !['hutang_pribadi', 'cicilan', 'lainnya'].includes(key))
@@ -25,8 +26,6 @@ const EMPTY_FORM = {
   notes: '',
 };
 
-const rupiah = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`;
-
 interface DebtFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -36,29 +35,6 @@ interface DebtFormModalProps {
 
 export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFormModalProps) {
   const [form, setForm] = useState(EMPTY_FORM);
-
-  // Hitung otomatis dari yang diisi user: diajukan, diterima, tenor, cicilan.
-  // Semua turunan (total, bunga, potongan, nombok) tak perlu diketik manual.
-  const calc = useMemo(() => {
-    const applied = parseFloat(form.amount_applied) || 0;
-    const received = parseFloat(form.amount_received) || 0;
-    const tenure = parseInt(form.tenure_months, 10) || 0;
-    const monthly = parseFloat(form.monthly_payment) || 0;
-    if (!tenure || !monthly || !received) return null;
-
-    const total = monthly * tenure;                 // total yang dibayar
-    const adminFee = applied > received ? applied - received : 0; // potongan di depan
-    const interest = total - received;               // biaya di atas uang diterima
-    const monthlyRate = (interest / received / tenure) * 100; // bunga rata-rata %/bln
-    const nombok = monthly - received / tenure;      // kelebihan bayar tiap bulan
-
-    const endDateStr = form.start_date
-      ? calcEndDate(form.start_date, tenure).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
-      : null;
-    const remaining = form.start_date ? calcRemainingMonths(tenure, form.start_date) : null;
-
-    return { total, adminFee, interest, monthlyRate, nombok, endDateStr, remaining };
-  }, [form.amount_applied, form.amount_received, form.tenure_months, form.monthly_payment, form.start_date]);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -175,22 +151,13 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
           />
         </div>
 
-        {/* Panel hasil hitungan otomatis */}
-        {calc && (
-          <div className="rounded-xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] p-4 space-y-2 text-sm">
-            <p className="text-xs font-semibold text-[var(--nexus-text-muted)]">Hasil hitungan otomatis</p>
-            <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Total dibayar</span><span className="font-semibold text-[var(--nexus-text-primary)]">{rupiah(calc.total)}</span></div>
-            {calc.adminFee > 0 && (
-              <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Potongan admin (diajukan - diterima)</span><span className="font-semibold text-amber-500">{rupiah(calc.adminFee)}</span></div>
-            )}
-            <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Selisih bayar (bunga + biaya)</span><span className="font-semibold text-rose-400">{rupiah(calc.interest)}</span></div>
-            <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Bunga rata-rata / bulan</span><span className="font-semibold text-rose-400">{calc.monthlyRate.toFixed(2)}%</span></div>
-            <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Nombok / bulan</span><span className="font-semibold text-rose-400">{rupiah(calc.nombok)}</span></div>
-            {calc.endDateStr && (
-              <div className="flex justify-between border-t border-[var(--nexus-glass-border)] pt-2"><span className="text-[var(--nexus-text-secondary)]">Estimasi lunas</span><span className="font-semibold text-[var(--nexus-text-primary)]">{calc.endDateStr}</span></div>
-            )}
-          </div>
-        )}
+        <PinjolCalcPanel
+          applied={form.amount_applied}
+          received={form.amount_received}
+          tenure={form.tenure_months}
+          monthly={form.monthly_payment}
+          startDate={form.start_date}
+        />
 
         <div className="grid grid-cols-2 gap-3">
           <Input

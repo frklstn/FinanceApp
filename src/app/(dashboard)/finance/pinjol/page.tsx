@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import { EmptyState } from '@/components/shared/empty-state';
 import { SalaryCyclePanel } from '@/components/finance/pinjol/salary-cycle-panel';
+import { PinjolCalcPanel } from '@/components/finance/pinjol/pinjol-calc-panel';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { Modal } from '@/components/ui/modal';
@@ -63,8 +64,8 @@ export default function PinjolPage() {
   // Edit form states
   const [editAppName, setEditAppName] = useState('');
   const [editCategory, setEditCategory] = useState<LoanCategory>('pinjol');
+  const [editAmountApplied, setEditAmountApplied] = useState('');
   const [editAmountReceived, setEditAmountReceived] = useState('');
-  const [editTotalRepayment, setEditTotalRepayment] = useState('');
   const [editMonthlyPayment, setEditMonthlyPayment] = useState('');
   const [editTenureMonths, setEditTenureMonths] = useState('');
   const [editDueDay, setEditDueDay] = useState('');
@@ -139,8 +140,8 @@ export default function PinjolPage() {
     setEditingLoan(loan);
     setEditAppName(loan.app_name);
     setEditCategory(loan.category);
+    setEditAmountApplied(loan.amount_applied != null ? String(loan.amount_applied) : '');
     setEditAmountReceived(String(loan.amount_received));
-    setEditTotalRepayment(String(loan.total_repayment));
     setEditMonthlyPayment(String(loan.monthly_payment));
     setEditTenureMonths(String(loan.tenure_months));
     setEditDueDay(String(loan.due_day));
@@ -159,8 +160,10 @@ export default function PinjolPage() {
       await debtService.updateLoanTracker(editingLoan.id, {
         app_name: editAppName.trim(),
         category: editCategory,
+        amount_applied: editAmountApplied ? Number(editAmountApplied) : null,
         amount_received: Number(editAmountReceived),
-        total_repayment: Number(editTotalRepayment),
+        // Total dihitung, bukan diketik: cicilan x tenor.
+        total_repayment: Number(editMonthlyPayment) * Number(editTenureMonths),
         monthly_payment: Number(editMonthlyPayment),
         tenure_months: Number(editTenureMonths),
         due_day: Number(editDueDay),
@@ -720,7 +723,10 @@ export default function PinjolPage() {
                   {calendarDays.map((cell, idx) => {
                     const marker = getDayMarker(cell.date);
                     const isToday = new Date().getDate() === cell.day && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
-                    
+                    // Hari gajian: pembatas siklus. Tagihan sebelum tanggal ini
+                    // (di bulan berjalan) harus ditutup gaji periode lalu.
+                    const isSalaryDay = cell.isCurrentMonth && cell.day === forecast.salaryDay;
+
                     let bgClass = 'bg-transparent text-[var(--nexus-text-secondary)] hover:bg-black/[0.02] dark:hover:bg-[var(--nexus-bg-panel)]';
                     let borderClass = 'border-transparent';
 
@@ -751,9 +757,13 @@ export default function PinjolPage() {
                             toggleInstallmentPaid(matchingLoan.id);
                           }
                         }}
-                        className={`w-full aspect-square rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${bgClass} ${borderClass} cursor-pointer`}
+                        className={`relative w-full aspect-square rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${bgClass} ${borderClass} ${isSalaryDay ? 'ring-2 ring-[var(--nexus-emerald)] ring-offset-1 ring-offset-[var(--nexus-bg-card)]' : ''} cursor-pointer`}
+                        title={isSalaryDay ? 'Hari gajian' : undefined}
                       >
                         {cell.day}
+                        {isSalaryDay && (
+                          <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[var(--nexus-emerald)]" />
+                        )}
                       </button>
                     );
                   })}
@@ -772,6 +782,10 @@ export default function PinjolPage() {
                   <div className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-[var(--nexus-emerald)] inline-block" />
                     <span>Akan datang</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full ring-2 ring-[var(--nexus-emerald)] inline-block" />
+                    <span>Gajian</span>
                   </div>
                 </div>
               </div>
@@ -889,7 +903,16 @@ export default function PinjolPage() {
                 />
               </div>
 
+              {/* Sama seperti form tambah: user isi 4 angka, sisanya dihitung. */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Jumlah Diajukan (Rp)"
+                  type="number"
+                  value={editAmountApplied}
+                  onChange={(e) => setEditAmountApplied(e.target.value)}
+                  disabled={submitting}
+                  description="Yang kamu ajukan"
+                />
                 <Input
                   label="Dana Cair / Diterima (Rp)"
                   type="number"
@@ -897,14 +920,7 @@ export default function PinjolPage() {
                   onChange={(e) => setEditAmountReceived(e.target.value)}
                   required
                   disabled={submitting}
-                />
-                <Input
-                  label="Total Kewajiban Pembayaran (Rp)"
-                  type="number"
-                  value={editTotalRepayment}
-                  onChange={(e) => setEditTotalRepayment(e.target.value)}
-                  required
-                  disabled={submitting}
+                  description="Yang masuk ke rekening"
                 />
               </div>
 
@@ -936,22 +952,20 @@ export default function PinjolPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <DatePicker
-                  label="Tanggal Mulai Kontrak"
-                  value={editStartDate}
-                  onChange={(val) => setEditStartDate(val)}
-                  disabled={submitting}
-                />
-                <Input
-                  label="Sisa Kewajiban Manual (Opsional)"
-                  type="number"
-                  placeholder="Kosongkan untuk kalkulasi otomatis"
-                  value={editTotalRepayment}
-                  onChange={(e) => setEditTotalRepayment(e.target.value)}
-                  disabled={submitting}
-                />
-              </div>
+              <PinjolCalcPanel
+                applied={editAmountApplied}
+                received={editAmountReceived}
+                tenure={editTenureMonths}
+                monthly={editMonthlyPayment}
+                startDate={editStartDate}
+              />
+
+              <DatePicker
+                label="Tanggal Mulai Kontrak"
+                value={editStartDate}
+                onChange={(val) => setEditStartDate(val)}
+                disabled={submitting}
+              />
 
               <Input
                 label="Catatan Tambahan"
