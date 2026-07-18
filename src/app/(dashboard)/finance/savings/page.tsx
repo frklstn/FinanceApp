@@ -169,7 +169,7 @@ export default function SavingsPage() {
                   key={goal.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ y: -5 }}
+                  whileHover={{ y: -8 }}
                   className="group"
                 >
                   <Card className="h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between">

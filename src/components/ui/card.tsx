@@ -20,7 +20,7 @@ function Card({
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={interactive ? { scale: 1.01, translateY: -2 } : undefined}
+      whileHover={interactive ? { y: -8 } : undefined}
       className={cn(
         // Tanpa overflow-hidden: dropdown Select/DatePicker di dalam kartu
         // diposisikan absolute dan sebelumnya terpotong oleh kartu.
