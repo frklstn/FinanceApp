@@ -26,12 +26,14 @@ export const incomeProjectionService = {
   ): Promise<IncomeTimelineEntry> {
     const supabase = createClient();
     const { data, error } = await supabase
+      // Tabel income_timeline tak punya kolom currency; menyertakannya membuat
+      // setiap insert gagal (kolom tidak ada), sehingga set gaji tak pernah
+      // tersimpan. Selalu IDR.
       .from('income_timeline')
       .insert({
         workspace_id: workspaceId,
         effective_date: input.effective_date,
         monthly_income: input.monthly_income,
-        currency: input.currency || 'IDR',
       })
       .select()
       .single();

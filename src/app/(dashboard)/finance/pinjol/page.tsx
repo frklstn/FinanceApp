@@ -11,6 +11,7 @@ import { DebtFormModal } from '@/components/finance/debt/DebtForm';
 import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import { EmptyState } from '@/components/shared/empty-state';
+import { SalaryCyclePanel } from '@/components/finance/pinjol/salary-cycle-panel';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { Modal } from '@/components/ui/modal';
@@ -443,6 +444,15 @@ export default function PinjolPage() {
             </div>
           </Card>
         </section>
+
+        {/* Analisis siklus gajian: gaji periode ini vs cicilan yang jatuh tempo
+            sebelum gajian berikutnya. Semua logika sudah di useDebtForecast. */}
+        <SalaryCyclePanel
+          salaryDay={forecast.salaryDay}
+          currentForecast={forecast.currentForecast}
+          onSaveSalaryDay={forecast.saveSalaryDay}
+          onAddIncome={forecast.addIncomeEntry}
+        />
 
         {/* Main Grid: Left (Table + Ringkasan), Right (Calendar + Info) */}
         <section className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">

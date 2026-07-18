@@ -21,7 +21,6 @@ const EMPTY_FORM = {
   monthly_payment: '',
   tenure_months: '',
   due_day: '',
-  salary_date: '',
   start_date: '',
   notes: '',
 };
@@ -79,7 +78,6 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
     const monthly = parseFloat(form.monthly_payment);
     const tenure = parseInt(form.tenure_months, 10);
     const dueDay = parseInt(form.due_day, 10);
-    const salaryDay = parseInt(form.salary_date, 10);
 
     if (
       !form.app_name.trim() ||
@@ -104,7 +102,7 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
       due_day: dueDay,
       start_date: form.start_date,
       status: 'active',
-      salary_date: isNaN(salaryDay) ? null : salaryDay,
+      salary_date: null,
       currency: 'IDR',
       notes: form.notes.trim() || null,
     });
@@ -206,24 +204,13 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
             disabled={submitting}
             description="Tanggal tagihan tiap bulan"
           />
-          <Input
-            label="Tgl Gajian"
-            type="number"
-            min={1}
-            max={31}
-            value={form.salary_date}
-            onChange={(e) => handleChange('salary_date', e.target.value)}
+          <DatePicker
+            label="Tanggal Mulai"
+            value={form.start_date}
+            onChange={(val) => handleChange('start_date', val)}
             disabled={submitting}
-            description="Untuk menandai tagihan sebelum/sesudah gajian"
           />
         </div>
-
-        <DatePicker
-          label="Tanggal Mulai"
-          value={form.start_date}
-          onChange={(val) => handleChange('start_date', val)}
-          disabled={submitting}
-        />
 
         <Input
           label="Catatan (Opsional)"
