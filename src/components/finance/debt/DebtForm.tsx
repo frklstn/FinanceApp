@@ -16,14 +16,17 @@ const CATEGORY_OPTIONS = Object.entries(LOAN_CATEGORY_LABELS)
 const EMPTY_FORM = {
   app_name: '',
   category: 'pinjol' as LoanCategory,
+  amount_applied: '',
   amount_received: '',
-  total_repayment: '',
   monthly_payment: '',
   tenure_months: '',
   due_day: '',
+  salary_date: '',
   start_date: '',
   notes: '',
 };
+
+const rupiah = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`;
 
 interface DebtFormModalProps {
   isOpen: boolean;
@@ -35,16 +38,28 @@ interface DebtFormModalProps {
 export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFormModalProps) {
   const [form, setForm] = useState(EMPTY_FORM);
 
-  const calcPreview = useMemo(() => {
-    const tenureNum = parseInt(form.tenure_months, 10) || 0;
-    if (!tenureNum || !form.start_date) return null;
-    const remaining = calcRemainingMonths(tenureNum, form.start_date);
-    const endDateStr = calcEndDate(form.start_date, tenureNum).toLocaleDateString('id-ID', {
-      month: 'long',
-      year: 'numeric',
-    });
-    return { remaining, endDateStr };
-  }, [form.tenure_months, form.start_date]);
+  // Hitung otomatis dari yang diisi user: diajukan, diterima, tenor, cicilan.
+  // Semua turunan (total, bunga, potongan, nombok) tak perlu diketik manual.
+  const calc = useMemo(() => {
+    const applied = parseFloat(form.amount_applied) || 0;
+    const received = parseFloat(form.amount_received) || 0;
+    const tenure = parseInt(form.tenure_months, 10) || 0;
+    const monthly = parseFloat(form.monthly_payment) || 0;
+    if (!tenure || !monthly || !received) return null;
+
+    const total = monthly * tenure;                 // total yang dibayar
+    const adminFee = applied > received ? applied - received : 0; // potongan di depan
+    const interest = total - received;               // biaya di atas uang diterima
+    const monthlyRate = (interest / received / tenure) * 100; // bunga rata-rata %/bln
+    const nombok = monthly - received / tenure;      // kelebihan bayar tiap bulan
+
+    const endDateStr = form.start_date
+      ? calcEndDate(form.start_date, tenure).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+      : null;
+    const remaining = form.start_date ? calcRemainingMonths(tenure, form.start_date) : null;
+
+    return { total, adminFee, interest, monthlyRate, nombok, endDateStr, remaining };
+  }, [form.amount_applied, form.amount_received, form.tenure_months, form.monthly_payment, form.start_date]);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -59,16 +74,16 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const amtApplied = parseFloat(form.amount_applied);
     const amtReceived = parseFloat(form.amount_received);
-    const totalRepay = parseFloat(form.total_repayment);
     const monthly = parseFloat(form.monthly_payment);
     const tenure = parseInt(form.tenure_months, 10);
     const dueDay = parseInt(form.due_day, 10);
+    const salaryDay = parseInt(form.salary_date, 10);
 
     if (
       !form.app_name.trim() ||
       isNaN(amtReceived) ||
-      isNaN(totalRepay) ||
       isNaN(monthly) ||
       isNaN(tenure) ||
       isNaN(dueDay) ||
@@ -80,14 +95,16 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
     await onSubmit({
       app_name: form.app_name.trim(),
       category: form.category,
+      amount_applied: isNaN(amtApplied) ? null : amtApplied,
       amount_received: amtReceived,
-      total_repayment: totalRepay,
+      // Total dihitung, bukan diketik: cicilan x tenor.
+      total_repayment: monthly * tenure,
       monthly_payment: monthly,
       tenure_months: tenure,
       due_day: dueDay,
       start_date: form.start_date,
       status: 'active',
-      salary_date: null,
+      salary_date: isNaN(salaryDay) ? null : salaryDay,
       currency: 'IDR',
       notes: form.notes.trim() || null,
     });
@@ -115,7 +132,17 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
           disabled={submitting}
         />
 
+        {/* Yang diisi user: diajukan, diterima, tenor, cicilan. Sisanya dihitung. */}
         <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Jumlah Diajukan (Rp)"
+            type="number"
+            min={1}
+            value={form.amount_applied}
+            onChange={(e) => handleChange('amount_applied', e.target.value)}
+            disabled={submitting}
+            description="Yang kamu ajukan"
+          />
           <Input
             label="Uang Diterima (Rp)"
             type="number"
@@ -124,15 +151,7 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
             onChange={(e) => handleChange('amount_received', e.target.value)}
             required
             disabled={submitting}
-          />
-          <Input
-            label="Total Bayar (Rp)"
-            type="number"
-            min={1}
-            value={form.total_repayment}
-            onChange={(e) => handleChange('total_repayment', e.target.value)}
-            required
-            disabled={submitting}
+            description="Yang masuk ke rekening"
           />
         </div>
 
@@ -158,6 +177,23 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
           />
         </div>
 
+        {/* Panel hasil hitungan otomatis */}
+        {calc && (
+          <div className="rounded-xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] p-4 space-y-2 text-sm">
+            <p className="text-xs font-semibold text-[var(--nexus-text-muted)]">Hasil hitungan otomatis</p>
+            <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Total dibayar</span><span className="font-semibold text-[var(--nexus-text-primary)]">{rupiah(calc.total)}</span></div>
+            {calc.adminFee > 0 && (
+              <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Potongan admin (diajukan - diterima)</span><span className="font-semibold text-amber-500">{rupiah(calc.adminFee)}</span></div>
+            )}
+            <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Selisih bayar (bunga + biaya)</span><span className="font-semibold text-rose-400">{rupiah(calc.interest)}</span></div>
+            <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Bunga rata-rata / bulan</span><span className="font-semibold text-rose-400">{calc.monthlyRate.toFixed(2)}%</span></div>
+            <div className="flex justify-between"><span className="text-[var(--nexus-text-secondary)]">Nombok / bulan</span><span className="font-semibold text-rose-400">{rupiah(calc.nombok)}</span></div>
+            {calc.endDateStr && (
+              <div className="flex justify-between border-t border-[var(--nexus-glass-border)] pt-2"><span className="text-[var(--nexus-text-secondary)]">Estimasi lunas</span><span className="font-semibold text-[var(--nexus-text-primary)]">{calc.endDateStr}</span></div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           <Input
             label="Jatuh Tempo (Tgl)"
@@ -168,31 +204,26 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
             onChange={(e) => handleChange('due_day', e.target.value)}
             required
             disabled={submitting}
-            description="Tanggal jatuh tempo setiap bulan"
+            description="Tanggal tagihan tiap bulan"
           />
-          <DatePicker
-            label="Tanggal Mulai"
-            value={form.start_date}
-            onChange={(val) => handleChange('start_date', val)}
+          <Input
+            label="Tgl Gajian"
+            type="number"
+            min={1}
+            max={31}
+            value={form.salary_date}
+            onChange={(e) => handleChange('salary_date', e.target.value)}
             disabled={submitting}
+            description="Untuk menandai tagihan sebelum/sesudah gajian"
           />
         </div>
 
-        {calcPreview && (
-          <div className="pinjol-calc-preview">
-            <p className="text-xs font-bold   text-light-text-secondary dark:text-dark-text-secondary mb-2">
-              Kalkulasi Otomatis
-            </p>
-            <div className="pinjol-calc-preview-row">
-              <span className="pinjol-calc-preview-label">Sisa bulan</span>
-              <span className="pinjol-calc-preview-value">{calcPreview.remaining} bln</span>
-            </div>
-            <div className="pinjol-calc-preview-row">
-              <span className="pinjol-calc-preview-label">Estimasi selesai</span>
-              <span className="pinjol-calc-preview-value">{calcPreview.endDateStr}</span>
-            </div>
-          </div>
-        )}
+        <DatePicker
+          label="Tanggal Mulai"
+          value={form.start_date}
+          onChange={(val) => handleChange('start_date', val)}
+          disabled={submitting}
+        />
 
         <Input
           label="Catatan (Opsional)"

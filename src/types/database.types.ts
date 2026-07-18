@@ -386,6 +386,7 @@ export type Database = {
       }
       loan_trackers: {
         Row: {
+          amount_applied: number | null
           amount_received: number
           app_name: string
           can_early_payoff: boolean | null
@@ -409,6 +410,7 @@ export type Database = {
           currency: string | null
         }
         Insert: {
+          amount_applied?: number | null
           amount_received: number
           app_name: string
           can_early_payoff?: boolean | null
@@ -432,6 +434,7 @@ export type Database = {
           currency?: string | null
         }
         Update: {
+          amount_applied?: number | null
           amount_received?: number
           app_name?: string
           can_early_payoff?: boolean | null

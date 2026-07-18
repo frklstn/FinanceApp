@@ -21,6 +21,8 @@ export interface LoanTracker {
   workspace_id: string;
   app_name: string;
   category: LoanCategory;
+  /** Jumlah yang diajukan (pokok); diterima = diajukan - biaya admin. */
+  amount_applied?: number | null;
   amount_received: number;
   total_repayment: number;
   monthly_payment: number;
