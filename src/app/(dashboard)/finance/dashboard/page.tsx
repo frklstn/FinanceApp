@@ -127,10 +127,11 @@ export default function DashboardPage() {
       const txs = allTxs.filter(tx => new Date(tx.date) >= startDate && new Date(tx.date) <= endDate);
       const prevTxs = allTxs.filter(tx => new Date(tx.date) >= widerStartDate && new Date(tx.date) < startDate);
 
-      const [insightData, wallets, trackers, suggestions] = await Promise.all([
+      const [insightData, wallets, trackers, manualDebts, suggestions] = await Promise.all([
         insightsService.generateInsights(accountId, { prefetchedTransactions: txs }),
         walletService.getWallets(accountId),
         debtService.getLoanTrackers(accountId),
+        debtService.getDebts(accountId),
         budgetOptimizerService.getOptimizationSuggestions(accountId),
       ]);
       setOptimizerSuggestions(suggestions);
@@ -157,7 +158,13 @@ export default function DashboardPage() {
 
       const activeLoans = trackers.filter(l => l.status === 'active');
       const totalMonthlyDebtPayment = activeLoans.reduce((sum, l) => sum + Number(l.monthly_payment), 0);
-      const totalRemainingDebt = activeLoans.reduce((sum, l) => sum + Number(l.total_remaining_balance || 0), 0);
+      // Total utang = sisa pinjol + utang manual yang masih harus dibayar.
+      // Sebelumnya hanya pinjol; utang manual di halaman Utang tak terhitung.
+      const manualOwed = manualDebts
+        .filter(d => d.type === 'owe' && d.status !== 'settled')
+        .reduce((sum, d) => sum + Number(d.remaining_amount || 0), 0);
+      const totalRemainingDebt =
+        activeLoans.reduce((sum, l) => sum + Number(l.total_remaining_balance || 0), 0) + manualOwed;
       const nextDue = activeLoans.length > 0 ? new Date(Math.min(...activeLoans.map(l => new Date(l.start_date).getTime()))) : null;
 
       let statusMsg = '';
