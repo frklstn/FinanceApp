@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useApp } from '@/contexts/app-context';
 import { User, Monitor, Languages, Download, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { SubscriptionStatus } from '../subscription/subscription-status';
@@ -30,7 +29,6 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
 
   // Zona berbahaya: kata konfirmasi harus diketik ulang persis sebelum aksi
   // destruktif aktif. 'reset' mengosongkan data, 'delete' menghapus akun.
-  const [tab, setTab] = useState('account');
   const [danger, setDanger] = useState<null | 'reset' | 'delete'>(null);
   const [confirmText, setConfirmText] = useState('');
   const dangerWord = danger === 'delete' ? 'HAPUS' : 'RESET';
@@ -157,16 +155,12 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
   };
 
   return (
-    <Tabs value={tab} onValueChange={(v) => setTab(v as string)} className="w-full">
-      <TabsList className="w-full grid grid-cols-4 mb-6 rounded-xl bg-[var(--nexus-bg-panel)]">
-        <TabsTrigger value="account" className="py-2">Akun</TabsTrigger>
-        <TabsTrigger value="plan" className="py-2">Plan</TabsTrigger>
-        <TabsTrigger value="preferences" className="py-2">Preferensi</TabsTrigger>
-        <TabsTrigger value="data" className="py-2">Data</TabsTrigger>
-      </TabsList>
-
-      <form onSubmit={handleSubmit}>
-        <TabsContent value="account" className="space-y-6">
+    <div className="space-y-10">
+      {/* Satu halaman, tanpa tab: akun (termasuk status langganan), preferensi,
+          lalu data. Sebelumnya empat tab membuat hal sederhana terasa dalam. */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <h3 className="font-heading text-lg font-semibold tracking-tight text-[var(--nexus-text-primary)]">Akun</h3>
+        <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Input
               label="Nama Pengguna"
@@ -235,27 +229,41 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               </div>
             </div>
           </div>
-          
-        </TabsContent>
 
-        <TabsContent value="plan" className="space-y-6">
-          <SubscriptionStatus plan={profile?.plan} expiresAt={profile?.plan_expires_at} />
-          {profile?.plan === 'free' && (
-            <div className="p-4 rounded-xl border border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)]">
-              <p className="text-xs text-[var(--nexus-text-primary)] mb-3">Upgrade ke Pro untuk fitur tanpa batas dan analisis lebih mendalam.</p>
-              {whatsappLink ? (
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
-                  <Button type="button" variant="nexus-emerald" className="w-full">Hubungi admin untuk upgrade</Button>
-                </a>
-              ) : (
-                <Button type="button" variant="nexus-emerald" className="w-full" disabled>Memuat kontak admin...</Button>
-              )}
-            </div>
+          {/* Status langganan digabung ke Akun sesuai permintaan. */}
+          <div className="pt-4 border-t border-[var(--nexus-glass-border)] space-y-3">
+            <SubscriptionStatus plan={profile?.plan} expiresAt={profile?.plan_expires_at} />
+            {profile?.plan === 'free' && (
+              <div className="p-4 rounded-xl border border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)]">
+                <p className="text-xs text-[var(--nexus-text-primary)] mb-3">Upgrade ke Pro untuk fitur tanpa batas dan analisis lebih mendalam.</p>
+                {whatsappLink ? (
+                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
+                    <Button type="button" variant="nexus-emerald" className="w-full">Hubungi admin untuk upgrade</Button>
+                  </a>
+                ) : (
+                  <Button type="button" variant="nexus-emerald" className="w-full" disabled>Memuat kontak admin...</Button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-4 pt-6 border-t border-[var(--nexus-glass-border)]">
+          {isModal && (
+            <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6">
+              Batal
+            </Button>
           )}
-        </TabsContent>
+          <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6">
+            Simpan Perubahan
+          </Button>
+        </div>
+      </form>
 
-        <TabsContent value="preferences" className="space-y-6">
-          <div className="space-y-3">
+      {/* Preferensi */}
+      <section className="space-y-4">
+        <h3 className="font-heading text-lg font-semibold tracking-tight text-[var(--nexus-text-primary)]">Preferensi</h3>
+        <div className="space-y-3">
             <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
               <div className="flex items-center gap-3">
                 <Monitor className="w-4 h-4 text-[var(--nexus-emerald)]" />
@@ -286,10 +294,12 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               </Button>
             </div>
           </div>
-        </TabsContent>
+      </section>
 
-        <TabsContent value="data" className="space-y-6">
-          <div className="space-y-4">
+      {/* Data */}
+      <section className="space-y-4">
+        <h3 className="font-heading text-lg font-semibold tracking-tight text-[var(--nexus-text-primary)]">Data</h3>
+        <div className="space-y-4">
             <h4 className="text-sm font-semibold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
               Ekspor Data Keuangan
             </h4>
@@ -330,23 +340,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               </div>
             </div>
           </div>
-        </TabsContent>
-
-        {/* Footer simpan hanya relevan untuk tab Akun; Preferensi & Data
-            menyimpan aksinya masing-masing secara langsung. */}
-        {tab === 'account' && (
-          <div className="flex justify-end gap-4 pt-8 border-t border-[var(--nexus-glass-border)] mt-8">
-            {isModal && (
-              <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6">
-                Batal
-              </Button>
-            )}
-            <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6">
-              Simpan Perubahan
-            </Button>
-          </div>
-        )}
-      </form>
+      </section>
 
       {danger && (
         <div
@@ -399,7 +393,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           </div>
         </div>
       )}
-    </Tabs>
+    </div>
   );
 }
 

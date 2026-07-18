@@ -22,6 +22,7 @@ import {
   Lock,
   Unlock,
   Zap,
+  Check,
 } from 'lucide-react';
 
 interface ProfileUser {
@@ -295,23 +296,25 @@ export default function AdminPage() {
         }
       />
 
-      {/* Baris pilih-semua + aksi massal. Muncul hanya saat ada pilihan supaya
-          tidak menambah kebisingan saat tidak dipakai. */}
+      {/* Baris hitungan + pilih-semua + aksi massal. Checkbox diganti tombol
+          teks; kartu yang terpilih ditandai glow (bukan kotak centang). */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <label className="flex items-center gap-2.5 text-sm text-[var(--nexus-text-secondary)] cursor-pointer">
-          <input
-            type="checkbox"
-            className="w-4 h-4 accent-[var(--nexus-emerald)]"
-            checked={selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0}
-            onChange={(e) => {
-              if (e.target.checked) setSelectedUserIds(new Set(filteredUsers.map((u) => u.id)));
-              else setSelectedUserIds(new Set());
-            }}
-          />
-          {selectedUserIds.size > 0
-            ? `${selectedUserIds.size} dipilih`
-            : `${filteredUsers.length} pengguna`}
-        </label>
+        <div className="flex items-center gap-3 text-sm text-[var(--nexus-text-secondary)]">
+          <span>{selectedUserIds.size > 0 ? `${selectedUserIds.size} dipilih` : `${filteredUsers.length} pengguna`}</span>
+          {filteredUsers.length > 0 && (
+            <button
+              type="button"
+              onClick={() =>
+                selectedUserIds.size === filteredUsers.length
+                  ? setSelectedUserIds(new Set())
+                  : setSelectedUserIds(new Set(filteredUsers.map((u) => u.id)))
+              }
+              className="text-xs font-medium text-[var(--nexus-emerald)] hover:underline cursor-pointer"
+            >
+              {selectedUserIds.size === filteredUsers.length ? 'Batalkan pilihan' : 'Pilih semua'}
+            </button>
+          )}
+        </div>
 
         {selectedUserIds.size > 0 && (
           <div className="flex items-center gap-2">
@@ -335,32 +338,32 @@ export default function AdminPage() {
           Tidak ada pengguna yang cocok dengan pencarian.
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filteredUsers.map((u) => {
             const isSelf = u.id === user?.id;
             const selected = selectedUserIds.has(u.id);
             const busy = updatingUserId === u.id;
+            const toggleSelect = () => {
+              const next = new Set(selectedUserIds);
+              if (next.has(u.id)) next.delete(u.id); else next.add(u.id);
+              setSelectedUserIds(next);
+            };
             return (
               <div
                 key={u.id}
-                className={`rounded-2xl border p-4 transition-colors ${
-                  selected ? 'border-[var(--nexus-emerald-border)]' : 'border-[var(--nexus-glass-border)]'
+                className={`rounded-2xl border p-4 transition-all ${
+                  selected
+                    ? 'border-[var(--nexus-emerald)] ring-2 ring-[var(--nexus-emerald)]/40 shadow-[0_0_0_4px_var(--nexus-emerald-glow)]'
+                    : 'border-[var(--nexus-glass-border)]'
                 } ${u.is_suspended ? 'bg-danger/5' : 'bg-[var(--nexus-bg-card)]'}`}
               >
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    className="mt-1 w-4 h-4 accent-[var(--nexus-emerald)] shrink-0"
-                    checked={selected}
-                    onChange={() => {
-                      const next = new Set(selectedUserIds);
-                      if (next.has(u.id)) next.delete(u.id); else next.add(u.id);
-                      setSelectedUserIds(next);
-                    }}
-                  />
-
-                  <div className="w-10 h-10 rounded-full border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] overflow-hidden flex items-center justify-center shrink-0">
-                    {u.avatar_url ? (
+                {/* Klik area info untuk memilih; kartu terpilih diberi glow.
+                    Sebelumnya memakai kotak centang yang mengganggu. */}
+                <div className="flex items-start gap-3 cursor-pointer" onClick={toggleSelect}>
+                  <div className={`w-10 h-10 rounded-full border overflow-hidden flex items-center justify-center shrink-0 ${selected ? 'border-[var(--nexus-emerald)]' : 'border-[var(--nexus-glass-border)]'} bg-[var(--nexus-bg-panel)]`}>
+                    {selected ? (
+                      <Check className="w-4 h-4 text-[var(--nexus-emerald)]" />
+                    ) : u.avatar_url ? (
                       <img
                         src={u.avatar_url}
                         alt={u.full_name || 'User'}
