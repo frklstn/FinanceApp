@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useApp } from '@/contexts/app-context';
-import { User, Monitor, Languages, Trash2, Download } from 'lucide-react';
+import { User, Monitor, Languages, Download } from 'lucide-react';
 import { SubscriptionStatus } from '../subscription/subscription-status';
 import { useUser } from '@/lib/hooks/use-user';
+import { profileService } from '@/lib/services/user/user.service';
 import * as XLSX from 'xlsx';
 import { transactionService } from '@/lib/services/workspace/transaction.service';
 import { useToast } from '@/components/ui/toast';
@@ -86,7 +87,18 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
+
+  // Upgrade ke Pro lewat kontak admin (WhatsApp), sama seperti UpgradeGate --
+  // tombol ini sebelumnya tanpa onClick sehingga tidak melakukan apa pun.
+  useEffect(() => {
+    if (profile?.plan !== 'free') return;
+    let batal = false;
+    profileService.getWhatsappContact()
+      .then((link) => { if (!batal) setWhatsappLink(link); })
+      .catch(() => {});
+    return () => { batal = true; };
+  }, [profile?.plan]);
 
   useEffect(() => {
     const fn = profile?.full_name || user?.user_metadata?.full_name || '';
@@ -101,13 +113,23 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Konfirmasi sandi sebelumnya tidak pernah dicek: pengguna bisa mengetik
+    // sandi baru yang berbeda dari konfirmasinya dan diam-diam tersimpan.
+    if (password && password !== confirmPassword) {
+      toast(t('settings.password.mismatch', 'Konfirmasi kata sandi tidak cocok.'), 'danger');
+      return;
+    }
     const success = await updateProfile({
       fullName,
       email,
       password: password || undefined,
       avatarUrl
     });
-    if (success && onClose) onClose();
+    if (success) {
+      setPassword('');
+      setConfirmPassword('');
+      if (onClose) onClose();
+    }
   };
 
   return (
@@ -163,7 +185,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           </div>
 
           <div className="pt-4 border-t border-light-border/40 dark:border-dark-border/40">
-            <label className="text-[10px] font-semibold   text-[var(--nexus-emerald)] mb-3 block">
+            <label className="text-sm font-semibold text-[var(--nexus-text-primary)] mb-3 block">
               Foto Profil
             </label>
             
@@ -177,34 +199,19 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
                 )}
               </div>
 
-              <div className="flex-1 w-full flex items-center gap-3">
+              <div className="flex-1 w-full">
                 <Input
                   label=""
                   value={avatarUrl}
                   onChange={(e) => setAvatarUrl(e.target.value)}
-                  placeholder="URL Avatar..."
+                  placeholder="Tempel URL gambar avatar..."
                   disabled={submitting}
                   className="bg-transparent border-light-border/40"
                 />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => fileInputRef.current?.click()} 
-                  disabled={submitting}
-                  className="shrink-0"
-                >
-                  Upload
-                </Button>
               </div>
             </div>
           </div>
           
-          <div className="pt-6 border-t border-rose-500/20">
-            <Button type="button" variant="ghost" className="text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 w-full flex gap-2">
-              <Trash2 className="w-4 h-4" />
-              Hapus Akun Permanen
-            </Button>
-          </div>
         </TabsContent>
 
         <TabsContent value="plan" className="space-y-6">
@@ -212,7 +219,13 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           {profile?.plan === 'free' && (
             <div className="p-4 rounded-xl border border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)]">
               <p className="text-xs text-[var(--nexus-text-primary)] mb-3">Upgrade ke Pro untuk fitur tanpa batas dan analisis lebih mendalam.</p>
-              <Button type="button" variant="nexus-emerald" className="w-full">Upgrade ke Pro Sekarang</Button>
+              {whatsappLink ? (
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
+                  <Button type="button" variant="nexus-emerald" className="w-full">Hubungi admin untuk upgrade</Button>
+                </a>
+              ) : (
+                <Button type="button" variant="nexus-emerald" className="w-full" disabled>Memuat kontak admin...</Button>
+              )}
             </div>
           )}
         </TabsContent>
@@ -253,26 +266,26 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
 
         <TabsContent value="data" className="space-y-6">
           <div className="space-y-4">
-            <h4 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary   flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
               Ekspor Data Keuangan
             </h4>
             <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary leading-relaxed">
               Unduh seluruh transaksi akun Anda dalam format `.xlsx` (kategori, dompet, nominal, catatan).
             </p>
-            <Button type="button" variant="outline" className="flex items-center gap-2 cursor-pointer w-full py-6 rounded-2xl border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] text-[10px] font-semibold  " onClick={handleExcelExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Ekspor Buku Besar ke Excel (.xlsx)
+            <Button type="button" variant="outline" className="flex items-center justify-center gap-2 cursor-pointer w-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)]" onClick={handleExcelExport}>
+              <Download className="w-4 h-4" />
+              Ekspor ke Excel (.xlsx)
             </Button>
           </div>
         </TabsContent>
 
         <div className="flex justify-end gap-4 pt-8 border-t border-light-border/40 dark:border-dark-border/40 mt-8">
           {isModal && (
-            <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6 font-semibold   text-[10px]">
+            <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6">
               Batal
             </Button>
           )}
-          <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6 font-semibold   text-[10px]">
+          <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6">
             Simpan Perubahan
           </Button>
         </div>

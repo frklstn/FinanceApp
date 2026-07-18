@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/contexts/app-context';
+import { PageHeader } from '@/components/shared/layout/page-header';
 import { GlobalBrandingForm } from '@/components/finance/admin/GlobalBrandingForm';
 import { WhatsappContactForm } from '@/components/finance/admin/WhatsappContactForm';
 import { adminService } from '@/lib/services/user/admin.service';
 import {
-  ShieldAlert,
   Search,
   User,
   Settings,
@@ -49,6 +49,16 @@ export default function AdminPage() {
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+
+  // Konfirmasi untuk aksi konsekuensial (suspend, ganti plan) yang sebelumnya
+  // langsung tereksekusi hanya dari satu klik ikon ke akun orang lain.
+  const [confirm, setConfirm] = useState<{
+    title: string;
+    message: string;
+    tone: 'danger' | 'primary';
+    confirmLabel: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   const [editingUser, setEditingUser] = useState<ProfileUser | null>(null);
   const [editName, setEditName] = useState('');
@@ -250,212 +260,207 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
-            <ShieldAlert className="w-5.5 h-5.5 text-rose-500 animate-pulse" />
-            Panel Manajemen Pengguna
-          </h2>
-          <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary mt-0.5">
-            Portal admin untuk mengelola profil pengguna, mengganti avatar, dan menonaktifkan akun.
-          </p>
-        </div>
-        
-        {/* Search bar */}
-        <div className="relative w-full sm:w-72">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-light-text-secondary dark:text-dark-text-secondary">
-            <Search className="w-4 h-4" />
-          </span>
+    <div className="space-y-6">
+      <PageHeader
+        title="Manajemen"
+        accent="Pengguna"
+        subtitle="Kelola profil, plan, dan status akun seluruh pengguna."
+        actions={
+          <div className="relative w-full md:w-72">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--nexus-text-muted)]" />
             <input
               type="text"
               placeholder="Cari nama atau email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-[16px] border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] focus:outline-none focus:border-[var(--nexus-emerald-border)] focus:ring-1 focus:ring-[var(--nexus-emerald)] transition-all duration-150"
+              className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] outline-none focus:border-[var(--nexus-emerald-border)] transition-colors"
             />
-        </div>
+          </div>
+        }
+      />
+
+      {/* Baris pilih-semua + aksi massal. Muncul hanya saat ada pilihan supaya
+          tidak menambah kebisingan saat tidak dipakai. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <label className="flex items-center gap-2.5 text-sm text-[var(--nexus-text-secondary)] cursor-pointer">
+          <input
+            type="checkbox"
+            className="w-4 h-4 accent-[var(--nexus-emerald)]"
+            checked={selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0}
+            onChange={(e) => {
+              if (e.target.checked) setSelectedUserIds(new Set(filteredUsers.map((u) => u.id)));
+              else setSelectedUserIds(new Set());
+            }}
+          />
+          {selectedUserIds.size > 0
+            ? `${selectedUserIds.size} dipilih`
+            : `${filteredUsers.length} pengguna`}
+        </label>
+
+        {selectedUserIds.size > 0 && (
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="destructive" loading={updatingUserId === 'bulk'} onClick={() => setConfirm({
+              title: 'Nonaktifkan massal',
+              message: `Nonaktifkan ${selectedUserIds.size} akun terpilih? Akun sendiri akan dilewati.`,
+              tone: 'danger',
+              confirmLabel: 'Nonaktifkan',
+              onConfirm: () => handleBulkSuspend(true),
+            })}>Nonaktifkan</Button>
+            <Button size="sm" variant="outline" loading={updatingUserId === 'bulk'} onClick={() => handleBulkSuspend(false)}>Aktifkan</Button>
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <GlobalBrandingForm />
-        <WhatsappContactForm />
-      </div>
-
-      {selectedUserIds.size > 0 && (
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-light-bg/50 dark:bg-dark-bg/50 border border-[var(--nexus-emerald-border)]">
-          <span className="text-xs font-bold text-[var(--nexus-emerald)]">{selectedUserIds.size} pengguna dipilih:</span>
-          <Button size="sm" variant="outline" onClick={() => handleBulkSuspend(true)} loading={updatingUserId === 'bulk'}>Suspend</Button>
-          <Button size="sm" variant="outline" onClick={() => handleBulkSuspend(false)} loading={updatingUserId === 'bulk'}>Aktifkan</Button>
-        </div>
-      )}
-
-      {/* Main Table Card */}
-      <Card className="overflow-hidden border border-light-border/40 dark:border-dark-border/40">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-light-border/40 dark:border-dark-border/40 bg-light-bg/30 dark:bg-dark-bg/20 text-[10px] font-bold   text-light-text-secondary dark:text-dark-text-secondary">
-                <th className="px-5 py-3 w-10">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0}
-                    onChange={(e) => {
-                      if (e.target.checked) setSelectedUserIds(new Set(filteredUsers.map(u => u.id)));
-                      else setSelectedUserIds(new Set());
+      {/* Daftar pengguna sebagai kartu, bukan tabel lebar. Tabel sebelumnya
+          mendorong kolom Plan/Status/Aksi keluar layar di hp dan memaksa scroll
+          horizontal; kartu menumpuk rapi di lebar berapa pun. */}
+      {filteredUsers.length === 0 ? (
+        <Card className="py-12 text-center text-sm text-[var(--nexus-text-secondary)]">
+          Tidak ada pengguna yang cocok dengan pencarian.
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {filteredUsers.map((u) => {
+            const isSelf = u.id === user?.id;
+            const selected = selectedUserIds.has(u.id);
+            const busy = updatingUserId === u.id;
+            return (
+              <div
+                key={u.id}
+                className={`rounded-2xl border p-4 transition-colors ${
+                  selected ? 'border-[var(--nexus-emerald-border)]' : 'border-[var(--nexus-glass-border)]'
+                } ${u.is_suspended ? 'bg-danger/5' : 'bg-[var(--nexus-bg-card)]'}`}
+              >
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    className="mt-1 w-4 h-4 accent-[var(--nexus-emerald)] shrink-0"
+                    checked={selected}
+                    onChange={() => {
+                      const next = new Set(selectedUserIds);
+                      if (next.has(u.id)) next.delete(u.id); else next.add(u.id);
+                      setSelectedUserIds(next);
                     }}
                   />
-                </th>
-                <th className="px-5 py-3">Profil Pengguna</th>
-                <th className="px-5 py-3">Email</th>
-                <th className="px-5 py-3">Terdaftar</th>
-                <th className="px-5 py-3">Plan</th>
-                <th className="px-5 py-3">Status Akun</th>
-                <th className="px-5 py-3 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-light-border/30 dark:divide-dark-border/30 text-xs font-semibold">
-              {filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-light-text-secondary dark:text-dark-text-secondary font-medium">
-                    Tidak ada pengguna yang cocok dengan pencarian.
-                  </td>
-                </tr>
-              ) : (
-                filteredUsers.map((u) => (
-                  <tr
-                    key={u.id}
-                    className={`hover:bg-light-bg/20 dark:hover:bg-dark-bg/10 transition-colors duration-150 ${
-                      u.is_suspended ? 'opacity-70 bg-danger/5 dark:bg-danger/10' : ''
-                    }`}
-                  >
-                    <td className="px-5 py-3.5">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedUserIds.has(u.id)}
-                        onChange={() => {
-                          const next = new Set(selectedUserIds);
-                          if (next.has(u.id)) next.delete(u.id); else next.add(u.id);
-                          setSelectedUserIds(next);
-                        }}
+
+                  <div className="w-10 h-10 rounded-full border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] overflow-hidden flex items-center justify-center shrink-0">
+                    {u.avatar_url ? (
+                      <img
+                        src={u.avatar_url}
+                        alt={u.full_name || 'User'}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                       />
-                    </td>
-                    {/* User Profile */}
-                    <td className="px-5 py-3.5 flex items-center gap-3">
-                      <div className="relative w-9 h-9 rounded-full border border-light-border/40 dark:border-dark-border/40 bg-light-bg dark:bg-dark-bg overflow-hidden flex items-center justify-center shrink-0">
-                        {u.avatar_url ? (
-                          <img
-                            src={u.avatar_url}
-                            alt={u.full_name || 'User'}
-                            className="w-full h-full object-cover"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                          />
-                        ) : (
-                          <User className="w-4 h-4 text-light-text-secondary" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-extrabold text-light-text-primary dark:text-dark-text-primary truncate">
-                          {u.full_name || 'Unnamed User'}
-                        </p>
-                        <p className="text-[10px] text-light-text-secondary dark:text-dark-text-secondary font-medium mt-0.5">
-                          ID: {u.id.slice(0, 8)}...
-                        </p>
-                      </div>
-                    </td>
+                    ) : (
+                      <User className="w-4 h-4 text-[var(--nexus-text-muted)]" />
+                    )}
+                  </div>
 
-                    {/* Email */}
-                    <td className="px-5 py-3.5 text-light-text-primary dark:text-dark-text-primary font-medium">
-                      {u.email || 'No email set'}
-                    </td>
-
-                    {/* Created Date */}
-                    <td className="px-5 py-3.5 text-[11px] text-light-text-secondary dark:text-dark-text-secondary font-medium">
-                      {new Date(u.created_at).toLocaleDateString('id-ID', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </td>
-
-                    {/* Plan */}
-                    <td className="px-5 py-3.5">
-                      <div className="flex flex-col gap-1">
-                        <span
-                          className={`inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-bold  ${
-                            u.plan === 'pro'
-                              ? 'bg-primary/15 text-primary border border-primary/20'
-                              : 'bg-light-text-secondary/15 text-light-text-secondary dark:bg-dark-text-secondary/15 dark:text-dark-text-secondary border border-light-border/40'
-                          }`}
-                        >
-                          {u.plan}
-                        </span>
-                        {u.plan === 'pro' && u.plan_expires_at && (
-                          <span className="text-[9px] text-light-text-secondary dark:text-dark-text-secondary font-medium">
-                            Exp: {new Date(u.plan_expires_at).toLocaleDateString('id-ID')}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Suspend Status */}
-                    <td className="px-5 py-3.5">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          u.is_suspended
-                            ? 'bg-danger/15 text-danger border border-danger/20'
-                            : 'bg-success/15 text-success border border-success/20'
-                        }`}
-                      >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-[var(--nexus-text-primary)] truncate">
+                        {u.full_name || 'Tanpa nama'}
+                      </p>
+                      {isSelf && (
+                        <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)]">kamu</span>
+                      )}
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
+                        u.plan === 'pro'
+                          ? 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)]'
+                          : 'bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-muted)]'
+                      }`}>
+                        {u.plan}
+                      </span>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        u.is_suspended ? 'bg-danger/15 text-danger' : 'bg-success/15 text-success'
+                      }`}>
                         {u.is_suspended ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
                         {u.is_suspended ? 'Nonaktif' : 'Aktif'}
                       </span>
-                    </td>
+                    </div>
+                    <p className="text-sm text-[var(--nexus-text-secondary)] truncate">{u.email || 'Tanpa email'}</p>
+                    <p className="text-xs text-[var(--nexus-text-muted)] mt-0.5">
+                      Terdaftar {new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {u.plan === 'pro' && u.plan_expires_at && ` · Berakhir ${new Date(u.plan_expires_at).toLocaleDateString('id-ID')}`}
+                    </p>
+                  </div>
+                </div>
 
-                    {/* Actions */}
-                    <td className="px-5 py-3.5 text-right space-x-2">
-                      <button
-                        onClick={() => openEditModal(u)}
-                        className="inline-flex items-center justify-center p-1.5 rounded-lg border border-light-border/40 dark:border-dark-border/40 text-light-text-secondary dark:text-dark-text-secondary hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all duration-150 cursor-pointer"
-                        title="Edit profil pengguna"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => handleTogglePlan(u.id, u.plan)}
-                        disabled={updatingUserId === u.id}
-                        className="inline-flex items-center justify-center p-1.5 rounded-lg border border-light-border/40 dark:border-dark-border/40 text-light-text-secondary dark:text-dark-text-secondary hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all duration-150 cursor-pointer"
-                        title={u.plan === 'pro' ? 'Turunkan ke Free' : 'Upgrade ke Pro'}
-                      >
-                        <Zap className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => handleToggleSuspend(u.id, u.is_suspended)}
-                        disabled={updatingUserId === u.id || (u.id === user?.id && !u.is_suspended)}
-                        className={`inline-flex items-center justify-center p-1.5 rounded-lg border transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                          u.is_suspended
-                            ? 'border-success/30 text-success hover:bg-success/5 hover:border-success'
-                            : 'border-danger/30 text-danger hover:bg-danger/5 hover:border-danger'
-                        }`}
-                        title={
-                          u.id === user?.id && !u.is_suspended
-                            ? 'Tidak bisa menonaktifkan akun sendiri'
-                            : u.is_suspended ? 'Aktifkan akun' : 'Nonaktifkan akun'
-                        }
-                      >
-                        <Ban className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => openEditModal(u)}>
+                    <Edit2 className="w-3.5 h-3.5" /> Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={() => setConfirm({
+                      title: u.plan === 'pro' ? 'Turunkan ke Free' : 'Upgrade ke Pro',
+                      message: `Ubah plan ${u.full_name || u.email || u.id.slice(0, 8)} menjadi ${u.plan === 'pro' ? 'Free' : 'Pro'}?`,
+                      tone: 'primary',
+                      confirmLabel: u.plan === 'pro' ? 'Turunkan' : 'Upgrade',
+                      onConfirm: () => handleTogglePlan(u.id, u.plan),
+                    })}
+                  >
+                    <Zap className="w-3.5 h-3.5" /> {u.plan === 'pro' ? 'Turunkan' : 'Upgrade'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={u.is_suspended ? 'outline' : 'destructive'}
+                    disabled={busy || (isSelf && !u.is_suspended)}
+                    title={isSelf && !u.is_suspended ? 'Tidak bisa menonaktifkan akun sendiri' : undefined}
+                    onClick={() => setConfirm({
+                      title: u.is_suspended ? 'Aktifkan akun' : 'Nonaktifkan akun',
+                      message: `${u.is_suspended ? 'Aktifkan kembali' : 'Nonaktifkan'} akun ${u.full_name || u.email || u.id.slice(0, 8)}?`,
+                      tone: u.is_suspended ? 'primary' : 'danger',
+                      confirmLabel: u.is_suspended ? 'Aktifkan' : 'Nonaktifkan',
+                      onConfirm: () => handleToggleSuspend(u.id, u.is_suspended),
+                    })}
+                  >
+                    <Ban className="w-3.5 h-3.5" /> {u.is_suspended ? 'Aktifkan' : 'Nonaktifkan'}
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </Card>
+      )}
+
+      {/* Konfigurasi aplikasi -- terpisah dari manajemen pengguna supaya panel
+          tidak terasa mencampur dua hal yang berbeda. */}
+      <div className="pt-4 space-y-4 border-t border-[var(--nexus-glass-border)]">
+        <div>
+          <h2 className="font-heading text-lg font-semibold tracking-tight text-[var(--nexus-text-primary)]">Konfigurasi aplikasi</h2>
+          <p className="text-xs text-[var(--nexus-text-secondary)]">Branding global dan kontak upgrade yang berlaku untuk semua pengguna.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <GlobalBrandingForm />
+          <WhatsappContactForm />
+        </div>
+      </div>
+
+      {/* Dialog konfirmasi aksi konsekuensial */}
+      {confirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setConfirm(null)}>
+          <Card className="w-full max-w-sm space-y-5 shadow-2xl animate-scale-up" onClick={(e) => e.stopPropagation()}>
+            <div className="space-y-1.5">
+              <h3 className="font-heading text-base font-semibold tracking-tight text-[var(--nexus-text-primary)]">
+                {confirm.title}
+              </h3>
+              <p className="text-sm text-[var(--nexus-text-secondary)]">{confirm.message}</p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setConfirm(null)}>Batal</Button>
+              <Button
+                variant={confirm.tone === 'danger' ? 'destructive' : 'nexus-emerald'}
+                onClick={() => { confirm.onConfirm(); setConfirm(null); }}
+              >
+                {confirm.confirmLabel}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Edit User Modal Overlay */}
       {editingUser && (
