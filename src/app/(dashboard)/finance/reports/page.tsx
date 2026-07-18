@@ -296,7 +296,7 @@ export default function ReportsPage() {
 
           {/* Category Rank List table widget */}
           <div className="md:col-span-2">
-            <Card className="p-6 space-y-4">
+            <Card className="space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 pb-2 border-b border-light-border/40 dark:border-dark-border/40">
                 <BarChart3 className="w-4.5 h-4.5 text-[var(--nexus-emerald)]" />
                 {t('reports.analytics.categoryRanking', 'Peringkat Pengeluaran Kategori')}
@@ -400,7 +400,7 @@ export default function ReportsPage() {
 
           {/* Tax Estimator Statement worksheet */}
           <div className="md:col-span-2">
-            <Card className="p-6 space-y-6">
+            <Card className="space-y-6">
               <div>
                 <h3 className="text-base font-extrabold text-light-text-primary dark:text-dark-text-primary">
                   {t('reports.tax.statement', 'Pernyataan Proyeksi Pajak Penghasilan')}

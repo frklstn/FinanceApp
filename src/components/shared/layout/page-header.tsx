@@ -38,7 +38,9 @@ export function PageHeader({ title, accent, subtitle, actions }: PageHeaderProps
           <p className="text-xs text-[var(--nexus-text-secondary)]">{subtitle}</p>
         ) : null}
       </div>
-      {actions ? <div className="flex items-center gap-3 w-full md:w-auto">{actions}</div> : null}
+      {/* flex-wrap: tanpa ini deretan aksi yang lebih lebar dari layar hp
+          meluber keluar, bukan turun ke baris berikutnya. */}
+      {actions ? <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">{actions}</div> : null}
     </header>
   );
 }

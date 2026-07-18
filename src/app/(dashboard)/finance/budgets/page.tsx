@@ -18,6 +18,7 @@ import {
 import type { IncomeTimelineEntry, LoanTracker, SalaryPeriod } from '@/lib/debt-planner/types';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { EmptyState } from '@/components/shared/empty-state';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -168,7 +169,7 @@ export default function BudgetsPage() {
       />
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-6">
+        <Card className="lg:col-span-2">
           <div className="flex items-start justify-between gap-6">
             <div className="space-y-1">
               <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
@@ -187,38 +188,45 @@ export default function BudgetsPage() {
           </div>
         </Card>
 
-        <Card className="p-8 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] flex flex-col justify-center items-center text-center space-y-6 rounded-[40px] shadow-2xl">
-          <div className={`w-20 h-20 rounded-[28px] flex items-center justify-center ${totalRemaining < 0 ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border-[var(--nexus-emerald-border)]'} border shadow-2xl`}>
-            {totalRemaining < 0 ? <ShieldAlert className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
+        {/* Anatomi disamakan dengan kartu di sebelahnya: label, angka, catatan,
+            ikon di kanan. Sebelumnya kartu ini masih bergaya tema lama
+            (p-8, radius 40px, ikon 80px, tracking 0.3em) sehingga terlihat
+            seperti berasal dari halaman yang berbeda. */}
+        <Card>
+          <div className="flex items-start justify-between gap-6">
+            <div className="space-y-1">
+              <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
+                {totalRemaining < 0 ? <ShieldAlert className="w-3.5 h-3.5 text-rose-400" /> : <ShieldCheck className="w-3.5 h-3.5 text-[var(--nexus-emerald)]" />}
+                Sisa anggaran
+              </p>
+              <h2 className={`text-2xl md:text-3xl font-semibold tracking-tight ${totalRemaining < 0 ? 'text-rose-400' : 'text-[var(--nexus-emerald)]'}`}>
+                {formatCurrency(totalRemaining)}
+              </h2>
+              <p className="text-xs text-[var(--nexus-text-muted)]">
+                {totalRemaining < 0
+                  ? 'Total anggaran terlampaui. Segera sesuaikan alokasi.'
+                  : 'Laju pengeluaran masih dalam batas anggaran.'}
+              </p>
+            </div>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${totalRemaining < 0 ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border-[var(--nexus-emerald-border)]'}`}>
+              {totalRemaining < 0 ? <ShieldAlert className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
+            </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  tracking-[0.3em]">Sisa anggaran</p>
-            <p className={`text-3xl font-semibold tracking-tighter ${totalRemaining < 0 ? 'text-rose-400' : 'text-[var(--nexus-emerald)]'}`}>
-              {formatCurrency(totalRemaining)}
-            </p>
-          </div>
-          <p className="text-[9px] font-semibold text-[var(--nexus-text-muted)] leading-relaxed px-4  tracking-tighter">
-            {totalRemaining < 0 
-              ? 'Peringatan: total anggaran terlampaui. Segera sesuaikan alokasi.'
-              : 'Aman: laju pengeluaran masih dalam batas anggaran.'}
-          </p>
         </Card>
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          [1, 2, 3].map((n) => <div key={n} className="h-48 rounded-[32px] border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
+          [1, 2, 3].map((n) => <div key={n} className="h-48 rounded-2xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
         ) : budgets.length === 0 ? (
-          <div className="md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-20 text-center space-y-6 bg-[var(--nexus-bg-panel)] rounded-[40px] border border-dashed border-[var(--nexus-glass-border)]">
-            <div className="w-20 h-20 rounded-[32px] bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] flex items-center justify-center text-[var(--nexus-text-muted)]">
-              <PiggyBank className="w-10 h-10" />
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)]  tracking-tight">Belum ada anggaran</h4>
-              <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]   max-w-sm"> Tetapkan batas per kategori untuk mengontrol pengeluaran.</p>
-            </div>
-            <Button className="rounded-2xl px-12 py-6 h-auto text-[11px] font-semibold   bg-[var(--nexus-emerald)] shadow-xl border-none" onClick={() => setIsModalOpen(true)}>Buat anggaran</Button>
-          </div>
+          <EmptyState
+            className="md:col-span-2 lg:col-span-3"
+            icon={PiggyBank}
+            title="Belum ada anggaran"
+            description="Tetapkan batas per kategori untuk mengontrol pengeluaran."
+            actionLabel="Buat anggaran"
+            onAction={() => setIsModalOpen(true)}
+          />
         ) : (
           <AnimatePresence>
             {budgets.map((b) => {

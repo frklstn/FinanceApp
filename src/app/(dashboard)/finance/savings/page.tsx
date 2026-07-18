@@ -7,6 +7,7 @@ import { walletService, type Wallet } from '@/lib/services/workspace/wallet.serv
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { EmptyState } from '@/components/shared/empty-state';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -123,7 +124,7 @@ export default function SavingsPage() {
       />
 
       <section>
-        <Card className="p-6">
+        <Card>
           <div className="flex items-start justify-between gap-6">
             <div className="space-y-1">
               <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
@@ -145,7 +146,16 @@ export default function SavingsPage() {
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          [1, 2, 3].map((n) => <div key={n} className="h-64 rounded-[32px] border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
+          [1, 2, 3].map((n) => <div key={n} className="h-64 rounded-2xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
+        ) : goals.length === 0 ? (
+          <EmptyState
+            className="md:col-span-2 lg:col-span-3"
+            icon={PiggyBank}
+            title="Belum ada target tabungan"
+            description="Tetapkan tujuan dan nominalnya untuk memantau progres menabungmu."
+            actionLabel="Buat target"
+            onAction={() => setIsGoalModalOpen(true)}
+          />
         ) : (
           <AnimatePresence>
             {goals.map((goal) => {
@@ -162,7 +172,7 @@ export default function SavingsPage() {
                   whileHover={{ y: -5 }}
                   className="group"
                 >
-                  <Card className="p-8 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[32px]">
+                  <Card className="h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between">
                     <div className="space-y-6">
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">

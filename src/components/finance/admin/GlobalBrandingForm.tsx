@@ -49,7 +49,7 @@ export function GlobalBrandingForm() {
   };
 
   return (
-    <Card className="p-6 border border-primary/20 bg-primary/5">
+    <Card className="border border-primary/20 bg-primary/5">
       <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2 mb-1">
         <Palette className="w-4 h-4 text-primary" />
         Branding Aplikasi (Global)

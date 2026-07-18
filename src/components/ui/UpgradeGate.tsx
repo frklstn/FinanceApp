@@ -12,42 +12,49 @@ interface UpgradeGateProps {
 }
 
 export function UpgradeGate({ children }: UpgradeGateProps) {
-  const { isPro } = useApp();
+  const { isPro, isLoading } = useApp();
   const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
-  const [loading, setLoading] = useState(!isPro());
+  const [memuatKontak, setMemuatKontak] = useState(true);
 
   const isProUser = isPro();
 
   useEffect(() => {
-    if (isProUser) {
+    if (isLoading || isProUser) {
       return;
     }
 
+    let batal = false;
     async function fetchContact() {
       try {
         const link = await profileService.getWhatsappContact();
-        setWhatsappLink(link);
+        if (!batal) setWhatsappLink(link);
       } catch (err) {
         console.error('Failed to fetch admin WhatsApp contact:', err);
       } finally {
-        setLoading(false);
+        if (!batal) setMemuatKontak(false);
       }
     }
 
     fetchContact();
-  }, [isProUser]);
+    return () => { batal = true; };
+  }, [isLoading, isProUser]);
 
-  if (isProUser) {
-    return <>{children}</>;
-  }
-
-  if (loading) {
+  // Selama profil belum termuat, plan belum diketahui: isPro() mengembalikan
+  // false hanya karena profile masih null. Tanpa guard isLoading, gate ini
+  // memutuskan terlalu dini dan pengguna Pro sempat melihat paywall "Fitur Pro"
+  // setiap kali halaman dimuat -- state `loading` yang lama hanya menunggu
+  // fetch kontak WhatsApp, yang justru sering selesai lebih dulu dari profil.
+  if (isLoading || (!isProUser && memuatKontak)) {
     return (
       <div className="flex flex-col items-center justify-center p-12 space-y-4">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary">Memuat akses...</p>
       </div>
     );
+  }
+
+  if (isProUser) {
+    return <>{children}</>;
   }
 
   return (

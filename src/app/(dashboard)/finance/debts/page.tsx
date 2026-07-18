@@ -173,6 +173,8 @@ export default function DebtsPage() {
   // Note: Simplified totals. Real implementation would convert to base currency.
   const totalLend = debts.filter((d) => d.type === 'lend').reduce((sum, d) => sum + Number(d.remaining_amount), 0);
   const netPosition = totalLend - totalOwe;
+  /** Porsi piutang terhadap seluruh catatan. Dipakai untuk angka dan lebar bar. */
+  const rasioPiutang = (totalLend / (totalOwe + totalLend || 1)) * 100;
 
   return (
     <div className="space-y-8 no-scrollbar">
@@ -192,7 +194,7 @@ export default function DebtsPage() {
 
       {/* Aggregate Hero Section */}
       <section>
-        <Card className="p-6">
+        <Card>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="space-y-4">
               <div className="space-y-1">
@@ -225,35 +227,38 @@ export default function DebtsPage() {
               </div>
             </div>
 
-            <div className="bg-[var(--nexus-bg-panel)] backdrop-blur-3xl rounded-[40px] border border-[var(--nexus-glass-border)] p-8 md:p-10 space-y-8">
+            <div className="bg-[var(--nexus-bg-panel)] rounded-2xl border border-[var(--nexus-glass-border)] p-5 space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-[24px] bg-rose-500/10 flex items-center justify-center border border-rose-500/20 shadow-inner">
-                    <ShieldAlert className="w-7 h-7 text-rose-400" />
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
+                    <ShieldAlert className="w-5 h-5 text-rose-400" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]  tracking-tight">
-                      {t('debts.auditTitle', 'Audit Liabilitas')}
+                    <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)] tracking-tight">
+                      {t('debts.auditTitle', 'Ringkasan')}
                     </h4>
-                    <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]  tracking-[0.2em]">
-                      {t('debts.systemMonitor', 'Pemantauan Sistem')}
+                    <p className="text-xs text-[var(--nexus-text-muted)]">
+                      {t('debts.systemMonitor', 'Utang & piutang aktif')}
                     </p>
                   </div>
                 </div>
-                <div className="text-4xl font-semibold text-[var(--nexus-text-primary)] italic tracking-tighter">
-                  {debts.length} <span className="text-xs not-italic text-[var(--nexus-text-muted)]">{t('debts.unit', 'Unit')}</span>
+                <div className="text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">
+                  {debts.length} <span className="text-xs font-normal text-[var(--nexus-text-muted)]">{t('debts.unit', 'catatan')}</span>
                 </div>
               </div>
               <div className="space-y-3">
-                <div className="flex justify-between text-[10px] font-semibold  tracking-[0.2em]">
-                  <span className="text-[var(--nexus-text-muted)]">{t('debts.repaymentRatio', 'Repayment Ratio')}</span>
-                  <span className="text-[var(--nexus-text-primary)]">{t('debts.calculated', 'Calculated')}</span>
+                <div className="flex justify-between text-xs">
+                  <span className="text-[var(--nexus-text-muted)]">{t('debts.repaymentRatio', 'Rasio piutang')}</span>
+                  {/* Angkanya sudah dihitung untuk lebar bar di bawah; sebelumnya
+                      di sini hanya tertulis label statis "Dihitung", sehingga
+                      rasionya tidak pernah benar-benar terbaca. */}
+                  <span className="font-semibold text-[var(--nexus-text-primary)]">{Math.round(rasioPiutang)}%</span>
                 </div>
-                <div className="w-full h-3 bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)]">
-                  <motion.div 
+                <div className="w-full h-2 bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)]">
+                  <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${(totalLend / (totalOwe + totalLend || 1)) * 100}%` }}
-                    className="h-full bg-gradient-to-r from-rose-600 to-rose-400" 
+                    animate={{ width: `${rasioPiutang}%` }}
+                    className="h-full bg-gradient-to-r from-rose-600 to-rose-400"
                   />
                 </div>
               </div>

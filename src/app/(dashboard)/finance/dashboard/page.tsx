@@ -369,9 +369,9 @@ export default function DashboardPage() {
           </div>
 
           {dateFilter === 'custom' && (
-            <div className="flex items-center gap-2">
-              <DatePicker value={customStart} onChange={setCustomStart} placeholder={t('common.from', 'Dari')} className="min-w-[150px]" />
-              <DatePicker value={customEnd} onChange={setCustomEnd} placeholder={t('common.to', 'Sampai')} className="min-w-[150px]" />
+            <div className="flex flex-1 items-center gap-2">
+              <DatePicker value={customStart} onChange={setCustomStart} placeholder={t('common.from', 'Dari')} className="min-w-0 flex-1 md:min-w-[150px] md:flex-none" />
+              <DatePicker value={customEnd} onChange={setCustomEnd} placeholder={t('common.to', 'Sampai')} className="min-w-0 flex-1 md:min-w-[150px] md:flex-none" />
             </div>
           )}
 
@@ -388,9 +388,9 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => w.action ? w.action() : router.push(w.path!)}
-            className="nexus-card relative group p-6 text-left overflow-hidden cursor-pointer min-h-[140px] flex flex-col justify-between"
+            className="nexus-card relative group p-4 md:p-6 text-left overflow-hidden cursor-pointer min-h-[120px] md:min-h-[140px] flex flex-col justify-between"
           >
-            <w.icon className={`w-5 h-5 ${w.color} mb-4 transition-transform group-hover:scale-110`} />
+            <w.icon className={`w-5 h-5 ${w.color} mb-3 md:mb-4 transition-transform group-hover:scale-110`} />
             <div className="space-y-1">
               <p className="text-xs text-[var(--nexus-text-secondary)]">{w.label}</p>
               <div className="text-lg md:text-2xl font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate">
@@ -403,7 +403,7 @@ export default function DashboardPage() {
 
       {/* Main Analysis Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <Card className="md:col-span-2 p-6">
+        <Card className="md:col-span-2">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-heading text-base font-semibold text-[var(--nexus-text-primary)] flex items-center gap-2.5">
               <Zap className="w-4 h-4 text-[var(--nexus-text-emerald)]" /> {t('dashboard.chart.expenseTrendsTitle', 'Grafik pengeluaran')}
@@ -414,7 +414,7 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        <Card className="p-6 flex flex-col justify-between min-h-[320px]">
+        <Card className="flex flex-col justify-between min-h-[320px]">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="w-10 h-10 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex items-center justify-center">
@@ -470,7 +470,7 @@ export default function DashboardPage() {
           </Button>
         </Card>
 
-        <Card className="p-6 flex flex-col h-full justify-between gap-4">
+        <Card className="flex flex-col h-full justify-between gap-4">
           <CardHeader className="pb-0">
             <CardTitle className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
               <AlertTriangle className="w-4 h-4" /> {t('dashboard.widget.pinjolEmergency', 'Pinjol perlu perhatian')}
@@ -537,7 +537,7 @@ export default function DashboardPage() {
       {/* Bottom Grid: Analysis + Activity + Debt */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Widget 1: Tren Kategori */}
-        <Card className="p-6 flex flex-col h-full gap-4">
+        <Card className="flex flex-col h-full gap-4">
           <CardHeader className="pb-0">
             <CardTitle>{t('dashboard.chart.categoriesTitle', 'Tren kategori')}</CardTitle>
             <CardDescription>{t('dashboard.chart.categoriesDesc', 'Alokasi pengeluaran')}</CardDescription>
@@ -585,7 +585,7 @@ export default function DashboardPage() {
           )}
         </Card>
 
-        <Card className="p-6 flex flex-col h-full justify-between gap-4">
+        <Card className="flex flex-col h-full justify-between gap-4">
           <CardHeader className="pb-0">
             <CardTitle>{t('dashboard.insights.recentActivity', 'Aktivitas terbaru')}</CardTitle>
             <CardDescription>{t('dashboard.insights.recentActivityDesc', '3 transaksi terakhir')}</CardDescription>

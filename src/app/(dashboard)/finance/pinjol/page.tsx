@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { DebtFormModal } from '@/components/finance/debt/DebtForm';
 import { useToast } from '@/components/ui/toast';
 import { UpgradeGate } from '@/components/ui/UpgradeGate';
+import { EmptyState } from '@/components/shared/empty-state';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { Modal } from '@/components/ui/modal';
@@ -25,7 +26,6 @@ import {
   ChevronRight,
   Plus,
   Trash2,
-  TrendingUp,
   ShieldCheck,
   ArrowRight,
   LayoutGrid,
@@ -359,8 +359,10 @@ export default function PinjolPage() {
           subtitle="Kelola semua pinjaman online kamu dalam satu tempat"
         />
 
-        {/* Dynamic Summary Stat Cards */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Dynamic Summary Stat Cards. Dua kolom sejak hp, sama seperti kartu
+            statistik dashboard -- sebelumnya grid-cols-1 sampai breakpoint sm
+            (640px), jadi di hp tiap kartu makan satu baris penuh. */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Pinjaman */}
           <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between w-full gap-3">
@@ -391,10 +393,9 @@ export default function PinjolPage() {
                 <h3 className="text-base md:text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
                   Rp {totalTagihanBulanIni.toLocaleString('id-ID')}
                 </h3>
-                <div className="flex items-center gap-1 text-[var(--nexus-emerald)] text-[10px] font-bold  leading-none mt-1">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>12% dari bulan lalu</span>
-                </div>
+                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold  leading-none mt-1">
+                  {rasioIncome}% dari pemasukan
+                </p>
               </div>
               <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
                 <CalendarIcon className="w-4 h-4" />
@@ -462,20 +463,13 @@ export default function PinjolPage() {
                   ))}
                 </div>
               ) : loans.length === 0 ? (
-                <div className="p-12 text-center flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 rounded-[24px] bg-black/[0.03] dark:bg-[var(--nexus-bg-panel)] flex items-center justify-center text-[var(--nexus-text-muted)] mb-4">
-                    <LayoutGrid className="w-6 h-6" />
-                  </div>
-                  <h4 className="font-extrabold  tracking-tight text-[var(--nexus-text-primary)] text-sm mb-1">
-                    Daftar masih kosong
-                  </h4>
-                  <p className="text-xs text-[var(--nexus-text-secondary)] max-w-sm leading-relaxed mb-6">
-                    Belum ada pinjaman online yang dicatat dalam tracker ini.
-                  </p>
-                  <Button variant="nexus-emerald" size="sm" onClick={() => setIsModalOpen(true)}>
-                    <Plus className="w-4 h-4 mr-1.5" /> Tambah Pinjaman
-                  </Button>
-                </div>
+                <EmptyState
+                  icon={LayoutGrid}
+                  title="Daftar masih kosong"
+                  description="Belum ada pinjaman online yang dicatat dalam tracker ini."
+                  actionLabel="Tambah pinjaman"
+                  onAction={() => setIsModalOpen(true)}
+                />
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">

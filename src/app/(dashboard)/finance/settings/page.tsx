@@ -13,7 +13,7 @@ export default function SettingsPage() {
         subtitle="Kelola profil, preferensi tampilan, dan data keuanganmu"
       />
 
-      <Card className="p-6 md:p-8">
+      <Card>
         <SettingsForm isModal={false} />
       </Card>
     </div>

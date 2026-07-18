@@ -24,7 +24,9 @@ function Card({
       className={cn(
         // Tanpa overflow-hidden: dropdown Select/DatePicker di dalam kartu
         // diposisikan absolute dan sebelumnya terpotong oleh kartu.
-        "nexus-card flex flex-col gap-4 py-6 px-8 text-sm relative",
+        // Padding mengecil di hp: px-8 tetap memakan 64px dari layar 360px,
+        // menyisakan ~248px untuk isi kartu.
+        "nexus-card flex flex-col gap-4 py-5 px-5 text-sm relative md:py-6 md:px-8",
         interactive && "cursor-pointer transition-colors hover:bg-[var(--nexus-bg-panel)]/50",
         className
       )}

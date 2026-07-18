@@ -17,7 +17,7 @@ export function BudgetOptimizerWidget({ suggestions, onApply }: BudgetOptimizerW
   if (suggestions.length === 0) return null;
 
   return (
-    <Card className="p-6 border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)] relative overflow-hidden">
+    <Card className="border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)] relative overflow-hidden">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)]">

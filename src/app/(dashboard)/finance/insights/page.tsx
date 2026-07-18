@@ -107,7 +107,7 @@ export default function InsightsPage() {
         ) : (
           <div className="space-y-6">
             {/* Health Score Banner */}
-            <Card className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <Card className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-3 text-center md:text-left">
                 <span className="text-[10px]  font-semibold text-[var(--nexus-emerald)] bg-[var(--nexus-emerald-glow)] px-3 py-1.5 rounded-full tracking-[0.2em] border border-[var(--nexus-emerald-border)]">
                   Skor Kesehatan {appSettings.app_name || 'FinanceApp'}
@@ -169,7 +169,7 @@ export default function InsightsPage() {
 
 
             {/* Detailed list of insights */}
-            <Card className="p-6 space-y-4">
+            <Card className="space-y-4">
               <h3 className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary   flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[var(--nexus-emerald)]" />
                 Rekomendasi &amp; peringatan
