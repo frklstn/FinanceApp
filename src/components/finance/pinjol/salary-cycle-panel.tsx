@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -28,15 +28,18 @@ export function SalaryCyclePanel({ salaryDay, currentForecast, onSaveSalaryDay, 
   const [dayInput, setDayInput] = useState(String(salaryDay));
   const [savingDay, setSavingDay] = useState(false);
   const [incomeInput, setIncomeInput] = useState('');
-  const [incomeDate, setIncomeDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [incomeDateInput, setIncomeDateInput] = useState('');
   const [savingIncome, setSavingIncome] = useState(false);
 
   // Income dihitung per AWAL periode: entri gaji harus berlaku sejak awal siklus
-  // agar ikut terhitung pada periode berjalan. Default ke tanggal mulai periode.
-  useEffect(() => {
-    const start = currentForecast?.period?.start;
-    if (start) setIncomeDate(new Date(start).toISOString().slice(0, 10));
-  }, [currentForecast?.period?.start]);
+  // agar ikut terhitung pada periode berjalan. Default (turunan, bukan state)
+  // ke tanggal mulai periode; dipakai selama user belum mengubahnya.
+  const periodStart = currentForecast?.period?.start;
+  const defaultIncomeDate = periodStart
+    ? new Date(periodStart).toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
+  const incomeDate = incomeDateInput || defaultIncomeDate;
+  const setIncomeDate = setIncomeDateInput;
 
   const saveDay = async () => {
     const d = parseInt(dayInput, 10);

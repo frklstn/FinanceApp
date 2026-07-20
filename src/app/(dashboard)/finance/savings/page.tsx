@@ -14,9 +14,8 @@ import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
 import { DatePicker } from '@/components/ui/date-picker';
-import { 
-  Target, 
-  Plus, 
+import {
+  Plus,
   PiggyBank, 
   Trash2, 
   Calendar, 

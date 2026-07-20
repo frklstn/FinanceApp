@@ -43,8 +43,11 @@ export function Landing({ openLogin = false }: LandingProps) {
   // /auth/callback dan /auth/confirm mengarahkan kegagalan ke '?error=...'.
   // Tanpa ini pesannya hilang tanpa jejak.
   useEffect(() => {
+    // Baca sekali saat mount dari URL (sistem eksternal); tidak bisa lazy-init
+    // via useState karena window tak ada saat SSR.
     const urlError = new URLSearchParams(window.location.search).get('error');
     if (urlError) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowLogin(true);
       setErrorMsg(decodeURIComponent(urlError));
     }

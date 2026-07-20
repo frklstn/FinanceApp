@@ -29,9 +29,8 @@ import {
   PiggyBank, 
   Trash2, 
   ShieldCheck, 
-  AlertCircle, 
-  Target, 
-  Zap, 
+  AlertCircle,
+  Zap,
   PieChart, 
   TrendingDown, 
   ShieldAlert 

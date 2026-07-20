@@ -13,7 +13,7 @@ import { currencyService } from '@/lib/services/finance/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet, TrendingUp, TrendingDown, PiggyBank, Bell, ArrowRight, AlertTriangle, ShieldCheck, Zap } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, PiggyBank, AlertTriangle, ShieldCheck, Zap } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
