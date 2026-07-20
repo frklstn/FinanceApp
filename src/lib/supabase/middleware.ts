@@ -28,12 +28,16 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake can cause a very difficult bug to debug, where
-  // the user is signed in but they are shown as signed out.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims memvalidasi tanda tangan JWT secara LOKAL (Web Crypto, kunci
+  // asimetris di-cache) tanpa round-trip ke server Auth pada tiap request --
+  // jauh lebih ringan daripada getUser() yang memanggil Auth server setiap
+  // navigasi. Ini pola yang disarankan Supabase untuk proteksi route.
+  //
+  // IMPORTANT: Jangan menaruh logika antara createServerClient dan getClaims;
+  // salah taruh bisa membuat pengguna acak ter-logout saat SSR.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const claims = claimsData?.claims ?? null;
+  const userId = claims?.sub;
 
   const path = request.nextUrl.pathname;
 
@@ -55,23 +59,28 @@ export async function updateSession(request: NextRequest) {
   const proto = request.headers.get('x-forwarded-proto') || 'https';
   const host = request.headers.get('host') || request.nextUrl.host;
 
-  if (!user && isProtectedPath) {
+  if (!claims && isProtectedPath) {
     const redirectUrl = new URL('/login', `${proto}://${host}`);
     return NextResponse.redirect(redirectUrl);
   }
 
   // Redirect unauthenticated users from /reset-password to /forgot-password
-  if (!user && isResetPasswordPath) {
+  if (!claims && isResetPasswordPath) {
     const redirectUrl = new URL('/forgot-password', `${proto}://${host}`);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user) {
+  // Prefetch (<Link> saat hover/viewport) tidak benar-benar berpindah halaman,
+  // jadi tak perlu cek suspensi -- lewati query DB-nya supaya prefetch ringan.
+  // Navigasi asli tetap mengeceknya.
+  const isPrefetch = request.headers.get('next-router-prefetch') === '1';
+
+  if (claims && userId && !isPrefetch) {
     // Database query check for suspension state
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_suspended')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single();
 
     if (profile?.is_suspended) {
