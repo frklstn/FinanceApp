@@ -11,6 +11,13 @@ const eslintConfig = defineConfig([
   ...nextTypescript,
 
   {
+    // Set versi React eksplisit. Tanpa ini, eslint-plugin-react mendeteksi versi
+    // dengan memanggil context.getFilename() yang sudah dihapus di ESLint 9/10,
+    // sehingga lint crash ("contextOrFilename.getFilename is not a function").
+    // Menyetel versi membuat plugin melewati deteksi itu -> jalan di ESLint 10.
+    settings: {
+      react: { version: "19.2" },
+    },
     rules: {
       // Contoh override — sesuaikan dengan preferensi tim.
       // "react/no-unescaped-entities": "off",
