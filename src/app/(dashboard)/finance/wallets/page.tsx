@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import {
@@ -222,7 +223,7 @@ export default function WalletsPage() {
               <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  ">{t('wallets.modal.initialMagnitude', 'Initial Magnitude ({currency})').replace('{currency}', currency)}</label>
               <div className="relative">
                 <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--nexus-emerald)]" />
-                <Input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
+                <CurrencyInput value={balance} onChange={setBalance} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
               </div>
             </div>
           )}
@@ -304,7 +305,7 @@ export default function WalletsPage() {
             <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]  ">{t('wallets.modal.relocationMagnitude', 'Jumlah ({currency})').replace('{currency}', wallets.find(w => w.id === sourceId)?.currency || 'IDR')}</label>
             <div className="relative">
               <ArrowRightLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--nexus-emerald)]" />
-              <Input type="number" value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
+              <CurrencyInput value={transferAmount} onChange={setTransferAmount} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
             </div>
           </div>
 

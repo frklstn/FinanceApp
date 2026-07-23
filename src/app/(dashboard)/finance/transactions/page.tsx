@@ -9,6 +9,7 @@ import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
@@ -358,7 +359,7 @@ function TransactionsContent() {
               <label className="text-xs text-[var(--nexus-text-secondary)]">Jumlah (IDR)</label>
               <div className="relative">
                 <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--nexus-emerald)]" />
-                <Input type="number" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
+                <CurrencyInput value={txAmount} onChange={setTxAmount} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
               </div>
             </div>
             <DatePicker label="Tanggal & waktu" showTime value={txDate} onChange={setTxDate} />

@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
@@ -532,12 +533,11 @@ export default function DebtsPage() {
             className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-4 h-auto"
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input
-              label={t('debts.modal.magnitude', 'Magnitude ({currency})').replace('{currency}', currency)}
+            <CurrencyInput
+              label={t('debts.modal.magnitude', 'Jumlah ({currency})').replace('{currency}', currency)}
               placeholder="0"
-              type="number"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={setAmount}
               required
               disabled={submitting}
               className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-6"
@@ -600,12 +600,11 @@ export default function DebtsPage() {
               disabled={submitting}
               className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-4 h-auto"
             />
-            <Input
-              label={t('debts.modal.authMagnitude', 'Authorization Magnitude ({currency})').replace('{currency}', selectedDebt.currency || 'Rp')}
+            <CurrencyInput
+              label={t('debts.modal.authMagnitude', 'Jumlah bayar ({currency})').replace('{currency}', selectedDebt.currency || 'Rp')}
               placeholder="0"
-              type="number"
               value={payAmount}
-              onChange={(e) => setPayAmount(e.target.value)}
+              onChange={setPayAmount}
               required
               disabled={submitting}
               className="rounded-[20px] bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-6"

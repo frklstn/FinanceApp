@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { CalendarClock, Wallet, TrendingDown, CheckCircle2, AlertTriangle } from 'lucide-react';
@@ -117,13 +118,11 @@ export function SalaryCyclePanel({ salaryDay, currentForecast, onSaveSalaryDay, 
       {/* Perbarui gaji (potongan/bonus) */}
       <div className="flex flex-wrap items-end gap-3 pt-3 border-t border-[var(--nexus-glass-border)]">
         <div className="flex-1 min-w-[140px]">
-          <Input
+          <CurrencyInput
             label="Perbarui gaji (Rp)"
-            type="number"
-            min={0}
             placeholder="mis. ada bonus / potongan"
             value={incomeInput}
-            onChange={(e) => setIncomeInput(e.target.value)}
+            onChange={setIncomeInput}
           />
         </div>
         <div className="w-40">

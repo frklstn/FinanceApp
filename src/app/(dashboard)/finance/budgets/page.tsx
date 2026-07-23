@@ -20,7 +20,7 @@ import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
@@ -336,11 +336,10 @@ export default function BudgetsPage() {
               />
             </div>
             <div className="w-32">
-              <Input
-                type="number"
+              <CurrencyInput
                 placeholder="Nominal"
                 value={limitAmount}
-                onChange={(e) => setLimitAmount(e.target.value)}
+                onChange={setLimitAmount}
                 disabled={submitting}
                 className="rounded-xl text-lg font-semibold"
               />

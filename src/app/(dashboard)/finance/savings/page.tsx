@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/shared/layout/page-header';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
@@ -226,8 +227,8 @@ export default function SavingsPage() {
         <form onSubmit={handleCreateGoal} className="space-y-6">
           <Input label="Nama target" placeholder="mis. Dana darurat, Beli laptop" value={goalName} onChange={(e) => setGoalName(e.target.value)} required />
           <div className="grid grid-cols-2 gap-6">
-            <Input label="Jumlah target" type="number" value={targetAmt} onChange={(e) => setTargetAmt(e.target.value)} required />
-            <Input label="Initial Deposit" type="number" value={currentAmt} onChange={(e) => setCurrentAmt(e.target.value)} required />
+            <CurrencyInput label="Jumlah target" value={targetAmt} onChange={setTargetAmt} required />
+            <CurrencyInput label="Setoran awal" value={currentAmt} onChange={setCurrentAmt} required />
           </div>
           <DatePicker label="Chronological Deadline" value={deadline} onChange={setDeadline} />
           <Button type="submit" loading={submitting} className="w-full h-14 font-semibold   rounded-2xl shadow-xl">Simpan target</Button>
@@ -237,7 +238,7 @@ export default function SavingsPage() {
       <Modal isOpen={isContributionModalOpen} onClose={() => setIsContributionModalOpen(false)} title={`Allocate: ${selectedGoal?.name}`}>
         <form onSubmit={handleContributionSubmit} className="space-y-6">
           <Select label="Source Account" options={[{value: '', label: '-- Select --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={contribWalletId} onChange={(e) => setContribWalletId(e.target.value)} required />
-          <Input label="Jumlah alokasi" type="number" value={contribAmount} onChange={(e) => setContribAmount(e.target.value)} required />
+          <CurrencyInput label="Jumlah alokasi" value={contribAmount} onChange={setContribAmount} required />
           <Input label="Catatan" value={contribNote} onChange={(e) => setContribNote(e.target.value)} />
           <Button type="submit" loading={submitting} className="w-full h-14 font-semibold   rounded-2xl shadow-xl">Alokasikan</Button>
         </form>

@@ -13,6 +13,7 @@ import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import { EmptyState } from '@/components/shared/empty-state';
 import { SalaryCyclePanel } from '@/components/finance/pinjol/salary-cycle-panel';
 import { PinjolCalcPanel } from '@/components/finance/pinjol/pinjol-calc-panel';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { Modal } from '@/components/ui/modal';
@@ -161,7 +162,8 @@ export default function PinjolPage() {
         app_name: editAppName.trim(),
         category: editCategory,
         amount_applied: editAmountApplied ? Number(editAmountApplied) : null,
-        amount_received: Number(editAmountReceived),
+        // Lupa nominal diterima -> pakai jumlah diajukan.
+        amount_received: Number(editAmountReceived || editAmountApplied || 0),
         // Total dihitung, bukan diketik: cicilan x tenor.
         total_repayment: Number(editMonthlyPayment) * Number(editTenureMonths),
         monthly_payment: Number(editMonthlyPayment),
@@ -905,32 +907,27 @@ export default function PinjolPage() {
 
               {/* Sama seperti form tambah: user isi 4 angka, sisanya dihitung. */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
+                <CurrencyInput
                   label="Jumlah Diajukan (Rp)"
-                  type="number"
                   value={editAmountApplied}
-                  onChange={(e) => setEditAmountApplied(e.target.value)}
+                  onChange={(raw) => setEditAmountApplied(raw)}
                   disabled={submitting}
                   description="Yang kamu ajukan"
                 />
-                <Input
+                <CurrencyInput
                   label="Dana Cair / Diterima (Rp)"
-                  type="number"
                   value={editAmountReceived}
-                  onChange={(e) => setEditAmountReceived(e.target.value)}
-                  required
+                  onChange={(raw) => setEditAmountReceived(raw)}
                   disabled={submitting}
-                  description="Yang masuk ke rekening"
+                  description="Kosongkan jika lupa"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Input
+                <CurrencyInput
                   label="Cicilan Bulanan (Rp)"
-                  type="number"
                   value={editMonthlyPayment}
-                  onChange={(e) => setEditMonthlyPayment(e.target.value)}
-                  required
+                  onChange={(raw) => setEditMonthlyPayment(raw)}
                   disabled={submitting}
                 />
                 <Input
@@ -954,7 +951,7 @@ export default function PinjolPage() {
 
               <PinjolCalcPanel
                 applied={editAmountApplied}
-                received={editAmountReceived}
+                received={editAmountReceived || editAmountApplied}
                 tenure={editTenureMonths}
                 monthly={editMonthlyPayment}
                 startDate={editStartDate}

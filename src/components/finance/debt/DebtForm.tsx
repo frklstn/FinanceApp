@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PinjolCalcPanel } from '@/components/finance/pinjol/pinjol-calc-panel';
@@ -21,6 +22,7 @@ const EMPTY_FORM = {
   amount_received: '',
   monthly_payment: '',
   tenure_months: '',
+  paid_months: '',
   due_day: '',
   start_date: '',
   notes: '',
@@ -50,10 +52,15 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amtApplied = parseFloat(form.amount_applied);
-    const amtReceived = parseFloat(form.amount_received);
     const monthly = parseFloat(form.monthly_payment);
     const tenure = parseInt(form.tenure_months, 10);
     const dueDay = parseInt(form.due_day, 10);
+    // Lupa nominal diterima -> pakai jumlah diajukan (anggap tanpa potongan).
+    const amtReceived = form.amount_received
+      ? parseFloat(form.amount_received)
+      : (isNaN(amtApplied) ? NaN : amtApplied);
+    // Cicilan yang sudah dibayar (untuk pinjaman yang sudah berjalan).
+    const paidMonths = Math.min(Math.max(parseInt(form.paid_months, 10) || 0, 0), tenure || 0);
 
     if (
       !form.app_name.trim() ||
@@ -73,6 +80,8 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
       amount_received: amtReceived,
       // Total dihitung, bukan diketik: cicilan x tenor.
       total_repayment: monthly * tenure,
+      // Sisa kewajiban menyesuaikan cicilan yang sudah berjalan.
+      total_remaining_balance: monthly * Math.max(tenure - paidMonths, 0),
       monthly_payment: monthly,
       tenure_months: tenure,
       due_day: dueDay,
@@ -108,35 +117,27 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
 
         {/* Yang diisi user: diajukan, diterima, tenor, cicilan. Sisanya dihitung. */}
         <div className="grid grid-cols-2 gap-3">
-          <Input
+          <CurrencyInput
             label="Jumlah Diajukan (Rp)"
-            type="number"
-            min={1}
             value={form.amount_applied}
-            onChange={(e) => handleChange('amount_applied', e.target.value)}
+            onChange={(raw) => handleChange('amount_applied', raw)}
             disabled={submitting}
-            description="Yang kamu ajukan"
+            description="Yang kamu ajukan (boleh kosong)"
           />
-          <Input
+          <CurrencyInput
             label="Uang Diterima (Rp)"
-            type="number"
-            min={1}
             value={form.amount_received}
-            onChange={(e) => handleChange('amount_received', e.target.value)}
-            required
+            onChange={(raw) => handleChange('amount_received', raw)}
             disabled={submitting}
-            description="Yang masuk ke rekening"
+            description="Kosongkan jika lupa; dipakai jumlah diajukan"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Input
+          <CurrencyInput
             label="Cicilan / Bulan (Rp)"
-            type="number"
-            min={1}
             value={form.monthly_payment}
-            onChange={(e) => handleChange('monthly_payment', e.target.value)}
-            required
+            onChange={(raw) => handleChange('monthly_payment', raw)}
             disabled={submitting}
           />
           <Input
@@ -151,9 +152,22 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
           />
         </div>
 
+        {/* Pinjaman yang sudah berjalan: berapa cicilan sudah dibayar. Sisa
+            kewajiban dihitung dari sini. */}
+        <Input
+          label="Cicilan sudah dibayar (bulan)"
+          type="number"
+          min={0}
+          max={Number(form.tenure_months) || undefined}
+          value={form.paid_months}
+          onChange={(e) => handleChange('paid_months', e.target.value)}
+          disabled={submitting}
+          description="Isi jika pinjaman sudah jalan; kosongkan kalau baru"
+        />
+
         <PinjolCalcPanel
           applied={form.amount_applied}
-          received={form.amount_received}
+          received={form.amount_received || form.amount_applied}
           tenure={form.tenure_months}
           monthly={form.monthly_payment}
           startDate={form.start_date}
