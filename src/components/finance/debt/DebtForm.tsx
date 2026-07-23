@@ -154,16 +154,31 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
 
         {/* Pinjaman yang sudah berjalan: berapa cicilan sudah dibayar. Sisa
             kewajiban dihitung dari sini. */}
-        <Input
-          label="Cicilan sudah dibayar (bulan)"
-          type="number"
-          min={0}
-          max={Number(form.tenure_months) || undefined}
-          value={form.paid_months}
-          onChange={(e) => handleChange('paid_months', e.target.value)}
-          disabled={submitting}
-          description="Isi jika pinjaman sudah jalan; kosongkan kalau baru"
-        />
+        <div className="space-y-1.5">
+          <Input
+            label="Cicilan sudah dibayar (bulan)"
+            type="number"
+            min={0}
+            max={Number(form.tenure_months) || undefined}
+            value={form.paid_months}
+            onChange={(e) => handleChange('paid_months', e.target.value)}
+            disabled={submitting}
+            description="Isi jika pinjaman sudah jalan; kosongkan kalau baru"
+          />
+          {(() => {
+            const tenure = Number(form.tenure_months) || 0;
+            const paid = Math.min(Number(form.paid_months) || 0, tenure);
+            const monthly = Number(form.monthly_payment) || 0;
+            if (!tenure || !paid) return null;
+            const left = Math.max(tenure - paid, 0);
+            return (
+              <p className="text-xs text-[var(--nexus-emerald)]">
+                Sisa {left} dari {tenure} cicilan
+                {monthly > 0 && ` · Rp ${(left * monthly).toLocaleString('id-ID')}`}
+              </p>
+            );
+          })()}
+        </div>
 
         <PinjolCalcPanel
           applied={form.amount_applied}
@@ -186,7 +201,7 @@ export function DebtFormModal({ isOpen, onClose, onSubmit, submitting }: DebtFor
             description="Tanggal tagihan tiap bulan"
           />
           <DatePicker
-            label="Tanggal Mulai"
+            label="Tanggal Mulai (asli)"
             value={form.start_date}
             onChange={(val) => handleChange('start_date', val)}
             disabled={submitting}

@@ -8,6 +8,7 @@ import { currencyService } from '@/lib/services/finance/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { PageHelp } from '@/components/shared/page-help';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
@@ -191,6 +192,15 @@ export default function DebtsPage() {
             <Plus className="w-4 h-4 mr-2" /> {t('debts.addBtn', 'Tambah catatan')}
           </Button>
         }
+      />
+
+      <PageHelp
+        items={[
+          '"Tambah catatan" untuk mencatat utang (kamu berutang) atau piutang (orang berutang padamu).',
+          'Isi tenggat bila ada; nominal otomatis diformat ribuan.',
+          '"Bayar cicilan" untuk mencatat pembayaran; sisa kewajiban ikut berkurang.',
+          'Pinjaman online dengan cicilan tetap lebih cocok dicatat di halaman Pinjol.',
+        ]}
       />
 
       {/* Aggregate Hero Section */}

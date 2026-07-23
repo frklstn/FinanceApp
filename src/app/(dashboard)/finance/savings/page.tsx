@@ -7,6 +7,7 @@ import { walletService, type Wallet } from '@/lib/services/workspace/wallet.serv
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { PageHelp } from '@/components/shared/page-help';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,6 +122,14 @@ export default function SavingsPage() {
             <Plus className="w-4 h-4 mr-2" /> Target baru
           </Button>
         }
+      />
+
+      <PageHelp
+        items={[
+          '"Target baru" untuk membuat tujuan menabung beserta nominal dan tenggat.',
+          'Isi setoran awal jika sudah ada tabungan berjalan.',
+          'Pada kartu target, alokasikan dana dari dompet untuk menambah progres.',
+        ]}
       />
 
       <section>

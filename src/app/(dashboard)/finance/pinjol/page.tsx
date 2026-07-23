@@ -16,6 +16,7 @@ import { PinjolCalcPanel } from '@/components/finance/pinjol/pinjol-calc-panel';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { PageHelp } from '@/components/shared/page-help';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -363,6 +364,16 @@ export default function PinjolPage() {
         <PageHeader
           title="Pinjol"
           subtitle="Kelola semua pinjaman online kamu dalam satu tempat"
+        />
+
+        <PageHelp
+          items={[
+            'Tambah pinjaman: isi jumlah diajukan, uang diterima, tenor, dan cicilan/bulan. Bunga, potongan, dan nombok dihitung otomatis.',
+            'Lupa nominal diterima? Kosongkan saja; dipakai jumlah diajukan.',
+            'Pinjaman sudah berjalan? Isi "cicilan sudah dibayar" dan tanggal mulai ASLI. Contoh tenor 6 sudah bayar 3 -> sisa 3 cicilan.',
+            'Panel "Siklus gajian": set tanggal & nominal gaji untuk tahu cukup/tidak menutup cicilan tiap periode.',
+            'Kalender menandai jatuh tempo dan hari gajian; klik tanggal untuk menandai cicilan lunas.',
+          ]}
         />
 
         {/* Dynamic Summary Stat Cards. Dua kolom sejak hp, sama seperti kartu

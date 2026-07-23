@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import NumberTicker from '@/components/ui/number-ticker';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { PageHelp } from '@/components/shared/page-help';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function WalletsPage() {
@@ -131,6 +132,15 @@ export default function WalletsPage() {
             </Button>
           </>
         }
+      />
+
+      <PageHelp
+        items={[
+          'Klik "Dompet baru" untuk menambah rekening/e-wallet/tunai dan saldo awalnya.',
+          '"Pindahkan" untuk transfer saldo antar dompet.',
+          'Ikon pensil/tempat sampah pada kartu untuk mengubah atau menghapus dompet.',
+          'Total saldo di atas menjumlahkan semua dompet aktif.',
+        ]}
       />
 
       <section>

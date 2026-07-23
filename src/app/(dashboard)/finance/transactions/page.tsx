@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { CategoryManagerModal } from '@/components/finance/transaction/CategoryManager';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { PageHelp } from '@/components/shared/page-help';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function TransactionsContent() {
@@ -223,6 +224,16 @@ function TransactionsContent() {
             </Button>
           </>
         }
+      />
+
+      <PageHelp
+        items={[
+          'Klik "Baru" untuk mencatat pemasukan, pengeluaran, atau transfer antar dompet.',
+          'Nominal otomatis diformat ribuan (mis. 200.000). Saldo dompet ikut menyesuaikan.',
+          'Pakai bar filter untuk menyaring per tipe, dompet, atau rentang tanggal.',
+          'Klik satu baris transaksi untuk melihat detail dan mengubahnya.',
+          '"Kategori" untuk mengatur daftar kategori pemasukan/pengeluaran.',
+        ]}
       />
 
       <section className="space-y-6">

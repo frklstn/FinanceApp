@@ -18,6 +18,7 @@ import {
 import type { IncomeTimelineEntry, LoanTracker, SalaryPeriod } from '@/lib/debt-planner/types';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { PageHelp } from '@/components/shared/page-help';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Button } from '@/components/ui/button';
 import { CurrencyInput } from '@/components/ui/currency-input';
@@ -165,6 +166,15 @@ export default function BudgetsPage() {
             </Button>
           </>
         }
+      />
+
+      <PageHelp
+        items={[
+          'Pilih periode gajian di kanan atas, lalu "Atur" untuk menetapkan batas per kategori.',
+          'Batas aman dihitung dari gaji periode itu dikurangi cicilan yang jatuh tempo.',
+          'Tambah beberapa kategori sekaligus, lalu "Simpan Semua".',
+          'Kartu di bawah menampilkan pemakaian vs batas tiap kategori.',
+        ]}
       />
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
