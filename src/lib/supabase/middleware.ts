@@ -94,8 +94,10 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(redirectUrl);
       }
       
-      // Allow authenticated users to access /reset-password (recovery mode)
-      if (!isResetPasswordPath && isAuthPath) {
+      // Auto-login: pengguna yang sesinya masih valid dan membuka landing (/)
+      // atau halaman auth langsung diarahkan ke dashboard -- tak perlu login
+      // ulang. Reset-password (mode pemulihan) dikecualikan.
+      if (!isResetPasswordPath && (isAuthPath || path === '/')) {
         const redirectUrl = new URL('/finance/dashboard', `${proto}://${host}`);
         return NextResponse.redirect(redirectUrl);
       }
