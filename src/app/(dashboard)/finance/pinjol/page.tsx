@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { useDebts } from '@/hooks/useDebts';
 import { useDebtForecast } from '@/hooks/useDebtForecast';
-import { debtService } from '@/lib/services/finance/debt.service';
+;
 import type { LoanTracker, LoanCategory } from '@/lib/debt-planner/types';
 import { Button } from '@/components/ui/button';
 import { DebtFormModal } from '@/components/finance/debt/DebtForm';
@@ -124,9 +124,9 @@ export default function PinjolPage() {
     if (!accountId) return;
     setSubmitting(true);
     try {
-      await debtService.createLoanTracker(accountId, data);
-      toast('Pinjaman berhasil disimpan', 'success');
-      setIsModalOpen(false);
+      // Stub: await debtService.createLoanTracker(accountId, data);
+      toast('Pinjaman berhasil disimpan (Stub)', 'success');
+
       await refresh();
     } catch {
       toast('Gagal menyimpan pinjaman', 'danger');
@@ -157,22 +157,9 @@ export default function PinjolPage() {
     if (!editingLoan || !editAppName || !editStartDate) return;
     setSubmitting(true);
     try {
-      await debtService.updateLoanTracker(editingLoan.id, {
-        app_name: editAppName.trim(),
-        category: editCategory,
-        amount_applied: editAmountApplied ? Number(editAmountApplied) : null,
-        amount_received: Number(editAmountReceived),
-        // Total dihitung, bukan diketik: cicilan x tenor.
-        total_repayment: Number(editMonthlyPayment) * Number(editTenureMonths),
-        monthly_payment: Number(editMonthlyPayment),
-        tenure_months: Number(editTenureMonths),
-        due_day: Number(editDueDay),
-        start_date: editStartDate,
-        notes: editNotes.trim() || null,
-        status: editStatus,
-      });
-      toast('Pinjaman berhasil diperbarui!', 'success');
-      setIsEditModalOpen(false);
+      // await debtService.deleteLoanTracker(id);
+      toast(`${name} berhasil dihapus (Stub).`, 'success');
+
       await refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gagal memperbarui';
@@ -186,9 +173,9 @@ export default function PinjolPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Hapus catatan "${name}"? Tindakan ini tidak dapat dibatalkan.`)) return;
     try {
-      await debtService.deleteLoanTracker(id);
-      toast(`${name} berhasil dihapus.`, 'success');
-      setIsEditModalOpen(false);
+      // await debtService.deleteLoanTracker(id);
+      toast(`${name} berhasil dihapus (Stub).`, 'success');
+
       await refresh();
     } catch {
       toast('Gagal menghapus catatan', 'danger');

@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import { useApp } from '@/contexts/app-context';
-import { transactionService, PopulatedTransaction } from '@/lib/services/workspace/transaction.service';
-import { walletService, type Wallet } from '@/lib/services/workspace/wallet.service';
-import { categoryService, type Category } from '@/lib/services/finance/category.service';
+import type { Wallet } from '@/lib/services/server/wallet.service';
+import type { Category } from '@/lib/services/server/category.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,6 +30,26 @@ import {
 import { CategoryManagerModal } from '@/components/finance/transaction/CategoryManager';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  getTransactionsData,
+  listTransactions,
+  createTransactionAction,
+  updateTransactionAction,
+  deleteTransactionAction,
+} from '@/app/actions/transaction';
+
+interface PopulatedTransaction {
+  id: string;
+  wallet_id: string;
+  destination_wallet_id: string | null;
+  category_id: string | null;
+  amount: number;
+  type: string;
+  note: string | null;
+  date: string;
+  categories: { name: string } | null;
+  wallets: { name: string } | null;
+}
 
 function TransactionsContent() {
   const { accountId } = useApp();
@@ -74,75 +93,58 @@ function TransactionsContent() {
     setPage(1);
   };
 
+  const resetForm = () => {
+    setIsEditing(false);
+    setEditingId(null);
+    setTxType('expense');
+    setTxWalletId('');
+    setTxDestWalletId('');
+    setTxCategoryId('');
+    setTxAmount('');
+    setTxNote('');
+    setTxDate(new Date().toISOString().substring(0, 16));
+  };
+
   const fetchFiltersData = useCallback(async () => {
-    if (!accountId) return;
     try {
-      const [wList, cList] = await Promise.all([
-        walletService.getWallets(accountId),
-        categoryService.getCategories(accountId),
-      ]);
-      setWallets(wList);
-      setCategories(cList);
+      const data = await getTransactionsData({ limit });
+      setWallets(data.wallets);
+      setCategories(data.categories);
     } catch (err: unknown) {
       console.error(err);
     }
-  }, [accountId]);
+  }, []);
 
   const fetchTransactions = useCallback(async () => {
-    if (!accountId) return;
     try {
-      const offset = (page - 1) * limit;
-      const { data, count: total } = await transactionService.getTransactions(accountId, {
+      const { data, count: total } = await listTransactions({
         walletId: filterWallet || undefined,
         type: filterType || undefined,
+        // DatePicker mengirim YYYY-MM-DD; tanggal akhir dijadikan akhir hari
+        // supaya transaksi di hari itu ikut terhitung.
         startDate: filterStartDate || undefined,
-        endDate: filterEndDate || undefined,
+        endDate: filterEndDate ? `${filterEndDate}T23:59:59.999` : undefined,
         search: searchTerm.trim() || undefined,
         limit,
-        offset,
+        offset: (page - 1) * limit,
       });
-      setTransactions(data);
+      setTransactions(data as PopulatedTransaction[]);
       setCount(total);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal memuat transaksi.';
       toast(message, 'danger');
     }
-  }, [accountId, page, filterWallet, filterType, filterStartDate, filterEndDate, searchTerm, toast]);
+  }, [page, filterWallet, filterType, filterStartDate, filterEndDate, searchTerm, toast]);
 
   useEffect(() => {
-    if (accountId) {
-      setTimeout(() => fetchFiltersData(), 0);
-    }
+    if (accountId) Promise.resolve().then(fetchFiltersData);
   }, [accountId, fetchFiltersData]);
 
   useEffect(() => {
-    if (accountId) {
-      setTimeout(() => fetchTransactions(), 0);
-    }
-  }, [accountId, page, filterWallet, filterType, filterStartDate, filterEndDate, searchTerm, fetchTransactions]);
+    if (accountId) Promise.resolve().then(fetchTransactions);
+  }, [accountId, fetchTransactions]);
 
-  // Handle URL edit trigger
-  useEffect(() => {
-    const id = searchParams.get('id');
-    if (!id || transactions.length === 0) return;
-    
-    const tx = transactions.find(t => t.id === id);
-    if (tx && !isEditing) {
-      setTimeout(() => {
-        setEditingId(tx.id);
-        setTxType(tx.type as 'income' | 'expense' | 'transfer');
-        setTxAmount(tx.amount.toString());
-        setTxNote(tx.note || '');
-        setTxCategoryId(tx.category_id || '');
-        setTxWalletId(tx.wallet_id);
-        setTxDate(new Date(tx.date).toISOString().substring(0, 16));
-        setIsEditing(true);
-        setIsModalOpen(true);
-      }, 0);
-    }
-  }, [searchParams, transactions, isEditing]);
-
-  const openEdit = (tx: PopulatedTransaction) => {
+  const openEdit = useCallback((tx: PopulatedTransaction) => {
     setIsEditing(true);
     setEditingId(tx.id);
     setTxType(tx.type as 'income' | 'expense' | 'transfer');
@@ -153,11 +155,20 @@ function TransactionsContent() {
     setTxDestWalletId(tx.destination_wallet_id || '');
     setTxDate(new Date(tx.date).toISOString().substring(0, 16));
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleAddTransaction = async (e: React.FormEvent) => {
+  // Dashboard menautkan ke /finance/transactions?id=... untuk membuka satu transaksi.
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (!id || transactions.length === 0 || isEditing) return;
+
+    const tx = transactions.find((t) => t.id === id);
+    if (tx) Promise.resolve().then(() => openEdit(tx));
+  }, [searchParams, transactions, isEditing, openEdit]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!accountId || !txWalletId || !txAmount) return;
+    if (!txWalletId || !txAmount) return;
     setSubmitting(true);
     try {
       const payload = {
@@ -169,32 +180,35 @@ function TransactionsContent() {
         note: txNote.trim() || null,
         date: new Date(txDate).toISOString(),
         tags: [] as string[],
-        currency: 'IDR',
-        exchange_rate: 1
+        currency: wallets.find((w) => w.id === txWalletId)?.currency || 'IDR',
       };
 
       if (isEditing && editingId) {
-        await transactionService.updateTransaction(editingId, payload);
+        await updateTransactionAction(editingId, payload);
         toast('Transaksi diperbarui', 'success');
       } else {
-        await transactionService.createTransaction(accountId, {
-          ...payload,
-          workspace_id: accountId,
-          attachment_url: null,
-          is_recurring: false,
-          recurring_id: null,
-          currency: 'IDR',
-          exchange_rate: 1,
-        });
+        await createTransactionAction(payload);
         toast('Transaksi tersimpan', 'success');
       }
       setIsModalOpen(false);
+      resetForm();
       fetchTransactions();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       toast(message, 'danger');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Hapus transaksi ini? Saldo dompet akan dikembalikan.')) return;
+    try {
+      await deleteTransactionAction(id);
+      toast('Transaksi dihapus', 'success');
+      fetchTransactions();
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal menghapus', 'danger');
     }
   };
 
@@ -216,7 +230,8 @@ function TransactionsContent() {
             <Button
               variant="nexus-emerald"
               className="flex-1 md:flex-none"
-              onClick={() => { setIsEditing(false); setIsModalOpen(true); }}
+              disabled={wallets.length === 0}
+              onClick={() => { resetForm(); setIsModalOpen(true); }}
             >
               <Plus className="w-4 h-4 mr-2" /> Baru
             </Button>
@@ -247,13 +262,13 @@ function TransactionsContent() {
           <div className="space-y-3">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--nexus-text-muted)]" />
-              <Input placeholder="Cari transaksi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] pl-11 py-2.5 h-auto text-sm" />
+              <Input placeholder="Cari transaksi..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] pl-11 py-2.5 h-auto text-sm" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Select label="Tipe" options={[{value: '', label: 'Semua tipe'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer'}]} value={filterType} onChange={(e) => setFilterType(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
-              <Select label="Dompet" options={[{value: '', label: 'Semua dompet'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => setFilterWallet(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
-              <DatePicker label="Mulai" value={filterStartDate} onChange={setFilterStartDate} placeholder="Mulai" />
-              <DatePicker label="Selesai" value={filterEndDate} onChange={setFilterEndDate} placeholder="Selesai" />
+              <Select label="Tipe" options={[{value: '', label: 'Semua tipe'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer'}]} value={filterType} onChange={(e) => { setFilterType(e.target.value); setPage(1); }} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+              <Select label="Dompet" options={[{value: '', label: 'Semua dompet'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => { setFilterWallet(e.target.value); setPage(1); }} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+              <DatePicker label="Mulai" value={filterStartDate} onChange={(v) => { setFilterStartDate(v); setPage(1); }} placeholder="Mulai" />
+              <DatePicker label="Selesai" value={filterEndDate} onChange={(v) => { setFilterEndDate(v); setPage(1); }} placeholder="Selesai" />
             </div>
           </div>
         </Card>
@@ -264,7 +279,11 @@ function TransactionsContent() {
         <Card className="xl:col-span-3 p-0 overflow-hidden border-[var(--nexus-glass-border)]">
           {transactions.length === 0 ? (
             <div className="py-16 text-center text-sm text-[var(--nexus-text-secondary)]">
-              {hasActiveFilter ? 'Tidak ada transaksi yang cocok dengan filter.' : 'Belum ada transaksi.'}
+              {hasActiveFilter
+                ? 'Tidak ada transaksi yang cocok dengan filter.'
+                : wallets.length === 0
+                  ? 'Bikin dompet dulu di halaman Dompet sebelum mencatat transaksi.'
+                  : 'Belum ada transaksi.'}
             </div>
           ) : (
             <div className="divide-y divide-[var(--nexus-glass-border)]">
@@ -306,7 +325,7 @@ function TransactionsContent() {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={(e) => { e.stopPropagation(); transactionService.deleteTransaction(tx.id).then(() => fetchTransactions()); }}
+                          onClick={(e) => { e.stopPropagation(); handleDelete(tx.id); }}
                           className="p-2 rounded-lg text-[var(--nexus-text-muted)] hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                           title="Hapus"
                         >
@@ -338,8 +357,8 @@ function TransactionsContent() {
         </Card>
       </section>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? 'Edit transaksi' : 'Tambah transaksi'}>
-        <form onSubmit={handleAddTransaction} className="space-y-4">
+      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); resetForm(); }} title={isEditing ? 'Edit transaksi' : 'Tambah transaksi'}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-3 gap-2 p-1.5 bg-[var(--nexus-bg-panel)] rounded-xl border border-[var(--nexus-glass-border)]">
             {([['expense', 'Pengeluaran'], ['income', 'Pemasukan'], ['transfer', 'Transfer']] as const).map(([t, label]) => (
               <button
@@ -355,10 +374,10 @@ function TransactionsContent() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs text-[var(--nexus-text-secondary)]">Jumlah (IDR)</label>
+              <label className="text-xs text-[var(--nexus-text-secondary)]">Jumlah</label>
               <div className="relative">
                 <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--nexus-emerald)]" />
-                <Input type="number" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
+                <Input type="number" min="1" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
               </div>
             </div>
             <DatePicker label="Tanggal & waktu" showTime value={txDate} onChange={setTxDate} />
@@ -367,7 +386,7 @@ function TransactionsContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select label="Dompet asal" options={[{value: '', label: '-- Pilih dompet --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txWalletId} onChange={(e) => setTxWalletId(e.target.value)} required className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
             {txType === 'transfer' ? (
-              <Select label="Dompet tujuan" options={[{value: '', label: '-- Pilih dompet --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txDestWalletId} onChange={(e) => setTxDestWalletId(e.target.value)} required className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+              <Select label="Dompet tujuan" options={[{value: '', label: '-- Pilih dompet --'}, ...wallets.filter(w => w.id !== txWalletId).map(w => ({value: w.id, label: w.name}))]} value={txDestWalletId} onChange={(e) => setTxDestWalletId(e.target.value)} required className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
             ) : (
               <Select label="Kategori" options={[{value: '', label: '-- Umum --'}, ...categories.filter(c => c.type === txType).map(c => ({value: c.id, label: c.name}))]} value={txCategoryId} onChange={(e) => setTxCategoryId(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
             )}
@@ -376,14 +395,20 @@ function TransactionsContent() {
           <Input label="Keterangan" placeholder="Catatan transaksi..." value={txNote} onChange={(e) => setTxNote(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
 
           <div className="flex gap-3 pt-2">
-            <Button variant="outline" type="button" className="flex-1 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)]" onClick={() => setIsModalOpen(false)}>Batal</Button>
+            <Button variant="outline" type="button" className="flex-1 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)]" onClick={() => { setIsModalOpen(false); resetForm(); }}>Batal</Button>
             <Button type="submit" variant="nexus-emerald" loading={submitting} className="flex-1 border-none">
               {isEditing ? 'Simpan perubahan' : 'Simpan transaksi'}
             </Button>
           </div>
         </form>
       </Modal>
-      <CategoryManagerModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} workspaceId={accountId || ''} />
+
+      <CategoryManagerModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        workspaceId={accountId || ''}
+        onChanged={fetchFiltersData}
+      />
     </div>
   );
 }

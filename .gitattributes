@@ -1,0 +1,15 @@
+# Semua teks disimpan LF di repository, apa pun OS yang dipakai.
+# Tanpa ini seluruh working tree sempat berubah jadi CRLF dan git melaporkan
+# 141 berkas "modified" padahal hanya 58 yang benar-benar berubah isinya.
+* text=auto eol=lf
+
+# Biner: jangan diutak-atik.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.xlsx binary

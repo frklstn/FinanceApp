@@ -1,9 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { debtService } from '@/lib/services/finance/debt.service';
+import { getLoanTrackersData } from '@/app/actions/debt';
 import { type LoanTracker } from '@/lib/debt-planner/types';
 
+/**
+ * Pinjol/cicilan dari tabel loan_trackers.
+ *
+ * Sebelumnya hook ini memanggil getDebtsData() yang membaca tabel `debts` —
+ * itu utang manual milik halaman Utang, bukan pinjol. Halaman Pinjol jadi
+ * menampilkan data yang salah.
+ */
 export function useDebts(accountId: string | undefined) {
   const [loans, setLoans] = useState<LoanTracker[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,8 +25,8 @@ export function useDebts(accountId: string | undefined) {
     try {
       setLoading(true);
       setError(null);
-      const data = await debtService.getLoanTrackers(accountId);
-      setLoans(data);
+      const { loans: list } = await getLoanTrackersData();
+      setLoans(list);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gagal memuat pinjaman';
       setError(msg);
@@ -30,7 +37,7 @@ export function useDebts(accountId: string | undefined) {
   }, [accountId]);
 
   useEffect(() => {
-    Promise.resolve().then(refresh);
+    refresh();
   }, [refresh]);
 
   return { loans, loading, error, refresh };

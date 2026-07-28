@@ -8,7 +8,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useApp } from '@/contexts/app-context';
-import { createClient } from '@/lib/supabase/client';
+import { logoutAction } from '@/app/actions/auth';
 import { useToast } from '@/components/ui/toast';
 import styles from './mobile-nav.module.css';
 import { navigationItems, mobileBottomBarPaths } from '@/config/navigation';
@@ -27,9 +27,7 @@ export default function MobileNav() {
 
   const handleLogout = async () => {
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await logoutAction();
       toast(t('auth.logoutSuccess', 'Berhasil keluar!'), 'info');
       setIsMoreOpen(false);
       router.push('/login');

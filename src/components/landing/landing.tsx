@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
+import { login } from '@/app/login/actions';
 import { AuthShell, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
 import { ArrowRight, Mail, Lock, Eye, EyeOff, X } from 'lucide-react';
 
@@ -31,7 +30,6 @@ interface LandingProps {
  * yang diduplikasi.
  */
 export function Landing({ openLogin = false }: LandingProps) {
-  const router = useRouter();
   const reduceMotion = useReducedMotion();
   const [showLogin, setShowLogin] = useState(openLogin);
   const [email, setEmail] = useState('');
@@ -54,43 +52,33 @@ export function Landing({ openLogin = false }: LandingProps) {
   }, []);
 
   const handleGoogleLogin = () => {
-    const supabase = createClient();
-    supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
+    // Karena ini komponen klien dan form ada di overlay, kita paksa window berpindah halaman.
+    window.location.href = '/api/auth/google';
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let loginEmail = email.trim();
-    let loginPassword = password;
+    const loginEmail = email.trim();
 
-    // Jalan pintas akun demo.
-    if (loginEmail.toUpperCase() === 'DEMO@FRKLSTN') {
-      loginEmail = 'demo@frklstn.com';
-      loginPassword = 'DEMO@FRKLSTN';
-    } else if (!loginEmail || !loginPassword) {
-      setErrorMsg('Username dan password wajib diisi.');
+    if (!loginEmail || !password) {
+      setErrorMsg('Email dan kata sandi wajib diisi.');
       return;
     }
 
     setLoading(true);
     setErrorMsg(null);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password: loginPassword,
-      });
-      if (error) {
-        setErrorMsg(error.message);
+      const formData = new FormData();
+      formData.set('email', loginEmail);
+      formData.set('password', password);
+
+      // Sukses berakhir dengan redirect() di server; nilai balik hanya saat gagal.
+      const result = await login(null, formData);
+      if (result?.error) {
+        setErrorMsg(result.error);
         setLoading(false);
-        return;
       }
-      router.push('/finance/dashboard');
-      router.refresh();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Terjadi kesalahan, coba lagi.');
       setLoading(false);

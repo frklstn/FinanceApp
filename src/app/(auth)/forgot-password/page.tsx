@@ -4,13 +4,11 @@ export const dynamic = 'force-dynamic';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { AuthShell, AuthAlert, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
+import { requestPasswordResetAction } from '@/app/actions/auth';
 
 export default function ForgotPasswordPage() {
-  const supabase = createClient();
-
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -29,15 +27,14 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/auth/confirm?next=/reset-password`,
-      });
+      const result = await requestPasswordResetAction(email);
 
-      if (error) {
-        setErrorMsg(error.message);
+      if (!result.ok) {
+        setErrorMsg(result.error);
       } else {
-        setSuccessMsg('Tautan pemulihan sudah dikirim. Cek email kamu.');
+        // Kalimatnya sengaja tidak memastikan email itu terdaftar — kalau
+        // dibedakan, halaman ini jadi alat menebak email mana yang punya akun.
+        setSuccessMsg('Kalau email itu terdaftar, tautan pemulihan sudah dikirim. Cek kotak masuk kamu.');
         setEmail('');
       }
     } catch (err: unknown) {

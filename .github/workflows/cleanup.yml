@@ -37,25 +37,3 @@ jobs:
               }
             }
             console.log(`kept ${Math.min(keep, runs.length)}, deleted ${doomed.length}`);
-
-      - name: Trim Vercel deployments (keep 3 newest)
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          TEAM_ID: team_GpQug6BzmXIWCvFGciQ0nped
-          PROJECT_ID: prj_wGHIETMMMljKdO9hbVnCZzgn1tc4
-        run: |
-          set -euo pipefail
-          list=$(curl -sf "https://api.vercel.com/v6/deployments?projectId=$PROJECT_ID&teamId=$TEAM_ID&limit=100" \
-            -H "Authorization: Bearer $VERCEL_TOKEN")
-          # Produksi READY terbaru tidak boleh dihapus apapun posisinya
-          prod=$(echo "$list" | jq -r '[.deployments[] | select(.target=="production" and .readyState=="READY")] | sort_by(-.createdAt) | .[0].uid // empty')
-          doomed=$(echo "$list" | jq -r --arg prod "$prod" \
-            '.deployments | sort_by(-.createdAt) | .[3:] | map(select(.uid != $prod)) | .[].uid')
-          count=0
-          for uid in $doomed; do
-            echo "deleting $uid"
-            curl -sf -X DELETE "https://api.vercel.com/v13/deployments/$uid?teamId=$TEAM_ID" \
-              -H "Authorization: Bearer $VERCEL_TOKEN" > /dev/null || echo "skip $uid"
-            count=$((count + 1))
-          done
-          echo "deleted $count deployments"

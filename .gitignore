@@ -42,3 +42,14 @@ graphify-out/
 
 # personal Claude Code overrides
 .claude/settings.local.json
+
+# perkakas lokal
+.hermes/
+.codegraph/
+
+# log build sementara
+build_error.log
+
+# Ekspor visual schema dari dashboard Supabase (6 MB, bukan sumber kebenaran).
+# Definisi schema yang berlaku ada di sql/init.sql.
+supabase-schema-*.svg

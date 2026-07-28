@@ -9,7 +9,7 @@ import {
   LogOut
 } from "lucide-react"
 
-import { createClient } from "@/lib/supabase/client"
+import { logoutAction } from "@/app/actions/auth"
 import { useToast } from "@/components/ui/toast"
 import { useApp } from "@/contexts/app-context"
 import { navigationGroups } from "@/config/navigation"
@@ -26,9 +26,7 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
+      await logoutAction()
       toast("Berhasil keluar!", "info")
       router.push("/login")
       router.refresh()
@@ -38,26 +36,15 @@ export default function Sidebar() {
     }
   }
 
+  // Upgrade tidak bisa dilakukan sendiri: kalau update plan disambungkan langsung
+  // dari sini, siapa pun bisa mengangkat dirinya jadi PRO tanpa membayar.
+  // Sampai ada alur pembayaran, statusnya diberikan admin lewat halaman admin.
+  //
+  // Sebelumnya tombol ini menampilkan "Selamat! Akun Anda berhasil ditingkatkan
+  // ke PRO Premium." lalu me-reload, padahal tidak ada yang berubah.
   const handleUpgrade = async () => {
-    if (!profile?.id) return;
-    try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          plan: 'pro', 
-          plan_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() 
-        })
-        .eq('id', profile.id);
-      
-      if (error) throw error;
-      toast("Selamat! Akun Anda berhasil ditingkatkan ke PRO Premium.", "success");
-      window.location.reload();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Gagal melakukan upgrade";
-      toast("Gagal melakukan upgrade: " + msg, "danger");
-    }
-  };
+    toast("Upgrade PRO belum bisa otomatis. Hubungi admin untuk mengaktifkan.", "info")
+  }
 
   // Sembunyikan menu admin untuk non-admin, dan tempelkan Log out di grup terakhir.
   const groups = navigationGroups.map((group, i) => {

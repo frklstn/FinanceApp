@@ -1,51 +1,24 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
 import { Lock, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { AuthShell, AuthAlert, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
+import { resetPasswordAction } from '@/app/actions/auth';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
-  const supabase = createClient();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token') ?? '';
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
-  // Verify user has a valid recovery session
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setChecking(false);
-      } else if (event === 'SIGNED_IN' && session) {
-        setChecking(false);
-      } else if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
-        router.replace('/forgot-password');
-      }
-    });
-
-    const timeout = setTimeout(async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.replace('/forgot-password');
-      } else {
-        setChecking(false);
-      }
-    }, 3000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timeout);
-    };
-  }, [supabase, router]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,12 +36,15 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) {
-        setErrorMsg(error.message);
+      const result = await resetPasswordAction(token, password);
+
+      if (!result.ok) {
+        setErrorMsg(result.error);
       } else {
-        setSuccessMsg('Password berhasil diperbarui! Mengalihkan...');
-        setTimeout(() => router.replace('/finance/dashboard'), 2000);
+        // Diarahkan ke halaman masuk, bukan dashboard: mengganti kata sandi tidak
+        // membuat sesi. Sebelumnya langsung ke dashboard padahal tidak login.
+        setSuccessMsg('Kata sandi berhasil diperbarui. Silakan masuk kembali.');
+        setTimeout(() => router.replace('/login'), 2000);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Terjadi kesalahan yang tidak terduga.';
@@ -78,15 +54,17 @@ export default function ResetPasswordPage() {
     }
   };
 
-  if (checking) {
+  // Tanpa token tidak ada yang bisa dikerjakan. Form sengaja tidak ditampilkan
+  // supaya tidak terlihat seolah kata sandi bisa diganti dari halaman ini begitu saja.
+  if (!token) {
     return (
       <AuthShell>
-        <p className="text-sm text-[#1b1815]/60 dark:text-[#f3ede3]/60">
-          Memverifikasi tautan pemulihan...
-        </p>
-        <div className="flex min-h-[80px] items-center">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1b1815]/20 border-t-[#1b1815] dark:border-[#f3ede3]/20 dark:border-t-[#f3ede3]" />
-        </div>
+        <AuthAlert tone="error">
+          Tautan pemulihan tidak lengkap. Buka halaman ini lewat tautan yang kamu terima.
+        </AuthAlert>
+        <Link href="/login" className="text-xs text-[#1b1815]/55 hover:underline dark:text-[#f3ede3]/55">
+          Kembali ke halaman masuk
+        </Link>
       </AuthShell>
     );
   }
@@ -184,5 +162,25 @@ export default function ResetPasswordPage() {
         </Link>
       </form>
     </AuthShell>
+  );
+}
+
+/**
+ * useSearchParams() memaksa render di client, dan Next menolak mem-prerender
+ * halaman yang memakainya tanpa batas Suspense.
+ */
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthShell>
+          <p className="text-sm text-[#1b1815]/60 dark:text-[#f3ede3]/60">
+            Memuat tautan pemulihan...
+          </p>
+        </AuthShell>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

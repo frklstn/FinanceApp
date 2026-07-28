@@ -4,12 +4,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/contexts/app-context';
 import { useToast } from '@/components/ui/toast';
-import { insightsService, type FinancialInsight } from '@/lib/services/finance/insights.service';
-import { transactionService, type PopulatedTransaction } from '@/lib/services/workspace/transaction.service';
-import { debtService } from '@/lib/services/finance/debt.service';
+import type { FinancialInsight } from '@/lib/services/server/insights.service';
 import { type LoanTracker } from '@/lib/debt-planner/types';
-import { walletService } from '@/lib/services/workspace/wallet.service';
-import { currencyService } from '@/lib/services/finance/currency.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
 import { startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,10 +17,20 @@ import { DatePicker } from '@/components/ui/date-picker';
 import NumberTicker from '@/components/ui/number-ticker';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { QuickAddModal } from '@/components/finance/transaction/QuickAdd';
-import { budgetOptimizerService, type OptimizationSuggestion } from '@/lib/services/finance/budget-optimizer.service';
-import { budgetService } from '@/lib/services/finance/budget.service';
+import type { OptimizationSuggestion } from '@/lib/services/server/budget-optimizer.service';
 import { BudgetOptimizerWidget } from '@/components/finance/dashboard/BudgetOptimizerWidget';
 import { SpendingChart } from '@/components/charts/spending-chart';
+import { getDashboardData, applyBudgetOptimization } from '@/app/actions/dashboard';
+
+interface PopulatedTransaction {
+  id: string;
+  date: string;
+  amount: number;
+  type: string;
+  note: string | null;
+  categories: { name: string } | null;
+}
+
 export default function DashboardPage() {
   const { accountId, profile, language, t } = useApp();
   const { toast } = useToast();
@@ -118,24 +124,17 @@ export default function DashboardPage() {
         }
       }
 
-      const { data: allTxs } = await transactionService.getTransactions(accountId, {
-        startDate: widerStartDate.toISOString(),
+      const result = await getDashboardData({
+        startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        limit: 2000,
+        widerStartDate: widerStartDate.toISOString(),
       });
-
-      const txs = allTxs.filter(tx => new Date(tx.date) >= startDate && new Date(tx.date) <= endDate);
-      const prevTxs = allTxs.filter(tx => new Date(tx.date) >= widerStartDate && new Date(tx.date) < startDate);
-
-      const [insightData, wallets, trackers, manualDebts, suggestions] = await Promise.all([
-        insightsService.generateInsights(accountId, { prefetchedTransactions: txs }),
-        walletService.getWallets(accountId),
-        debtService.getLoanTrackers(accountId),
-        debtService.getDebts(accountId),
-        budgetOptimizerService.getOptimizationSuggestions(accountId),
-      ]);
+      if (!result) return;
+      const { allTxs, insightData, wallets, loanTrackers, manualDebts, suggestions, totalBalance } = result;
       setOptimizerSuggestions(suggestions);
 
+      const txs = (allTxs as PopulatedTransaction[]).filter(tx => new Date(tx.date) >= startDate && new Date(tx.date) <= endDate);
+      const prevTxs = (allTxs as PopulatedTransaction[]).filter(tx => new Date(tx.date) >= widerStartDate && new Date(tx.date) < startDate);
 
       let prevIncome = 0;
       let prevExpense = 0;
@@ -156,7 +155,7 @@ export default function DashboardPage() {
 
       const diffStr = diffPercent >= 0 ? `+${diffPercent.toFixed(0)}%` : `${diffPercent.toFixed(0)}%`;
 
-      const activeLoans = trackers.filter(l => l.status === 'active');
+      const activeLoans = (loanTrackers as LoanTracker[]).filter(l => l.status === 'active');
       const totalMonthlyDebtPayment = activeLoans.reduce((sum, l) => sum + Number(l.monthly_payment), 0);
       // Total utang = sisa pinjol + utang manual yang masih harus dibayar.
       // Sebelumnya hanya pinjol; utang manual di halaman Utang tak terhitung.
@@ -198,11 +197,6 @@ export default function DashboardPage() {
         }
       }
       setFinancialStatusText(statusMsg);
-
-      const convertedBalances = await Promise.all(
-        wallets.map(w => currencyService.convert(Number(w.balance), w.currency || 'IDR', 'IDR'))
-      );
-      const totalBalance = convertedBalances.reduce((sum, bal) => sum + bal, 0);
 
       setFinancialStats({
         score: insightData.score,
@@ -320,11 +314,7 @@ export default function DashboardPage() {
   const handleApplyOptimization = async (suggestion: OptimizationSuggestion) => {
     if (!accountId) return;
     try {
-      await budgetService.createBudget(
-        accountId,
-        suggestion.categoryId,
-        suggestion.suggestedBudget
-      );
+      await applyBudgetOptimization(suggestion.categoryId, suggestion.suggestedBudget);
       toast(
         t('dashboard.success.optimizeSuccess', 'Anggaran {category} berhasil dioptimalkan!').replace('{category}', suggestion.categoryName),
         'success'

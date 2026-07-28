@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { logoutAction } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/contexts/app-context';
 import { Card } from '@/components/ui/card';
@@ -9,12 +9,11 @@ import { Button } from '@/components/ui/button';
 import { ShieldAlert, LogOut, Mail } from 'lucide-react';
 
 export default function SuspendedPage() {
-  const supabase = createClient();
   const router = useRouter();
   const { t } = useApp();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await logoutAction();
     router.replace('/login');
   };
 

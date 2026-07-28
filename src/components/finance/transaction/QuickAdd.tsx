@@ -7,11 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
-import { walletService, type Wallet } from '@/lib/services/workspace/wallet.service';
-import { categoryService, type Category } from '@/lib/services/finance/category.service';
-import { transactionService } from '@/lib/services/workspace/transaction.service';
-import { currencyService } from '@/lib/services/finance/currency.service';
+import type { Wallet } from '@/lib/services/server/wallet.service';
+import type { Category } from '@/lib/services/server/category.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
+import { getQuickAddOptions, createTransactionAction } from '@/app/actions/transaction';
 
 interface QuickAddModalProps {
   isOpen: boolean;
@@ -47,10 +46,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
     if (isOpen && accountId) {
       const fetchData = async () => {
         try {
-          const [wList, cList] = await Promise.all([
-            walletService.getWallets(accountId),
-            categoryService.getCategories(accountId)
-          ]);
+          const { wallets: wList, categories: cList } = await getQuickAddOptions();
           setWallets(wList);
           setCategories(cList);
         } catch (err) {
@@ -63,8 +59,12 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!accountId || !walletId || !amount) {
+    if (!walletId || !amount) {
       toast('Mohon lengkapi data wajib (Nominal & Dompet).', 'warning');
+      return;
+    }
+    if (type === 'transfer' && !destWalletId) {
+      toast('Pilih dompet tujuan.', 'warning');
       return;
     }
 
@@ -73,10 +73,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
 
     setLoading(true);
     try {
-      const exchangeRate = await currencyService.getExchangeRate(currency, 'IDR');
-
-      await transactionService.createTransaction(accountId, {
-        workspace_id: accountId,
+      await createTransactionAction({
         wallet_id: walletId,
         category_id: type !== 'transfer' ? categoryId || null : null,
         amount: Number(amount),
@@ -86,10 +83,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
         date: new Date(date).toISOString(),
         tags: [],
         currency,
-        exchange_rate: exchangeRate,
-        attachment_url: null,
         is_recurring: false,
-        recurring_id: null,
       });
 
       toast('Transaksi berhasil dicatat!', 'success');
@@ -97,6 +91,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
       setNote('');
       setCategoryId('');
       setWalletId('');
+      setDestWalletId('');
       onSuccess?.();
       onClose();
     } catch (err: unknown) {
@@ -114,6 +109,7 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
           <Input
             label={`Jumlah Nominal (${wallets.find(w => w.id === walletId)?.currency || 'Rp'})`}
             type="number"
+            min="1"
             placeholder="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -141,13 +137,13 @@ export function QuickAddModal({ isOpen, onClose, accountId, initialType, onSucce
             required
             disabled={loading}
           />
-          
+
           {type === 'transfer' ? (
             <Select
               label="Ke Dompet"
               options={[
                 { value: '', label: '-- Pilih Dompet --' },
-                ...wallets.map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance), w.currency || 'IDR')})` })),
+                ...wallets.filter((w) => w.id !== walletId).map((w) => ({ value: w.id, label: `${w.name} (${formatCurrency(Number(w.balance), w.currency || 'IDR')})` })),
               ]}
               value={destWalletId}
               onChange={(e) => setDestWalletId(e.target.value)}

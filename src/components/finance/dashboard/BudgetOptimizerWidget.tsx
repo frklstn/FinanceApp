@@ -6,7 +6,7 @@ import { Sparkles, TrendingDown, AlertTriangle, ArrowRight } from 'lucide-react'
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/debt-planner/format';
-import type { OptimizationSuggestion } from '@/lib/services/finance/budget-optimizer.service';
+import type { OptimizationSuggestion } from '@/lib/services/server/budget-optimizer.service';
 
 interface BudgetOptimizerWidgetProps {
   suggestions: OptimizationSuggestion[];

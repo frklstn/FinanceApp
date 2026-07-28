@@ -2,19 +2,10 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useApp } from '@/contexts/app-context';
-import { budgetService, type Budget } from '@/lib/services/finance/budget.service';
-import { debtService } from '@/lib/services/finance/debt.service';
-
+import type { Budget } from '@/lib/services/server/budget.service';
+import type { Category } from '@/lib/services/server/category.service';
 import { formatCurrency } from '@/lib/debt-planner/format';
-import { categoryService, type Category } from '@/lib/services/finance/category.service';
-import { incomeProjectionService } from '@/lib/services/finance/income-projection.service';
-
-import { debtPlannerSettingsService } from '@/lib/services/finance/debt-planner-settings.service';
-import { 
-  getSalaryPeriods, 
-  getIncomeForDate, 
-  calcPeriodDebtTotal 
-} from '@/lib/debt-planner/calculations';
+import { getSalaryPeriods, getIncomeForDate, calcPeriodDebtTotal } from '@/lib/debt-planner/calculations';
 import type { IncomeTimelineEntry, LoanTracker, SalaryPeriod } from '@/lib/debt-planner/types';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
@@ -24,19 +15,12 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
-import { 
-  Plus, 
-  PiggyBank, 
-  Trash2, 
-  ShieldCheck, 
-  AlertCircle,
-  Zap,
-  PieChart, 
-  TrendingDown, 
-  ShieldAlert 
+import {
+  Plus, PiggyBank, Trash2, ShieldCheck, AlertCircle, Zap, PieChart, TrendingDown, ShieldAlert, X,
 } from 'lucide-react';
 import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getBudgetsData, saveBudgetsAction, deleteBudgetAction } from '@/app/actions/budget';
 
 export default function BudgetsPage() {
   const { accountId } = useApp();
@@ -47,9 +31,8 @@ export default function BudgetsPage() {
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Salary Cycle Logic
-  const [salaryDay, setSalaryDay] = useState(25); // Default common salary day
+
+  const [salaryDay, setSalaryDay] = useState(25);
   const [selectedPeriodIndex, setSelectedPeriodIndex] = useState(0);
   const [incomeTimeline, setIncomeTimeline] = useState<IncomeTimelineEntry[]>([]);
   const [activeLoans, setActiveLoans] = useState<LoanTracker[]>([]);
@@ -57,47 +40,32 @@ export default function BudgetsPage() {
   const [categoryId, setCategoryId] = useState('');
   const [limitAmount, setLimitAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [pendingBudgets, setPendingBudgets] = useState<{ categoryId: string; categoryName: string; amount: number }[]>([]);
 
-  // Generate Salary Periods
   const periods = useMemo(() => getSalaryPeriods(salaryDay, 6), [salaryDay]);
   const currentPeriod = periods[selectedPeriodIndex];
-  
-  // Format for DB (YYYY-MM) - use the start date of period as reference
   const dbPeriod = currentPeriod.start.toISOString().substring(0, 7);
 
   const fetchBudgets = useCallback(async () => {
-    if (!accountId) return;
     try {
       setLoading(true);
-      const [bList, cList, timeline, trackers, settings] = await Promise.all([
-        budgetService.getBudgets(accountId, dbPeriod),
-        categoryService.getCategories(accountId),
-        incomeProjectionService.getTimeline(accountId),
-        debtService.getLoanTrackers(accountId),
-        debtPlannerSettingsService.getSettings(accountId)
-      ]);
-      setBudgets(bList);
-      setCategories(cList.filter((c: Category) => c.type === 'expense'));
-      setIncomeTimeline(timeline);
-      setActiveLoans(trackers.filter((l: LoanTracker) => l.status === 'active'));
-      if (settings?.salary_day) setSalaryDay(settings.salary_day);
+      const data = await getBudgetsData(dbPeriod);
+      setBudgets(data.budgets);
+      setCategories(data.categories.filter((c) => c.type === 'expense'));
+      setIncomeTimeline(data.incomeTimeline);
+      setActiveLoans(data.loanTrackers.filter((l) => l.status === 'active'));
+      setSalaryDay(data.salaryDay);
     } catch {
-      toast('Gagal memuat data protokol.', 'danger');
+      toast('Gagal memuat data anggaran.', 'danger');
     } finally {
       setLoading(false);
     }
-  }, [accountId, dbPeriod, toast]);
+  }, [dbPeriod, toast]);
 
   useEffect(() => {
-    if (accountId) {
-      const load = async () => await fetchBudgets();
-      load();
-    }
+    if (accountId) Promise.resolve().then(fetchBudgets);
   }, [accountId, fetchBudgets]);
 
-  const [pendingBudgets, setPendingBudgets] = useState<{ categoryId: string; categoryName: string; amount: number }[]>([]);
-
-  // Calculation for limitation
   const currentIncome = useMemo(() => getIncomeForDate(incomeTimeline, currentPeriod.start), [incomeTimeline, currentPeriod]);
   const currentDebt = useMemo(() => calcPeriodDebtTotal(activeLoans, currentPeriod.start, currentPeriod.end), [activeLoans, currentPeriod]);
   const availableForBudget = currentIncome - currentDebt;
@@ -106,20 +74,23 @@ export default function BudgetsPage() {
 
   const handleAddToBatch = () => {
     if (!categoryId || !limitAmount) return;
-    
+
     const amountNum = Number(limitAmount);
+    if (!(amountNum > 0)) {
+      toast('Nominal harus lebih dari 0.', 'warning');
+      return;
+    }
     if (amountNum > remainingLimit) {
       toast(`Alokasi melebihi batas aman (${formatCurrency(remainingLimit)}).`, 'warning');
       return;
     }
-
-    if (pendingBudgets.some(b => b.categoryId === categoryId)) {
+    if (pendingBudgets.some((b) => b.categoryId === categoryId)) {
       toast('Kategori sudah ada di daftar.', 'warning');
       return;
     }
 
-    const cat = categories.find(c => c.id === categoryId);
-    setPendingBudgets(prev => [...prev, { categoryId, categoryName: cat?.name || 'Unknown', amount: amountNum }]);
+    const cat = categories.find((c) => c.id === categoryId);
+    setPendingBudgets((prev) => [...prev, { categoryId, categoryName: cat?.name || 'Tanpa nama', amount: amountNum }]);
     setCategoryId('');
     setLimitAmount('');
   };
@@ -128,20 +99,28 @@ export default function BudgetsPage() {
     if (pendingBudgets.length === 0) return;
     setSubmitting(true);
     try {
-      await Promise.all(pendingBudgets.map(b => 
-        budgetService.createBudget(accountId!, b.categoryId, b.amount, dbPeriod)
-      ));
+      await saveBudgetsAction(dbPeriod, pendingBudgets.map((b) => ({ categoryId: b.categoryId, amount: b.amount })));
       toast('Anggaran berhasil disimpan.', 'success');
       setPendingBudgets([]);
       setIsModalOpen(false);
       fetchBudgets();
-    } catch {
-      toast('Gagal menyimpan anggaran.', 'danger');
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal menyimpan anggaran.', 'danger');
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Hapus anggaran ini?')) return;
+    try {
+      await deleteBudgetAction(id);
+      toast('Anggaran dihapus', 'success');
+      fetchBudgets();
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal menghapus', 'danger');
+    }
+  };
 
   const totalBudget = budgets.reduce((sum, b) => sum + Number(b.amount), 0);
   const totalSpent = budgets.reduce((sum, b) => sum + Number(b.spent), 0);
@@ -160,7 +139,7 @@ export default function BudgetsPage() {
               onChange={(e) => setSelectedPeriodIndex(parseInt(e.target.value))}
               className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-2.5 h-auto text-xs min-w-[200px]"
             />
-            <Button variant="nexus-emerald" onClick={() => setIsModalOpen(true)}>
+            <Button variant="nexus-emerald" disabled={categories.length === 0} onClick={() => setIsModalOpen(true)}>
               <Plus className="w-4 h-4 mr-2" /> Atur
             </Button>
           </>
@@ -188,9 +167,7 @@ export default function BudgetsPage() {
         </Card>
 
         {/* Anatomi disamakan dengan kartu di sebelahnya: label, angka, catatan,
-            ikon di kanan. Sebelumnya kartu ini masih bergaya tema lama
-            (p-8, radius 40px, ikon 80px, tracking 0.3em) sehingga terlihat
-            seperti berasal dari halaman yang berbeda. */}
+            ikon di kanan. */}
         <Card>
           <div className="flex items-start justify-between gap-6">
             <div className="space-y-1">
@@ -222,16 +199,18 @@ export default function BudgetsPage() {
             className="md:col-span-2 lg:col-span-3"
             icon={PiggyBank}
             title="Belum ada anggaran"
-            description="Tetapkan batas per kategori untuk mengontrol pengeluaran."
-            actionLabel="Buat anggaran"
-            onAction={() => setIsModalOpen(true)}
+            description={categories.length === 0
+              ? 'Bikin kategori pengeluaran dulu di halaman Transaksi, lalu tetapkan batasnya di sini.'
+              : 'Tetapkan batas per kategori untuk mengontrol pengeluaran.'}
+            actionLabel={categories.length === 0 ? undefined : 'Buat anggaran'}
+            onAction={categories.length === 0 ? undefined : () => setIsModalOpen(true)}
           />
         ) : (
           <AnimatePresence>
             {budgets.map((b) => {
               const spent = Number(b.spent);
               const limit = Number(b.amount);
-              const progress = Math.min((spent / limit) * 100, 100);
+              const progress = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0;
               const isOver = spent > limit;
               const remaining = limit - spent;
 
@@ -243,36 +222,36 @@ export default function BudgetsPage() {
                   whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <Card className="p-8 h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between rounded-[32px] shadow-xl">
-                    <div className="space-y-8">
+                  <Card className="h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between">
+                    <div className="space-y-6">
                       <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-4 h-4 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.1)] border border-[var(--nexus-glass-border)]" style={{ backgroundColor: b.categories?.color }} />
-                          <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)]  tracking-tight truncate max-w-[150px]">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-3.5 h-3.5 rounded-full shrink-0 border border-[var(--nexus-glass-border)]" style={{ backgroundColor: b.categories?.color || 'var(--nexus-emerald)' }} />
+                          <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate">
                             {b.categories?.name}
                           </h4>
                         </div>
-                        <button 
-                          onClick={() => budgetService.deleteBudget(b.id).then(() => fetchBudgets())}
-                          className="p-3 rounded-xl bg-[var(--nexus-bg-panel)] hover:bg-rose-500/20 text-[var(--nexus-text-muted)] hover:text-rose-400 transition-all border border-[var(--nexus-glass-border)]"
+                        <button
+                          onClick={() => handleDelete(b.id)}
+                          className="p-2.5 rounded-xl bg-[var(--nexus-bg-panel)] hover:bg-rose-500/20 text-[var(--nexus-text-muted)] hover:text-rose-400 transition-all border border-[var(--nexus-glass-border)] cursor-pointer shrink-0"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-end text-[10px] font-semibold  ">
-                          <span className="text-[var(--nexus-text-muted)]">Utilization</span>
-                          <span className={isOver ? 'text-rose-400 font-semibold' : 'text-[var(--nexus-text-primary)]'}>{Math.round(progress)}%</span>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-end text-[10px] font-semibold">
+                          <span className="text-[var(--nexus-text-muted)]">Terpakai</span>
+                          <span className={isOver ? 'text-rose-400' : 'text-[var(--nexus-text-primary)]'}>{Math.round(progress)}%</span>
                         </div>
-                        <div className="h-1.5 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)] p-0.5">
-                          <motion.div 
+                        <div className="h-2 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)]">
+                          <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
-                            className={`h-full rounded-full shadow-[0_0_15px_rgba(99,102,241,0.2)] ${isOver ? 'bg-rose-500 shadow-rose-500/40' : progress > 80 ? 'bg-amber-500' : 'bg-[var(--nexus-emerald)]'}`}
+                            className={`h-full rounded-full ${isOver ? 'bg-rose-500' : progress > 80 ? 'bg-amber-500' : 'bg-[var(--nexus-emerald)]'}`}
                           />
                         </div>
-                        <div className="flex justify-between text-[13px] font-semibold text-[var(--nexus-text-primary)] tracking-tighter">
+                        <div className="flex justify-between text-[13px] font-semibold text-[var(--nexus-text-primary)] tracking-tight">
                           <span>{formatCurrency(spent, b.currency || 'IDR')}</span>
                           <span className="text-[var(--nexus-text-muted)]">{formatCurrency(limit, b.currency || 'IDR')}</span>
                         </div>
@@ -281,12 +260,12 @@ export default function BudgetsPage() {
 
                     <div className="mt-8 pt-6 border-t border-[var(--nexus-glass-border)] flex items-center gap-2">
                       {isOver ? (
-                        <div className="flex items-center gap-2 text-[10px] font-semibold text-rose-400   bg-rose-500/5 px-4 py-2.5 rounded-xl border border-rose-500/10 w-full justify-center">
-                          <AlertCircle className="w-3.5 h-3.5" /> Deficit {formatCurrency(Math.abs(remaining), b.currency || 'IDR')}
+                        <div className="flex items-center gap-2 text-[10px] font-semibold text-rose-400 bg-rose-500/5 px-4 py-2.5 rounded-xl border border-rose-500/10 w-full justify-center">
+                          <AlertCircle className="w-3.5 h-3.5" /> Lebih {formatCurrency(Math.abs(remaining), b.currency || 'IDR')}
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--nexus-emerald)]   bg-[var(--nexus-emerald-glow)] px-4 py-2.5 rounded-xl border border-[var(--nexus-emerald-border)] w-full justify-center">
-                          <Zap className="w-3.5 h-3.5" /> Margin {formatCurrency(remaining, b.currency || 'IDR')}
+                        <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--nexus-emerald)] bg-[var(--nexus-emerald-glow)] px-4 py-2.5 rounded-xl border border-[var(--nexus-emerald-border)] w-full justify-center">
+                          <Zap className="w-3.5 h-3.5" /> Sisa {formatCurrency(remaining, b.currency || 'IDR')}
                         </div>
                       )}
                     </div>
@@ -299,64 +278,91 @@ export default function BudgetsPage() {
       </section>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Atur anggaran">
-        <div className="space-y-6 p-2">
-          {/* Limitation Panel */}
+        <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <div className="p-5 rounded-[24px] bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
-               <label className="text-[9px] font-semibold  text-[var(--nexus-text-muted)] ">Gaji Estimasi</label>
-               <div className="text-xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">{formatCurrency(currentIncome)}</div>
-             </div>
-             <div className="p-5 rounded-[24px] bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
-               <label className="text-[9px] font-semibold  text-rose-500/40 ">Kewajiban Tagihan</label>
-               <div className="text-xl font-semibold text-rose-400 tracking-tight">-{formatCurrency(currentDebt)}</div>
-             </div>
-             <div className="md:col-span-2 p-5 rounded-[24px] bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex justify-between items-center">
-                <div className="space-y-0.5">
-                  <label className="text-[9px] font-semibold  text-[var(--nexus-emerald)] ">Limitasi Saldo Aman</label>
-                  <p className="text-[8px] font-bold text-[var(--nexus-emerald)] ">Tersedia untuk alokasi budget</p>
-                </div>
-                <div className={`text-xl font-semibold tracking-tighter italic ${remainingLimit < 0 ? 'text-rose-500' : remainingLimit === 0 ? 'text-amber-500' : 'text-[var(--nexus-emerald)]'}`}>
-                  {remainingLimit < 0 
-                    ? `Defisit: -${formatCurrency(Math.abs(remainingLimit))}` 
-                    : remainingLimit === 0 
-                      ? 'Tidak ada sisa saldo' 
-                      : formatCurrency(remainingLimit)}
-                </div>
-             </div>
+            <div className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
+              <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]">Perkiraan pemasukan</label>
+              <div className="text-xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">{formatCurrency(currentIncome)}</div>
+            </div>
+            <div className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
+              <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]">Kewajiban tagihan</label>
+              <div className="text-xl font-semibold text-rose-400 tracking-tight">-{formatCurrency(currentDebt)}</div>
+            </div>
+            <div className="md:col-span-2 p-4 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex justify-between items-center gap-4">
+              <div className="space-y-0.5">
+                <label className="text-[10px] font-semibold text-[var(--nexus-emerald)]">Batas aman</label>
+                <p className="text-[10px] text-[var(--nexus-text-muted)]">Tersedia untuk dialokasikan</p>
+              </div>
+              <div className={`text-xl font-semibold tracking-tight ${remainingLimit < 0 ? 'text-rose-400' : remainingLimit === 0 ? 'text-amber-500' : 'text-[var(--nexus-emerald)]'}`}>
+                {remainingLimit < 0
+                  ? `-${formatCurrency(Math.abs(remainingLimit))}`
+                  : formatCurrency(remainingLimit)}
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-[var(--nexus-bg-panel)] p-4 rounded-[24px] border border-[var(--nexus-glass-border)]">
-            <div className="flex-1">
-               <Select
-                options={[{ value: '', label: '-- Pilih Kategori --' }, ...categories.map(c => ({ value: c.id, label: c.name }))]}
+          {currentIncome === 0 && (
+            <p className="text-xs text-amber-500">
+              Pemasukan periode ini belum tercatat, jadi batas amannya nol. Isi dulu di halaman Pinjol.
+            </p>
+          )}
+
+          <div className="flex items-end gap-3 bg-[var(--nexus-bg-panel)] p-4 rounded-2xl border border-[var(--nexus-glass-border)]">
+            <div className="flex-1 min-w-0">
+              <Select
+                label="Kategori"
+                options={[{ value: '', label: '-- Pilih kategori --' }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
                 disabled={submitting}
-                className="rounded-xl"
               />
             </div>
-            <div className="w-32">
+            <div className="w-32 shrink-0">
               <Input
+                label="Nominal"
                 type="number"
-                placeholder="Nominal"
+                min="1"
+                placeholder="0"
                 value={limitAmount}
                 onChange={(e) => setLimitAmount(e.target.value)}
                 disabled={submitting}
-                className="rounded-xl text-lg font-semibold"
               />
             </div>
-            <Button onClick={handleAddToBatch} className="rounded-xl bg-[var(--nexus-emerald)] p-6 shadow-xl border-none">
-              <Plus className="w-5 h-5" />
+            <Button type="button" variant="nexus-emerald" onClick={handleAddToBatch} className="h-11 px-4 shrink-0">
+              <Plus className="w-4 h-4" />
             </Button>
           </div>
 
-          <Button 
-            onClick={handleSaveAll} 
-            loading={submitting} 
+          {pendingBudgets.length > 0 && (
+            <div className="space-y-2">
+              {pendingBudgets.map((b) => (
+                <div key={b.categoryId} className="flex items-center justify-between p-3 rounded-xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)]">
+                  <span className="text-sm text-[var(--nexus-text-primary)] truncate">{b.categoryName}</span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-sm font-semibold text-[var(--nexus-text-primary)]">{formatCurrency(b.amount)}</span>
+                    {/* Sebelumnya daftar ini tidak punya cara menghapus entri; salah
+                        ketik berarti harus menutup modal dan mengulang dari awal. */}
+                    <button
+                      type="button"
+                      onClick={() => setPendingBudgets((prev) => prev.filter((p) => p.categoryId !== b.categoryId))}
+                      className="p-1 text-[var(--nexus-text-muted)] hover:text-rose-400 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Button
+            onClick={handleSaveAll}
+            variant="nexus-emerald"
+            loading={submitting}
             disabled={pendingBudgets.length === 0}
-            className="w-full h-16 rounded-[24px] bg-[var(--nexus-emerald)] text-[11px] font-semibold   shadow-[0_10px_30px_rgba(16,185,129,0.3)]"
+            className="w-full h-12 rounded-2xl"
           >
-            Simpan Semua Budget
+            Simpan anggaran
           </Button>
         </div>
       </Modal>

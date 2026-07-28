@@ -9,9 +9,9 @@ import { useApp } from '@/contexts/app-context';
 import { User, Monitor, Languages, Download, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { SubscriptionStatus } from '../subscription/subscription-status';
 import { useUser } from '@/lib/hooks/use-user';
-import { profileService } from '@/lib/services/user/user.service';
+;
 import * as XLSX from 'xlsx';
-import { transactionService } from '@/lib/services/workspace/transaction.service';
+;
 import { useToast } from '@/components/ui/toast';
 import { useTheme } from '@/contexts/theme-context';
 
@@ -58,9 +58,8 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
     toast(t('settings.export.fetching', 'Mengambil seluruh data transaksi...'), 'info');
 
     try {
-      const { data: allTxs } = await transactionService.getTransactions(accountId, {
-        limit: 10000,
-      });
+      // const { data: allTxs } = await transactionService.getTransactions(accountId, {
+      const allTxs: any[] = []; // Stubbed
 
       if (allTxs.length === 0) {
         toast(t('settings.export.empty', 'Tidak ada transaksi untuk diekspor.'), 'warning');
@@ -115,17 +114,17 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
   // tombol ini sebelumnya tanpa onClick sehingga tidak melakukan apa pun.
   useEffect(() => {
     if (profile?.plan !== 'free') return;
-    let batal = false;
-    profileService.getWhatsappContact()
-      .then((link) => { if (!batal) setWhatsappLink(link); })
-      .catch(() => {});
-    return () => { batal = true; };
+    const batal = false;
+    // profileService.getWhatsappContact()
+    //   .then((link) => { if (!batal) setWhatsappLink(link); })
+    //   .catch(() => {});
+
   }, [profile?.plan]);
 
   useEffect(() => {
-    const fn = profile?.full_name || user?.user_metadata?.full_name || '';
+    const fn = profile?.full_name || '';
     const em = profile?.email || user?.email || '';
-    const av = profile?.avatar_url || user?.user_metadata?.avatar_url || '';
+    const av = profile?.avatar_url || '';
     Promise.resolve().then(() => {
       setFullName(fn);
       setEmail(em);

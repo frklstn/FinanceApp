@@ -7,7 +7,27 @@ import Sidebar from '@/components/shared/layout/sidebar';
 const MobileNav = dynamic(() => import('@/components/shared/layout/mobile-nav'), { ssr: false });
 
 import { useApp } from '@/contexts/app-context';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+
+/**
+ * Pengalihan akun tersuspensi.
+ *
+ * Penegakan sebenarnya ada di requireAccount() di server — tanpa itu, ini cuma
+ * lapisan tampilan yang bisa dilewati. Bagian ini hanya supaya pengguna melihat
+ * halaman penjelasan, bukan dashboard kosong tanpa keterangan.
+ */
+function SuspensionGuard() {
+  const { profile, isLoading } = useApp();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && profile?.is_suspended) {
+      router.replace('/suspended');
+    }
+  }, [isLoading, profile?.is_suspended, router]);
+
+  return null;
+}
 
 function DocumentTitle() {
   const pathname = usePathname();
@@ -18,8 +38,9 @@ function DocumentTitle() {
     // Sebelumnya memakai indeks [1] sehingga semua halaman berjudul "Finance".
     const segment = pathname.split('/').filter(Boolean).pop() || 'dashboard';
     const label = segment.charAt(0).toUpperCase() + segment.slice(1);
-    document.title = `${label} | ${appSettings.document_title}`;
-  }, [pathname, appSettings.document_title]);
+    const docTitle = appSettings?.document_title || 'FinanceApp';
+    document.title = `${label} | ${docTitle}`;
+  }, [pathname, appSettings?.document_title]);
 
   return null;
 }
@@ -28,6 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <>
       <DocumentTitle />
+      <SuspensionGuard />
       <div className="flex h-screen overflow-hidden bg-[var(--nexus-bg-main)] text-[var(--nexus-text-primary)] transition-all duration-300">
         <Sidebar />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative transition-all duration-300 md:pl-[84px]">

@@ -1,4 +1,11 @@
-name: CI/CD Pipeline
+name: CI
+
+# Verifikasi saja. Deploy TIDAK dilakukan dari sini.
+# Produksi dilayani langsung oleh VPS: systemd unit `financeapp.service`
+# (next start di 127.0.0.1:3000) di belakang nginx -> cuan.bitkonek.com.
+# Sebelumnya workflow ini menjalankan `vercel deploy --prod`, sehingga ada dua
+# produksi dengan isi berbeda, dan yang di Vercel tidak bisa menjangkau
+# PostgreSQL yang hanya hidup di VPS ini.
 
 on:
   push:
@@ -7,33 +14,24 @@ on:
     branches: ["main"]
 
 jobs:
-  build-and-deploy:
+  verify:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4.2.2
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4.1.0
         with:
           node-version: "25.9.0"
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-        
+
       - name: Lint
         run: npm run lint
-        
+
       - name: Build
         run: npm run build
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
-
-      - name: Deploy to Vercel
-        run: vercel deploy --prod --yes --token ${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.PROJECT_ID }}

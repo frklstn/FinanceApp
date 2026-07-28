@@ -4,15 +4,12 @@ export const dynamic = 'force-dynamic';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { register } from './actions';
 import { useApp } from '@/contexts/app-context';
 import { User, Mail, Lock, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { AuthShell, AuthAlert, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const supabase = createClient();
   const { t } = useApp();
 
   const [fullName, setFullName] = useState('');
@@ -22,13 +19,11 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
-    setSuccessMsg(null);
 
     if (!fullName || !email || !password || !confirmPassword) {
       setErrorMsg(t('auth.register.errorFieldsRequired', 'Semua kolom wajib diisi.'));
@@ -36,8 +31,8 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setErrorMsg(t('auth.register.errorPasswordMin', 'Password minimal 6 karakter.'));
+    if (password.length < 8) {
+      setErrorMsg(t('auth.register.errorPasswordMin', 'Password minimal 8 karakter.'));
       setLoading(false);
       return;
     }
@@ -49,34 +44,15 @@ export default function RegisterPage() {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
+      const formData = new FormData();
+      formData.set('email', email);
+      formData.set('password', password);
+      formData.set('fullName', fullName);
 
-      if (error) {
-        setErrorMsg(error.message);
-      } else {
-        const isSessionActive = data.session !== null;
-        if (isSessionActive) {
-          setSuccessMsg(t('auth.register.successInitializing', 'Akun berhasil dibuat. Mengalihkan...'));
-          setTimeout(() => {
-            router.push('/finance/dashboard');
-            router.refresh();
-          }, 1500);
-        } else {
-          setSuccessMsg(t('auth.register.successVerification', 'Akun terdaftar. Cek email untuk verifikasi.'));
-          setFullName('');
-          setEmail('');
-          setPassword('');
-          setConfirmPassword('');
-        }
-      }
+      // Sukses berakhir dengan redirect() di server, jadi tidak ada yang kembali.
+      // Nilai balik hanya muncul kalau gagal.
+      const result = await register(null, formData);
+      if (result?.error) setErrorMsg(result.error);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t('auth.register.errorGeneric', 'Terjadi kesalahan, coba lagi.');
       setErrorMsg(msg);
@@ -88,7 +64,6 @@ export default function RegisterPage() {
   return (
     <AuthShell>
       {errorMsg && <AuthAlert tone="error">{errorMsg}</AuthAlert>}
-      {successMsg && <AuthAlert tone="success">{successMsg}</AuthAlert>}
 
       <form onSubmit={handleRegister} className="space-y-3">
         <div className="relative">
@@ -121,7 +96,7 @@ export default function RegisterPage() {
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Kata sandi (min. 6 karakter)"
+            placeholder="Kata sandi (min. 8 karakter)"
             disabled={loading}
             className={`${authInputClass} pl-11 pr-11`}
           />
