@@ -18,19 +18,6 @@ export const adminService = {
     );
   },
 
-  async setUserBranding(
-    userId: string,
-    branding: {
-      app_name: string | null;
-      app_icon_url: string | null;
-      app_title: string | null;
-    }
-  ): Promise<void> {
-    await query(
-      'UPDATE profiles SET app_name = $1, app_icon_url = $2, app_title = $3 WHERE id = $4',
-      [branding.app_name, branding.app_icon_url, branding.app_title, userId]
-    );
-  },
 
   async setWhatsappContact(userId: string, link: string): Promise<void> {
     await query(

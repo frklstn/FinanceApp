@@ -38,5 +38,3 @@ export const workspaceService = {
   },
 };
 
-export const accountService = workspaceService;
-

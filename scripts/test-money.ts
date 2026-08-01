@@ -175,6 +175,46 @@ async function main() {
       await query('DELETE FROM debts WHERE id = $1', [utang.id]);
     }
 
+    // PINJOL: buat, ubah, hapus — plus scope workspace.
+    const loan = await debtService.createLoanTracker(WS, {
+      app_name: '__uji_pinjol', category: 'pinjol', amount_applied: 1_000_000,
+      amount_received: 900_000, total_repayment: 1_200_000, monthly_payment: 200_000,
+      tenure_months: 6, due_day: 15, start_date: '2026-07-01',
+    });
+    try {
+      assert.strictEqual(Number(loan.amount_applied), 1_000_000, 'amount_applied harus tersimpan');
+      assert.strictEqual(
+        Number(loan.total_remaining_balance), 1_200_000,
+        'sisa awal harus sama dengan total tagihan'
+      );
+
+      const list = await debtService.getLoanTrackers(WS);
+      assert.ok(list.some((l) => l.id === loan.id), 'pinjol harus muncul di daftar');
+
+      const ubahLoan = await debtService.updateLoanTracker(loan.id, WS, {
+        app_name: '__uji_pinjol_ubah', category: 'paylater', amount_applied: null,
+        amount_received: 900_000, total_repayment: 1_400_000, monthly_payment: 200_000,
+        tenure_months: 7, due_day: 20, start_date: '2026-07-01', status: 'active',
+      });
+      assert.strictEqual(ubahLoan?.app_name, '__uji_pinjol_ubah', 'perubahan harus tersimpan');
+
+      // Workspace lain ditolak
+      assert.strictEqual(
+        await debtService.updateLoanTracker(loan.id, OTHER_WS, {
+          app_name: 'x', category: 'pinjol', amount_received: 1, total_repayment: 1,
+          monthly_payment: 1, tenure_months: 1, due_day: 1, start_date: '2026-07-01',
+        }), null,
+        'ubah pinjol lintas-workspace harus null'
+      );
+      await debtService.deleteLoanTracker(loan.id, OTHER_WS);
+      assert.strictEqual(
+        (await query('SELECT 1 FROM loan_trackers WHERE id = $1', [loan.id])).rows.length, 1,
+        'hapus pinjol lintas-workspace tidak boleh menghapus'
+      );
+    } finally {
+      await query('DELETE FROM loan_trackers WHERE id = $1', [loan.id]);
+    }
+
     // SUSPENSI: akun aktif dapat scope, akun tersuspensi tidak dapat apa-apa.
     assert.strictEqual(
       await workspaceService.getActiveAccountForUser(USER), WS,

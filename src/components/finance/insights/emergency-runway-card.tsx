@@ -23,19 +23,19 @@ export function EmergencyRunwayCard({ runwayMonths }: EmergencyRunwayCardProps) 
   };
 
   const barColor = isHealthy
-    ? 'bg-[var(--nexus-emerald)]'
+    ? 'bg-primary'
     : isWarning
       ? 'bg-amber-500'
       : 'bg-rose-500';
 
   const statusBg = isHealthy
-    ? 'bg-[var(--nexus-emerald-glow)] border-[var(--nexus-emerald-border)]'
+    ? 'bg-primary-glow border-primary-border'
     : isWarning
       ? 'bg-amber-500/10 border-amber-500/20'
       : 'bg-rose-500/10 border-rose-500/20';
 
   const textColor = isHealthy
-    ? 'text-[var(--nexus-emerald)]'
+    ? 'text-primary'
     : isWarning
       ? 'text-amber-600 dark:text-amber-400'
       : 'text-rose-600 dark:text-rose-400';
@@ -48,9 +48,9 @@ export function EmergencyRunwayCard({ runwayMonths }: EmergencyRunwayCardProps) 
             <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full border ${statusBg} ${textColor}`}>
               {getStatusText()}
             </span>
-            <h3 className="font-heading text-lg font-semibold text-[var(--nexus-text-primary)]">Dana darurat</h3>
+            <h3 className="font-heading text-lg font-semibold text-text-primary">Dana darurat</h3>
           </div>
-          <div className={`p-3 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] ${textColor}`}>
+          <div className={`p-3 rounded-2xl bg-surface border border-line ${textColor}`}>
             <ShieldCheck className="w-6 h-6" />
           </div>
         </div>
@@ -61,15 +61,15 @@ export function EmergencyRunwayCard({ runwayMonths }: EmergencyRunwayCardProps) 
               <span className={`text-4xl font-semibold tracking-tight ${textColor}`}>
                 {runwayMonths.toFixed(1)}
               </span>
-              <span className="text-sm text-[var(--nexus-text-muted)] ml-1">bulan</span>
+              <span className="text-sm text-text-muted ml-1">bulan</span>
             </div>
             <div className="text-right">
-              <span className="text-xs text-[var(--nexus-text-muted)] block">Target survival</span>
-              <span className="text-sm font-semibold text-[var(--nexus-text-primary)]">{Math.round((runwayMonths / 6) * 100)}%</span>
+              <span className="text-xs text-text-muted block">Target survival</span>
+              <span className="text-sm font-semibold text-text-primary">{Math.round((runwayMonths / 6) * 100)}%</span>
             </div>
           </div>
 
-          <div className="h-2 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)]">
+          <div className="h-2 w-full bg-surface rounded-full overflow-hidden border border-line">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -78,16 +78,16 @@ export function EmergencyRunwayCard({ runwayMonths }: EmergencyRunwayCardProps) 
             />
           </div>
 
-          <div className="flex justify-between text-[10px] text-[var(--nexus-text-muted)]">
+          <div className="flex justify-between text-[10px] text-text-muted">
             <span>0 bln</span>
             <span>6 bln (aman)</span>
             <span>12+ bln</span>
           </div>
         </div>
 
-        <div className="flex items-start gap-3 p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)]">
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-surface border border-line">
           <Info className={`w-5 h-5 mt-0.5 shrink-0 ${textColor}`} />
-          <p className="text-xs text-[var(--nexus-text-secondary)] leading-relaxed">
+          <p className="text-xs text-text-secondary leading-relaxed">
             {runwayMonths >= 6
               ? 'Dana darurat kamu mencukupi untuk gaya hidup saat ini. Pertahankan aset likuid untuk keamanan jangka panjang.'
               : 'Perlu tingkatkan cadangan kas atau tekan pengeluaran bulanan buat mencapai batas aman 6 bulan survival.'}

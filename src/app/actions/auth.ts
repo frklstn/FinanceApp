@@ -82,8 +82,8 @@ export async function resetPasswordAction(
 
   // Divalidasi ulang di server: aturan panjang di client cuma bantuan pengisian,
   // bukan penjaga.
-  if (typeof newPassword !== 'string' || newPassword.length < 8) {
-    return { ok: false, error: 'Kata sandi minimal 8 karakter.' };
+  if (typeof newPassword !== 'string' || newPassword.length < 6) {
+    return { ok: false, error: 'Kata sandi minimal 6 karakter.' };
   }
 
   const user = await getUserByResetToken(token);

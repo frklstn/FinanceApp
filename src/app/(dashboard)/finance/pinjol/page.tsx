@@ -1,9 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '@/contexts/app-context';
 import { useDebts } from '@/hooks/useDebts';
 import { useDebtForecast } from '@/hooks/useDebtForecast';
+import {
+  createLoanTrackerAction,
+  updateLoanTrackerAction,
+  deleteLoanTrackerAction,
+} from '@/app/actions/debt';
 ;
 import type { LoanTracker, LoanCategory } from '@/lib/debt-planner/types';
 import { Button } from '@/components/ui/button';
@@ -13,6 +18,8 @@ import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import { EmptyState } from '@/components/shared/empty-state';
 import { SalaryCyclePanel } from '@/components/finance/pinjol/salary-cycle-panel';
 import { PinjolCalcPanel } from '@/components/finance/pinjol/pinjol-calc-panel';
+import { PinjolStatCards } from '@/components/finance/pinjol/pinjol-stat-cards';
+import { PinjolCalendar, MONTH_NAMES } from '@/components/finance/pinjol/pinjol-calendar';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { Modal } from '@/components/ui/modal';
@@ -23,8 +30,6 @@ import {
   Wallet as WalletIcon,
   Calendar as CalendarIcon,
   CheckCircle,
-  AlertTriangle,
-  ChevronLeft,
   ChevronRight,
   Plus,
   Trash2,
@@ -35,18 +40,18 @@ import {
 
 // Provider avatar color map based on first letter
 const PROVIDER_COLOR_MAP: Record<string, { bg: string, text: string }> = {
-  E: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
+  E: { bg: 'bg-primary-glow dark:bg-primary-glow', text: 'text-primary dark:text-primary' },
   K: { bg: 'bg-amber-500/10 dark:bg-amber-500/20', text: 'text-amber-600 dark:text-amber-400' },
   S: { bg: 'bg-orange-500/10 dark:bg-orange-500/20', text: 'text-orange-500 dark:text-orange-400' },
-  A: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
+  A: { bg: 'bg-primary-glow dark:bg-primary-glow', text: 'text-primary dark:text-primary' },
   I: { bg: 'bg-stone-500/10 dark:bg-stone-500/20', text: 'text-stone-600 dark:text-stone-300' },
-  F: { bg: 'bg-[var(--nexus-emerald-glow)] dark:bg-[var(--nexus-emerald-glow)]', text: 'text-[var(--nexus-emerald)] dark:text-[var(--nexus-emerald)]' },
+  F: { bg: 'bg-primary-glow dark:bg-primary-glow', text: 'text-primary dark:text-primary' },
   H: { bg: 'bg-rose-500/10 dark:bg-rose-500/20', text: 'text-rose-500 dark:text-rose-400' },
 };
 
 function getProviderAvatarStyle(name: string) {
   const char = name.trim().charAt(0).toUpperCase();
-  return PROVIDER_COLOR_MAP[char] || { bg: 'bg-[var(--nexus-bg-panel)]', text: 'text-[var(--nexus-text-muted)]' };
+  return PROVIDER_COLOR_MAP[char] || { bg: 'bg-surface', text: 'text-text-muted' };
 }
 
 export default function PinjolPage() {
@@ -111,25 +116,17 @@ export default function PinjolPage() {
     toast('Status pembayaran berhasil diperbarui!', 'success');
   };
 
-  // Month navigation
-  const prevMonth = () => {
-    setCurrentDate(new Date(calendarYear, calendarMonth - 1, 1));
-  };
-  const nextMonth = () => {
-    setCurrentDate(new Date(calendarYear, calendarMonth + 1, 1));
-  };
-
   // Create loan handler
   const handleCreate = async (data: Omit<LoanTracker, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>) => {
     if (!accountId) return;
     setSubmitting(true);
     try {
-      // Stub: await debtService.createLoanTracker(accountId, data);
-      toast('Pinjaman berhasil disimpan (Stub)', 'success');
-
+      await createLoanTrackerAction(data);
+      toast('Pinjaman berhasil disimpan', 'success');
+      setIsModalOpen(false);
       await refresh();
-    } catch {
-      toast('Gagal menyimpan pinjaman', 'danger');
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal menyimpan pinjaman', 'danger');
     } finally {
       setSubmitting(false);
     }
@@ -157,9 +154,28 @@ export default function PinjolPage() {
     if (!editingLoan || !editAppName || !editStartDate) return;
     setSubmitting(true);
     try {
-      // await debtService.deleteLoanTracker(id);
-      toast(`${name} berhasil dihapus (Stub).`, 'success');
+      const monthly = Number(editMonthlyPayment);
+      const tenure = Number(editTenureMonths);
+      const applied = parseFloat(editAmountApplied);
 
+      await updateLoanTrackerAction(editingLoan.id, {
+        app_name: editAppName,
+        category: editCategory,
+        amount_applied: isNaN(applied) ? null : applied,
+        amount_received: Number(editAmountReceived),
+        // Total tagihan mengikuti rumus yang sama dengan form tambah.
+        total_repayment: monthly * tenure,
+        monthly_payment: monthly,
+        tenure_months: tenure,
+        due_day: Number(editDueDay),
+        start_date: editStartDate,
+        status: editStatus,
+        notes: editNotes || null,
+      });
+
+      toast('Pinjaman berhasil diperbarui', 'success');
+      setIsEditModalOpen(false);
+      setEditingLoan(null);
       await refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gagal memperbarui';
@@ -173,12 +189,13 @@ export default function PinjolPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Hapus catatan "${name}"? Tindakan ini tidak dapat dibatalkan.`)) return;
     try {
-      // await debtService.deleteLoanTracker(id);
-      toast(`${name} berhasil dihapus (Stub).`, 'success');
-
+      await deleteLoanTrackerAction(id);
+      toast(`${name} berhasil dihapus`, 'success');
+      setIsEditModalOpen(false);
+      setEditingLoan(null);
       await refresh();
-    } catch {
-      toast('Gagal menghapus catatan', 'danger');
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Gagal menghapus catatan', 'danger');
     }
   };
 
@@ -273,74 +290,6 @@ export default function PinjolPage() {
     return new Date(year, month, closest.due_day);
   }, [activeLoans, activeCount, calendarMonth, calendarYear]);
 
-  // Calendar days generation
-  const calendarDays = useMemo(() => {
-    const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
-    const firstDayIndex = (new Date(calendarYear, calendarMonth, 1).getDay() + 6) % 7; // Monday starting
-    
-    const days: { day: number; isCurrentMonth: boolean; date: Date }[] = [];
-    
-    // Previous month padding
-    const prevMonthDays = new Date(calendarYear, calendarMonth, 0).getDate();
-    for (let i = firstDayIndex - 1; i >= 0; i--) {
-      const d = prevMonthDays - i;
-      days.push({
-        day: d,
-        isCurrentMonth: false,
-        date: new Date(calendarYear, calendarMonth - 1, d),
-      });
-    }
-
-    // Current month days
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push({
-        day: i,
-        isCurrentMonth: true,
-        date: new Date(calendarYear, calendarMonth, i),
-      });
-    }
-
-    // Next month padding
-    const totalCells = 42; // 6 rows
-    const nextPadding = totalCells - days.length;
-    for (let i = 1; i <= nextPadding; i++) {
-      days.push({
-        day: i,
-        isCurrentMonth: false,
-        date: new Date(calendarYear, calendarMonth + 1, i),
-      });
-    }
-
-    return days;
-  }, [calendarYear, calendarMonth]);
-
-  // Determine date marker status
-  const getDayMarker = useCallback((date: Date) => {
-    if (date.getMonth() !== calendarMonth || date.getFullYear() !== calendarYear) return null;
-    
-    const day = date.getDate();
-    const matchingLoans = activeLoans.filter((l) => l.due_day === day);
-    if (matchingLoans.length === 0) return null;
-
-    const isToday = new Date().getDate() === day && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
-    const anyUnpaid = matchingLoans.some((l) => !paidInstallments.includes(l.id));
-
-    if (!anyUnpaid) return 'paid'; // All paid
-
-    if (isToday) return 'today';
-    
-    const todayDay = new Date().getDate();
-    const isPast = day < todayDay && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
-    
-    if (isPast) return 'late';
-    return 'upcoming';
-  }, [activeLoans, paidInstallments, calendarMonth, calendarYear]);
-
-  const monthNames = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-  ];
-
   return (
     <div className="space-y-4 -mt-6">
       <UpgradeGate>
@@ -353,87 +302,16 @@ export default function PinjolPage() {
         {/* Dynamic Summary Stat Cards. Dua kolom sejak hp, sama seperti kartu
             statistik dashboard -- sebelumnya grid-cols-1 sampai breakpoint sm
             (640px), jadi di hp tiap kartu makan satu baris penuh. */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Total Pinjaman */}
-          <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center justify-between w-full gap-3">
-              <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)]   block">
-                  Total Pinjaman
-                </span>
-                <h3 className="text-base md:text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
-                  Rp {totalPinjamanSum.toLocaleString('id-ID')}
-                </h3>
-                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold  leading-none mt-1">
-                  {activeCount} pinjaman aktif
-                </p>
-              </div>
-              <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
-                <WalletIcon className="w-4 h-4" />
-              </div>
-            </div>
-          </Card>
-
-          {/* Card 2: Total Tagihan Bulan Ini */}
-          <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center justify-between w-full gap-3">
-              <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)]   block">
-                  Total Tagihan Bulan Ini
-                </span>
-                <h3 className="text-base md:text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate leading-none">
-                  Rp {totalTagihanBulanIni.toLocaleString('id-ID')}
-                </h3>
-                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold  leading-none mt-1">
-                  {rasioIncome}% dari pemasukan
-                </p>
-              </div>
-              <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
-                <CalendarIcon className="w-4 h-4" />
-              </div>
-            </div>
-          </Card>
-
-          {/* Card 3: Sudah Dibayar */}
-          <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center justify-between w-full gap-3">
-              <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)]   block">
-                  Sudah Dibayar
-                </span>
-                <h3 className="text-base md:text-lg font-semibold text-[var(--nexus-text-emerald)] tracking-tight truncate leading-none">
-                  Rp {sudahDibayarSum.toLocaleString('id-ID')}
-                </h3>
-                <p className="text-[10px] text-[var(--nexus-text-muted)] font-semibold  leading-none mt-1">
-                  {paidPercentage}% dari total tagihan
-                </p>
-              </div>
-              <div className="w-9 h-9 rounded-[12px] bg-[var(--nexus-emerald-glow)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
-                <CheckCircle className="w-4 h-4" />
-              </div>
-            </div>
-          </Card>
-
-          {/* Card 4: Terlambat */}
-          <Card className="p-4 bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] group hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center justify-between w-full gap-3">
-              <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-extrabold text-[var(--nexus-text-muted)]   block">
-                  Terlambat
-                </span>
-                <h3 className="text-base md:text-lg font-semibold text-rose-500 tracking-tight truncate leading-none animate-pulse">
-                  Rp {terlambatSum.toLocaleString('id-ID')}
-                </h3>
-                <p className="text-[10px] text-rose-500 font-bold  leading-none mt-1">
-                  {terlambatLoans.length} tagihan terlambat
-                </p>
-              </div>
-              <div className="w-9 h-9 rounded-[12px] bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-            </div>
-          </Card>
-        </section>
+        <PinjolStatCards
+          totalPinjaman={totalPinjamanSum}
+          totalPinjamanHint={`${activeCount} pinjaman aktif`}
+          tagihanBulanIni={totalTagihanBulanIni}
+          tagihanBulanIniHint={`${rasioIncome}% dari pemasukan`}
+          sudahDibayar={sudahDibayarSum}
+          sudahDibayarHint={`${paidPercentage}% dari total tagihan`}
+          terlambat={terlambatSum}
+          terlambatHint={`${terlambatLoans.length} tagihan terlambat`}
+        />
 
         {/* Analisis siklus gajian: gaji periode ini vs cicilan yang jatuh tempo
             sebelum gajian berikutnya. Semua logika sudah di useDebtForecast. */}
@@ -449,9 +327,9 @@ export default function PinjolPage() {
           {/* Left Column: Loan Table & Ringkasan */}
           <div className="xl:col-span-8 space-y-4">
             {/* Daftar Pinjaman Table */}
-            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] overflow-hidden shadow-2xl">
-              <div className="px-6 py-4 flex justify-between items-center border-b border-[var(--nexus-glass-border)]">
-                <h3 className="text-sm font-extrabold  tracking-tight text-[var(--nexus-text-primary)]">
+            <Card className="bg-card border border-line rounded-[32px] overflow-hidden shadow-2xl">
+              <div className="px-6 py-4 flex justify-between items-center border-b border-line">
+                <h3 className="text-sm font-extrabold  tracking-tight text-text-primary">
                   Daftar Pinjaman
                 </h3>
               </div>
@@ -459,7 +337,7 @@ export default function PinjolPage() {
               {loading ? (
                 <div className="p-8 space-y-4">
                   {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-16 bg-black/[0.02] dark:bg-[var(--nexus-bg-panel)] rounded-2xl animate-pulse" />
+                    <div key={n} className="h-16 bg-black/[0.02] dark:bg-surface rounded-2xl animate-pulse" />
                   ))}
                 </div>
               ) : loans.length === 0 ? (
@@ -474,7 +352,7 @@ export default function PinjolPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-[var(--nexus-glass-border)] text-[9px] font-semibold  tracking-[0.2em] text-[var(--nexus-text-muted)]">
+                      <tr className="border-b border-line text-[9px] font-semibold  tracking-[0.2em] text-text-muted">
                         <th className="px-6 py-2.5">Pinjaman</th>
                         <th className="px-6 py-2.5 hidden sm:table-cell">Total Pinjaman</th>
                         <th className="px-6 py-2.5">Sisa Tagihan</th>
@@ -483,18 +361,18 @@ export default function PinjolPage() {
                         <th className="px-6 py-2.5 text-right"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[var(--nexus-glass-border)]">
+                    <tbody className="divide-y divide-line">
                       {loans.map((loan) => {
                         const avatarStyle = getProviderAvatarStyle(loan.app_name);
                         const isPaidThisMonth = paidInstallments.includes(loan.id);
 
                         // Calculate status
                         let statusText = 'Akan datang';
-                        let statusClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border border-[var(--nexus-emerald-border)]';
+                        let statusClass = 'bg-primary-glow text-primary border border-primary-border';
 
                         if (isPaidThisMonth) {
                           statusText = 'Lunas';
-                          statusClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border border-[var(--nexus-emerald-border)]';
+                          statusClass = 'bg-primary-glow text-primary border border-primary-border';
                         } else {
                           const todayDay = new Date().getDate();
                           const isCurrentMonth = new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
@@ -528,7 +406,7 @@ export default function PinjolPage() {
                         return (
                           <tr 
                             key={loan.id} 
-                            className="group hover:bg-black/[0.01] dark:hover:bg-[var(--nexus-bg-panel)] transition-all cursor-pointer"
+                            className="group hover:bg-black/[0.01] dark:hover:bg-surface transition-all cursor-pointer"
                             onClick={() => openEditModal(loan)}
                           >
                             {/* Pinjaman column */}
@@ -537,10 +415,10 @@ export default function PinjolPage() {
                                 {loan.app_name.trim().charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="text-xs font-extrabold text-[var(--nexus-text-primary)] group-hover:text-[var(--nexus-emerald)] transition-colors ">
+                                <p className="text-xs font-extrabold text-text-primary group-hover:text-primary transition-colors ">
                                   {loan.app_name}
                                 </p>
-                                <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]  mt-0.5">
+                                <p className="text-[10px] font-bold text-text-muted  mt-0.5">
                                   Pinjam {new Date(loan.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                 </p>
                               </div>
@@ -548,7 +426,7 @@ export default function PinjolPage() {
 
                             {/* Total Pinjaman */}
                             <td className="px-6 py-2.5 hidden sm:table-cell">
-                              <span className="text-xs font-extrabold text-[var(--nexus-text-primary)]">
+                              <span className="text-xs font-extrabold text-text-primary">
                                 Rp {Number(loan.total_repayment).toLocaleString('id-ID')}
                               </span>
                             </td>
@@ -556,10 +434,10 @@ export default function PinjolPage() {
                             {/* Sisa Tagihan */}
                             <td className="px-6 py-2.5">
                               <div className="space-y-0.5">
-                                <p className={`text-xs font-extrabold ${statusText.startsWith('Terlambat') ? 'text-rose-500' : 'text-[var(--nexus-text-primary)]'}`}>
+                                <p className={`text-xs font-extrabold ${statusText.startsWith('Terlambat') ? 'text-rose-500' : 'text-text-primary'}`}>
                                   Rp {remaining.toLocaleString('id-ID')}
                                 </p>
-                                <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]">
+                                <p className="text-[10px] font-bold text-text-muted">
                                   {remainingPercent}%
                                 </p>
                               </div>
@@ -568,10 +446,10 @@ export default function PinjolPage() {
                             {/* Tagihan Berikutnya */}
                             <td className="px-6 py-2.5 hidden md:table-cell">
                               <div className="space-y-0.5">
-                                <p className="text-xs font-bold text-[var(--nexus-text-primary)]">
-                                  {loan.due_day} {monthNames[calendarMonth]} {calendarYear}
+                                <p className="text-xs font-bold text-text-primary">
+                                  {loan.due_day} {MONTH_NAMES[calendarMonth]} {calendarYear}
                                 </p>
-                                <p className="text-[10px] font-bold text-[var(--nexus-text-muted)]">
+                                <p className="text-[10px] font-bold text-text-muted">
                                   Rp {Number(loan.monthly_payment).toLocaleString('id-ID')}
                                 </p>
                               </div>
@@ -594,7 +472,7 @@ export default function PinjolPage() {
 
                             {/* Arrow icon */}
                             <td className="px-6 py-2.5 text-right">
-                              <ChevronRight className="w-4 h-4 text-[var(--nexus-text-muted)] group-hover:translate-x-1 group-hover:text-[var(--nexus-text-primary)] transition-all shrink-0 ml-auto" />
+                              <ChevronRight className="w-4 h-4 text-text-muted group-hover:translate-x-1 group-hover:text-text-primary transition-all shrink-0 ml-auto" />
                             </td>
                           </tr>
                         );
@@ -606,10 +484,10 @@ export default function PinjolPage() {
 
               {/* Bottom Outlined Actions */}
               {!loading && loans.length > 0 && (
-                <div className="p-3 bg-black/[0.01] dark:bg-[var(--nexus-bg-panel)] border-t border-[var(--nexus-glass-border)]">
+                <div className="p-3 bg-black/[0.01] dark:bg-surface border-t border-line">
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="w-full py-3 rounded-[20px] border border-dashed border-[var(--nexus-emerald-border)] hover:border-[var(--nexus-emerald-border)] text-[var(--nexus-emerald)] hover:bg-[var(--nexus-emerald-glow)] transition-all duration-300 font-extrabold   text-[10px] flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-3 rounded-[20px] border border-dashed border-primary-border hover:border-primary-border text-primary hover:bg-primary-glow transition-all duration-300 font-extrabold   text-[10px] flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     Tambah Pinjaman Baru
@@ -619,14 +497,14 @@ export default function PinjolPage() {
             </Card>
 
             {/* Ringkasan Pinjol Horizontal Metrics */}
-            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[24px] p-4.5 shadow-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <Card className="bg-card border border-line rounded-[24px] p-4.5 shadow-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               <div className="flex items-center gap-3">
                 <div className="w-8.5 h-8.5 rounded-[12px] bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
                   <LayoutGrid className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">{activeCount}</h4>
-                  <p className="text-[9px] font-bold   text-[var(--nexus-text-muted)] mt-0.5">Total Pinjaman</p>
+                  <h4 className="text-sm font-semibold text-text-primary">{activeCount}</h4>
+                  <p className="text-[9px] font-bold   text-text-muted mt-0.5">Total Pinjaman</p>
                 </div>
               </div>
 
@@ -635,8 +513,8 @@ export default function PinjolPage() {
                   <WalletIcon className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">Rp {Math.round(rataRataSisa).toLocaleString('id-ID')}</h4>
-                  <p className="text-[9px] font-bold   text-[var(--nexus-text-muted)] mt-0.5">Rata-rata Sisa</p>
+                  <h4 className="text-sm font-semibold text-text-primary">Rp {Math.round(rataRataSisa).toLocaleString('id-ID')}</h4>
+                  <p className="text-[9px] font-bold   text-text-muted mt-0.5">Rata-rata Sisa</p>
                 </div>
               </div>
 
@@ -645,8 +523,8 @@ export default function PinjolPage() {
                   <CheckCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">{rasioIncome}%</h4>
-                  <p className="text-[9px] font-bold   text-[var(--nexus-text-muted)] mt-0.5">Rasio Terhadap Income</p>
+                  <h4 className="text-sm font-semibold text-text-primary">{rasioIncome}%</h4>
+                  <p className="text-[9px] font-bold   text-text-muted mt-0.5">Rasio Terhadap Income</p>
                 </div>
               </div>
 
@@ -655,10 +533,10 @@ export default function PinjolPage() {
                   <CalendarIcon className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-[var(--nexus-text-primary)]">
+                  <h4 className="text-sm font-semibold text-text-primary">
                     {nearestPaymentDate ? nearestPaymentDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '—'}
                   </h4>
-                  <p className="text-[9px] font-bold   text-[var(--nexus-text-muted)] mt-0.5">Tagihan Terdekat</p>
+                  <p className="text-[9px] font-bold   text-text-muted mt-0.5">Tagihan Terdekat</p>
                 </div>
               </div>
             </Card>
@@ -666,138 +544,22 @@ export default function PinjolPage() {
 
           {/* Right Column: Calendar Grid & Sidebar panels */}
           <div className="xl:col-span-4 space-y-4">
-            {/* Agenda Tagihan Month Calendar Card */}
-            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-4.5 shadow-2xl space-y-4">
-              {/* Calendar Header with navigation */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-semibold  tracking-[0.2em] text-[var(--nexus-text-primary)]">
-                  Agenda Tagihan
-                </h3>
-                <div className="flex items-center gap-1">
-                  <button 
-                    onClick={prevMonth}
-                    className="p-2 rounded-xl bg-black/[0.03] dark:bg-[var(--nexus-bg-panel)] hover:bg-black/[0.08] dark:hover:bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-black/5 dark:border-[var(--nexus-glass-border)]"
-                  >
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-[11px] font-semibold   text-[var(--nexus-text-primary)] px-2">
-                    {monthNames[calendarMonth].substring(0, 3)} {calendarYear}
-                  </span>
-                  <button 
-                    onClick={nextMonth}
-                    className="p-2 rounded-xl bg-black/[0.03] dark:bg-[var(--nexus-bg-panel)] hover:bg-black/[0.08] dark:hover:bg-[var(--nexus-bg-panel)] text-[var(--nexus-text-primary)] transition-all cursor-pointer border border-black/5 dark:border-[var(--nexus-glass-border)]"
-                  >
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Calendar Grid Container */}
-              <div className="space-y-4">
-                {/* Weekday headers */}
-                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[var(--nexus-text-muted)] ">
-                  <span>Sen</span>
-                  <span>Sel</span>
-                  <span>Rab</span>
-                  <span>Kam</span>
-                  <span>Jum</span>
-                  <span>Sab</span>
-                  <span>Min</span>
-                </div>
-
-                {/* Day numbers grid */}
-                <div className="grid grid-cols-7 gap-1">
-                  {calendarDays.map((cell, idx) => {
-                    const marker = getDayMarker(cell.date);
-                    const isToday = new Date().getDate() === cell.day && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
-                    // Hari gajian: pembatas siklus. Tagihan sebelum tanggal ini
-                    // (di bulan berjalan) harus ditutup gaji periode lalu.
-                    const isSalaryDay = cell.isCurrentMonth && cell.day === forecast.salaryDay;
-
-                    let bgClass = 'bg-transparent text-[var(--nexus-text-secondary)] hover:bg-black/[0.02] dark:hover:bg-[var(--nexus-bg-panel)]';
-                    let borderClass = 'border-transparent';
-
-                    if (!cell.isCurrentMonth) {
-                      bgClass = 'bg-transparent text-[var(--nexus-text-muted)]/20 pointer-events-none';
-                    } else if (marker === 'paid') {
-                      bgClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)]';
-                    } else if (marker === 'late') {
-                      bgClass = 'bg-rose-500/80 text-[var(--nexus-text-primary)] font-semibold animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.4)]';
-                    } else if (marker === 'today') {
-                      bgClass = 'bg-orange-500/20 text-orange-400 font-extrabold';
-                      borderClass = 'border-orange-500/50 border';
-                    } else if (marker === 'upcoming') {
-                      bgClass = 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] font-semibold';
-                      borderClass = 'border-[var(--nexus-emerald-border)] border-dashed border';
-                    } else if (isToday) {
-                      borderClass = 'border-[var(--nexus-text-muted)]/40 border';
-                    }
-
-                    return (
-                      <button
-                        key={`${cell.day}-${idx}`}
-                        disabled={!cell.isCurrentMonth}
-                        onClick={() => {
-                          // Toggle paid status for first loan matching this due day
-                          const matchingLoan = activeLoans.find((l) => l.due_day === cell.day);
-                          if (matchingLoan) {
-                            toggleInstallmentPaid(matchingLoan.id);
-                          }
-                        }}
-                        className={`relative w-full aspect-square rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${bgClass} ${borderClass} ${isSalaryDay ? 'ring-2 ring-[var(--nexus-emerald)] ring-offset-1 ring-offset-[var(--nexus-bg-card)]' : ''} cursor-pointer`}
-                        title={isSalaryDay ? 'Hari gajian' : undefined}
-                      >
-                        {cell.day}
-                        {isSalaryDay && (
-                          <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[var(--nexus-emerald)]" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Calendar Legend */}
-                <div className="flex items-center justify-between text-[9px] font-semibold  text-[var(--nexus-text-muted)]  border-t border-[var(--nexus-glass-border)] pt-3">
-                  <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
-                    <span>Terlambat</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-orange-400 inline-block" />
-                    <span>Hari ini</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-[var(--nexus-emerald)] inline-block" />
-                    <span>Akan datang</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full ring-2 ring-[var(--nexus-emerald)] inline-block" />
-                    <span>Gajian</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Late warning card box */}
-              {terlambatLoans.length > 0 && (
-                <div className="p-3 rounded-[20px] bg-rose-500/5 border border-rose-500/10 flex items-center justify-between group hover:bg-rose-500/10 transition-all cursor-pointer">
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-extrabold text-rose-500  tracking-tight">
-                      {terlambatLoans.length} tagihan terlambat
-                    </p>
-                    <p className="text-[9px] font-semibold text-rose-500/50  tracking-wide">
-                      Total denda: Rp {terlambatSum.toLocaleString('id-ID')}
-                    </p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-rose-500 group-hover:translate-x-1 transition-transform shrink-0" />
-                </div>
-              )}
-            </Card>
+            <PinjolCalendar
+              activeLoans={activeLoans}
+              paidInstallments={paidInstallments}
+              currentDate={currentDate}
+              onChangeMonth={setCurrentDate}
+              salaryDay={forecast.salaryDay}
+              onToggleLoanPaid={toggleInstallmentPaid}
+              lateLoanCount={terlambatLoans.length}
+              lateTotal={terlambatSum}
+            />
 
             {/* Tips Aman Pinjol Panel */}
-            <Card className="bg-[var(--nexus-bg-card)] border border-[var(--nexus-glass-border)] rounded-[32px] p-4.5 shadow-xl space-y-4">
+            <Card className="bg-card border border-line rounded-[32px] p-4.5 shadow-xl space-y-4">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[var(--nexus-emerald)] shrink-0" />
-                <h3 className="text-xs font-semibold  tracking-[0.2em] text-[var(--nexus-text-primary)]">
+                <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
+                <h3 className="text-xs font-semibold  tracking-[0.2em] text-text-primary">
                   Tips Aman Pinjol
                 </h3>
               </div>
@@ -810,22 +572,22 @@ export default function PinjolPage() {
                   'Jaga data pribadi kamu',
                 ].map((tip, index) => (
                   <li key={index} className="flex items-start gap-2.5">
-                    <span className="w-4.5 h-4.5 rounded-full bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="w-4.5 h-4.5 rounded-full bg-primary-glow text-primary flex items-center justify-center shrink-0 mt-0.5">
                       <CheckCircle className="w-2.5 h-2.5" />
                     </span>
-                    <span className="text-[11px] font-bold text-[var(--nexus-text-secondary)] leading-relaxed  tracking-tight">
+                    <span className="text-[11px] font-bold text-text-secondary leading-relaxed  tracking-tight">
                       {tip}
                     </span>
                   </li>
                 ))}
               </ul>
 
-              <div className="border-t border-[var(--nexus-glass-border)] pt-3">
+              <div className="border-t border-line pt-3">
                 <a
                   href="https://www.ojk.go.id"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[9px] font-semibold   text-[var(--nexus-emerald)] hover:text-[var(--nexus-emerald)] flex items-center gap-1 transition-all group cursor-pointer"
+                  className="text-[9px] font-semibold   text-primary hover:text-primary flex items-center gap-1 transition-all group cursor-pointer"
                 >
                   Pelajari lebih lanjut
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
@@ -962,7 +724,7 @@ export default function PinjolPage() {
                 disabled={submitting}
               />
 
-              <div className="flex gap-4 pt-4 border-t border-[var(--nexus-glass-border)]">
+              <div className="flex gap-4 pt-4 border-t border-line">
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -986,7 +748,7 @@ export default function PinjolPage() {
                 <Button 
                   type="submit" 
                   loading={submitting}
-                  className="rounded-[20px] bg-[var(--nexus-emerald)] text-[var(--nexus-text-primary)] py-6 cursor-pointer"
+                  className="rounded-[20px] bg-primary text-text-primary py-6 cursor-pointer"
                 >
                   Simpan Perubahan
                 </Button>

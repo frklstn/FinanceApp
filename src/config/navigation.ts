@@ -8,7 +8,6 @@ import {
   BarChart3,
   Sparkles,
   Settings,
-  ShieldAlert,
   TrendingDown,
   LucideIcon,
 } from 'lucide-react';
@@ -48,7 +47,8 @@ export const navigationGroups: NavigationGroup[] = [
   {
     title: 'Pengaturan',
     items: [
-      { name: 'Admin', path: '/user/admin', icon: ShieldAlert, isAdmin: true },
+      // Entri Admin dihapus: panelnya sekarang jadi bagian di halaman Pengaturan,
+      // muncul sendiri untuk superadmin.
       { name: 'Pengaturan', path: '/finance/settings', icon: Settings },
     ],
   },

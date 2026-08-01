@@ -3,6 +3,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email TEXT UNIQUE NOT NULL,
+  -- Opsional: akun lama dan akun Google OAuth masuk pakai email.
+  username TEXT,
   password_hash TEXT NOT NULL,
   email_verified BOOLEAN DEFAULT false,
   confirmation_token TEXT,
@@ -11,6 +13,11 @@ CREATE TABLE IF NOT EXISTS public.users (
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Unik tanpa membedakan huruf besar-kecil: "Budi" dan "budi" tidak boleh
+-- jadi dua akun berbeda.
+CREATE UNIQUE INDEX IF NOT EXISTS users_username_lower_key
+  ON public.users (lower(username));
 
 CREATE TABLE IF NOT EXISTS public.admins (
   user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
@@ -27,13 +34,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     language TEXT DEFAULT 'id',
     timezone TEXT DEFAULT 'UTC',
     is_suspended BOOLEAN DEFAULT false,
-    app_name TEXT DEFAULT 'FinanceApp',
-    app_logo_url TEXT,
-    app_document_title TEXT DEFAULT 'FinanceApp - Premium Personal Finance Platform',
     workspace_id UUID,
     plan VARCHAR NOT NULL DEFAULT 'free',
-    app_icon_url TEXT,
-    app_title VARCHAR,
+    plan_expires_at TIMESTAMPTZ,
     whatsapp_contact TEXT,
     tax_rate NUMERIC DEFAULT 15.00,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
@@ -212,8 +215,8 @@ CREATE TABLE IF NOT EXISTS public.tax_reports (
 CREATE TABLE IF NOT EXISTS public.loan_trackers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id UUID NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,
-    app_name TEXT NOT NULL,
     category TEXT NOT NULL DEFAULT 'pinjol',
+    amount_applied NUMERIC,
     amount_received NUMERIC NOT NULL,
     total_repayment NUMERIC NOT NULL,
     monthly_payment NUMERIC NOT NULL,
@@ -251,15 +254,6 @@ CREATE TABLE IF NOT EXISTS public.income_timeline (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
--- App Settings
-CREATE TABLE IF NOT EXISTS public.app_settings (
-    id INTEGER PRIMARY KEY DEFAULT 1,
-    app_name TEXT NOT NULL DEFAULT 'FinanceApp',
-    app_logo_url TEXT,
-    document_title TEXT NOT NULL DEFAULT 'FinanceApp',
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-    updated_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL
-);
 
 -- Exchange Rates
 CREATE TABLE IF NOT EXISTS exchange_rates (

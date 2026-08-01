@@ -4,7 +4,6 @@ import { verifySession } from '@/lib/auth/session';
 import { workspaceService } from '@/lib/services/server/workspace';
 import { profileService } from '@/lib/services/server/user.service';
 import { adminService } from '@/lib/services/server/admin.service';
-import { appSettingsService } from '@/lib/services/server/app-settings.service';
 
 export async function getMe() {
   const session = await verifySession();
@@ -19,6 +18,3 @@ export async function getMe() {
   return { userId: session.userId, profile, accountId, isSuperAdmin };
 }
 
-export async function getAppSettings() {
-  return appSettingsService.getSettings();
-}

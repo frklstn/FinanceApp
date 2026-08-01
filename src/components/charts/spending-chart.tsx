@@ -21,7 +21,7 @@ export function SpendingChart({ data }: SpendingChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <p className="text-xs text-[var(--nexus-text-muted)]">
+        <p className="text-xs text-text-muted">
           Tidak ada data pengeluaran
         </p>
       </div>
@@ -33,14 +33,14 @@ export function SpendingChart({ data }: SpendingChartProps) {
       <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
         <defs>
           <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--nexus-emerald)" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="var(--nexus-emerald)" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--nexus-glass-border)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-line)" />
         <XAxis
           dataKey="date"
-          tick={{ fill: 'var(--nexus-text-muted)', fontSize: 10, fontWeight: 600 }}
+          tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
           axisLine={false}
           tickLine={false}
           interval={xInterval}
@@ -51,30 +51,30 @@ export function SpendingChart({ data }: SpendingChartProps) {
             if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
             return `${v}`;
           }}
-          tick={{ fill: 'var(--nexus-text-muted)', fontSize: 10, fontWeight: 600 }}
+          tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
           axisLine={false}
           tickLine={false}
           width={45}
         />
         <Tooltip
           contentStyle={{
-            background: 'var(--nexus-bg-popup)',
-            border: '1px solid var(--nexus-glass-border)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-line)',
             borderRadius: '16px',
             padding: '10px 16px',
           }}
-          labelStyle={{ color: 'var(--nexus-text-secondary)', fontSize: 10, fontWeight: 600 }}
-          itemStyle={{ color: 'var(--nexus-emerald)', fontSize: 12, fontWeight: 600 }}
+          labelStyle={{ color: 'var(--text-secondary)', fontSize: 10, fontWeight: 600 }}
+          itemStyle={{ color: 'var(--primary)', fontSize: 12, fontWeight: 600 }}
           formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Pengeluaran']}
         />
         <Area
           type="monotone"
           dataKey="amount"
-          stroke="var(--nexus-emerald)"
+          stroke="var(--primary)"
           strokeWidth={3}
           fill="url(#colorSpend)"
           dot={false}
-          activeDot={{ r: 4, fill: 'var(--nexus-emerald)', strokeWidth: 0 }}
+          activeDot={{ r: 4, fill: 'var(--primary)', strokeWidth: 0 }}
           isAnimationActive={true}
           animationDuration={1500}
           animationEasing="ease-out"

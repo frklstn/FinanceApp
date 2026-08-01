@@ -9,10 +9,26 @@ export interface FinancialInsight {
   type: 'info' | 'warning' | 'success' | 'danger';
 }
 
+/** Transaksi yang dibutuhkan perhitungan insight. */
+export interface InsightTransaction {
+  amount: number;
+  type: string;
+  currency?: string;
+  categories?: { name?: string } | { name?: string }[] | null;
+}
+
 export const insightsService = {
+  /**
+   * Transaksi wajib dikirim pemanggil.
+   *
+   * Sebelumnya parameternya opsional dan ada cabang yang query sendiri ke DB
+   * kalau tidak diberikan. Kedua pemanggil (dashboard & insight) selalu
+   * mengirimnya, jadi cabang itu tidak pernah jalan — sekaligus menyimpan query
+   * kedua yang rentang tanggalnya berbeda dari yang dipakai pemanggil.
+   */
   async generateInsights(
     workspaceId: string,
-    options?: { prefetchedTransactions?: { amount: number; type: string; categories?: { name?: string } | { name?: string }[] | null }[] }
+    transactions: InsightTransaction[]
   ): Promise<{
     score: number;
     insights: FinancialInsight[];
@@ -21,29 +37,6 @@ export const insightsService = {
     savings: number;
     runwayMonths: number;
   }> {
-    let txs = options?.prefetchedTransactions;
-
-    if (!txs) {
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-
-      const { rows } = await query(
-        `SELECT t.amount, t.type, t.category_id, c.name AS category_name, t.currency 
-         FROM transactions t
-         LEFT JOIN categories c ON t.category_id = c.id
-         WHERE t.workspace_id = $1 AND t.date >= $2`,
-        [workspaceId, startOfMonth.toISOString()]
-      );
-
-      txs = rows.map(r => ({
-        amount: r.amount,
-        type: r.type,
-        currency: r.currency,
-        categories: { name: r.category_name }
-      })) as any[];
-    }
-
     const { rows: wallets } = await query(
       'SELECT balance, currency FROM wallets WHERE workspace_id = $1',
       [workspaceId]
@@ -58,14 +51,14 @@ export const insightsService = {
     let expense = 0;
     const categorySpending: { [name: string]: number } = {};
 
-    for (const t of txs || []) {
-      const amt = await currencyService.convert(Number(t.amount), (t as { currency?: string }).currency || 'IDR', 'IDR');
+    for (const t of transactions) {
+      const amt = await currencyService.convert(Number(t.amount), t.currency || 'IDR', 'IDR');
       if (t.type === 'income') {
         income += amt;
       } else if (t.type === 'expense') {
         expense += amt;
-        const cat = t.categories as { name?: string } | { name?: string }[] | null | undefined;
-        const catName = (Array.isArray(cat) ? cat[0]?.name : cat?.name) || 'General';
+        const cat = t.categories;
+        const catName = (Array.isArray(cat) ? cat[0]?.name : cat?.name) || 'Lainnya';
         categorySpending[catName] = (categorySpending[catName] || 0) + amt;
       }
     }
@@ -126,7 +119,7 @@ export const insightsService = {
       const concentration = (highestSpendingAmt / expense) * 100;
       if (concentration > 40) {
         score = Math.max(score - 4, 10);
-        insights.push({ title: `Extreme Spending Cluster`, description: `${concentration.toFixed(0)}% di ${highestSpendingCat}. Split budget.`, type: 'warning' });
+        insights.push({ title: 'Pengeluaran menumpuk di satu kategori', description: `${concentration.toFixed(0)}% pengeluaran di ${highestSpendingCat}. Sebar anggarannya.`, type: 'warning' });
       }
     }
 

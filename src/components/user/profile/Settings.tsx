@@ -2,26 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Modal } from '@/components/ui/modal';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/contexts/app-context';
 import { User, Monitor, Languages, Download, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { SubscriptionStatus } from '../subscription/subscription-status';
 import { useUser } from '@/lib/hooks/use-user';
-;
+import { getAllTransactionsForExport, getSupportContactAction } from '@/app/actions/profile';
 import * as XLSX from 'xlsx';
-;
+import { BRAND } from '@/lib/branding';
 import { useToast } from '@/components/ui/toast';
 import { useTheme } from '@/contexts/theme-context';
 
-interface SettingsFormProps {
-  isModal?: boolean;
-  onClose?: () => void;
-}
-
-export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
-  const { user, profile, accountId, appSettings, t } = useApp();
+export function SettingsForm() {
+  const { user, profile, accountId, t } = useApp();
   const { toast } = useToast();
   const { updateProfile, updateLanguage, resetData, deleteAccount, submitting } = useUser();
   const { theme, toggleTheme } = useTheme();
@@ -58,8 +53,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
     toast(t('settings.export.fetching', 'Mengambil seluruh data transaksi...'), 'info');
 
     try {
-      // const { data: allTxs } = await transactionService.getTransactions(accountId, {
-      const allTxs: any[] = []; // Stubbed
+      const allTxs = await getAllTransactionsForExport();
 
       if (allTxs.length === 0) {
         toast(t('settings.export.empty', 'Tidak ada transaksi untuk diekspor.'), 'warning');
@@ -91,9 +85,8 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
       ];
       worksheet['!cols'] = colWidths;
 
-      const appName = appSettings?.app_name || 'FinanceApp';
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const fileName = `${appName.replace(/\s+/g, '_')}_Buku_Besar_${timestamp}.xlsx`;
+      const fileName = `${BRAND.name.replace(/\s+/g, '_')}_Buku_Besar_${timestamp}.xlsx`;
       XLSX.writeFile(workbook, fileName);
       toast(t('settings.export.success', 'Buku besar berhasil diekspor ke Excel!'), 'success');
 
@@ -112,13 +105,15 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
 
   // Upgrade ke Pro lewat kontak admin (WhatsApp), sama seperti UpgradeGate --
   // tombol ini sebelumnya tanpa onClick sehingga tidak melakukan apa pun.
+  // Sebelumnya pemanggilannya dikomentari, jadi whatsappLink selamanya null dan
+  // tombol "Hubungi admin untuk upgrade" terkunci di "Memuat kontak admin...".
   useEffect(() => {
     if (profile?.plan !== 'free') return;
-    const batal = false;
-    // profileService.getWhatsappContact()
-    //   .then((link) => { if (!batal) setWhatsappLink(link); })
-    //   .catch(() => {});
-
+    let batal = false;
+    getSupportContactAction()
+      .then((link) => { if (!batal) setWhatsappLink(link); })
+      .catch(() => {});
+    return () => { batal = true; };
   }, [profile?.plan]);
 
   useEffect(() => {
@@ -142,24 +137,26 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
     }
     const success = await updateProfile({
       fullName,
-      email,
       password: password || undefined,
       avatarUrl
     });
     if (success) {
       setPassword('');
       setConfirmPassword('');
-      if (onClose) onClose();
     }
   };
 
   return (
-    <div className="space-y-10">
-      {/* Satu halaman, tanpa tab: akun (termasuk status langganan), preferensi,
-          lalu data. Sebelumnya empat tab membuat hal sederhana terasa dalam. */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <h3 className="font-heading text-lg font-semibold tracking-tight text-[var(--nexus-text-primary)]">Akun</h3>
-        <div className="space-y-6">
+    <>
+      {/* Dua kolom di desktop supaya tidak jadi satu kolom panjang: Akun yang
+          isinya paling banyak mengambil dua pertiga, Preferensi dan Data
+          menumpuk di sisanya. Di hp otomatis menumpuk seperti biasa.
+          Tetap satu halaman tanpa tab -- yang dipangkas panjangnya, bukan
+          jumlah langkahnya. */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <Card className="lg:col-span-2 gap-6">
+          <h3 className="font-heading text-lg font-semibold tracking-tight text-text-primary">Akun</h3>
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Input
               label="Nama Pengguna"
@@ -169,14 +166,17 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               required
               disabled={submitting}
             />
+            {/* Hanya tampilan. Mengganti email tanpa verifikasi ulang berarti akun
+                bisa dipindah ke alamat yang belum tentu dimiliki, jadi server
+                memang mengabaikannya. Dulu kolom ini bisa diketik dan tetap
+                memunculkan "berhasil disimpan" padahal tidak berubah. */}
             <Input
               label="Alamat Email"
               type="email"
-              placeholder="nama@email.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={submitting}
+              readOnly
+              disabled
+              description="Email tidak bisa diubah sendiri. Hubungi admin bila perlu."
             />
           </div>
           
@@ -202,7 +202,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           </div>
 
           <div className="pt-4 border-t border-light-border/40 dark:border-dark-border/40">
-            <label className="text-sm font-semibold text-[var(--nexus-text-primary)] mb-3 block">
+            <label className="text-sm font-semibold text-text-primary mb-3 block">
               Foto Profil
             </label>
             
@@ -230,42 +230,37 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           </div>
 
           {/* Status langganan digabung ke Akun sesuai permintaan. */}
-          <div className="pt-4 border-t border-[var(--nexus-glass-border)] space-y-3">
+          <div className="pt-4 border-t border-line space-y-3">
             <SubscriptionStatus plan={profile?.plan} expiresAt={profile?.plan_expires_at} />
             {profile?.plan === 'free' && (
-              <div className="p-4 rounded-xl border border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)]">
-                <p className="text-xs text-[var(--nexus-text-primary)] mb-3">Upgrade ke Pro untuk fitur tanpa batas dan analisis lebih mendalam.</p>
+              <div className="p-4 rounded-xl border border-primary-border bg-primary-glow">
+                <p className="text-xs text-text-primary mb-3">Upgrade ke Pro untuk fitur tanpa batas dan analisis lebih mendalam.</p>
                 {whatsappLink ? (
                   <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
-                    <Button type="button" variant="nexus-emerald" className="w-full">Hubungi admin untuk upgrade</Button>
+                    <Button type="button" variant="primary" className="w-full">Hubungi admin untuk upgrade</Button>
                   </a>
                 ) : (
-                  <Button type="button" variant="nexus-emerald" className="w-full" disabled>Memuat kontak admin...</Button>
+                  <Button type="button" variant="primary" className="w-full" disabled>Memuat kontak admin...</Button>
                 )}
               </div>
             )}
           </div>
-        </div>
 
-        <div className="flex justify-end gap-4 pt-6 border-t border-[var(--nexus-glass-border)]">
-          {isModal && (
-            <Button variant="outline" type="button" onClick={onClose} disabled={submitting} className="px-6">
-              Batal
-            </Button>
-          )}
-          <Button type="submit" variant="nexus-emerald" loading={submitting} className="px-6">
-            Simpan Perubahan
-          </Button>
-        </div>
-      </form>
+            <div className="flex justify-end pt-6 border-t border-line">
+              <Button type="submit" variant="primary" loading={submitting} className="px-6">
+                Simpan Perubahan
+              </Button>
+            </div>
+          </form>
+        </Card>
 
-      {/* Preferensi */}
-      <section className="space-y-4">
-        <h3 className="font-heading text-lg font-semibold tracking-tight text-[var(--nexus-text-primary)]">Preferensi</h3>
-        <div className="space-y-3">
+        <div className="space-y-6">
+        <Card className="gap-4">
+          <h3 className="font-heading text-lg font-semibold tracking-tight text-text-primary">Preferensi</h3>
+          <div className="space-y-3">
             <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
               <div className="flex items-center gap-3">
-                <Monitor className="w-4 h-4 text-[var(--nexus-emerald)]" />
+                <Monitor className="w-4 h-4 text-primary" />
                 <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Mode Tampilan</span>
               </div>
               <Button variant="outline" size="sm" onClick={toggleTheme} className="capitalize font-bold cursor-pointer">
@@ -278,7 +273,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
                 dan tidak ada cara mengubahnya dari UI. */}
             <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
               <div className="flex items-center gap-3">
-                <Languages className="w-4 h-4 text-[var(--nexus-emerald)]" />
+                <Languages className="w-4 h-4 text-primary" />
                 <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Bahasa</span>
               </div>
               <Button
@@ -293,19 +288,18 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               </Button>
             </div>
           </div>
-      </section>
+        </Card>
 
-      {/* Data */}
-      <section className="space-y-4">
-        <h3 className="font-heading text-lg font-semibold tracking-tight text-[var(--nexus-text-primary)]">Data</h3>
-        <div className="space-y-4">
+        <Card className="gap-4">
+          <h3 className="font-heading text-lg font-semibold tracking-tight text-text-primary">Data</h3>
+          <div className="space-y-4">
             <h4 className="text-sm font-semibold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
               Ekspor Data Keuangan
             </h4>
             <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary leading-relaxed">
               Unduh seluruh transaksi akun Anda dalam format `.xlsx` (kategori, dompet, nominal, catatan).
             </p>
-            <Button type="button" variant="outline" className="flex items-center justify-center gap-2 cursor-pointer w-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)]" onClick={handleExcelExport}>
+            <Button type="button" variant="outline" className="flex items-center justify-center gap-2 cursor-pointer w-full border-line bg-surface" onClick={handleExcelExport}>
               <Download className="w-4 h-4" />
               Ekspor ke Excel (.xlsx)
             </Button>
@@ -320,8 +314,8 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
             <div className="flex flex-col gap-3 rounded-2xl border border-danger/20 bg-danger/[0.04] p-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[var(--nexus-text-primary)]">Reset data</p>
-                  <p className="text-xs text-[var(--nexus-text-secondary)]">Kosongkan semua transaksi, dompet, dan catatan. Akun tetap ada, mulai dari nol.</p>
+                  <p className="text-sm font-semibold text-text-primary">Reset data</p>
+                  <p className="text-xs text-text-secondary">Kosongkan semua transaksi, dompet, dan catatan. Akun tetap ada, mulai dari nol.</p>
                 </div>
                 <Button type="button" variant="outline" className="shrink-0 gap-2" onClick={() => { setDanger('reset'); setConfirmText(''); }}>
                   <RotateCcw className="w-4 h-4" /> Reset
@@ -331,7 +325,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-danger/15">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-danger">Hapus akun</p>
-                  <p className="text-xs text-[var(--nexus-text-secondary)]">Menghapus akun dan seluruh data secara permanen. Tidak bisa dibatalkan.</p>
+                  <p className="text-xs text-text-secondary">Menghapus akun dan seluruh data secara permanen. Tidak bisa dibatalkan.</p>
                 </div>
                 <Button type="button" variant="destructive" className="shrink-0 gap-2" onClick={() => { setDanger('delete'); setConfirmText(''); }}>
                   <Trash2 className="w-4 h-4" /> Hapus akun
@@ -339,7 +333,9 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
               </div>
             </div>
           </div>
-      </section>
+        </Card>
+        </div>
+      </div>
 
       {danger && (
         <div
@@ -347,7 +343,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           onClick={() => { setDanger(null); setConfirmText(''); }}
         >
           <div
-            className="w-full max-w-sm rounded-2xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)] p-6 space-y-4 shadow-2xl animate-scale-up"
+            className="w-full max-w-sm rounded-2xl border border-line bg-card p-6 space-y-4 shadow-2xl animate-scale-up"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-1.5">
@@ -355,7 +351,7 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
                 <AlertTriangle className="w-4 h-4" />
                 {danger === 'delete' ? 'Hapus akun permanen' : 'Reset semua data'}
               </h3>
-              <p className="text-sm text-[var(--nexus-text-secondary)]">
+              <p className="text-sm text-text-secondary">
                 {danger === 'delete'
                   ? 'Akun dan seluruh data akan dihapus permanen dan tidak bisa dipulihkan.'
                   : 'Semua transaksi, dompet, dan catatan akan dikosongkan. Akun tetap ada.'}
@@ -363,8 +359,8 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs text-[var(--nexus-text-secondary)]">
-                Ketik <span className="font-semibold text-[var(--nexus-text-primary)]">{dangerWord}</span> untuk konfirmasi
+              <label className="text-xs text-text-secondary">
+                Ketik <span className="font-semibold text-text-primary">{dangerWord}</span> untuk konfirmasi
               </label>
               <Input
                 label=""
@@ -392,14 +388,6 @@ export function SettingsForm({ isModal = false, onClose }: SettingsFormProps) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-export function AccountSettings({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Pengaturan Akun & Aplikasi">
-      <SettingsForm isModal={true} onClose={onClose} />
-    </Modal>
+    </>
   );
 }

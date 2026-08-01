@@ -14,6 +14,13 @@ export interface OptimizationSuggestion {
   priority: 'low' | 'medium' | 'high';
 }
 
+// Hanya field yang dipakai optimizer ini. getTransactions mengembalikan row
+// mentah dari query, jadi tipe lokal lebih aman daripada memaksakan shape.
+interface TxForOptimizer {
+  category_id: string | null;
+  amount: number | string;
+}
+
 export const budgetOptimizerService = {
   async getOptimizationSuggestions(workspaceId: string): Promise<OptimizationSuggestion[]> {
     const activeBudgets = await budgetService.getBudgets(workspaceId);
@@ -27,7 +34,7 @@ export const budgetOptimizerService = {
     });
 
     const categoryStats: Record<string, { total: number; count: number }> = {};
-    historicalTxs.forEach((tx: any) => {
+    historicalTxs.forEach((tx: TxForOptimizer) => {
       if (!tx.category_id) return;
       if (!categoryStats[tx.category_id]) categoryStats[tx.category_id] = { total: 0, count: 0 };
       categoryStats[tx.category_id].total += Number(tx.amount);

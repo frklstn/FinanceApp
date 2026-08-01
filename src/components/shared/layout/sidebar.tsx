@@ -61,7 +61,7 @@ export default function Sidebar() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col bg-[var(--nexus-bg-sidebar)] border-r border-[var(--nexus-glass-border)] select-none transition-all duration-300 ease-out",
+        "fixed left-0 top-0 h-screen z-50 hidden md:flex flex-col bg-main border-r border-line select-none transition-all duration-300 ease-out",
         isCollapsed ? "w-[84px]" : "w-[260px]"
       )}
     >
@@ -78,7 +78,7 @@ export default function Sidebar() {
             <div key={group.title} className="space-y-2">
               {/* Group Title */}
               {!isCollapsed && (
-                <h4 className="px-4 text-[11px] font-medium text-[var(--nexus-text-muted)] tracking-wide">
+                <h4 className="px-4 text-[11px] font-medium text-text-muted tracking-wide">
                   {group.title}
                 </h4>
               )}
@@ -97,8 +97,8 @@ export default function Sidebar() {
                   );
 
                   const activeClasses = isActive
-                    ? "bg-black/5 dark:bg-white/5 text-[var(--nexus-text-primary)] border border-black/5 dark:border-white/5"
-                    : "text-[var(--nexus-text-secondary)] hover:text-[var(--nexus-text-primary)] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]";
+                    ? "bg-black/5 dark:bg-white/5 text-text-primary border border-black/5 dark:border-white/5"
+                    : "text-text-secondary hover:text-text-primary hover:bg-black/[0.02] dark:hover:bg-white/[0.02]";
 
                   const renderIcon = () => (
                     <Icon className={cn(
@@ -146,9 +146,9 @@ export default function Sidebar() {
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, x: -5 }}
                               transition={{ duration: 0.15 }}
-                              className="absolute left-[70px] px-3 py-1.5 bg-[var(--nexus-bg-popup)] border border-[var(--nexus-glass-border)] rounded-lg z-50 pointer-events-none whitespace-nowrap shadow-lg"
+                              className="absolute left-[70px] px-3 py-1.5 bg-card border border-line rounded-lg z-50 pointer-events-none whitespace-nowrap shadow-lg"
                             >
-                              <span className="text-xs font-medium text-[var(--nexus-text-primary)]">
+                              <span className="text-xs font-medium text-text-primary">
                                 {item.name}
                               </span>
                             </motion.div>
@@ -187,19 +187,19 @@ export default function Sidebar() {
 
       {/* Upgrade Promo Card */}
       {!isCollapsed && profile?.plan !== 'pro' && (
-        <div className="p-4 mx-3 mb-4 rounded-[20px] bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] space-y-3">
+        <div className="p-4 mx-3 mb-4 rounded-[20px] bg-primary-glow border border-primary-border space-y-3">
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-[var(--nexus-text-emerald)]">
+            <div className="flex items-center gap-1.5 text-primary">
               <Sparkles className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold">Upgrade ke Pro</span>
             </div>
-            <p className="text-xs text-[var(--nexus-text-secondary)] leading-relaxed">
+            <p className="text-xs text-text-secondary leading-relaxed">
               Buka insight dan analitik lanjutan.
             </p>
           </div>
           <button
             onClick={handleUpgrade}
-            className="w-full py-2.5 rounded-xl bg-[var(--nexus-emerald)] hover:opacity-90 text-white font-medium text-xs text-center cursor-pointer transition-opacity duration-200"
+            className="w-full py-2.5 rounded-xl bg-primary hover:opacity-90 text-white font-medium text-xs text-center cursor-pointer transition-opacity duration-200"
           >
             Upgrade sekarang
           </button>

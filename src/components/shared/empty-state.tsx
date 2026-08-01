@@ -33,21 +33,21 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] px-6 py-12 text-center ${className}`}
+      className={`flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-line bg-surface px-6 py-12 text-center ${className}`}
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-card)] text-[var(--nexus-text-muted)]">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-line bg-card text-text-muted">
         <Icon className="h-6 w-6" />
       </div>
       <div className="space-y-1">
-        <h4 className="font-heading text-base font-semibold tracking-tight text-[var(--nexus-text-primary)]">
+        <h4 className="font-heading text-base font-semibold tracking-tight text-text-primary">
           {title}
         </h4>
-        <p className="mx-auto max-w-sm text-xs leading-relaxed text-[var(--nexus-text-secondary)]">
+        <p className="mx-auto max-w-sm text-xs leading-relaxed text-text-secondary">
           {description}
         </p>
       </div>
       {actionLabel && onAction ? (
-        <Button variant="nexus-emerald" size="sm" onClick={onAction}>
+        <Button variant="primary" size="sm" onClick={onAction}>
           {actionLabel}
         </Button>
       ) : null}

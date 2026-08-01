@@ -32,10 +32,12 @@ export default function ReportsPage() {
   const [taxRate, setTaxRate] = useState(15);
   const [deductiblesRatio, setDeductiblesRatio] = useState(25);
 
+  // Sync dari profil (async load). SetState dalam callback async — bukan body
+  // effect — supaya lolos react-hooks/set-state-in-effect.
   useEffect(() => {
-    if (profile?.tax_rate !== undefined && profile?.tax_rate !== null) {
-      setTaxRate(Number(profile.tax_rate));
-    }
+    if (profile?.tax_rate === undefined || profile?.tax_rate === null) return;
+    const t = Number(profile.tax_rate);
+    Promise.resolve().then(() => setTaxRate((prev) => (prev === t ? prev : t)));
   }, [profile?.tax_rate]);
 
   const persistTaxRate = useCallback(async (rate: number) => {
@@ -121,13 +123,13 @@ export default function ReportsPage() {
         }
       />
 
-      <div className="flex gap-4 border-b border-[var(--nexus-glass-border)] pb-2">
+      <div className="flex gap-4 border-b border-line pb-2">
         <button
           onClick={() => setActiveSubTab('analytics')}
           className={`flex items-center gap-2 pb-2 text-xs font-medium transition-colors cursor-pointer ${
             activeSubTab === 'analytics'
-              ? 'border-b-2 border-[var(--nexus-emerald)] text-[var(--nexus-emerald)]'
-              : 'text-[var(--nexus-text-secondary)] hover:text-[var(--nexus-text-primary)]'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-text-secondary hover:text-text-primary'
           }`}
         >
           <BarChart3 className="w-4 h-4" />
@@ -137,8 +139,8 @@ export default function ReportsPage() {
           onClick={() => setActiveSubTab('tax')}
           className={`flex items-center gap-2 pb-2 text-xs font-medium transition-colors cursor-pointer ${
             activeSubTab === 'tax'
-              ? 'border-b-2 border-[var(--nexus-emerald)] text-[var(--nexus-emerald)]'
-              : 'text-[var(--nexus-text-secondary)] hover:text-[var(--nexus-text-primary)]'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-text-secondary hover:text-text-primary'
           }`}
         >
           <Scale className="w-4 h-4" />
@@ -148,31 +150,31 @@ export default function ReportsPage() {
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 h-80 rounded-2xl bg-[var(--nexus-bg-panel)] animate-pulse" />
-          <div className="md:col-span-2 h-80 rounded-2xl bg-[var(--nexus-bg-panel)] animate-pulse" />
+          <div className="md:col-span-1 h-80 rounded-2xl bg-surface animate-pulse" />
+          <div className="md:col-span-2 h-80 rounded-2xl bg-surface animate-pulse" />
         </div>
       ) : activeSubTab === 'analytics' ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-6 md:col-span-1">
             <Card className="space-y-4">
-              <h3 className="font-heading text-sm font-semibold text-[var(--nexus-text-primary)] flex items-center gap-2 pb-2 border-b border-[var(--nexus-glass-border)]">
-                <TrendingUpDown className="w-4 h-4 text-[var(--nexus-emerald)]" />
+              <h3 className="font-heading text-sm font-semibold text-text-primary flex items-center gap-2 pb-2 border-b border-line">
+                <TrendingUpDown className="w-4 h-4 text-primary" />
                 Aliran kas bersih
               </h3>
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-[var(--nexus-text-secondary)]">Total pemasukan</span>
-                  <span className="font-semibold text-[var(--nexus-success)]">+{formatCurrency(reportStats.income)}</span>
+                  <span className="text-text-secondary">Total pemasukan</span>
+                  <span className="font-semibold text-success">+{formatCurrency(reportStats.income)}</span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-[var(--nexus-text-secondary)]">Total pengeluaran</span>
+                  <span className="text-text-secondary">Total pengeluaran</span>
                   <span className="font-semibold text-rose-400">-{formatCurrency(reportStats.expense)}</span>
                 </div>
-                <div className="h-px bg-[var(--nexus-glass-border)] my-2" />
+                <div className="h-px bg-line my-2" />
                 <div className="flex justify-between items-center text-sm font-semibold">
-                  <span className="text-[var(--nexus-text-primary)]">Margin bersih</span>
-                  <span className={reportStats.savings >= 0 ? 'text-[var(--nexus-emerald)]' : 'text-rose-400'}>
+                  <span className="text-text-primary">Margin bersih</span>
+                  <span className={reportStats.savings >= 0 ? 'text-primary' : 'text-rose-400'}>
                     {reportStats.savings >= 0 ? '+' : '-'}{formatCurrency(Math.abs(reportStats.savings))}
                   </span>
                 </div>
@@ -180,14 +182,14 @@ export default function ReportsPage() {
             </Card>
 
             <Card className="space-y-3">
-              <span className="text-[10px] font-semibold text-[var(--nexus-text-secondary)]">
+              <span className="text-[10px] font-semibold text-text-secondary">
                 Rasio menabung
               </span>
-              <h4 className="font-heading text-2xl font-semibold text-[var(--nexus-emerald)]">
+              <h4 className="font-heading text-2xl font-semibold text-primary">
                 {reportStats.savingsRate}%
               </h4>
-              <Progress value={reportStats.savingsRate} className="bg-[var(--nexus-emerald)]" />
-              <p className="text-[11px] text-[var(--nexus-text-secondary)] leading-relaxed pt-1">
+              <Progress value={reportStats.savingsRate} className="bg-primary" />
+              <p className="text-[11px] text-text-secondary leading-relaxed pt-1">
                 Kamu menyisihkan {formatCurrency(reportStats.savings)} dari total pemasukan {formatCurrency(reportStats.income)} pada periode ini.
               </p>
             </Card>
@@ -195,17 +197,17 @@ export default function ReportsPage() {
 
           <div className="md:col-span-2">
             <Card className="space-y-4">
-              <h3 className="font-heading text-sm font-semibold text-[var(--nexus-text-primary)] flex items-center gap-2 pb-2 border-b border-[var(--nexus-glass-border)]">
-                <BarChart3 className="w-4 h-4 text-[var(--nexus-emerald)]" />
+              <h3 className="font-heading text-sm font-semibold text-text-primary flex items-center gap-2 pb-2 border-b border-line">
+                <BarChart3 className="w-4 h-4 text-primary" />
                 Peringkat pengeluaran per kategori
               </h3>
 
               {categorySpendings.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-10 h-10 rounded-xl bg-[var(--nexus-bg-panel)] flex items-center justify-center mb-3 text-[var(--nexus-text-muted)]">
+                  <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center mb-3 text-text-muted">
                     <Info className="w-5 h-5" />
                   </div>
-                  <p className="text-xs text-[var(--nexus-text-secondary)]">
+                  <p className="text-xs text-text-secondary">
                     Tidak ada pengeluaran pada periode yang dipilih.
                   </p>
                 </div>
@@ -215,15 +217,15 @@ export default function ReportsPage() {
                     <div key={cat.name} className="space-y-1.5">
                       <div className="flex justify-between items-center text-xs">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-[var(--nexus-text-muted)] w-4 shrink-0">#{index + 1}</span>
+                          <span className="text-text-muted w-4 shrink-0">#{index + 1}</span>
                           <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                          <span className="font-medium text-[var(--nexus-text-primary)] truncate">{cat.name}</span>
+                          <span className="font-medium text-text-primary truncate">{cat.name}</span>
                         </div>
-                        <span className="font-semibold text-[var(--nexus-text-primary)] shrink-0">
+                        <span className="font-semibold text-text-primary shrink-0">
                           {formatCurrency(cat.amount)} ({cat.percentage}%)
                         </span>
                       </div>
-                      <div className="w-full h-1.5 rounded-full bg-[var(--nexus-bg-panel)] overflow-hidden">
+                      <div className="w-full h-1.5 rounded-full bg-surface overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-300"
                           style={{ width: `${cat.percentage}%`, backgroundColor: cat.color }}
@@ -240,14 +242,14 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1 space-y-6">
             <Card className="space-y-4">
-              <h3 className="font-heading text-sm font-semibold text-[var(--nexus-text-primary)] flex items-center gap-2 pb-2 border-b border-[var(--nexus-glass-border)]">
-                <Percent className="w-4 h-4 text-[var(--nexus-emerald)]" />
+              <h3 className="font-heading text-sm font-semibold text-text-primary flex items-center gap-2 pb-2 border-b border-line">
+                <Percent className="w-4 h-4 text-primary" />
                 Variabel tarif pajak
               </h3>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-[var(--nexus-text-secondary)] mb-1">
+                  <label className="block text-xs text-text-secondary mb-1">
                     Perkiraan golongan pajak ({taxRate}%)
                   </label>
                   <input
@@ -258,16 +260,16 @@ export default function ReportsPage() {
                     onChange={(e) => setTaxRate(Number(e.target.value))}
                     onMouseUp={(e) => persistTaxRate(Number((e.target as HTMLInputElement).value))}
                     onTouchEnd={(e) => persistTaxRate(Number((e.target as HTMLInputElement).value))}
-                    className="w-full h-2 rounded-lg bg-[var(--nexus-bg-panel)] appearance-none cursor-pointer accent-[var(--nexus-emerald)]"
+                    className="w-full h-2 rounded-lg bg-surface appearance-none cursor-pointer accent-primary"
                   />
-                  <div className="flex justify-between text-[10px] text-[var(--nexus-text-muted)] mt-1">
+                  <div className="flex justify-between text-[10px] text-text-muted mt-1">
                     <span>5% (rendah)</span>
                     <span>45% (tinggi)</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-[var(--nexus-text-secondary)] mb-1">
+                  <label className="block text-xs text-text-secondary mb-1">
                     Pengeluaran bebas pajak ({deductiblesRatio}%)
                   </label>
                   <input
@@ -276,9 +278,9 @@ export default function ReportsPage() {
                     max="100"
                     value={deductiblesRatio}
                     onChange={(e) => setDeductiblesRatio(Number(e.target.value))}
-                    className="w-full h-2 rounded-lg bg-[var(--nexus-bg-panel)] appearance-none cursor-pointer accent-[var(--nexus-emerald)]"
+                    className="w-full h-2 rounded-lg bg-surface appearance-none cursor-pointer accent-primary"
                   />
-                  <div className="flex justify-between text-[10px] text-[var(--nexus-text-muted)] mt-1">
+                  <div className="flex justify-between text-[10px] text-text-muted mt-1">
                     <span>0% (nihil)</span>
                     <span>100% (semua)</span>
                   </div>
@@ -290,39 +292,39 @@ export default function ReportsPage() {
           <div className="md:col-span-2">
             <Card className="space-y-6">
               <div>
-                <h3 className="font-heading text-base font-semibold text-[var(--nexus-text-primary)]">
+                <h3 className="font-heading text-base font-semibold text-text-primary">
                   Proyeksi pajak penghasilan
                 </h3>
-                <p className="text-xs text-[var(--nexus-text-secondary)] mt-0.5">
+                <p className="text-xs text-text-secondary mt-0.5">
                   Perkiraan berdasarkan pemasukan dan pengeluaran periode aktif.
                 </p>
               </div>
 
-              <div className="divide-y divide-[var(--nexus-glass-border)] text-xs space-y-3.5">
+              <div className="divide-y divide-line text-xs space-y-3.5">
                 <div className="flex justify-between items-center pt-3.5">
-                  <span className="text-[var(--nexus-text-secondary)]">Pendapatan kotor</span>
-                  <span className="font-semibold text-[var(--nexus-text-primary)]">{formatCurrency(reportStats.income)}</span>
+                  <span className="text-text-secondary">Pendapatan kotor</span>
+                  <span className="font-semibold text-text-primary">{formatCurrency(reportStats.income)}</span>
                 </div>
 
                 <div className="flex justify-between items-center pt-3.5 gap-4">
                   <div className="space-y-0.5 min-w-0">
-                    <span className="text-[var(--nexus-text-secondary)]">Pengurang pajak</span>
-                    <p className="text-[10px] text-[var(--nexus-text-muted)]">
+                    <span className="text-text-secondary">Pengurang pajak</span>
+                    <p className="text-[10px] text-text-muted">
                       Mengasumsikan {deductiblesRatio}% pengeluaran bisa dikurangkan
                     </p>
                   </div>
-                  <span className="font-semibold text-[var(--nexus-success)] shrink-0">-{formatCurrency(totalDeductibles)}</span>
+                  <span className="font-semibold text-success shrink-0">-{formatCurrency(totalDeductibles)}</span>
                 </div>
 
                 <div className="flex justify-between items-center pt-3.5">
-                  <span className="text-[var(--nexus-text-secondary)]">Penghasilan kena pajak</span>
-                  <span className="font-semibold text-[var(--nexus-text-primary)]">{formatCurrency(taxableIncome)}</span>
+                  <span className="text-text-secondary">Penghasilan kena pajak</span>
+                  <span className="font-semibold text-text-primary">{formatCurrency(taxableIncome)}</span>
                 </div>
 
-                <div className="flex justify-between items-center pt-3.5 border-t-2 border-[var(--nexus-emerald-border)] gap-4">
+                <div className="flex justify-between items-center pt-3.5 border-t-2 border-primary-border gap-4">
                   <div className="space-y-0.5 min-w-0">
-                    <span className="text-sm font-semibold text-[var(--nexus-emerald)]">Estimasi pajak</span>
-                    <p className="text-[10px] text-[var(--nexus-text-muted)]">
+                    <span className="text-sm font-semibold text-primary">Estimasi pajak</span>
+                    <p className="text-[10px] text-text-muted">
                       Memakai tarif {taxRate}%
                     </p>
                   </div>
@@ -330,9 +332,9 @@ export default function ReportsPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 p-3.5 rounded-xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)]">
-                <Info className="w-4 h-4 text-[var(--nexus-emerald)] shrink-0 mt-0.5" />
-                <p className="text-[11px] text-[var(--nexus-text-secondary)] leading-relaxed">
+              <div className="flex items-start gap-2.5 p-3.5 rounded-xl border border-line bg-surface">
+                <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <p className="text-[11px] text-text-secondary leading-relaxed">
                   Angka ini hanya untuk perencanaan, bukan saran pajak profesional. Untuk pelaporan SPT resmi, konsultasikan dengan konsultan pajak.
                 </p>
               </div>

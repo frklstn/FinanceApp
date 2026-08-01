@@ -9,13 +9,13 @@ import { formatCurrency } from '@/lib/debt-planner/format';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { EmptyState } from '@/components/shared/empty-state';
+import { SummaryCard } from '@/components/shared/summary-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
-import NumberTicker from '@/components/ui/number-ticker';
 import { Plus, Scale, Trash2, HandCoins, ArrowDownLeft, ArrowUpRight, CheckCircle2, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -136,51 +136,35 @@ export default function DebtsPage() {
         accent="Piutang"
         subtitle="Catatan utang pribadi ke orang lain, dan yang orang lain pinjam darimu"
         actions={
-          <Button variant="nexus-emerald" onClick={() => setIsDebtModalOpen(true)}>
+          <Button variant="primary" onClick={() => setIsDebtModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" /> Catatan baru
           </Button>
         }
       />
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-1">
-              <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
-                <ArrowUpRight className="w-3.5 h-3.5 text-rose-400" /> Total utangmu
-              </p>
-              <h2 className="text-2xl md:text-3xl font-semibold text-rose-400 tracking-tight">
-                <NumberTicker value={totalOwe} formatter={(v) => formatCurrency(v)} />
-              </h2>
-              <p className="text-xs text-[var(--nexus-text-muted)]">Yang masih harus kamu bayar</p>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shrink-0">
-              <ArrowUpRight className="w-5 h-5" />
-            </div>
-          </div>
-        </Card>
+        <SummaryCard
+          label="Total utangmu"
+          labelIcon={ArrowUpRight}
+          value={totalOwe}
+          tone="danger"
+          hint="Yang masih harus kamu bayar"
+          icon={ArrowUpRight}
+        />
 
-        <Card>
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-1">
-              <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
-                <ArrowDownLeft className="w-3.5 h-3.5 text-[var(--nexus-emerald)]" /> Total piutang
-              </p>
-              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--nexus-emerald)] tracking-tight">
-                <NumberTicker value={totalLend} formatter={(v) => formatCurrency(v)} />
-              </h2>
-              <p className="text-xs text-[var(--nexus-text-muted)]">Yang belum dikembalikan ke kamu</p>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
-              <ArrowDownLeft className="w-5 h-5" />
-            </div>
-          </div>
-        </Card>
+        <SummaryCard
+          label="Total piutang"
+          labelIcon={ArrowDownLeft}
+          value={totalLend}
+          tone="emerald"
+          hint="Yang belum dikembalikan ke kamu"
+          icon={ArrowDownLeft}
+        />
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          [1, 2, 3].map((n) => <div key={n} className="h-56 rounded-2xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
+          [1, 2, 3].map((n) => <div key={n} className="h-56 rounded-2xl border border-line bg-surface animate-pulse" />)
         ) : debts.length === 0 ? (
           <EmptyState
             className="md:col-span-2 lg:col-span-3"
@@ -207,17 +191,17 @@ export default function DebtsPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ y: -6 }}
                 >
-                  <Card className="h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] flex flex-col justify-between">
+                  <Card className="h-full border-line bg-surface flex flex-col justify-between">
                     <div className="space-y-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1 min-w-0">
-                          <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate">{debt.name}</h4>
+                          <h4 className="text-lg font-semibold text-text-primary tracking-tight truncate">{debt.name}</h4>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full border ${isOwe ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-[var(--nexus-emerald)] bg-[var(--nexus-emerald-glow)] border-[var(--nexus-emerald-border)]'}`}>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full border ${isOwe ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-primary bg-primary-glow border-primary-border'}`}>
                               {isOwe ? 'Utang' : 'Piutang'}
                             </span>
                             {debt.due_date && (
-                              <span className="flex items-center gap-1 text-[10px] text-[var(--nexus-text-muted)]">
+                              <span className="flex items-center gap-1 text-[10px] text-text-muted">
                                 <Calendar className="w-3 h-3" />
                                 {new Date(debt.due_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                               </span>
@@ -226,7 +210,7 @@ export default function DebtsPage() {
                         </div>
                         <button
                           onClick={() => handleDeleteDebt(debt.id)}
-                          className="p-2.5 rounded-xl bg-[var(--nexus-bg-panel)] hover:bg-rose-500/20 text-[var(--nexus-text-muted)] hover:text-rose-400 transition-all border border-[var(--nexus-glass-border)] cursor-pointer shrink-0"
+                          className="p-2.5 rounded-xl bg-surface hover:bg-rose-500/20 text-text-muted hover:text-rose-400 transition-all border border-line cursor-pointer shrink-0"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -234,32 +218,32 @@ export default function DebtsPage() {
 
                       <div className="space-y-2">
                         <div className="flex justify-between text-[10px] font-semibold">
-                          <span className="text-[var(--nexus-text-muted)]">Terbayar</span>
-                          <span className="text-[var(--nexus-text-primary)]">{Math.round(progress)}%</span>
+                          <span className="text-text-muted">Terbayar</span>
+                          <span className="text-text-primary">{Math.round(progress)}%</span>
                         </div>
-                        <div className="h-2 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)]">
+                        <div className="h-2 w-full bg-surface rounded-full overflow-hidden border border-line">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
-                            className={`h-full ${isOwe ? 'bg-rose-500' : 'bg-[var(--nexus-emerald)]'}`}
+                            className={`h-full ${isOwe ? 'bg-rose-500' : 'bg-primary'}`}
                           />
                         </div>
-                        <div className="flex justify-between text-[11px] font-semibold text-[var(--nexus-text-primary)] tracking-tight">
+                        <div className="flex justify-between text-[11px] font-semibold text-text-primary tracking-tight">
                           <span>Sisa {formatCurrency(remaining, debt.currency || 'IDR')}</span>
-                          <span className="text-[var(--nexus-text-muted)]">{formatCurrency(total, debt.currency || 'IDR')}</span>
+                          <span className="text-text-muted">{formatCurrency(total, debt.currency || 'IDR')}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-5 border-t border-[var(--nexus-glass-border)]">
+                    <div className="mt-6 pt-5 border-t border-line">
                       {settled ? (
-                        <div className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] text-[var(--nexus-emerald)] text-xs font-semibold">
+                        <div className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary-glow border border-primary-border text-primary text-xs font-semibold">
                           <CheckCircle2 className="w-4 h-4" /> Lunas
                         </div>
                       ) : (
                         <Button
                           variant="outline"
-                          className="w-full rounded-2xl border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] text-xs py-5"
+                          className="w-full rounded-2xl border-line bg-surface text-xs py-5"
                           disabled={wallets.length === 0}
                           onClick={() => handleOpenPayment(debt)}
                         >
@@ -278,13 +262,13 @@ export default function DebtsPage() {
 
       <Modal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} title="Catatan utang baru">
         <form onSubmit={handleCreateDebt} className="space-y-5">
-          <div className="grid grid-cols-2 gap-2 p-1.5 bg-[var(--nexus-bg-panel)] rounded-xl border border-[var(--nexus-glass-border)]">
+          <div className="grid grid-cols-2 gap-2 p-1.5 bg-surface rounded-xl border border-line">
             {([['owe', 'Saya berutang'], ['lend', 'Saya meminjamkan']] as const).map(([v, label]) => (
               <button
                 key={v}
                 type="button"
                 onClick={() => setDebtType(v)}
-                className={`py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${debtType === v ? 'bg-[var(--nexus-emerald)] text-white' : 'text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)]'}`}
+                className={`py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${debtType === v ? 'bg-primary text-white' : 'text-text-muted hover:text-text-primary'}`}
               >
                 {label}
               </button>
@@ -308,16 +292,16 @@ export default function DebtsPage() {
 
           <div className="flex gap-3 pt-2">
             <Button variant="outline" type="button" className="flex-1" onClick={() => setIsDebtModalOpen(false)}>Batal</Button>
-            <Button type="submit" variant="nexus-emerald" loading={submitting} className="flex-1">Simpan</Button>
+            <Button type="submit" variant="primary" loading={submitting} className="flex-1">Simpan</Button>
           </div>
         </form>
       </Modal>
 
       <Modal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} title={selectedDebt?.type === 'lend' ? 'Catat penerimaan' : 'Catat pembayaran'}>
         <form onSubmit={handlePaymentSubmit} className="space-y-5">
-          <div className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)]">
-            <p className="text-xs text-[var(--nexus-text-muted)]">Sisa</p>
-            <p className="text-lg font-semibold text-[var(--nexus-text-primary)]">
+          <div className="p-4 rounded-2xl bg-surface border border-line">
+            <p className="text-xs text-text-muted">Sisa</p>
+            <p className="text-lg font-semibold text-text-primary">
               {selectedDebt ? formatCurrency(Number(selectedDebt.remaining_amount), selectedDebt.currency || 'IDR') : '-'}
             </p>
           </div>
@@ -334,7 +318,7 @@ export default function DebtsPage() {
 
           <div className="flex gap-3 pt-2">
             <Button variant="outline" type="button" className="flex-1" onClick={() => setIsPayModalOpen(false)}>Batal</Button>
-            <Button type="submit" variant="nexus-emerald" loading={submitting} className="flex-1">Simpan</Button>
+            <Button type="submit" variant="primary" loading={submitting} className="flex-1">Simpan</Button>
           </div>
         </form>
       </Modal>

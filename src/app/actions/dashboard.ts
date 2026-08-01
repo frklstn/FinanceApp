@@ -40,7 +40,7 @@ export async function getDashboardData(range: DashboardRange) {
   });
 
   const [insightData, convertedBalances] = await Promise.all([
-    insightsService.generateInsights(accountId, { prefetchedTransactions: txs }),
+    insightsService.generateInsights(accountId, txs),
     Promise.all(wallets.map((w) => currencyService.convert(Number(w.balance), w.currency || 'IDR', 'IDR'))),
   ]);
 

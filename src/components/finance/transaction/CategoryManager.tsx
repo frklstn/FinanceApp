@@ -85,7 +85,7 @@ export function CategoryManagerModal({ isOpen, onClose, onChanged }: CategoryMan
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Kelola kategori">
       <div className="space-y-6">
-        <form onSubmit={handleSave} className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-4">
+        <form onSubmit={handleSave} className="p-4 rounded-2xl bg-surface border border-line space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Nama kategori" value={name} onChange={(e) => setName(e.target.value)} required />
             <Select
@@ -122,16 +122,16 @@ export function CategoryManagerModal({ isOpen, onClose, onChanged }: CategoryMan
 
         <div className="max-h-[300px] overflow-y-auto space-y-2 pr-2">
           {loading ? (
-            <div className="h-20 rounded-xl bg-[var(--nexus-bg-panel)] animate-pulse" />
+            <div className="h-20 rounded-xl bg-surface animate-pulse" />
           ) : categories.length === 0 ? (
-            <p className="py-6 text-center text-xs text-[var(--nexus-text-muted)]">Belum ada kategori.</p>
+            <p className="py-6 text-center text-xs text-text-muted">Belum ada kategori.</p>
           ) : (
             categories.map((cat) => (
-              <div key={cat.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] group">
+              <div key={cat.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-line group">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                  <span className="text-sm font-medium text-[var(--nexus-text-primary)] truncate">{cat.name}</span>
-                  <span className="text-[10px] text-[var(--nexus-text-muted)] shrink-0">{cat.type}</span>
+                  <span className="text-sm font-medium text-text-primary truncate">{cat.name}</span>
+                  <span className="text-[10px] text-text-muted shrink-0">{cat.type}</span>
                 </div>
                 {/* Kategori bawaan (workspace_id NULL) dipakai bersama semua akun,
                     jadi tidak disediakan tombol ubah/hapus untuk pengguna. */}
@@ -139,13 +139,13 @@ export function CategoryManagerModal({ isOpen, onClose, onChanged }: CategoryMan
                   <div className="flex items-center gap-1 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => { setEditingCategory(cat); setName(cat.name); setType(cat.type as 'income' | 'expense'); setColor(cat.color || '#a8532f'); }}
-                      className="p-1.5 text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] cursor-pointer"
+                      className="p-1.5 text-text-muted hover:text-text-primary cursor-pointer"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(cat.id)}
-                      className="p-1.5 text-[var(--nexus-text-muted)] hover:text-rose-400 cursor-pointer"
+                      className="p-1.5 text-text-muted hover:text-rose-400 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

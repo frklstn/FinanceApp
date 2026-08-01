@@ -25,8 +25,8 @@ import {
   Wallet as WalletIcon,
   Activity
 } from 'lucide-react';
-import NumberTicker from '@/components/ui/number-ticker';
 import { PageHeader } from '@/components/shared/layout/page-header';
+import { SummaryCard } from '@/components/shared/summary-card';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   getWalletsData,
@@ -168,10 +168,10 @@ export default function WalletsPage() {
               disabled={wallets.length < 2}
               onClick={() => setIsTransferModalOpen(true)}
             >
-              <ArrowRightLeft className="w-4 h-4 mr-2 text-[var(--nexus-emerald)]" /> {t('wallets.transfer', 'Pindahkan')}
+              <ArrowRightLeft className="w-4 h-4 mr-2 text-primary" /> {t('wallets.transfer', 'Pindahkan')}
             </Button>
             <Button
-              variant="nexus-emerald"
+              variant="primary"
               className="flex-1 md:flex-none"
               onClick={() => { setEditingWallet(null); setName(''); setBalance('0'); setType('cash'); setCurrency('IDR'); setIsWalletModalOpen(true); }}
             >
@@ -182,29 +182,17 @@ export default function WalletsPage() {
       />
 
       <section>
-        <Card>
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-1">
-              <p className="text-xs text-[var(--nexus-text-secondary)]">
-                {t('wallets.cumulativeLiquidity', 'Total saldo')}
-              </p>
-              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">
-                <NumberTicker value={totalBalance} formatter={formatCurrency} />
-              </h2>
-              <p className="text-xs text-[var(--nexus-text-muted)]">
-                {t('wallets.synchronized', '{count} dompet aktif').replace('{count}', String(wallets.length))}
-              </p>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
-              <WalletIcon className="w-5 h-5" />
-            </div>
-          </div>
-        </Card>
+        <SummaryCard
+          label={t('wallets.cumulativeLiquidity', 'Total saldo')}
+          value={totalBalance}
+          hint={t('wallets.synchronized', '{count} dompet aktif').replace('{count}', String(wallets.length))}
+          icon={WalletIcon}
+        />
       </section>
 
       {wallets.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-sm text-[var(--nexus-text-muted)]">
+          <p className="text-sm text-text-muted">
             {t('wallets.empty', 'Belum ada dompet. Bikin satu dulu buat mulai mencatat transaksi.')}
           </p>
         </Card>
@@ -221,28 +209,28 @@ export default function WalletsPage() {
                 whileHover={{ y: -8 }}
                 className="relative group h-full"
               >
-                <Card className="h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between">
+                <Card className="h-full border-line bg-surface hover:bg-surface transition-all flex flex-col justify-between">
                   <div className="flex items-start justify-between mb-5">
-                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] flex items-center justify-center shadow-inner relative overflow-hidden" style={{ boxShadow: `inset 0 0 30px ${wallet.color}25` }}>
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-surface border border-line flex items-center justify-center shadow-inner relative overflow-hidden" style={{ boxShadow: `inset 0 0 30px ${wallet.color}25` }}>
                       <div className="absolute inset-0 blur-2xl opacity-20" style={{ backgroundColor: wallet.color }} />
                       {getWalletIcon(wallet.type, wallet.color)}
                     </div>
                     {/* Selalu tampak di layar sentuh: hover tidak ada di hp, jadi
                         opacity-0 membuat tombol ubah & hapus mustahil disentuh. */}
                     <div className="flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition-all md:translate-y-[-10px] md:group-hover:translate-y-0">
-                      <button onClick={() => { setEditingWallet(wallet); setName(wallet.name); setType(wallet.type); setBalance(wallet.balance.toString()); setColor(wallet.color); setIcon(wallet.icon); setCurrency(wallet.currency || 'IDR'); setIsWalletModalOpen(true); }} className="p-3 rounded-2xl bg-[var(--nexus-bg-panel)] hover:bg-[var(--nexus-emerald-glow)] text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] transition-all shadow-xl"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={() => handleDeleteWallet(wallet.id)} className="p-3 rounded-2xl bg-[var(--nexus-bg-panel)] hover:bg-rose-500/20 text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] transition-all shadow-xl"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => { setEditingWallet(wallet); setName(wallet.name); setType(wallet.type); setBalance(wallet.balance.toString()); setColor(wallet.color); setIcon(wallet.icon); setCurrency(wallet.currency || 'IDR'); setIsWalletModalOpen(true); }} className="p-3 rounded-2xl bg-surface hover:bg-primary-glow text-text-muted hover:text-text-primary transition-all shadow-xl"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => handleDeleteWallet(wallet.id)} className="p-3 rounded-2xl bg-surface hover:bg-rose-500/20 text-text-muted hover:text-text-primary transition-all shadow-xl"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight mb-1 truncate">{wallet.name}</h4>
-                      <span className="text-xs text-[var(--nexus-text-muted)]">{wallet.type}</span>
+                      <h4 className="text-lg font-semibold text-text-primary tracking-tight mb-1 truncate">{wallet.name}</h4>
+                      <span className="text-xs text-text-muted">{wallet.type}</span>
                     </div>
 
-                    <div className="pt-4 border-t border-[var(--nexus-glass-border)] space-y-1.5">
-                      <span className="text-xs text-[var(--nexus-text-muted)]">{t('wallets.availableLiquidity', 'Saldo tersedia')}</span>
-                      <p className="text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight leading-none">
+                    <div className="pt-4 border-t border-line space-y-1.5">
+                      <span className="text-xs text-text-muted">{t('wallets.availableLiquidity', 'Saldo tersedia')}</span>
+                      <p className="text-2xl md:text-3xl font-semibold text-text-primary tracking-tight leading-none">
                         {formatCurrency(Number(wallet.balance), wallet.currency || 'IDR')}
                       </p>
                     </div>
@@ -256,7 +244,7 @@ export default function WalletsPage() {
 
       <Modal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} title={editingWallet ? t('wallets.modal.editTitle', 'Ubah dompet') : t('wallets.modal.addTitle', 'Dompet baru')}>
         <form onSubmit={handleSaveWallet} className="space-y-5">
-          <Input label={t('wallets.modal.label', 'Nama dompet')} placeholder="mis. BCA, Dana, Dompet tunai" value={name} onChange={(e) => setName(e.target.value)} required className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+          <Input label={t('wallets.modal.label', 'Nama dompet')} placeholder="mis. BCA, Dana, Dompet tunai" value={name} onChange={(e) => setName(e.target.value)} required className="bg-surface border-line" />
 
           <Select
             label={t('wallets.modal.classification', 'Jenis dompet')}
@@ -269,23 +257,23 @@ export default function WalletsPage() {
             ]}
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]"
+            className="bg-surface border-line"
           />
 
-          <Select label={t('wallets.modal.currency', 'Mata uang')} options={SUPPORTED_CURRENCIES.map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` }))} value={currency} onChange={(e) => setCurrency(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+          <Select label={t('wallets.modal.currency', 'Mata uang')} options={SUPPORTED_CURRENCIES.map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` }))} value={currency} onChange={(e) => setCurrency(e.target.value)} className="bg-surface border-line" />
 
           {!editingWallet && (
             <div className="space-y-2">
-              <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]">{t('wallets.modal.initialMagnitude', 'Saldo awal ({currency})').replace('{currency}', currency)}</label>
+              <label className="text-[10px] font-semibold text-text-muted">{t('wallets.modal.initialMagnitude', 'Saldo awal ({currency})').replace('{currency}', currency)}</label>
               <div className="relative">
-                <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--nexus-emerald)]" />
-                <Input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
+                <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                <Input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} required className="pl-11 bg-surface border-line text-lg font-semibold tracking-tight" />
               </div>
             </div>
           )}
 
           <div className="space-y-4">
-            <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]">{t('wallets.modal.visualFrequency', 'Warna')}</label>
+            <label className="text-[10px] font-semibold text-text-muted">{t('wallets.modal.visualFrequency', 'Warna')}</label>
             <div className="flex flex-wrap gap-4">
               {/* Palet bersahaja selaras aksen terracotta; pelangi generik lama
                   (indigo/hijau/biru terang) bentrok dengan bahasa desain. */}
@@ -296,8 +284,8 @@ export default function WalletsPage() {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <Button variant="outline" type="button" className="flex-1 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)]" onClick={() => setIsWalletModalOpen(false)}>{t('common.cancel', 'Batal')}</Button>
-            <Button type="submit" loading={submitting} className="flex-1 bg-[var(--nexus-emerald)] hover:bg-[var(--nexus-emerald)] border-none">
+            <Button variant="outline" type="button" className="flex-1 border-line bg-surface" onClick={() => setIsWalletModalOpen(false)}>{t('common.cancel', 'Batal')}</Button>
+            <Button type="submit" loading={submitting} className="flex-1 bg-primary hover:bg-primary border-none">
               {editingWallet ? t('wallets.modal.submitEdit', 'Simpan perubahan') : t('wallets.modal.submitAdd', 'Simpan dompet')}
             </Button>
           </div>
@@ -316,7 +304,7 @@ export default function WalletsPage() {
               value={sourceId}
               onChange={(e) => setSourceId(e.target.value)}
               required
-              className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]"
+              className="bg-surface border-line"
             />
             <Select
               label={t('wallets.modal.destinationNode', 'Dompet tujuan')}
@@ -327,15 +315,15 @@ export default function WalletsPage() {
               value={destId}
               onChange={(e) => setDestId(e.target.value)}
               required
-              className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]"
+              className="bg-surface border-line"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]">{t('wallets.modal.relocationMagnitude', 'Jumlah ({currency})').replace('{currency}', wallets.find(w => w.id === sourceId)?.currency || 'IDR')}</label>
+            <label className="text-[10px] font-semibold text-text-muted">{t('wallets.modal.relocationMagnitude', 'Jumlah ({currency})').replace('{currency}', wallets.find(w => w.id === sourceId)?.currency || 'IDR')}</label>
             <div className="relative">
-              <ArrowRightLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--nexus-emerald)]" />
-              <Input type="number" min="1" value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
+              <ArrowRightLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+              <Input type="number" min="1" value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} required className="pl-11 bg-surface border-line text-lg font-semibold tracking-tight" />
             </div>
           </div>
 
@@ -344,12 +332,12 @@ export default function WalletsPage() {
             placeholder={t('wallets.modal.protocolLogPlaceholder', 'Keterangan transfer...')}
             value={transferNote}
             onChange={(e) => setTransferNote(e.target.value)}
-            className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]"
+            className="bg-surface border-line"
           />
 
           <div className="flex gap-3 pt-2">
-            <Button variant="outline" type="button" className="flex-1 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)]" onClick={() => setIsTransferModalOpen(false)}>{t('common.cancel', 'Batal')}</Button>
-            <Button type="submit" loading={submitting} className="flex-1 bg-[var(--nexus-emerald)] hover:bg-[var(--nexus-emerald)] border-none">
+            <Button variant="outline" type="button" className="flex-1 border-line bg-surface" onClick={() => setIsTransferModalOpen(false)}>{t('common.cancel', 'Batal')}</Button>
+            <Button type="submit" loading={submitting} className="flex-1 bg-primary hover:bg-primary border-none">
               {t('wallets.modal.executeRelocation', 'Pindahkan')}
             </Button>
           </div>

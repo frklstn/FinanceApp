@@ -1,6 +1,5 @@
 import "server-only";
 import { query } from '@/lib/db/server';
-import { SUPPORTED_CURRENCIES } from '@/lib/currencies';
 
 export const currencyService = {
   async convert(amount: number, from: string, to: string): Promise<number> {
@@ -15,7 +14,4 @@ export const currencyService = {
     return amount * Number(rows[0].rate);
   },
 
-  getSupportedCurrencies() {
-    return SUPPORTED_CURRENCIES;
-  }
 };

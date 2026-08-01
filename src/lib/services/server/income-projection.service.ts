@@ -29,7 +29,4 @@ export const incomeProjectionService = {
     return { ...rows[0], currency: rows[0].currency ?? 'IDR' };
   },
 
-  async deleteEntry(id: string): Promise<void> {
-    await query('DELETE FROM income_timeline WHERE id = $1', [id]);
-  },
 };

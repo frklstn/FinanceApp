@@ -10,6 +10,7 @@ import type { IncomeTimelineEntry, LoanTracker, SalaryPeriod } from '@/lib/debt-
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/layout/page-header';
 import { EmptyState } from '@/components/shared/empty-state';
+import { SummaryCard } from '@/components/shared/summary-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -18,7 +19,6 @@ import { useToast } from '@/components/ui/toast';
 import {
   Plus, PiggyBank, Trash2, ShieldCheck, AlertCircle, Zap, PieChart, TrendingDown, ShieldAlert, X,
 } from 'lucide-react';
-import NumberTicker from '@/components/ui/number-ticker';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getBudgetsData, saveBudgetsAction, deleteBudgetAction } from '@/app/actions/budget';
 
@@ -137,9 +137,9 @@ export default function BudgetsPage() {
               options={periods.map((p: SalaryPeriod, i: number) => ({ value: i.toString(), label: p.label }))}
               value={selectedPeriodIndex.toString()}
               onChange={(e) => setSelectedPeriodIndex(parseInt(e.target.value))}
-              className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] py-2.5 h-auto text-xs min-w-[200px]"
+              className="bg-surface border-line py-2.5 h-auto text-xs min-w-[200px]"
             />
-            <Button variant="nexus-emerald" disabled={categories.length === 0} onClick={() => setIsModalOpen(true)}>
+            <Button variant="primary" disabled={categories.length === 0} onClick={() => setIsModalOpen(true)}>
               <Plus className="w-4 h-4 mr-2" /> Atur
             </Button>
           </>
@@ -147,53 +147,30 @@ export default function BudgetsPage() {
       />
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-1">
-              <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
-                <PieChart className="w-3.5 h-3.5 text-[var(--nexus-emerald)]" /> Anggaran terpakai • {currentPeriod.label}
-              </p>
-              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">
-                <NumberTicker value={totalSpent} formatter={(v) => formatCurrency(v)} />
-              </h2>
-              <p className="text-xs text-[var(--nexus-text-muted)]">
-                Alokasi maksimal: {formatCurrency(totalBudget)}
-              </p>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex items-center justify-center text-[var(--nexus-emerald)] shrink-0">
-              <TrendingDown className="w-5 h-5" />
-            </div>
-          </div>
-        </Card>
+        <SummaryCard
+          className="lg:col-span-2"
+          label={`Anggaran terpakai • ${currentPeriod.label}`}
+          labelIcon={PieChart}
+          value={totalSpent}
+          hint={`Alokasi maksimal: ${formatCurrency(totalBudget)}`}
+          icon={TrendingDown}
+        />
 
-        {/* Anatomi disamakan dengan kartu di sebelahnya: label, angka, catatan,
-            ikon di kanan. */}
-        <Card>
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-1">
-              <p className="flex items-center gap-2 text-xs text-[var(--nexus-text-secondary)]">
-                {totalRemaining < 0 ? <ShieldAlert className="w-3.5 h-3.5 text-rose-400" /> : <ShieldCheck className="w-3.5 h-3.5 text-[var(--nexus-emerald)]" />}
-                Sisa anggaran
-              </p>
-              <h2 className={`text-2xl md:text-3xl font-semibold tracking-tight ${totalRemaining < 0 ? 'text-rose-400' : 'text-[var(--nexus-emerald)]'}`}>
-                {formatCurrency(totalRemaining)}
-              </h2>
-              <p className="text-xs text-[var(--nexus-text-muted)]">
-                {totalRemaining < 0
-                  ? 'Total anggaran terlampaui. Segera sesuaikan alokasi.'
-                  : 'Laju pengeluaran masih dalam batas anggaran.'}
-              </p>
-            </div>
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${totalRemaining < 0 ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)] border-[var(--nexus-emerald-border)]'}`}>
-              {totalRemaining < 0 ? <ShieldAlert className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
-            </div>
-          </div>
-        </Card>
+        <SummaryCard
+          label="Sisa anggaran"
+          labelIcon={totalRemaining < 0 ? ShieldAlert : ShieldCheck}
+          value={totalRemaining}
+          tone={totalRemaining < 0 ? 'danger' : 'emerald'}
+          hint={totalRemaining < 0
+            ? 'Total anggaran terlampaui. Segera sesuaikan alokasi.'
+            : 'Laju pengeluaran masih dalam batas anggaran.'}
+          icon={totalRemaining < 0 ? ShieldAlert : ShieldCheck}
+        />
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          [1, 2, 3].map((n) => <div key={n} className="h-48 rounded-2xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] animate-pulse" />)
+          [1, 2, 3].map((n) => <div key={n} className="h-48 rounded-2xl border border-line bg-surface animate-pulse" />)
         ) : budgets.length === 0 ? (
           <EmptyState
             className="md:col-span-2 lg:col-span-3"
@@ -222,18 +199,18 @@ export default function BudgetsPage() {
                   whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <Card className="h-full border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] transition-all flex flex-col justify-between">
+                  <Card className="h-full border-line bg-surface transition-all flex flex-col justify-between">
                     <div className="space-y-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-3.5 h-3.5 rounded-full shrink-0 border border-[var(--nexus-glass-border)]" style={{ backgroundColor: b.categories?.color || 'var(--nexus-emerald)' }} />
-                          <h4 className="text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight truncate">
+                          <div className="w-3.5 h-3.5 rounded-full shrink-0 border border-line" style={{ backgroundColor: b.categories?.color || 'var(--primary)' }} />
+                          <h4 className="text-lg font-semibold text-text-primary tracking-tight truncate">
                             {b.categories?.name}
                           </h4>
                         </div>
                         <button
                           onClick={() => handleDelete(b.id)}
-                          className="p-2.5 rounded-xl bg-[var(--nexus-bg-panel)] hover:bg-rose-500/20 text-[var(--nexus-text-muted)] hover:text-rose-400 transition-all border border-[var(--nexus-glass-border)] cursor-pointer shrink-0"
+                          className="p-2.5 rounded-xl bg-surface hover:bg-rose-500/20 text-text-muted hover:text-rose-400 transition-all border border-line cursor-pointer shrink-0"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -241,30 +218,30 @@ export default function BudgetsPage() {
 
                       <div className="space-y-3">
                         <div className="flex justify-between items-end text-[10px] font-semibold">
-                          <span className="text-[var(--nexus-text-muted)]">Terpakai</span>
-                          <span className={isOver ? 'text-rose-400' : 'text-[var(--nexus-text-primary)]'}>{Math.round(progress)}%</span>
+                          <span className="text-text-muted">Terpakai</span>
+                          <span className={isOver ? 'text-rose-400' : 'text-text-primary'}>{Math.round(progress)}%</span>
                         </div>
-                        <div className="h-2 w-full bg-[var(--nexus-bg-panel)] rounded-full overflow-hidden border border-[var(--nexus-glass-border)]">
+                        <div className="h-2 w-full bg-surface rounded-full overflow-hidden border border-line">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
-                            className={`h-full rounded-full ${isOver ? 'bg-rose-500' : progress > 80 ? 'bg-amber-500' : 'bg-[var(--nexus-emerald)]'}`}
+                            className={`h-full rounded-full ${isOver ? 'bg-rose-500' : progress > 80 ? 'bg-amber-500' : 'bg-primary'}`}
                           />
                         </div>
-                        <div className="flex justify-between text-[13px] font-semibold text-[var(--nexus-text-primary)] tracking-tight">
+                        <div className="flex justify-between text-[13px] font-semibold text-text-primary tracking-tight">
                           <span>{formatCurrency(spent, b.currency || 'IDR')}</span>
-                          <span className="text-[var(--nexus-text-muted)]">{formatCurrency(limit, b.currency || 'IDR')}</span>
+                          <span className="text-text-muted">{formatCurrency(limit, b.currency || 'IDR')}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-[var(--nexus-glass-border)] flex items-center gap-2">
+                    <div className="mt-8 pt-6 border-t border-line flex items-center gap-2">
                       {isOver ? (
                         <div className="flex items-center gap-2 text-[10px] font-semibold text-rose-400 bg-rose-500/5 px-4 py-2.5 rounded-xl border border-rose-500/10 w-full justify-center">
                           <AlertCircle className="w-3.5 h-3.5" /> Lebih {formatCurrency(Math.abs(remaining), b.currency || 'IDR')}
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--nexus-emerald)] bg-[var(--nexus-emerald-glow)] px-4 py-2.5 rounded-xl border border-[var(--nexus-emerald-border)] w-full justify-center">
+                        <div className="flex items-center gap-2 text-[10px] font-semibold text-primary bg-primary-glow px-4 py-2.5 rounded-xl border border-primary-border w-full justify-center">
                           <Zap className="w-3.5 h-3.5" /> Sisa {formatCurrency(remaining, b.currency || 'IDR')}
                         </div>
                       )}
@@ -280,20 +257,20 @@ export default function BudgetsPage() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Atur anggaran">
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
-              <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]">Perkiraan pemasukan</label>
-              <div className="text-xl font-semibold text-[var(--nexus-text-primary)] tracking-tight">{formatCurrency(currentIncome)}</div>
+            <div className="p-4 rounded-2xl bg-surface border border-line space-y-1">
+              <label className="text-[10px] font-semibold text-text-muted">Perkiraan pemasukan</label>
+              <div className="text-xl font-semibold text-text-primary tracking-tight">{formatCurrency(currentIncome)}</div>
             </div>
-            <div className="p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)] space-y-1">
-              <label className="text-[10px] font-semibold text-[var(--nexus-text-muted)]">Kewajiban tagihan</label>
+            <div className="p-4 rounded-2xl bg-surface border border-line space-y-1">
+              <label className="text-[10px] font-semibold text-text-muted">Kewajiban tagihan</label>
               <div className="text-xl font-semibold text-rose-400 tracking-tight">-{formatCurrency(currentDebt)}</div>
             </div>
-            <div className="md:col-span-2 p-4 rounded-2xl bg-[var(--nexus-emerald-glow)] border border-[var(--nexus-emerald-border)] flex justify-between items-center gap-4">
+            <div className="md:col-span-2 p-4 rounded-2xl bg-primary-glow border border-primary-border flex justify-between items-center gap-4">
               <div className="space-y-0.5">
-                <label className="text-[10px] font-semibold text-[var(--nexus-emerald)]">Batas aman</label>
-                <p className="text-[10px] text-[var(--nexus-text-muted)]">Tersedia untuk dialokasikan</p>
+                <label className="text-[10px] font-semibold text-primary">Batas aman</label>
+                <p className="text-[10px] text-text-muted">Tersedia untuk dialokasikan</p>
               </div>
-              <div className={`text-xl font-semibold tracking-tight ${remainingLimit < 0 ? 'text-rose-400' : remainingLimit === 0 ? 'text-amber-500' : 'text-[var(--nexus-emerald)]'}`}>
+              <div className={`text-xl font-semibold tracking-tight ${remainingLimit < 0 ? 'text-rose-400' : remainingLimit === 0 ? 'text-amber-500' : 'text-primary'}`}>
                 {remainingLimit < 0
                   ? `-${formatCurrency(Math.abs(remainingLimit))}`
                   : formatCurrency(remainingLimit)}
@@ -307,7 +284,7 @@ export default function BudgetsPage() {
             </p>
           )}
 
-          <div className="flex items-end gap-3 bg-[var(--nexus-bg-panel)] p-4 rounded-2xl border border-[var(--nexus-glass-border)]">
+          <div className="flex items-end gap-3 bg-surface p-4 rounded-2xl border border-line">
             <div className="flex-1 min-w-0">
               <Select
                 label="Kategori"
@@ -328,7 +305,7 @@ export default function BudgetsPage() {
                 disabled={submitting}
               />
             </div>
-            <Button type="button" variant="nexus-emerald" onClick={handleAddToBatch} className="h-11 px-4 shrink-0">
+            <Button type="button" variant="primary" onClick={handleAddToBatch} className="h-11 px-4 shrink-0">
               <Plus className="w-4 h-4" />
             </Button>
           </div>
@@ -336,16 +313,16 @@ export default function BudgetsPage() {
           {pendingBudgets.length > 0 && (
             <div className="space-y-2">
               {pendingBudgets.map((b) => (
-                <div key={b.categoryId} className="flex items-center justify-between p-3 rounded-xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)]">
-                  <span className="text-sm text-[var(--nexus-text-primary)] truncate">{b.categoryName}</span>
+                <div key={b.categoryId} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-line">
+                  <span className="text-sm text-text-primary truncate">{b.categoryName}</span>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-sm font-semibold text-[var(--nexus-text-primary)]">{formatCurrency(b.amount)}</span>
+                    <span className="text-sm font-semibold text-text-primary">{formatCurrency(b.amount)}</span>
                     {/* Sebelumnya daftar ini tidak punya cara menghapus entri; salah
                         ketik berarti harus menutup modal dan mengulang dari awal. */}
                     <button
                       type="button"
                       onClick={() => setPendingBudgets((prev) => prev.filter((p) => p.categoryId !== b.categoryId))}
-                      className="p-1 text-[var(--nexus-text-muted)] hover:text-rose-400 cursor-pointer"
+                      className="p-1 text-text-muted hover:text-rose-400 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -357,7 +334,7 @@ export default function BudgetsPage() {
 
           <Button
             onClick={handleSaveAll}
-            variant="nexus-emerald"
+            variant="primary"
             loading={submitting}
             disabled={pendingBudgets.length === 0}
             className="w-full h-12 rounded-2xl"

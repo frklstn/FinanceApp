@@ -11,11 +11,11 @@ interface SubscriptionStatusProps {
 export function SubscriptionStatus({ plan, expiresAt }: SubscriptionStatusProps) {
   if (!plan || plan === 'free') {
     return (
-      <div className="flex items-center gap-3 p-4 rounded-2xl bg-[var(--nexus-bg-panel)] border border-[var(--nexus-glass-border)]">
+      <div className="flex items-center gap-3 p-4 rounded-2xl bg-surface border border-line">
         <AlertCircle className="w-5 h-5 text-amber-500" />
         <div className="text-xs">
-          <p className="font-bold text-[var(--nexus-text-primary)]">Akun Free</p>
-          <p className="text-[var(--nexus-text-secondary)]">Upgrade ke Pro untuk fitur tanpa batas.</p>
+          <p className="font-bold text-text-primary">Akun Free</p>
+          <p className="text-text-secondary">Upgrade ke Pro untuk fitur tanpa batas.</p>
         </div>
       </div>
     );
@@ -24,14 +24,14 @@ export function SubscriptionStatus({ plan, expiresAt }: SubscriptionStatusProps)
   const isExpired = expiresAt ? new Date(expiresAt) < new Date() : true;
   
   return (
-    <div className={`flex items-center gap-3 p-4 rounded-2xl border ${isExpired ? 'bg-rose-500/5 border-rose-500/20' : 'bg-[var(--nexus-emerald-glow)] border-[var(--nexus-emerald-border)]'}`}>
-      <Crown className={`w-5 h-5 ${isExpired ? 'text-rose-500' : 'text-[var(--nexus-emerald)]'}`} />
+    <div className={`flex items-center gap-3 p-4 rounded-2xl border ${isExpired ? 'bg-rose-500/5 border-rose-500/20' : 'bg-primary-glow border-primary-border'}`}>
+      <Crown className={`w-5 h-5 ${isExpired ? 'text-rose-500' : 'text-primary'}`} />
       <div className="text-xs">
-        <p className={`font-bold ${isExpired ? 'text-rose-500' : 'text-[var(--nexus-emerald)]'}`}>
+        <p className={`font-bold ${isExpired ? 'text-rose-500' : 'text-primary'}`}>
           Akun Pro {isExpired && '(Kadaluwarsa)'}
         </p>
         {expiresAt && !isExpired && (
-          <p className="text-[var(--nexus-text-secondary)]">Berakhir pada: {new Date(expiresAt).toLocaleDateString('id-ID')}</p>
+          <p className="text-text-secondary">Berakhir pada: {new Date(expiresAt).toLocaleDateString('id-ID')}</p>
         )}
       </div>
     </div>

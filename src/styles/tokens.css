@@ -2,10 +2,12 @@
  * SUMBER TUNGGAL PALET.
  *
  * Hex hanya boleh ditulis di file ini. Dua lapis di atasnya cuma memetakan:
- *   - global.css @theme inline  -> utility Tailwind (bg-primary, text-danger, ...)
- *   - nexus-theme/tokens.css    -> alias --nexus-* yang dipakai komponen lama
- * Sebelumnya tiap hex ditulis ulang di ketiga file, dan --primary di-set ganda
+ *   - global.css @theme inline -> utility Tailwind (bg-surface, text-muted, ...)
+ *   - components.css           -> kelas komponen (.app-card, .btn-primary)
+ * Sebelumnya tiap hex ditulis ulang di beberapa file, dan --primary di-set ganda
  * di tokens.css + global.css sehingga yang dimuat terakhir diam-diam menang.
+ * Lapisan alias --nexus-* sudah dibuang: komponen kini memakai utility Tailwind
+ * langsung, bukan variabel CSS mentah di dalam className.
  */
 
 @theme {
@@ -40,6 +42,7 @@
   --primary-dim: #8a4526;
   --primary-hover: #c2693f;
   --primary-glow: rgba(168, 83, 47, 0.15);
+  --primary-border: rgba(168, 83, 47, 0.26);
 
   /* Sinyal. success = aksen (hijau sudah dibuang dari palet). */
   --success: #a8532f;
@@ -75,6 +78,7 @@
   --primary-dim: #c2693f;
   --primary-hover: #eda684;
   --primary-glow: rgba(226, 145, 106, 0.2);
+  --primary-border: rgba(226, 145, 106, 0.26);
 
   --success: #e2916a;
   --danger: #fb7185;

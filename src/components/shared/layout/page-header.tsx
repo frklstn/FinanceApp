@@ -29,13 +29,13 @@ export function PageHeader({ title, accent, subtitle, actions }: PageHeaderProps
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="font-heading text-2xl md:text-3xl font-semibold text-[var(--nexus-text-primary)] tracking-tight"
+          className="font-heading text-2xl md:text-3xl font-semibold text-text-primary tracking-tight"
         >
           {title}
-          {accent ? <span className="text-[var(--nexus-emerald)]"> {accent}</span> : null}
+          {accent ? <span className="text-primary"> {accent}</span> : null}
         </motion.h1>
         {subtitle ? (
-          <p className="text-xs text-[var(--nexus-text-secondary)]">{subtitle}</p>
+          <p className="text-xs text-text-secondary">{subtitle}</p>
         ) : null}
       </div>
       {/* flex-wrap: tanpa ini deretan aksi yang lebih lebar dari layar hp

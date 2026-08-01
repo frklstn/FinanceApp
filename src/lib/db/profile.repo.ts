@@ -1,4 +1,4 @@
-import { query, withTransaction } from '@/lib/db/server';
+import { withTransaction } from '@/lib/db/server';
 
 export interface DbProfile {
   id: string;
@@ -20,34 +20,8 @@ export interface DbProfile {
   updated_at: string;
 }
 
-export async function createProfile(userId: string, email: string, fullName: string | null): Promise<DbProfile> {
-  const { rows } = await query(
-    `INSERT INTO profiles (id, email, full_name, language) VALUES ($1, $2, $3, 'id') RETURNING *`,
-    [userId, email, fullName]
-  );
-  return rows[0];
-}
 
-export async function getProfileById(userId: string): Promise<DbProfile | null> {
-  const { rows } = await query('SELECT * FROM profiles WHERE id = $1', [userId]);
-  return rows[0] || null;
-}
 
-export async function updateProfile(userId: string, data: Partial<Pick<DbProfile, 'full_name' | 'avatar_url' | 'language' | 'currency'>>): Promise<void> {
-  const fields: string[] = [];
-  const values: unknown[] = [];
-  let i = 1;
-  for (const [key, value] of Object.entries(data)) {
-    if (value !== undefined) {
-      fields.push(`${key} = $${i}`);
-      values.push(value);
-      i++;
-    }
-  }
-  if (fields.length === 0) return;
-  values.push(userId);
-  await query(`UPDATE profiles SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $${i}`, values);
-}
 
 export async function createWorkspaceForUser(userId: string, email: string, fullName: string | null): Promise<string> {
   return await withTransaction(async (client) => {

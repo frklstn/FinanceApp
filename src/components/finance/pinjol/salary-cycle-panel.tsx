@@ -63,8 +63,8 @@ export function SalaryCyclePanel({ salaryDay, currentForecast, onSaveSalaryDay, 
   return (
     <Card className="gap-4">
       <div className="flex items-center gap-2">
-        <CalendarClock className="w-4 h-4 text-[var(--nexus-emerald)]" />
-        <h3 className="font-heading text-base font-semibold tracking-tight text-[var(--nexus-text-primary)]">Siklus gajian</h3>
+        <CalendarClock className="w-4 h-4 text-primary" />
+        <h3 className="font-heading text-base font-semibold tracking-tight text-text-primary">Siklus gajian</h3>
       </div>
 
       {/* Tanggal gajian */}
@@ -81,7 +81,7 @@ export function SalaryCyclePanel({ salaryDay, currentForecast, onSaveSalaryDay, 
         </div>
         <Button type="button" variant="outline" size="sm" loading={savingDay} onClick={saveDay}>Simpan</Button>
         {currentForecast && (
-          <span className="text-xs text-[var(--nexus-text-muted)] pb-2">
+          <span className="text-xs text-text-muted pb-2">
             Periode berjalan: {currentForecast.period.label}
           </span>
         )}
@@ -89,24 +89,24 @@ export function SalaryCyclePanel({ salaryDay, currentForecast, onSaveSalaryDay, 
 
       {/* Ringkasan periode berjalan: gaji vs cicilan jatuh tempo sebelum gajian berikutnya */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] p-3">
-          <div className="flex items-center gap-1.5 text-xs text-[var(--nexus-text-secondary)]"><Wallet className="w-3.5 h-3.5" /> Gaji periode ini</div>
-          <p className="text-lg font-semibold text-[var(--nexus-text-primary)] tracking-tight mt-1">{formatCurrency(income)}</p>
+        <div className="rounded-xl border border-line bg-surface p-3">
+          <div className="flex items-center gap-1.5 text-xs text-text-secondary"><Wallet className="w-3.5 h-3.5" /> Gaji periode ini</div>
+          <p className="text-lg font-semibold text-text-primary tracking-tight mt-1">{formatCurrency(income)}</p>
         </div>
-        <div className="rounded-xl border border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)] p-3">
-          <div className="flex items-center gap-1.5 text-xs text-[var(--nexus-text-secondary)]"><TrendingDown className="w-3.5 h-3.5" /> Cicilan jatuh tempo</div>
+        <div className="rounded-xl border border-line bg-surface p-3">
+          <div className="flex items-center gap-1.5 text-xs text-text-secondary"><TrendingDown className="w-3.5 h-3.5" /> Cicilan jatuh tempo</div>
           <p className="text-lg font-semibold text-rose-400 tracking-tight mt-1">{formatCurrency(debt)}</p>
         </div>
-        <div className={`rounded-xl border p-3 ${cukup ? 'border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)]' : 'border-rose-500/30 bg-rose-500/10'}`}>
-          <div className="flex items-center gap-1.5 text-xs text-[var(--nexus-text-secondary)]">
-            {cukup ? <CheckCircle2 className="w-3.5 h-3.5 text-[var(--nexus-emerald)]" /> : <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />}
+        <div className={`rounded-xl border p-3 ${cukup ? 'border-primary-border bg-primary-glow' : 'border-rose-500/30 bg-rose-500/10'}`}>
+          <div className="flex items-center gap-1.5 text-xs text-text-secondary">
+            {cukup ? <CheckCircle2 className="w-3.5 h-3.5 text-primary" /> : <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />}
             {cukup ? 'Sisa setelah cicilan' : 'Kurang'}
           </div>
-          <p className={`text-lg font-semibold tracking-tight mt-1 ${cukup ? 'text-[var(--nexus-emerald)]' : 'text-rose-400'}`}>{formatCurrency(Math.abs(remaining))}</p>
+          <p className={`text-lg font-semibold tracking-tight mt-1 ${cukup ? 'text-primary' : 'text-rose-400'}`}>{formatCurrency(Math.abs(remaining))}</p>
         </div>
       </div>
 
-      <p className="text-xs text-[var(--nexus-text-muted)]">
+      <p className="text-xs text-text-muted">
         {income === 0
           ? 'Isi gaji periode ini agar tahu cukup atau tidak untuk semua cicilan.'
           : cukup
@@ -115,7 +115,7 @@ export function SalaryCyclePanel({ salaryDay, currentForecast, onSaveSalaryDay, 
       </p>
 
       {/* Perbarui gaji (potongan/bonus) */}
-      <div className="flex flex-wrap items-end gap-3 pt-3 border-t border-[var(--nexus-glass-border)]">
+      <div className="flex flex-wrap items-end gap-3 pt-3 border-t border-line">
         <div className="flex-1 min-w-[140px]">
           <Input
             label="Perbarui gaji (Rp)"
@@ -129,7 +129,7 @@ export function SalaryCyclePanel({ salaryDay, currentForecast, onSaveSalaryDay, 
         <div className="w-40">
           <Input label="Berlaku sejak" type="date" value={incomeDate} onChange={(e) => setIncomeDate(e.target.value)} />
         </div>
-        <Button type="button" variant="nexus-emerald" size="sm" loading={savingIncome} onClick={saveIncome}>Simpan gaji</Button>
+        <Button type="button" variant="primary" size="sm" loading={savingIncome} onClick={saveIncome}>Simpan gaji</Button>
       </div>
     </Card>
   );

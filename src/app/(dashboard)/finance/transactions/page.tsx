@@ -225,10 +225,10 @@ function TransactionsContent() {
               className="flex-1 md:flex-none"
               onClick={() => setIsCategoryModalOpen(true)}
             >
-              <Tags className="w-4 h-4 mr-2 text-[var(--nexus-emerald)]" /> Kategori
+              <Tags className="w-4 h-4 mr-2 text-primary" /> Kategori
             </Button>
             <Button
-              variant="nexus-emerald"
+              variant="primary"
               className="flex-1 md:flex-none"
               disabled={wallets.length === 0}
               onClick={() => { resetForm(); setIsModalOpen(true); }}
@@ -243,16 +243,16 @@ function TransactionsContent() {
         {/* Bar filter penuh di atas -- sebelumnya sidebar sempit 1/4 lebar yang
             memotong label select di desktop. Search penuh; Tipe/Dompet/Mulai/
             Selesai empat kolom di desktop, dua kolom (2x2) di hp. */}
-        <Card className="p-4 gap-3 border-[var(--nexus-glass-border)]">
+        <Card className="p-4 gap-3 border-line">
           <div className="flex items-center justify-between">
-            <h3 className="flex items-center gap-2 text-sm font-medium text-[var(--nexus-text-primary)]">
-              <Filter className="w-4 h-4 text-[var(--nexus-emerald)]" /> Cari & filter
+            <h3 className="flex items-center gap-2 text-sm font-medium text-text-primary">
+              <Filter className="w-4 h-4 text-primary" /> Cari & filter
             </h3>
             {hasActiveFilter && (
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-xs text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] transition-colors cursor-pointer"
+                className="text-xs text-text-muted hover:text-text-primary transition-colors cursor-pointer"
               >
                 Reset
               </button>
@@ -261,12 +261,12 @@ function TransactionsContent() {
 
           <div className="space-y-3">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--nexus-text-muted)]" />
-              <Input placeholder="Cari transaksi..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] pl-11 py-2.5 h-auto text-sm" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" />
+              <Input placeholder="Cari transaksi..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }} className="bg-surface border-line pl-11 py-2.5 h-auto text-sm" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Select label="Tipe" options={[{value: '', label: 'Semua tipe'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer'}]} value={filterType} onChange={(e) => { setFilterType(e.target.value); setPage(1); }} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
-              <Select label="Dompet" options={[{value: '', label: 'Semua dompet'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => { setFilterWallet(e.target.value); setPage(1); }} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+              <Select label="Tipe" options={[{value: '', label: 'Semua tipe'}, {value: 'income', label: 'Pemasukan'}, {value: 'expense', label: 'Pengeluaran'}, {value: 'transfer', label: 'Transfer'}]} value={filterType} onChange={(e) => { setFilterType(e.target.value); setPage(1); }} className="bg-surface border-line" />
+              <Select label="Dompet" options={[{value: '', label: 'Semua dompet'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={filterWallet} onChange={(e) => { setFilterWallet(e.target.value); setPage(1); }} className="bg-surface border-line" />
               <DatePicker label="Mulai" value={filterStartDate} onChange={(v) => { setFilterStartDate(v); setPage(1); }} placeholder="Mulai" />
               <DatePicker label="Selesai" value={filterEndDate} onChange={(v) => { setFilterEndDate(v); setPage(1); }} placeholder="Selesai" />
             </div>
@@ -276,9 +276,9 @@ function TransactionsContent() {
         {/* Daftar transaksi: baris ringkas, bisa diklik untuk detail/edit,
             responsif tanpa scroll horizontal. Tombol aksi selalu tampak di hp
             (tak ada hover di layar sentuh), muncul saat hover di desktop. */}
-        <Card className="xl:col-span-3 p-0 overflow-hidden border-[var(--nexus-glass-border)]">
+        <Card className="xl:col-span-3 p-0 overflow-hidden border-line">
           {transactions.length === 0 ? (
-            <div className="py-16 text-center text-sm text-[var(--nexus-text-secondary)]">
+            <div className="py-16 text-center text-sm text-text-secondary">
               {hasActiveFilter
                 ? 'Tidak ada transaksi yang cocok dengan filter.'
                 : wallets.length === 0
@@ -286,11 +286,11 @@ function TransactionsContent() {
                   : 'Belum ada transaksi.'}
             </div>
           ) : (
-            <div className="divide-y divide-[var(--nexus-glass-border)]">
+            <div className="divide-y divide-line">
               <AnimatePresence mode="popLayout">
                 {transactions.map((tx) => {
                   const sign = tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : '';
-                  const amountColor = tx.type === 'expense' ? 'text-rose-400' : 'text-[var(--nexus-emerald)]';
+                  const amountColor = tx.type === 'expense' ? 'text-rose-400' : 'text-primary';
                   return (
                     <motion.div
                       key={tx.id}
@@ -299,15 +299,15 @@ function TransactionsContent() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       onClick={() => openEdit(tx)}
-                      className="group flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[var(--nexus-bg-panel)] transition-colors"
+                      className="group flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-surface transition-colors"
                     >
-                      <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center ${tx.type === 'income' ? 'text-[var(--nexus-emerald)] bg-[var(--nexus-emerald-glow)]' : tx.type === 'expense' ? 'text-rose-400 bg-rose-500/10' : 'text-[var(--nexus-emerald)] bg-[var(--nexus-emerald-glow)]'}`}>
+                      <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center ${tx.type === 'income' ? 'text-primary bg-primary-glow' : tx.type === 'expense' ? 'text-rose-400 bg-rose-500/10' : 'text-primary bg-primary-glow'}`}>
                         {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : tx.type === 'expense' ? <TrendingDown className="w-4 h-4" /> : <ArrowRightLeft className="w-4 h-4" />}
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-[var(--nexus-text-primary)] truncate">{tx.note || 'Tanpa keterangan'}</p>
-                        <p className="text-xs text-[var(--nexus-text-muted)] truncate">
+                        <p className="text-sm font-medium text-text-primary truncate">{tx.note || 'Tanpa keterangan'}</p>
+                        <p className="text-xs text-text-muted truncate">
                           {tx.categories?.name ? `${tx.categories.name} · ` : ''}{tx.wallets?.name} · {new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}, {new Date(tx.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -319,14 +319,14 @@ function TransactionsContent() {
                       <div className="flex items-center gap-1 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={(e) => { e.stopPropagation(); openEdit(tx); }}
-                          className="p-2 rounded-lg text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)] hover:bg-[var(--nexus-emerald-glow)] transition-colors cursor-pointer"
+                          className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-primary-glow transition-colors cursor-pointer"
                           title="Edit"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDelete(tx.id); }}
-                          className="p-2 rounded-lg text-[var(--nexus-text-muted)] hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                          className="p-2 rounded-lg text-text-muted hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                           title="Hapus"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -340,8 +340,8 @@ function TransactionsContent() {
           )}
 
           {count > limit && (
-            <div className="px-4 py-3 border-t border-[var(--nexus-glass-border)] flex items-center justify-between">
-              <span className="text-xs text-[var(--nexus-text-muted)]">
+            <div className="px-4 py-3 border-t border-line flex items-center justify-between">
+              <span className="text-xs text-text-muted">
                 {(page - 1) * limit + 1}–{Math.min(page * limit, count)} dari {count}
               </span>
               <div className="flex gap-2">
@@ -359,13 +359,13 @@ function TransactionsContent() {
 
       <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); resetForm(); }} title={isEditing ? 'Edit transaksi' : 'Tambah transaksi'}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-3 gap-2 p-1.5 bg-[var(--nexus-bg-panel)] rounded-xl border border-[var(--nexus-glass-border)]">
+          <div className="grid grid-cols-3 gap-2 p-1.5 bg-surface rounded-xl border border-line">
             {([['expense', 'Pengeluaran'], ['income', 'Pemasukan'], ['transfer', 'Transfer']] as const).map(([t, label]) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTxType(t)}
-                className={`py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${txType === t ? 'bg-[var(--nexus-emerald)] text-white' : 'text-[var(--nexus-text-muted)] hover:text-[var(--nexus-text-primary)]'}`}
+                className={`py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${txType === t ? 'bg-primary text-white' : 'text-text-muted hover:text-text-primary'}`}
               >
                 {label}
               </button>
@@ -374,29 +374,29 @@ function TransactionsContent() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs text-[var(--nexus-text-secondary)]">Jumlah</label>
+              <label className="text-xs text-text-secondary">Jumlah</label>
               <div className="relative">
-                <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--nexus-emerald)]" />
-                <Input type="number" min="1" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} required className="pl-11 bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)] text-lg font-semibold tracking-tight" />
+                <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                <Input type="number" min="1" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} required className="pl-11 bg-surface border-line text-lg font-semibold tracking-tight" />
               </div>
             </div>
             <DatePicker label="Tanggal & waktu" showTime value={txDate} onChange={setTxDate} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Select label="Dompet asal" options={[{value: '', label: '-- Pilih dompet --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txWalletId} onChange={(e) => setTxWalletId(e.target.value)} required className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+            <Select label="Dompet asal" options={[{value: '', label: '-- Pilih dompet --'}, ...wallets.map(w => ({value: w.id, label: w.name}))]} value={txWalletId} onChange={(e) => setTxWalletId(e.target.value)} required className="bg-surface border-line" />
             {txType === 'transfer' ? (
-              <Select label="Dompet tujuan" options={[{value: '', label: '-- Pilih dompet --'}, ...wallets.filter(w => w.id !== txWalletId).map(w => ({value: w.id, label: w.name}))]} value={txDestWalletId} onChange={(e) => setTxDestWalletId(e.target.value)} required className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+              <Select label="Dompet tujuan" options={[{value: '', label: '-- Pilih dompet --'}, ...wallets.filter(w => w.id !== txWalletId).map(w => ({value: w.id, label: w.name}))]} value={txDestWalletId} onChange={(e) => setTxDestWalletId(e.target.value)} required className="bg-surface border-line" />
             ) : (
-              <Select label="Kategori" options={[{value: '', label: '-- Umum --'}, ...categories.filter(c => c.type === txType).map(c => ({value: c.id, label: c.name}))]} value={txCategoryId} onChange={(e) => setTxCategoryId(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+              <Select label="Kategori" options={[{value: '', label: '-- Umum --'}, ...categories.filter(c => c.type === txType).map(c => ({value: c.id, label: c.name}))]} value={txCategoryId} onChange={(e) => setTxCategoryId(e.target.value)} className="bg-surface border-line" />
             )}
           </div>
 
-          <Input label="Keterangan" placeholder="Catatan transaksi..." value={txNote} onChange={(e) => setTxNote(e.target.value)} className="bg-[var(--nexus-bg-panel)] border-[var(--nexus-glass-border)]" />
+          <Input label="Keterangan" placeholder="Catatan transaksi..." value={txNote} onChange={(e) => setTxNote(e.target.value)} className="bg-surface border-line" />
 
           <div className="flex gap-3 pt-2">
-            <Button variant="outline" type="button" className="flex-1 border-[var(--nexus-glass-border)] bg-[var(--nexus-bg-panel)]" onClick={() => { setIsModalOpen(false); resetForm(); }}>Batal</Button>
-            <Button type="submit" variant="nexus-emerald" loading={submitting} className="flex-1 border-none">
+            <Button variant="outline" type="button" className="flex-1 border-line bg-surface" onClick={() => { setIsModalOpen(false); resetForm(); }}>Batal</Button>
+            <Button type="submit" variant="primary" loading={submitting} className="flex-1 border-none">
               {isEditing ? 'Simpan perubahan' : 'Simpan transaksi'}
             </Button>
           </div>
@@ -417,7 +417,7 @@ export default function TransactionsPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-[var(--nexus-emerald-border)] border-t-[var(--nexus-emerald)] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-primary-border border-t-primary rounded-full animate-spin" />
       </div>
     }>
       <TransactionsContent />

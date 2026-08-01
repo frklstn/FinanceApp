@@ -25,8 +25,8 @@ function ResetPasswordForm() {
     setErrorMsg(null);
     setSuccessMsg(null);
 
-    if (password.length < 8) {
-      setErrorMsg('Password minimal 8 karakter.');
+    if (password.length < 6) {
+      setErrorMsg('Password minimal 6 karakter.');
       return;
     }
     if (password !== confirmPassword) {
@@ -87,13 +87,15 @@ function ResetPasswordForm() {
           <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input
             type={showPassword ? 'text' : 'password'}
+            name="new-password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Kata sandi baru (min. 8 karakter)"
+            placeholder="Kata sandi baru (min. 6 karakter)"
             disabled={loading}
             className={`${authInputClass} pl-11 pr-11`}
             required
-            minLength={8}
+            minLength={6}
           />
           <button
             type="button"
@@ -122,6 +124,7 @@ function ResetPasswordForm() {
           <ShieldCheck className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input
             type={showConfirm ? 'text' : 'password'}
+            autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Ulangi kata sandi baru"

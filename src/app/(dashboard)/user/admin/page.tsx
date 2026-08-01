@@ -1,27 +1,11 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import { useApp } from '@/contexts/app-context';
-import { Card } from '@/components/ui/card';
-import { PageHeader } from '@/components/shared/layout/page-header';
-import { useToast } from '@/components/ui/toast';
+import { redirect } from 'next/navigation';
 
-export default function AdminPage() {
-  const { t } = useApp();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(false);
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-
-  return (
-    <div className="p-4 space-y-4">
-      <PageHeader title={t('admin.title', 'Admin Panel')} />
-      <Card className="p-4">
-        <p>Panel Admin sedang dalam proses migrasi ke PostgreSQL lokal.</p>
-      </Card>
-    </div>
-  );
+/**
+ * Panel admin sudah pindah ke halaman Pengaturan.
+ *
+ * Route ini dipertahankan supaya tautan lama, bookmark, dan riwayat peramban
+ * tidak berakhir 404 — cukup diarahkan ke tempat barunya.
+ */
+export default function AdminPageRedirect() {
+  redirect('/finance/settings');
 }

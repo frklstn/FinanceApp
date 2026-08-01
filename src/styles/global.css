@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
-@import "./nexus-theme/components.css";
+@import "./components.css";
 @import "./base.css";
 @import "./utilities.css";
 @import "tw-animate-css";
@@ -43,6 +43,17 @@
     --color-text-primary: var(--text-primary);
     --color-text-secondary: var(--text-secondary);
     --color-text-muted: var(--text-muted);
+
+    /* Permukaan & garis.
+       Menggantikan alias --nexus-* yang dulu ditulis tangan di dalam className
+       sebagai bg-[var(--nexus-bg-panel)] dan sejenisnya -- 755 kali variabel CSS
+       mentah bocor ke markup, sehingga mengganti nama satu token berarti 755
+       kali cari-ganti. */
+    --color-main: var(--bg-main);
+    --color-surface: var(--bg-surface);
+    --color-line: var(--border-line);
+    --color-primary-glow: var(--primary-glow);
+    --color-primary-border: var(--primary-border);
 
     /* Alias warisan (light-… dan dark-…) yang masih dipakai komponen lama.
        Keduanya menunjuk palet yang sama karena mode gelap sudah ditangani

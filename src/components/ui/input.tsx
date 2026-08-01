@@ -23,7 +23,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               ${
                 error
                   ? 'border-danger/60 focus:border-danger focus:ring-4 focus:ring-danger/10'
-                  : 'border-[var(--nexus-glass-border)] focus:border-[var(--nexus-emerald)] focus:ring-4 focus:ring-[var(--nexus-emerald-glow)]'
+                  : 'border-line focus:border-primary focus:ring-4 focus:ring-primary-glow'
               } 
               ${className}`}
             {...props}

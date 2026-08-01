@@ -6,7 +6,10 @@
  * Kata sandi user uji dikembalikan ke hash semula di blok finally.
  */
 import assert from 'node:assert';
-import { setResetToken, getUserByResetToken, updatePassword, getUserByEmail, createUser } from '../src/lib/db/user.repo';
+import {
+  setResetToken, getUserByResetToken, updatePassword, getUserByEmail, createUser,
+  getUserByUsername, getUserByIdentifier,
+} from '../src/lib/db/user.repo';
 import { createWorkspaceForUser } from '../src/lib/db/profile.repo';
 import { workspaceService } from '../src/lib/services/server/workspace';
 import { hashPassword, verifyPassword } from '../src/lib/auth/password';
@@ -43,6 +46,30 @@ async function ujiPendaftaran() {
 
   await query('DELETE FROM users WHERE email = $1', [NEW_EMAIL]);
   assert.strictEqual(await getUserByEmail(NEW_EMAIL), null, 'user uji harus terhapus');
+}
+
+/** Login boleh pakai email ATAU username, keduanya tidak peduli huruf besar-kecil. */
+async function ujiLoginUsername() {
+  await query('DELETE FROM users WHERE email = $1', [NEW_EMAIL]);
+
+  const user = await createUser(NEW_EMAIL, await hashPassword('sandi-uji-12345'), 'UjiBudi');
+  try {
+    assert.strictEqual((await getUserByIdentifier(NEW_EMAIL))?.id, user.id, 'login pakai email');
+    assert.strictEqual((await getUserByIdentifier('UjiBudi'))?.id, user.id, 'login pakai username');
+    assert.strictEqual((await getUserByIdentifier('ujibudi'))?.id, user.id, 'username tidak peduli huruf besar-kecil');
+    assert.strictEqual((await getUserByIdentifier(NEW_EMAIL.toUpperCase()))?.id, user.id, 'email tidak peduli huruf besar-kecil');
+    assert.strictEqual(await getUserByIdentifier('tidak-ada-sama-sekali'), null, 'identitas asing harus null');
+    assert.strictEqual((await getUserByUsername('UJIBUDI'))?.id, user.id, 'getUserByUsername case-insensitive');
+
+    // Username ganda ditolak indeks unik.
+    await assert.rejects(
+      () => createUser('lain@contoh.invalid', 'x', 'ujibudi'),
+      /duplicate|unique/i,
+      'username ganda harus ditolak database'
+    );
+  } finally {
+    await query('DELETE FROM users WHERE email = ANY($1)', [[NEW_EMAIL, 'lain@contoh.invalid']]);
+  }
 }
 
 async function main() {
@@ -93,6 +120,7 @@ async function main() {
     );
 
     await ujiPendaftaran();
+    await ujiLoginUsername();
 
     console.log('SEMUA CEK AUTH LULUS');
   } finally {

@@ -17,7 +17,5 @@ export async function getInsightsData() {
     limit: 200,
   });
 
-  return await insightsService.generateInsights(auth.accountId, {
-    prefetchedTransactions: monthTxs,
-  });
+  return await insightsService.generateInsights(auth.accountId, monthTxs);
 }

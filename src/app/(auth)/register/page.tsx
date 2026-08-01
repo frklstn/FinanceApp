@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { register } from './actions';
 import { useApp } from '@/contexts/app-context';
-import { User, Mail, Lock, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, AtSign, Lock, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { AuthShell, AuthAlert, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
 
 export default function RegisterPage() {
@@ -14,6 +14,7 @@ export default function RegisterPage() {
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -31,8 +32,8 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 8) {
-      setErrorMsg(t('auth.register.errorPasswordMin', 'Password minimal 8 karakter.'));
+    if (password.length < 6) {
+      setErrorMsg(t('auth.register.errorPasswordMin', 'Password minimal 6 karakter.'));
       setLoading(false);
       return;
     }
@@ -48,6 +49,7 @@ export default function RegisterPage() {
       formData.set('email', email);
       formData.set('password', password);
       formData.set('fullName', fullName);
+      formData.set('username', username);
 
       // Sukses berakhir dengan redirect() di server, jadi tidak ada yang kembali.
       // Nilai balik hanya muncul kalau gagal.
@@ -70,6 +72,7 @@ export default function RegisterPage() {
           <User className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input
             type="text"
+            autoComplete="name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder={t('auth.register.fullNamePlaceholder', 'Nama lengkap')}
@@ -82,6 +85,8 @@ export default function RegisterPage() {
           <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input
             type="email"
+            name="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -91,12 +96,27 @@ export default function RegisterPage() {
         </div>
 
         <div className="relative">
+          <AtSign className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+          <input
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username (opsional, buat login)"
+            disabled={loading}
+            className={`${authInputClass} pl-11 pr-4`}
+          />
+        </div>
+
+        <div className="relative">
           <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input
             type={showPassword ? 'text' : 'password'}
+            name="new-password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Kata sandi (min. 8 karakter)"
+            placeholder="Kata sandi (min. 6 karakter)"
             disabled={loading}
             className={`${authInputClass} pl-11 pr-11`}
           />
@@ -113,6 +133,7 @@ export default function RegisterPage() {
           <ShieldCheck className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
           <input
             type={showPassword ? 'text' : 'password'}
+            autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Ulangi kata sandi"

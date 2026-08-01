@@ -37,7 +37,7 @@ export function useDebts(accountId: string | undefined) {
   }, [accountId]);
 
   useEffect(() => {
-    refresh();
+    Promise.resolve().then(refresh);
   }, [refresh]);
 
   return { loans, loading, error, refresh };

@@ -59,10 +59,10 @@ export function Landing({ openLogin = false }: LandingProps) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const loginEmail = email.trim();
+    const identifier = email.trim();
 
-    if (!loginEmail || !password) {
-      setErrorMsg('Email dan kata sandi wajib diisi.');
+    if (!identifier || !password) {
+      setErrorMsg('Email/username dan kata sandi wajib diisi.');
       return;
     }
 
@@ -70,7 +70,7 @@ export function Landing({ openLogin = false }: LandingProps) {
     setErrorMsg(null);
     try {
       const formData = new FormData();
-      formData.set('email', loginEmail);
+      formData.set('identifier', identifier);
       formData.set('password', password);
 
       // Sukses berakhir dengan redirect() di server; nilai balik hanya saat gagal.
@@ -140,11 +140,16 @@ export function Landing({ openLogin = false }: LandingProps) {
 
             <div className="relative">
               <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
+              {/* type="text", bukan "email": kolom ini menerima email maupun nama
+                  pengguna. Dengan type="email" peramban menolak "budi" sebelum
+                  form sempat terkirim, padahal labelnya sendiri tertulis Username. */}
               <input
-                type="email"
+                type="text"
+                name="username"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Username"
+                placeholder="Email atau username"
                 disabled={loading}
                 autoFocus
                 className={`${authInputClass} pl-11 pr-4`}
@@ -166,6 +171,8 @@ export function Landing({ openLogin = false }: LandingProps) {
                 <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1b1815]/35 dark:text-[#f3ede3]/35" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"

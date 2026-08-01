@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useApp } from '@/contexts/app-context';
+import { BRAND } from '@/lib/branding';
 
 // Kelas input bersama untuk semua form auth (gaya cream/dark).
 export const authInputClass =
@@ -16,11 +16,12 @@ export function AuthAlert({ tone, children }: { tone: 'error' | 'success'; child
   const cls =
     tone === 'error'
       ? 'border-rose-500/25 bg-rose-500/10 text-rose-600 dark:text-rose-300'
-      : 'border-[var(--nexus-emerald-border)] bg-[var(--nexus-emerald-glow)] text-[var(--nexus-emerald)]';
+      : 'border-primary-border bg-primary-glow text-primary';
   return <div className={`rounded-xl border px-4 py-3 text-sm ${cls}`}>{children}</div>;
 }
 
-// Plakat batu berukir F. Kolom kanan untuk seluruh halaman auth termasuk landing.
+// Plakat batu berukir tanda mata uang. Kolom kanan untuk seluruh halaman auth
+// termasuk landing.
 function StonePlaque() {
   return (
     <div
@@ -29,7 +30,7 @@ function StonePlaque() {
         background: 'linear-gradient(155deg, #e7ddc7 0%, #d9cbac 45%, #c2b190 100%)',
       }}
       role="img"
-      aria-label="Plakat batu bertanda F, simbol arus kas yang tenang"
+      aria-label={`Plakat batu bertanda ${BRAND.mark}, simbol arus kas yang tenang`}
     >
       {/* grain/depth, bukan foto stok generik */}
       <div
@@ -73,7 +74,7 @@ function StonePlaque() {
             ))}
           </svg>
 
-          {/* plakat batu berukir F */}
+          {/* plakat batu berukir tanda mata uang */}
           <div
             className="flex h-40 w-32 items-center justify-center rounded-2xl"
             style={{
@@ -90,7 +91,7 @@ function StonePlaque() {
                   '1px 1.5px 0 rgba(255,255,255,0.75), -1px -1px 1.5px rgba(120,104,74,0.45)',
               }}
             >
-              F
+              {BRAND.mark}
             </span>
           </div>
         </div>
@@ -108,9 +109,6 @@ function StonePlaque() {
  * plakat tetap sama persis supaya pindah halaman tidak terasa ganti situs.
  */
 export function AuthShell({ children }: { children: React.ReactNode }) {
-  const { appSettings } = useApp();
-  const appName = appSettings?.app_name || 'FinanceApp';
-  const brandMark = appName === 'FinanceApp' ? 'FRKLSTN' : appName;
 
   return (
     <div className="min-h-[100dvh] bg-[#f6f2ea] text-[#1b1815] dark:bg-[#15130f] dark:text-[#f3ede3]">
@@ -119,7 +117,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
             dilihat duluan; di desktop tetap jadi header. */}
         <div className="order-last mt-8 flex items-center justify-between text-sm text-[#1b1815]/70 md:order-first md:mt-0 dark:text-[#f3ede3]/70">
           <Link href="/" className="font-medium tracking-tight">
-            {brandMark}
+            {BRAND.name}
           </Link>
           <div className="flex items-center gap-6">
             <span>Personal Finance</span>
@@ -133,12 +131,10 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
               Kendalikan
               <br />
               arus kas,
-              <br />
-              bebas pinjol.
             </h1>
 
             <p className="max-w-[34ch] text-sm leading-relaxed text-[#1b1815]/60 md:text-base dark:text-[#f3ede3]/60">
-              Catat transaksi, atur anggaran, dan pantau cicilan pinjaman online lewat Survival
+              Catat transaksi, atur anggaran, dan pantau cicilan lewat Survival
               Score yang selaras dengan gajianmu.
             </p>
 

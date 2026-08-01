@@ -1,27 +1,32 @@
 'use server';
 
-import { getUserByEmail } from '@/lib/db/user.repo';
+import { getUserByIdentifier } from '@/lib/db/user.repo';
 import { verifyPassword } from '@/lib/auth/password';
 import { createSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 
-export async function login(prevState: any, formData: FormData) {
-  const email = formData.get('email') as string;
+export async function login(_prevState: unknown, formData: FormData) {
+  // Bisa email atau nama pengguna. Sebelumnya hanya email, padahal form-nya
+  // sudah bertuliskan "Username".
+  const identifier = ((formData.get('identifier') || formData.get('email')) as string || '').trim();
   const password = formData.get('password') as string;
 
-  if (!email || !password) {
-    return { error: 'Email dan kata sandi wajib diisi.' };
+  if (!identifier || !password) {
+    return { error: 'Email/username dan kata sandi wajib diisi.' };
   }
 
   try {
-    const user = await getUserByEmail(email);
+    const user = await getUserByIdentifier(identifier);
+
+    // Pesannya sengaja sama untuk akun tidak ada maupun kata sandi salah, supaya
+    // halaman login tidak bisa dipakai menebak akun mana yang terdaftar.
     if (!user || !(await verifyPassword(password, user.password_hash))) {
-      return { error: 'Email atau kata sandi salah.' };
+      return { error: 'Email/username atau kata sandi salah.' };
     }
 
     await createSession(user.id);
-  } catch (err: any) {
-    console.error('Login error:', err);
+  } catch (err) {
+    console.error('Login error:', err instanceof Error ? err.message : 'unknown');
     return { error: 'Gagal masuk.' };
   }
 
