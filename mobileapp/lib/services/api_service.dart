@@ -55,6 +55,38 @@ class ApiService {
   }
 
   // --- Auth ---
+  static Future<bool> googleLogin({
+    required String email,
+    String? name,
+    String? avatarUrl,
+    String? idToken,
+  }) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/auth/google'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'name': name,
+          'avatar_url': avatarUrl,
+          'id_token': idToken,
+        }),
+      );
+
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body);
+        if (json['success'] == true && json['data'] != null) {
+          final token = json['data']['token'];
+          if (token != null) {
+            await setToken(token);
+            return true;
+          }
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
   static Future<bool> login(String identifier, String password) async {
     final res = await http.post(
       Uri.parse('$baseUrl/auth/login'),

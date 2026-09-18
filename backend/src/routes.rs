@@ -23,6 +23,7 @@ pub fn create_router(pool: PgPool, jwt_secret: Arc<String>) -> Router {
         .route("/health", get(health_handler))
         .route("/app/version", get(app_version_handler))
         .route("/auth/login", post(login_handler))
+        .route("/auth/google", post(google_auth_handler))
         .route("/auth/logout", post(logout_handler));
 
     // Protected Routes

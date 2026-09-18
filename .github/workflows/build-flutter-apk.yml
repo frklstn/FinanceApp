@@ -32,8 +32,8 @@ jobs:
         working-directory: mobileapp
         run: |
           flutter create . --org com.financeapp.mobile --platforms android --project-name financeapp_mobile
-          # Inject permissions for In-App OTA Updates
-          sed -i 's|<manifest xmlns:android="http://schemas.android.com/apk/res/android">|<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />|' android/app/src/main/AndroidManifest.xml
+          # Inject permissions for In-App OTA Updates and Package Visibility Queries
+          sed -i 's|<manifest xmlns:android="http://schemas.android.com/apk/res/android">|<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />\n    <queries>\n        <intent>\n            <action android:name="android.intent.action.VIEW" />\n            <data android:scheme="https" />\n        </intent>\n        <intent>\n            <action android:name="android.intent.action.VIEW" />\n            <data android:scheme="http" />\n        </intent>\n    </queries>|' android/app/src/main/AndroidManifest.xml
           # Inject Deep Link Intent Filter for Google OAuth (financeapp://auth/callback)
           python3 -c "
           manifest_path = 'android/app/src/main/AndroidManifest.xml'

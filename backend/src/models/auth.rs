@@ -73,6 +73,14 @@ pub struct RegisterRequest {
     pub full_name: Option<String>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct GoogleLoginRequest {
+    pub email: String,
+    pub name: Option<String>,
+    pub avatar_url: Option<String>,
+    pub id_token: Option<String>,
+}
+
 #[derive(Debug, Serialize)]
 pub struct AuthResponse {
     pub token: String,

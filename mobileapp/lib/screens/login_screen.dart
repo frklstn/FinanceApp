@@ -2,8 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app_links/app_links.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../constants/theme.dart';
 import '../services/api_service.dart';
+import '../services/updater_service.dart';
 import 'main_navigation.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,14 +24,20 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isApiKeyMode = false;
   bool _loading = false;
   String? _error;
+  String _currentVersion = '1.0.0';
 
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '792379168886-dbg409p53a194ei931hpitstgiq1l1dt.apps.googleusercontent.com',
+    scopes: ['email', 'profile'],
+  );
 
   @override
   void initState() {
     super.initState();
     _initDeepLinks();
+    _loadVersionAndCheckUpdates();
   }
 
   @override
@@ -40,10 +49,29 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  Future<void> _loadVersionAndCheckUpdates() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _currentVersion = info.version;
+        });
+      }
+    } catch (_) {}
+
+    // Auto-check for updates quietly on startup
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          UpdaterService.checkForUpdates(context, silent: true);
+        }
+      });
+    });
+  }
+
   void _initDeepLinks() {
     _appLinks = AppLinks();
 
-    // Listen for incoming deep link callbacks (e.g. financeapp://auth/callback?token=...)
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
       if (uri.scheme == 'financeapp' && uri.host == 'auth' && uri.path == '/callback') {
         final token = uri.queryParameters['token'];
@@ -87,20 +115,48 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      // 1. Coba Native GMS Google Play Services Account Picker
+      try {
+        final account = await _googleSignIn.signIn();
+        if (account != null) {
+          final auth = await account.authentication;
+          final success = await ApiService.googleLogin(
+            email: account.email,
+            name: account.displayName,
+            avatarUrl: account.photoUrl,
+            idToken: auth.idToken,
+          );
+
+          if (success && mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const MainNavigation()),
+            );
+            return;
+          }
+        }
+      } catch (_) {
+        // Fallback ke browser jika GMS gagal atau tidak tersedia
+      }
+
+      // 2. Fallback Browser OAuth
       final googleAuthUri = Uri.parse('https://fin.llvy.space/api/auth/google?mode=mobile');
-      if (await canLaunchUrl(googleAuthUri)) {
-        await launchUrl(googleAuthUri, mode: LaunchMode.externalApplication);
-      } else {
+      await launchUrl(
+        googleAuthUri,
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (e) {
+      if (mounted) {
         setState(() {
-          _error = 'Tidak dapat membuka browser untuk login Google.';
+          _error = 'Gagal memulai login Google: $e';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
           _loading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        _error = 'Gagal memulai login Google: $e';
-        _loading = false;
-      });
     }
   }
 
@@ -186,6 +242,35 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Top Bar: OTA Update Checker Button
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: InkWell(
+                    onTap: () => UpdaterService.checkForUpdates(context, silent: false),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: AppTheme.card,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppTheme.cardBorder),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.system_update_rounded, size: 13, color: AppTheme.primary),
+                          const SizedBox(width: 5),
+                          Text(
+                            'v$_currentVersion • Cek Update',
+                            style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
                 // Plakat Batu Khas Webapp (Stone Plaque with carved $)
                 Center(
                   child: Container(
@@ -274,7 +359,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                // Google OAuth Button
+                // Google OAuth / GMS Button
                 if (!_isApiKeyMode) ...[
                   OutlinedButton(
                     onPressed: _loading ? null : _handleGoogleLogin,
