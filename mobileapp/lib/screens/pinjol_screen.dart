@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../constants/theme.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
@@ -62,7 +61,6 @@ class _PinjolScreenState extends State<PinjolScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Score Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -97,7 +95,7 @@ class _PinjolScreenState extends State<PinjolScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          isHealthy ? LucideIcons.shieldCheck : LucideIcons.alertTriangle,
+                          isHealthy ? Icons.verified_user : Icons.warning_amber_rounded,
                           color: isHealthy ? AppTheme.primary : AppTheme.warning,
                           size: 24,
                         ),
@@ -132,7 +130,7 @@ class _PinjolScreenState extends State<PinjolScreen> {
                 ),
                 child: Column(
                   children: const [
-                    Icon(LucideIcons.smile, size: 36, color: AppTheme.primary),
+                    Icon(Icons.sentiment_satisfied_alt, size: 36, color: AppTheme.primary),
                     SizedBox(height: 8),
                     Text('Bebas Cicilan Pinjol', style: TextStyle(color: AppTheme.foreground, fontSize: 15, fontWeight: FontWeight.w700)),
                     SizedBox(height: 4),

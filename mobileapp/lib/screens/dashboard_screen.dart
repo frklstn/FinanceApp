@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../constants/theme.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
@@ -86,13 +85,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(LucideIcons.x, size: 20, color: AppTheme.muted),
+                    icon: const Icon(Icons.close, size: 20, color: AppTheme.muted),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
 
-              // Type Selector
               Row(
                 children: [
                   Expanded(
@@ -148,7 +146,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 14),
 
-              // Amount Input
               TextField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
@@ -163,7 +160,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Note Input
               TextField(
                 controller: noteController,
                 style: const TextStyle(color: AppTheme.foreground, fontSize: 14),
@@ -224,7 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text('FinanceApp Native'),
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.plus, color: AppTheme.primary),
+            icon: const Icon(Icons.add, color: AppTheme.primary),
             onPressed: _showQuickAddDialog,
           ),
         ],
@@ -235,7 +231,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            // Saldo Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -269,7 +264,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               color: AppTheme.primary.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(LucideIcons.arrowDownLeft, color: AppTheme.primary, size: 16),
+                            child: const Icon(Icons.arrow_downward, color: AppTheme.primary, size: 16),
                           ),
                           const SizedBox(width: 8),
                           Column(
@@ -292,7 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               color: AppTheme.destructive.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(LucideIcons.arrowUpRight, color: AppTheme.destructive, size: 16),
+                            child: const Icon(Icons.arrow_upward, color: AppTheme.destructive, size: 16),
                           ),
                           const SizedBox(width: 8),
                           Column(
@@ -314,7 +309,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Wallets Section
             const Text(
               'Dompet Aktif',
               style: TextStyle(color: AppTheme.foreground, fontSize: 16, fontWeight: FontWeight.w700),
@@ -366,7 +360,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Transactions Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -424,10 +417,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: Icon(
                           isExpense
-                              ? LucideIcons.arrowUpRight
+                              ? Icons.arrow_outward
                               : isIncome
-                                  ? LucideIcons.arrowDownLeft
-                                  : LucideIcons.refreshCw,
+                                  ? Icons.arrow_downward
+                                  : Icons.sync,
                           color: isExpense
                               ? AppTheme.destructive
                               : isIncome

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../constants/theme.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
@@ -183,7 +182,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
         title: const Text('Kelola Dompet'),
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.plus, color: AppTheme.primary),
+            icon: const Icon(Icons.add, color: AppTheme.primary),
             onPressed: _showAddWalletDialog,
           ),
         ],
@@ -204,8 +203,12 @@ class _WalletsScreenState extends State<WalletsScreen> {
               decoration: BoxDecoration(
                 color: AppTheme.card,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppTheme.cardBorder),
-                borderLeft: BorderSide(color: Color(colorInt), width: 4),
+                border: Border(
+                  left: BorderSide(color: Color(colorInt), width: 4),
+                  top: const BorderSide(color: AppTheme.cardBorder),
+                  right: const BorderSide(color: AppTheme.cardBorder),
+                  bottom: const BorderSide(color: AppTheme.cardBorder),
+                ),
               ),
               child: Row(
                 children: [
@@ -216,7 +219,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
-                      w.type == 'bank' ? LucideIcons.landmark : w.type == 'ewallet' ? LucideIcons.smartphone : LucideIcons.wallet,
+                      w.type == 'bank' ? Icons.account_balance : w.type == 'ewallet' ? Icons.smartphone : Icons.account_balance_wallet,
                       color: Color(colorInt),
                       size: 20,
                     ),

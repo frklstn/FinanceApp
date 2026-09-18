@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../constants/theme.dart';
 import '../services/api_service.dart';
 import 'main_navigation.dart';
@@ -102,7 +101,6 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Logo & Title
                 Center(
                   child: Container(
                     width: 64,
@@ -113,10 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: Border.all(color: AppTheme.primary.withOpacity(0.3)),
                     ),
                     child: const Center(
-                      child: Text(
-                        '🪙',
-                        style: TextStyle(fontSize: 32),
-                      ),
+                      child: Text('🪙', style: TextStyle(fontSize: 32)),
                     ),
                   ),
                 ),
@@ -135,14 +130,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text(
                   'Terhubung langsung ke Rust Engine API',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.muted,
-                  ),
+                  style: TextStyle(fontSize: 13, color: AppTheme.muted),
                 ),
                 const SizedBox(height: 32),
 
-                // Error Banner
                 if (_error != null) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -153,13 +144,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(LucideIcons.alertCircle, size: 16, color: AppTheme.destructive),
+                        const Icon(Icons.error_outline, size: 16, color: AppTheme.destructive),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            _error!,
-                            style: const TextStyle(color: AppTheme.destructive, fontSize: 12),
-                          ),
+                          child: Text(_error!, style: const TextStyle(color: AppTheme.destructive, fontSize: 12)),
                         ),
                       ],
                     ),
@@ -167,7 +155,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                // Form Card
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -179,10 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       if (!_isApiKeyMode) ...[
-                        const Text(
-                          'Email atau Username',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.muted),
-                        ),
+                        const Text('Email atau Username', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.muted)),
                         const SizedBox(height: 6),
                         TextField(
                           controller: _emailController,
@@ -190,24 +174,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             hintText: 'nama@email.com / username',
                             hintStyle: const TextStyle(color: AppTheme.muted, fontSize: 13),
-                            prefixIcon: const Icon(LucideIcons.mail, size: 18, color: AppTheme.muted),
+                            prefixIcon: const Icon(Icons.email_outlined, size: 18, color: AppTheme.muted),
                             filled: true,
                             fillColor: AppTheme.background,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppTheme.cardBorder),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppTheme.cardBorder),
-                            ),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Password',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.muted),
-                        ),
+                        const Text('Password', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.muted)),
                         const SizedBox(height: 6),
                         TextField(
                           controller: _passwordController,
@@ -216,24 +190,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             hintText: '••••••••',
                             hintStyle: const TextStyle(color: AppTheme.muted, fontSize: 13),
-                            prefixIcon: const Icon(LucideIcons.lock, size: 18, color: AppTheme.muted),
+                            prefixIcon: const Icon(Icons.lock_outline, size: 18, color: AppTheme.muted),
                             filled: true,
                             fillColor: AppTheme.background,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppTheme.cardBorder),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppTheme.cardBorder),
-                            ),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
                       ] else ...[
-                        const Text(
-                          'Third-Party API Key',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.muted),
-                        ),
+                        const Text('Third-Party API Key', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.muted)),
                         const SizedBox(height: 6),
                         TextField(
                           controller: _apiKeyController,
@@ -241,51 +205,33 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             hintText: 'fin_live_...',
                             hintStyle: const TextStyle(color: AppTheme.muted, fontSize: 13),
-                            prefixIcon: const Icon(LucideIcons.key, size: 18, color: AppTheme.primary),
+                            prefixIcon: const Icon(Icons.key, size: 18, color: AppTheme.primary),
                             filled: true,
                             fillColor: AppTheme.background,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppTheme.cardBorder),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppTheme.cardBorder),
-                            ),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
                       ],
                       const SizedBox(height: 20),
 
-                      // Submit Button
                       ElevatedButton(
                         onPressed: _loading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primary,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 0,
                         ),
                         child: _loading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                              )
-                            : Text(
-                                _isApiKeyMode ? 'Masuk dengan API Key' : 'Masuk',
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                              ),
+                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                            : Text(_isApiKeyMode ? 'Masuk dengan API Key' : 'Masuk', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
 
-                // Toggle API Key Mode
                 TextButton(
                   onPressed: () {
                     setState(() {
@@ -294,9 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     });
                   },
                   child: Text(
-                    _isApiKeyMode
-                      ? '← Masuk dengan Email / Password'
-                      : 'Masuk instan menggunakan API Key →',
+                    _isApiKeyMode ? '← Masuk dengan Email / Password' : 'Masuk instan menggunakan API Key →',
                     style: const TextStyle(color: AppTheme.muted, fontSize: 12),
                   ),
                 ),

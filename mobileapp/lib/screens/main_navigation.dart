@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../constants/theme.dart';
 import 'dashboard_screen.dart';
 import 'wallets_screen.dart';
@@ -47,19 +46,23 @@ class _MainNavigationState extends State<MainNavigation> {
           unselectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(LucideIcons.layoutDashboard, size: 20),
+              icon: Icon(Icons.dashboard_outlined, size: 22),
+              activeIcon: Icon(Icons.dashboard, size: 22),
               label: 'Dashboard',
             ),
             BottomNavigationBarItem(
-              icon: Icon(LucideIcons.wallet, size: 20),
+              icon: Icon(Icons.account_balance_wallet_outlined, size: 22),
+              activeIcon: Icon(Icons.account_balance_wallet, size: 22),
               label: 'Dompet',
             ),
             BottomNavigationBarItem(
-              icon: Icon(LucideIcons.creditCard, size: 20),
+              icon: Icon(Icons.credit_card_outlined, size: 22),
+              activeIcon: Icon(Icons.credit_card, size: 22),
               label: 'Pinjol',
             ),
             BottomNavigationBarItem(
-              icon: Icon(LucideIcons.user, size: 20),
+              icon: Icon(Icons.person_outline, size: 22),
+              activeIcon: Icon(Icons.person, size: 22),
               label: 'Profil',
             ),
           ],

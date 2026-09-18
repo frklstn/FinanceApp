@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../constants/theme.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
@@ -84,7 +83,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // User Card
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
@@ -137,7 +135,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Server Info
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -152,7 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: const [
                     Row(
                       children: [
-                        Icon(LucideIcons.server, size: 18, color: AppTheme.primary),
+                        Icon(Icons.storage, size: 18, color: AppTheme.primary),
                         SizedBox(width: 8),
                         Text('Backend API', style: TextStyle(color: AppTheme.muted, fontSize: 13)),
                       ],
@@ -166,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     const Row(
                       children: [
-                        Icon(LucideIcons.globe, size: 18, color: AppTheme.info),
+                        Icon(Icons.language, size: 18, color: AppTheme.info),
                         SizedBox(width: 8),
                         Text('Server Endpoint', style: TextStyle(color: AppTheme.muted, fontSize: 13)),
                       ],
@@ -182,10 +179,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Logout Button
           ElevatedButton.icon(
             onPressed: _handleLogout,
-            icon: const Icon(LucideIcons.logOut, size: 18),
+            icon: const Icon(Icons.logout, size: 18),
             label: const Text('Keluar dari Akun', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.destructive.withOpacity(0.15),
