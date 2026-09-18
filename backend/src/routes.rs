@@ -76,10 +76,10 @@ async fn health_handler() -> impl IntoResponse {
 
 async fn app_version_handler() -> impl IntoResponse {
     Json(ApiResponse::ok(serde_json::json!({
-        "latest_version": "1.0.0",
-        "build_number": 1,
+        "latest_version": "1.0.1",
+        "build_number": 2,
         "download_url": "https://github.com/frklstn/FinanceApp/releases/download/v1.0.0/FinanceApp-Flutter-arm64.apk",
-        "release_notes": "Pembaruan in-app OTA update dan sinkronisasi realtime.",
+        "release_notes": "Pembaruan kestabilan Google OAuth, perbaikan koneksi GMS, dan In-App OTA Updater.",
         "is_mandatory": false
     })))
 }
