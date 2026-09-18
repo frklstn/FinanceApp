@@ -4,6 +4,7 @@ import 'dashboard_screen.dart';
 import 'wallets_screen.dart';
 import 'pinjol_screen.dart';
 import 'profile_screen.dart';
+import '../services/updater_service.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -14,6 +15,19 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-check for updates after initial render
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          UpdaterService.checkForUpdates(context, silent: true);
+        }
+      });
+    });
+  }
 
   final List<Widget> _screens = const [
     DashboardScreen(),

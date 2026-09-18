@@ -21,6 +21,7 @@ pub fn create_router(pool: PgPool, jwt_secret: Arc<String>) -> Router {
     // Public Routes
     let public_routes = Router::new()
         .route("/health", get(health_handler))
+        .route("/app/version", get(app_version_handler))
         .route("/auth/login", post(login_handler))
         .route("/auth/logout", post(logout_handler));
 
@@ -70,4 +71,14 @@ async fn health_handler() -> impl IntoResponse {
         }),
         "Fin-backend is running",
     ))
+}
+
+async fn app_version_handler() -> impl IntoResponse {
+    Json(ApiResponse::ok(serde_json::json!({
+        "latest_version": "1.0.0",
+        "build_number": 1,
+        "download_url": "https://github.com/frklstn/FinanceApp/releases/download/v1.0.0/FinanceApp-Flutter-arm64.apk",
+        "release_notes": "Pembaruan in-app OTA update dan sinkronisasi realtime.",
+        "is_mandatory": false
+    })))
 }
