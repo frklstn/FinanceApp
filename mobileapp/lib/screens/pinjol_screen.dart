@@ -47,7 +47,7 @@ class _PinjolScreenState extends State<PinjolScreen> {
       );
     }
 
-    final totalMonthly = _loans.reduce((sum, l) => sum + l.monthlyPayment, 0.0);
+    final totalMonthly = _loans.fold<double>(0.0, (sum, l) => sum + l.monthlyPayment);
     final isHealthy = totalMonthly == 0.0;
     final survivalScore = isHealthy ? 100 : (100 - (_loans.length * 15)).clamp(20, 85);
 

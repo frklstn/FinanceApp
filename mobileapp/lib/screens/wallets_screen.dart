@@ -199,7 +199,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
             final colorInt = int.tryParse(w.color.replaceAll('#', '0xFF')) ?? 0xFF10B981;
 
             return Container(
-              margin: const EdgeInsets.bottom: 12),
+              margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppTheme.card,
