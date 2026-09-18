@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:app_links/app_links.dart';
 import '../constants/theme.dart';
 import '../services/api_service.dart';
 import 'main_navigation.dart';
@@ -18,6 +21,88 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isApiKeyMode = false;
   bool _loading = false;
   String? _error;
+
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDeepLinks();
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _apiKeyController.dispose();
+    super.dispose();
+  }
+
+  void _initDeepLinks() {
+    _appLinks = AppLinks();
+
+    // Listen for incoming deep link callbacks (e.g. financeapp://auth/callback?token=...)
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      if (uri.scheme == 'financeapp' && uri.host == 'auth' && uri.path == '/callback') {
+        final token = uri.queryParameters['token'];
+        if (token != null && token.isNotEmpty) {
+          _handleAuthCallbackToken(token);
+        }
+      }
+    }, onError: (_) {});
+  }
+
+  Future<void> _handleAuthCallbackToken(String token) async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      await ApiService.saveJwtToken(token);
+      final profile = await ApiService.getProfile();
+      if (profile != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainNavigation()),
+        );
+        return;
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _error = 'Gagal memproses sesi login Google.';
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final googleAuthUri = Uri.parse('https://fin.llvy.space/api/auth/google?mode=mobile');
+      if (await canLaunchUrl(googleAuthUri)) {
+        await launchUrl(googleAuthUri, mode: LaunchMode.externalApplication);
+      } else {
+        setState(() {
+          _error = 'Tidak dapat membuka browser untuk login Google.';
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Gagal memulai login Google: $e';
+        _loading = false;
+      });
+    }
+  }
 
   Future<void> _handleLogin() async {
     setState(() {
@@ -187,6 +272,66 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                ],
+
+                // Google OAuth Button
+                if (!_isApiKeyMode) ...[
+                  OutlinedButton(
+                    onPressed: _loading ? null : _handleGoogleLogin,
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: AppTheme.card,
+                      foregroundColor: AppTheme.textPrimary,
+                      side: const BorderSide(color: AppTheme.cardBorder),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'G',
+                            style: TextStyle(
+                              color: Color(0xFF4285F4),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'sans-serif',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Lanjutkan dengan Google',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Divider "atau"
+                  Row(
+                    children: const [
+                      Expanded(child: Divider(color: AppTheme.cardBorder)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          'atau dengan email',
+                          style: TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: AppTheme.cardBorder)),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                 ],
 
                 Container(

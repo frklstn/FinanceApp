@@ -26,12 +26,16 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export async function createSession(userId: string): Promise<void> {
-  const token = await new SignJWT({ userId })
+export async function generateSessionToken(userId: string): Promise<string> {
+  return await new SignJWT({ userId, sub: userId })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime(`${MAX_AGE}s`)
     .setIssuedAt()
     .sign(getSecret());
+}
+
+export async function createSession(userId: string): Promise<void> {
+  const token = await generateSessionToken(userId);
 
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {

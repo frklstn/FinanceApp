@@ -34,6 +34,22 @@ jobs:
           flutter create . --org com.financeapp.mobile --platforms android --project-name financeapp_mobile
           # Inject permissions for In-App OTA Updates
           sed -i 's|<manifest xmlns:android="http://schemas.android.com/apk/res/android">|<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />|' android/app/src/main/AndroidManifest.xml
+          # Inject Deep Link Intent Filter for Google OAuth (financeapp://auth/callback)
+          python3 -c "
+          manifest_path = 'android/app/src/main/AndroidManifest.xml'
+          content = open(manifest_path).read()
+          intent_filter = '''
+                  <intent-filter>
+                      <action android:name=\"android.intent.action.VIEW\" />
+                      <category android:name=\"android.intent.category.DEFAULT\" />
+                      <category android:name=\"android.intent.category.BROWSABLE\" />
+                      <data android:scheme=\"financeapp\" android:host=\"auth\" />
+                  </intent-filter>
+          '''
+          if 'financeapp' not in content:
+              content = content.replace('</activity>', intent_filter + '\n        </activity>')
+              open(manifest_path, 'w').write(content)
+          "
           flutter pub get
 
       - name: Build Android Release APK

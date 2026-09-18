@@ -3,9 +3,9 @@ import { cookies } from 'next/headers';
 import { randomBytes, timingSafeEqual } from 'crypto';
 import { getUserByEmail, createUser } from '@/lib/db/user.repo';
 import { createWorkspaceForUser } from '@/lib/db/profile.repo';
-import { createSession } from '@/lib/auth/session';
+import { createSession, generateSessionToken } from '@/lib/auth/session';
 import { hashPassword } from '@/lib/auth/password';
-import { OAUTH_STATE_COOKIE } from '../route';
+import { OAUTH_STATE_COOKIE, OAUTH_MODE_COOKIE } from '../route';
 
 function fail(reason: string) {
   return NextResponse.redirect(new URL(`/login?error=${reason}`, process.env.NEXT_PUBLIC_APP_URL!));
@@ -85,6 +85,19 @@ export async function GET(request: NextRequest) {
     }
 
     await createSession(user.id);
+
+    const isMobile = cookieStore.get(OAUTH_MODE_COOKIE)?.value === 'mobile';
+    cookieStore.delete(OAUTH_MODE_COOKIE);
+
+    if (isMobile) {
+      const sessionToken = await generateSessionToken(user.id);
+      const mobileParams = new URLSearchParams({
+        token: sessionToken,
+        email: email,
+        name: name || '',
+      });
+      return NextResponse.redirect(new URL(`/auth/mobile-success?${mobileParams}`, process.env.NEXT_PUBLIC_APP_URL!));
+    }
 
     const res = NextResponse.redirect(new URL('/finance/dashboard', process.env.NEXT_PUBLIC_APP_URL!));
     res.cookies.set('fin_saved_account', JSON.stringify({
