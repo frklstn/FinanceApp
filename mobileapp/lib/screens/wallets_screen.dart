@@ -51,21 +51,21 @@ class _WalletsScreenState extends State<WalletsScreen> {
         builder: (ctx, setDialogState) => AlertDialog(
           backgroundColor: AppTheme.card,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Tambah Dompet Baru', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          title: const Text('Tambah Dompet Baru', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextField(
                 controller: nameController,
-                style: const TextStyle(color: AppTheme.foreground, fontSize: 14),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   labelText: 'Nama Dompet',
-                  labelStyle: const TextStyle(color: AppTheme.muted, fontSize: 12),
+                  labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
                   hintText: 'Misal: BCA, Mandiri, Kas',
-                  hintStyle: const TextStyle(color: AppTheme.muted, fontSize: 12),
+                  hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
                   filled: true,
-                  fillColor: AppTheme.background,
+                  fillColor: AppTheme.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
@@ -73,19 +73,19 @@ class _WalletsScreenState extends State<WalletsScreen> {
               TextField(
                 controller: balanceController,
                 keyboardType: TextInputType.number,
-                style: const TextStyle(color: AppTheme.foreground, fontSize: 14),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   labelText: 'Saldo Awal (Rp)',
-                  labelStyle: const TextStyle(color: AppTheme.muted, fontSize: 12),
+                  labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
                   hintText: '0',
-                  hintStyle: const TextStyle(color: AppTheme.muted, fontSize: 12),
+                  hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
                   filled: true,
-                  fillColor: AppTheme.background,
+                  fillColor: AppTheme.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
               const SizedBox(height: 12),
-              const Text('Tipe Dompet', style: TextStyle(color: AppTheme.muted, fontSize: 11, fontWeight: FontWeight.w600)),
+              const Text('Tipe Dompet', style: TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Row(
                 children: ['bank', 'ewallet', 'cash'].map((t) {
@@ -97,7 +97,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
                         margin: const EdgeInsets.symmetric(horizontal: 2),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppTheme.primary.withOpacity(0.2) : AppTheme.background,
+                          color: isSelected ? AppTheme.primary.withOpacity(0.2) : AppTheme.surface,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.cardBorder),
                         ),
@@ -105,7 +105,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
                           t == 'bank' ? 'Bank' : t == 'ewallet' ? 'E-Wallet' : 'Tunai',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: isSelected ? AppTheme.primary : AppTheme.muted,
+                            color: isSelected ? AppTheme.primary : AppTheme.textMuted,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -116,7 +116,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
                 }).toList(),
               ),
               const SizedBox(height: 12),
-              const Text('Warna', style: TextStyle(color: AppTheme.muted, fontSize: 11, fontWeight: FontWeight.w600)),
+              const Text('Warna', style: TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,7 +141,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Batal', style: TextStyle(color: AppTheme.muted)),
+              child: const Text('Batal', style: TextStyle(color: AppTheme.textMuted)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -157,7 +157,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
-                foregroundColor: Colors.black,
+                foregroundColor: const Color(0xFF15130F),
               ),
               child: const Text('Simpan', style: TextStyle(fontWeight: FontWeight.w700)),
             ),
@@ -195,7 +195,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
           itemCount: _wallets.length,
           itemBuilder: (context, index) {
             final w = _wallets[index];
-            final colorInt = int.tryParse(w.color.replaceAll('#', '0xFF')) ?? 0xFF10B981;
+            final colorInt = int.tryParse(w.color.replaceAll('#', '0xFF')) ?? 0xFFE2916A;
 
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
@@ -231,19 +231,19 @@ class _WalletsScreenState extends State<WalletsScreen> {
                       children: [
                         Text(
                           w.name,
-                          style: const TextStyle(color: AppTheme.foreground, fontSize: 15, fontWeight: FontWeight.w700),
+                          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15, fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           w.type.toUpperCase(),
-                          style: const TextStyle(color: AppTheme.muted, fontSize: 10, fontWeight: FontWeight.w700),
+                          style: const TextStyle(color: AppTheme.textMuted, fontSize: 10, fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
                   ),
                   Text(
                     _currencyFormat.format(w.balance),
-                    style: const TextStyle(color: AppTheme.foreground, fontSize: 15, fontWeight: FontWeight.w800),
+                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),

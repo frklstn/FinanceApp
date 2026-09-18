@@ -79,12 +79,12 @@ class _PinjolScreenState extends State<PinjolScreen> {
                         children: [
                           const Text(
                             'DEBT SURVIVAL SCORE',
-                            style: TextStyle(color: AppTheme.muted, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.5),
+                            style: TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.5),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '$survivalScore / 100',
-                            style: const TextStyle(color: AppTheme.foreground, fontSize: 24, fontWeight: FontWeight.w800),
+                            style: const TextStyle(color: AppTheme.textPrimary, fontSize: 24, fontWeight: FontWeight.w800),
                           ),
                         ],
                       ),
@@ -107,7 +107,7 @@ class _PinjolScreenState extends State<PinjolScreen> {
                     isHealthy
                         ? 'Finansial sangat sehat! Tidak ada cicilan pinjol aktif.'
                         : '${_loans.length} cicilan aktif membutuhkan alokasi ${_currencyFormat.format(totalMonthly)}/bulan.',
-                    style: const TextStyle(color: AppTheme.muted, fontSize: 12, height: 1.4),
+                    style: const TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.4),
                   ),
                 ],
               ),
@@ -116,7 +116,7 @@ class _PinjolScreenState extends State<PinjolScreen> {
 
             const Text(
               'Daftar Pinjaman Online',
-              style: TextStyle(color: AppTheme.foreground, fontSize: 16, fontWeight: FontWeight.w700),
+              style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
 
@@ -132,9 +132,9 @@ class _PinjolScreenState extends State<PinjolScreen> {
                   children: const [
                     Icon(Icons.sentiment_satisfied_alt, size: 36, color: AppTheme.primary),
                     SizedBox(height: 8),
-                    Text('Bebas Cicilan Pinjol', style: TextStyle(color: AppTheme.foreground, fontSize: 15, fontWeight: FontWeight.w700)),
+                    Text('Bebas Cicilan Pinjol', style: TextStyle(color: AppTheme.textPrimary, fontSize: 15, fontWeight: FontWeight.w700)),
                     SizedBox(height: 4),
-                    Text('Tidak ada data pinjol aktif tercatat saat ini.', style: TextStyle(color: AppTheme.muted, fontSize: 12)),
+                    Text('Tidak ada data pinjol aktif tercatat saat ini.', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
                   ],
                 ),
               )
@@ -161,7 +161,7 @@ class _PinjolScreenState extends State<PinjolScreen> {
                           children: [
                             Text(
                               l.notes ?? l.category.toUpperCase(),
-                              style: const TextStyle(color: AppTheme.foreground, fontSize: 14, fontWeight: FontWeight.w700),
+                              style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14, fontWeight: FontWeight.w700),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -180,10 +180,10 @@ class _PinjolScreenState extends State<PinjolScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Cicilan Per Bulan', style: TextStyle(color: AppTheme.muted, fontSize: 12)),
+                            const Text('Cicilan Per Bulan', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
                             Text(
                               _currencyFormat.format(l.monthlyPayment),
-                              style: const TextStyle(color: AppTheme.destructive, fontSize: 14, fontWeight: FontWeight.w700),
+                              style: const TextStyle(color: AppTheme.danger, fontSize: 14, fontWeight: FontWeight.w700),
                             ),
                           ],
                         ),
@@ -191,10 +191,10 @@ class _PinjolScreenState extends State<PinjolScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Tenor & Total', style: TextStyle(color: AppTheme.muted, fontSize: 12)),
+                            const Text('Tenor & Total', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
                             Text(
                               '${l.tenureMonths} Bln (${_currencyFormat.format(l.totalRemainingBalance ?? l.totalRepayment)})',
-                              style: const TextStyle(color: AppTheme.foreground, fontSize: 12, fontWeight: FontWeight.w500),
+                              style: const TextStyle(color: AppTheme.textPrimary, fontSize: 12, fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),

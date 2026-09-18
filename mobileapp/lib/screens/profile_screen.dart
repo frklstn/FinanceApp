@@ -104,19 +104,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _profile?.fullName?.substring(0, 1).toUpperCase() ??
                           _profile?.email.substring(0, 1).toUpperCase() ??
                           'U',
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.black),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF15130F)),
                     ),
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   _profile?.fullName ?? 'Pengguna',
-                  style: const TextStyle(color: AppTheme.foreground, fontSize: 18, fontWeight: FontWeight.w700),
+                  style: const TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _profile?.email ?? '',
-                  style: const TextStyle(color: AppTheme.muted, fontSize: 13),
+                  style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
                 ),
                 const SizedBox(height: 12),
                 Container(
@@ -126,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    (_profile?.plan ?? 'FREE PLAN').toUpperCase(),
+                    (_profile?.plan ?? 'PRO PLAN').toUpperCase(),
                     style: const TextStyle(color: AppTheme.primary, fontSize: 11, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -151,10 +151,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Icon(Icons.storage, size: 18, color: AppTheme.primary),
                         SizedBox(width: 8),
-                        Text('Backend API', style: TextStyle(color: AppTheme.muted, fontSize: 13)),
+                        Text('Backend API', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
                       ],
                     ),
-                    Text('Rust Axum (3006)', style: TextStyle(color: AppTheme.foreground, fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Rust Axum (3006)', style: TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 const Divider(color: AppTheme.cardBorder, height: 24),
@@ -165,12 +165,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Icon(Icons.language, size: 18, color: AppTheme.info),
                         SizedBox(width: 8),
-                        Text('Server Endpoint', style: TextStyle(color: AppTheme.muted, fontSize: 13)),
+                        Text('Server Endpoint', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
                       ],
                     ),
                     Text(
                       'fin.llvy.space',
-                      style: const TextStyle(color: AppTheme.foreground, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -184,13 +184,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: const Icon(Icons.logout, size: 18),
             label: const Text('Keluar dari Akun', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.destructive.withOpacity(0.15),
-              foregroundColor: AppTheme.destructive,
+              backgroundColor: AppTheme.danger.withOpacity(0.15),
+              foregroundColor: AppTheme.danger,
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: AppTheme.destructive.withOpacity(0.3)),
+                side: BorderSide(color: AppTheme.danger.withOpacity(0.3)),
               ),
             ),
           ),

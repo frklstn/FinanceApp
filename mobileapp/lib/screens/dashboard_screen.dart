@@ -81,11 +81,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   const Text(
                     'Catat Transaksi Cepat',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.foreground),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(Icons.close, size: 20, color: AppTheme.muted),
+                    icon: const Icon(Icons.close, size: 20, color: AppTheme.textMuted),
                   ),
                 ],
               ),
@@ -99,17 +99,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: type == 'expense' ? AppTheme.destructive.withOpacity(0.2) : AppTheme.background,
+                          color: type == 'expense' ? AppTheme.danger.withOpacity(0.2) : AppTheme.surface,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: type == 'expense' ? AppTheme.destructive : AppTheme.cardBorder,
+                            color: type == 'expense' ? AppTheme.danger : AppTheme.cardBorder,
                           ),
                         ),
                         child: Text(
                           'Pengeluaran',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: type == 'expense' ? AppTheme.destructive : AppTheme.muted,
+                            color: type == 'expense' ? AppTheme.danger : AppTheme.textMuted,
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),
@@ -124,7 +124,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: type == 'income' ? AppTheme.primary.withOpacity(0.2) : AppTheme.background,
+                          color: type == 'income' ? AppTheme.primary.withOpacity(0.2) : AppTheme.surface,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: type == 'income' ? AppTheme.primary : AppTheme.cardBorder,
@@ -134,7 +134,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           'Pemasukan',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: type == 'income' ? AppTheme.primary : AppTheme.muted,
+                            color: type == 'income' ? AppTheme.primary : AppTheme.textMuted,
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),
@@ -149,12 +149,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               TextField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
-                style: const TextStyle(color: AppTheme.foreground, fontSize: 16, fontWeight: FontWeight.w700),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
                 decoration: InputDecoration(
                   labelText: 'Nominal (Rp)',
-                  labelStyle: const TextStyle(color: AppTheme.muted),
+                  labelStyle: const TextStyle(color: AppTheme.textMuted),
                   filled: true,
-                  fillColor: AppTheme.background,
+                  fillColor: AppTheme.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
@@ -162,12 +162,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               TextField(
                 controller: noteController,
-                style: const TextStyle(color: AppTheme.foreground, fontSize: 14),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   labelText: 'Catatan / Keterangan',
-                  labelStyle: const TextStyle(color: AppTheme.muted),
+                  labelStyle: const TextStyle(color: AppTheme.textMuted),
                   filled: true,
-                  fillColor: AppTheme.background,
+                  fillColor: AppTheme.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
@@ -243,12 +243,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   const Text(
                     'TOTAL SALDO BERSIH',
-                    style: TextStyle(color: AppTheme.muted, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                    style: TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     _currencyFormat.format(_summary?.totalBalance ?? 0),
-                    style: const TextStyle(color: AppTheme.foreground, fontSize: 26, fontWeight: FontWeight.w800),
+                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 26, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 16),
                   const Divider(color: AppTheme.cardBorder),
@@ -270,7 +270,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Pemasukan', style: TextStyle(color: AppTheme.muted, fontSize: 11)),
+                              const Text('Pemasukan', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
                               Text(
                                 _currencyFormat.format(_summary?.totalIncome ?? 0),
                                 style: const TextStyle(color: AppTheme.primary, fontSize: 13, fontWeight: FontWeight.w700),
@@ -284,19 +284,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppTheme.destructive.withOpacity(0.15),
+                              color: AppTheme.danger.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(Icons.arrow_upward, color: AppTheme.destructive, size: 16),
+                            child: const Icon(Icons.arrow_upward, color: AppTheme.danger, size: 16),
                           ),
                           const SizedBox(width: 8),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Pengeluaran', style: TextStyle(color: AppTheme.muted, fontSize: 11)),
+                              const Text('Pengeluaran', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
                               Text(
                                 _currencyFormat.format(_summary?.totalExpense ?? 0),
-                                style: const TextStyle(color: AppTheme.destructive, fontSize: 13, fontWeight: FontWeight.w700),
+                                style: const TextStyle(color: AppTheme.danger, fontSize: 13, fontWeight: FontWeight.w700),
                               ),
                             ],
                           ),
@@ -311,14 +311,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const Text(
               'Dompet Aktif',
-              style: TextStyle(color: AppTheme.foreground, fontSize: 16, fontWeight: FontWeight.w700),
+              style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             SizedBox(
               height: 110,
               child: _wallets.isEmpty
                   ? Center(
-                      child: Text('Belum ada dompet', style: TextStyle(color: AppTheme.muted)),
+                      child: Text('Belum ada dompet', style: TextStyle(color: AppTheme.textMuted)),
                     )
                   : ListView.builder(
                       scrollDirection: Axis.horizontal,
@@ -340,17 +340,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               Text(
                                 w.type.toUpperCase(),
-                                style: const TextStyle(color: AppTheme.muted, fontSize: 10, fontWeight: FontWeight.w700),
+                                style: const TextStyle(color: AppTheme.textMuted, fontSize: 10, fontWeight: FontWeight.w700),
                               ),
                               Text(
                                 w.name,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: AppTheme.foreground, fontSize: 14, fontWeight: FontWeight.w600),
+                                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                               ),
                               Text(
                                 _currencyFormat.format(w.balance),
-                                style: const TextStyle(color: AppTheme.foreground, fontSize: 13, fontWeight: FontWeight.w700),
+                                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w700),
                               ),
                             ],
                           ),
@@ -365,11 +365,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 const Text(
                   'Aktivitas Terbaru',
-                  style: TextStyle(color: AppTheme.foreground, fontSize: 16, fontWeight: FontWeight.w700),
+                  style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 Text(
                   '${_summary?.transactionCount ?? 0} transaksi',
-                  style: const TextStyle(color: AppTheme.muted, fontSize: 12),
+                  style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
                 ),
               ],
             ),
@@ -384,7 +384,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   border: Border.all(color: AppTheme.cardBorder),
                 ),
                 child: const Center(
-                  child: Text('Belum ada catatan transaksi', style: TextStyle(color: AppTheme.muted, fontSize: 13)),
+                  child: Text('Belum ada catatan transaksi', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
                 ),
               )
             else
@@ -409,7 +409,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: isExpense
-                              ? AppTheme.destructive.withOpacity(0.15)
+                              ? AppTheme.danger.withOpacity(0.15)
                               : isIncome
                                   ? AppTheme.primary.withOpacity(0.15)
                                   : AppTheme.info.withOpacity(0.15),
@@ -422,7 +422,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ? Icons.arrow_downward
                                   : Icons.sync,
                           color: isExpense
-                              ? AppTheme.destructive
+                              ? AppTheme.danger
                               : isIncome
                                   ? AppTheme.primary
                                   : AppTheme.info,
@@ -431,16 +431,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       title: Text(
                         tx.note ?? (isExpense ? 'Pengeluaran' : 'Pemasukan'),
-                        style: const TextStyle(color: AppTheme.foreground, fontSize: 13, fontWeight: FontWeight.w600),
+                        style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
                       ),
                       subtitle: Text(
                         DateFormat('dd MMM yyyy, HH:mm').format(tx.date),
-                        style: const TextStyle(color: AppTheme.muted, fontSize: 11),
+                        style: const TextStyle(color: AppTheme.textMuted, fontSize: 11),
                       ),
                       trailing: Text(
                         '${isExpense ? '-' : isIncome ? '+' : ''}${_currencyFormat.format(tx.amount)}',
                         style: TextStyle(
-                          color: isExpense ? AppTheme.destructive : isIncome ? AppTheme.primary : AppTheme.foreground,
+                          color: isExpense ? AppTheme.danger : isIncome ? AppTheme.primary : AppTheme.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),

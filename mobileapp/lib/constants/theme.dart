@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color background = Color(0xFF09090B);
-  static const Color card = Color(0xFF18181B);
-  static const Color cardBorder = Color(0xFF27272A);
-  static const Color foreground = Color(0xFFF4F4F5);
-  static const Color muted = Color(0xFF71717A);
-  
-  static const Color primary = Color(0xFF10B981); // Emerald 500
-  static const Color destructive = Color(0xFFEF4444);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color info = Color(0xFF3B82F6);
+  // Permukaan (Warm Dark Obsidian / Cream Palette - Selaras Webapp tokens.css)
+  static const Color background = Color(0xFF15130F);
+  static const Color card = Color(0xFF1C1A15);
+  static const Color surface = Color(0xFF211E18);
+  static const Color cardBorder = Color(0x1AF3EDE3); // rgba(243, 237, 227, 0.10)
+
+  // Aksen Tunggal: Terracotta Warm Glow (Bukan Hijau Generik)
+  static const Color primary = Color(0xFFE2916A);
+  static const Color primaryHover = Color(0xFFEDA684);
+  static const Color primaryDim = Color(0xFFC2693F);
+  static const Color primaryGlow = Color(0x33E2916A);
+  static const Color primaryBorder = Color(0x42E2916A);
+
+  // Tipografi
+  static const Color textPrimary = Color(0xFFF3EDE3);
+  static const Color textSecondary = Color(0xFFB8AE9C);
+  static const Color textMuted = Color(0xFF8A8071);
+
+  // Sinyal
+  static const Color danger = Color(0xFFFB7185);
+  static const Color warning = Color(0xFFF0B429);
+  static const Color success = Color(0xFFE2916A);
+  static const Color info = Color(0xFF38BDF8);
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -21,17 +34,24 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: primary,
         surface: card,
-        error: destructive,
+        error: danger,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: background,
         elevation: 0,
         centerTitle: false,
+        iconTheme: IconThemeData(color: textPrimary),
         titleTextStyle: TextStyle(
-          color: foreground,
-          fontSize: 18,
+          color: textPrimary,
+          fontSize: 17,
           fontWeight: FontWeight.w700,
+          letterSpacing: -0.3,
         ),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: cardBorder,
+        thickness: 1,
+        space: 1,
       ),
     );
   }
