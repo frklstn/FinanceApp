@@ -1,12 +1,5 @@
 name: CI
 
-# Verifikasi saja. Deploy TIDAK dilakukan dari sini.
-# Produksi dilayani langsung oleh VPS: systemd unit `financeapp.service`
-# (next start di 127.0.0.1:3000) di belakang nginx -> cuan.bitkonek.com.
-# Sebelumnya workflow ini menjalankan `vercel deploy --prod`, sehingga ada dua
-# produksi dengan isi berbeda, dan yang di Vercel tidak bisa menjangkau
-# PostgreSQL yang hanya hidup di VPS ini.
-
 on:
   push:
     branches: ["main"]
@@ -14,24 +7,45 @@ on:
     branches: ["main"]
 
 jobs:
-  verify:
+  webapp:
+    name: Webapp (Next.js)
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    defaults:
+      run:
+        working-directory: webapp
     steps:
       - uses: actions/checkout@v4.2.2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: "25.9.0"
+          node-version: "26.9.0"
           cache: 'npm'
+          cache-dependency-path: webapp/package-lock.json
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install
 
       - name: Lint
         run: npm run lint
 
       - name: Build
         run: npm run build
+
+  backend:
+    name: Backend (Rust API)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cargo Check
+        run: cargo check
+
+      - name: Cargo Test
+        run: cargo test

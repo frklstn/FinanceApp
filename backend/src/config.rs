@@ -13,9 +13,9 @@ impl Config {
         dotenvy::dotenv().ok();
 
         let database_url = env::var("DATABASE_URL")
-            .unwrap_or_else(|_| "postgres://financeapp:financeapp@localhost:5432/financeapp".to_string());
+            .expect("DATABASE_URL environment variable must be set");
         let jwt_secret = env::var("JWT_SECRET")
-            .unwrap_or_else(|_| "fin-app-jwt-secret-key-change-in-prod-2026".to_string());
+            .expect("JWT_SECRET environment variable must be set");
         let port = env::var("BACKEND_PORT")
             .or_else(|_| env::var("PORT"))
             .ok()
