@@ -1,0 +1,80 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-apk:
+    name: Build & Release Android APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: "22"
+          cache: 'npm'
+          cache-dependency-path: mobileapp/package-lock.json
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Mobile Dependencies
+        working-directory: mobileapp
+        run: npm install
+
+      - name: Expo Prebuild (Generate Android Project)
+        working-directory: mobileapp
+        run: npx expo prebuild --platform android --clean
+
+      - name: Build Android Release APK
+        working-directory: mobileapp/android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Locate & Rename APK
+        run: |
+          APK_PATH=$(find mobileapp/android/app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            echo "Searching all built apks..."
+            APK_PATH=$(find mobileapp/android/app/build/outputs/apk -name "*.apk" | head -n 1)
+          fi
+          echo "Found APK at: $APK_PATH"
+          mkdir -p release-output
+          cp "$APK_PATH" release-output/FinanceApp.apk
+          ls -lh release-output/FinanceApp.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinanceApp-Android-APK
+          path: release-output/FinanceApp.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          tag_name: v1.0.0
+          name: "FinanceApp Mobile Android v1.0.0"
+          body: |
+            ## 📱 FinanceApp Android APK Release v1.0.0
+            
+            Standalone Android APK terhubung ke backend REST API `https://fin.llvy.space/api/v1`.
+            
+            ### Fitur:
+            * Auth token JWT bearer session.
+            * Dashboard & Saldo Dompet real-time.
+            * Pencatatan transaksi & Pinjol Debt Survival Planner.
+          files: release-output/FinanceApp.apk
