@@ -18,9 +18,12 @@ class AppTheme {
   static const Color textPrimary = Color(0xFFF3EDE3);
   static const Color textSecondary = Color(0xFFB8AE9C);
   static const Color textMuted = Color(0xFF8A8071);
+  static const Color foreground = textPrimary;
+  static const Color muted = textMuted;
 
   // Sinyal
   static const Color danger = Color(0xFFFB7185);
+  static const Color destructive = danger;
   static const Color warning = Color(0xFFF0B429);
   static const Color success = Color(0xFFE2916A);
   static const Color info = Color(0xFF38BDF8);
