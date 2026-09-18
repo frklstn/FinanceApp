@@ -1,4 +1,4 @@
-use crate::handlers::{auth::*, budgets::*, dashboard::*, debts::*, savings::*, transactions::*, wallets::*};
+use crate::handlers::{api_keys::*, auth::*, budgets::*, dashboard::*, debts::*, savings::*, transactions::*, wallets::*};
 use crate::middleware::auth::auth_middleware;
 use crate::models::common::ApiResponse;
 use axum::{
@@ -47,10 +47,14 @@ pub fn create_router(pool: PgPool, jwt_secret: Arc<String>) -> Router {
         // Dashboard Aggregations
         .route("/dashboard/summary", get(dashboard_summary_handler))
         .route("/dashboard/categories", get(category_spending_handler))
+        // API Keys (Third-Party Integration)
+        .route("/keys", get(list_keys_handler).post(create_key_handler))
+        .route("/keys/{id}", delete(revoke_key_handler))
         .layer(from_fn(auth_middleware));
 
     Router::new()
         .nest("/api/v1", public_routes.merge(protected_routes))
+        .layer(Extension(pool.clone()))
         .layer(Extension(jwt_secret))
         .layer(cors)
         .layer(TraceLayer::new_for_http())

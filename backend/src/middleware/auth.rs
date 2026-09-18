@@ -1,13 +1,15 @@
 use crate::models::common::ApiResponse;
+use crate::services::api_key::ApiKeyService;
 use crate::services::auth::AuthService;
 use axum::{
     extract::Request,
-    http::{header, StatusCode},
+    http::{header, HeaderName, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
     Json,
 };
 use axum_extra::extract::CookieJar;
+use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -24,13 +26,44 @@ pub async fn auth_middleware(
     mut req: Request,
     next: Next,
 ) -> Result<Response, Response> {
+    let pool = req.extensions().get::<PgPool>().cloned();
+
+    // 1. Check for X-API-Key header (Third-Party Apps & Automation)
+    let api_key_header = HeaderName::from_static("x-api-key");
+    let api_key = req
+        .headers()
+        .get(&api_key_header)
+        .and_then(|h| h.to_str().ok())
+        .map(|s| s.trim().to_string());
+
+    if let Some(key) = api_key {
+        if let Some(ref db_pool) = pool {
+            match ApiKeyService::validate_key(db_pool, &key).await {
+                Ok(Some((user_id, workspace_id))) => {
+                    let auth_user = AuthUser {
+                        user_id,
+                        workspace_id,
+                        email: "api-key@thirdparty.app".to_string(),
+                        role: "api_key".to_string(),
+                    };
+                    req.extensions_mut().insert(auth_user);
+                    return Ok(next.run(req).await);
+                }
+                _ => {
+                    let body = Json(ApiResponse::<()>::err("Unauthorized: Invalid or revoked API Key"));
+                    return Err((StatusCode::UNAUTHORIZED, body).into_response());
+                }
+            }
+        }
+    }
+
     let jwt_secret = req
         .extensions()
         .get::<Arc<String>>()
         .cloned()
         .unwrap_or_else(|| Arc::new("fin-app-jwt-secret-key-change-in-prod-2026".to_string()));
 
-    // 1. Try Bearer header
+    // 2. Try Bearer header
     let token = req
         .headers()
         .get(header::AUTHORIZATION)
@@ -42,7 +75,7 @@ pub async fn auth_middleware(
                 None
             }
         })
-        // 2. Try Cookie
+        // 3. Try Cookie
         .or_else(|| {
             cookie_jar
                 .get("auth_token")
@@ -53,7 +86,7 @@ pub async fn auth_middleware(
     let token = match token {
         Some(t) => t,
         None => {
-            let body = Json(ApiResponse::<()>::err("Unauthorized: Missing authentication token"));
+            let body = Json(ApiResponse::<()>::err("Unauthorized: Missing authentication token or API Key"));
             return Err((StatusCode::UNAUTHORIZED, body).into_response());
         }
     };

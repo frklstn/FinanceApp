@@ -15,7 +15,8 @@ impl Config {
         let database_url = env::var("DATABASE_URL")
             .expect("DATABASE_URL environment variable must be set");
         let jwt_secret = env::var("JWT_SECRET")
-            .expect("JWT_SECRET environment variable must be set");
+            .or_else(|_| env::var("SESSION_SECRET"))
+            .expect("JWT_SECRET or SESSION_SECRET must be set");
         let port = env::var("BACKEND_PORT")
             .or_else(|_| env::var("PORT"))
             .ok()
