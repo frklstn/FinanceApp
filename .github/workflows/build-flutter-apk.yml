@@ -1,0 +1,72 @@
+name: Build Flutter Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-apk:
+    name: Build Native Flutter Android APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Get Dependencies
+        working-directory: mobileapp
+        run: flutter pub get
+
+      - name: Build Android Release APK
+        working-directory: mobileapp
+        run: flutter build apk --release --split-per-abi
+
+      - name: Locate & Rename APK
+        run: |
+          APK_PATH=$(find mobileapp/build/app/outputs/flutter-apk -name "*arm64*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            APK_PATH=$(find mobileapp/build/app/outputs/flutter-apk -name "*.apk" | head -n 1)
+          fi
+          echo "Found Flutter APK at: $APK_PATH"
+          mkdir -p release-output
+          cp "$APK_PATH" release-output/FinanceApp-Flutter-arm64.apk
+          ls -lh release-output/FinanceApp-Flutter-arm64.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinanceApp-Flutter-ARM64
+          path: release-output/FinanceApp-Flutter-arm64.apk
+
+      - name: Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          tag_name: v1.0.0
+          name: "FinanceApp Mobile Android (Flutter Native) v1.0.0"
+          body: |
+            ## 📱 FinanceApp Flutter Native Android Release v1.0.0
+            
+            Native compiled Flutter binary terhubung langsung ke backend REST API Rust `https://fin.llvy.space/api/v1`.
+            
+            ### Keunggulan:
+            * **100% Native Skia/Impeller Canvas** (Bukan WebView / Zero JavaScript Engine Crash).
+            * **Ukuran Ringan**: ~18-25 MB (Super cepat di Android).
+            * **Dukungan Login API Key & Email/Password**.
+            * **Real-time ACID Balance & Pinjol Debt Survival Planner**.
+          files: release-output/FinanceApp-Flutter-arm64.apk

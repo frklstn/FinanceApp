@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/contexts/app-context';
+import { ApiKeyManager } from '@/components/finance/admin/ApiKeyManager';
 import { User, Monitor, Languages, Download, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { SubscriptionStatus } from '../subscription/subscription-status';
 import { useUser } from '@/hooks/use-user';
@@ -289,6 +290,9 @@ export function SettingsForm() {
             </div>
           </div>
         </Card>
+
+        {/* API Key & Integrasi Bot / Third-Party */}
+        <ApiKeyManager />
 
         <Card className="gap-4">
           <h3 className="font-heading text-lg font-semibold tracking-tight text-text-primary">Data</h3>
