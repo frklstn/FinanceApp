@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isApiKeyMode = false;
   bool _loading = false;
   String? _error;
-  String _currentVersion = '1.0.0';
+  String _currentVersion = '1.0.1';
 
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
