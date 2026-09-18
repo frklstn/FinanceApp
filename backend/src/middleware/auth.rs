@@ -102,24 +102,53 @@ pub async fn auth_middleware(
     let user_id = match Uuid::parse_str(&claims.sub) {
         Ok(id) => id,
         Err(_) => {
-            let body = Json(ApiResponse::<()>::err("Unauthorized: Invalid user ID"));
+            let body = Json(ApiResponse::<()>::err("Unauthorized: Invalid user ID in token"));
             return Err((StatusCode::UNAUTHORIZED, body).into_response());
         }
     };
 
-    let workspace_id = match Uuid::parse_str(&claims.workspace_id) {
-        Ok(id) => id,
-        Err(_) => {
-            let body = Json(ApiResponse::<()>::err("Unauthorized: Invalid workspace ID"));
-            return Err((StatusCode::UNAUTHORIZED, body).into_response());
+    let (workspace_id, email, role) = match (claims.workspace_id, claims.email, claims.role) {
+        (Some(ws_str), Some(em), Some(ro)) => match Uuid::parse_str(&ws_str) {
+            Ok(ws) => (ws, em, ro),
+            Err(_) => (user_id, em, ro),
+        },
+        (ws_opt, em_opt, ro_opt) => {
+            // Dynamically resolve missing claims from database profile
+            if let Some(ref db_pool) = pool {
+                let p = sqlx::query!(
+                    "SELECT workspace_id, email, plan FROM profiles WHERE id = $1 LIMIT 1",
+                    user_id
+                )
+                .fetch_optional(db_pool)
+                .await
+                .ok()
+                .flatten();
+
+                if let Some(profile) = p {
+                    let ws = profile.workspace_id.unwrap_or(user_id);
+                    let em = em_opt.unwrap_or(profile.email);
+                    let ro = ro_opt.unwrap_or(profile.plan);
+                    (ws, em, ro)
+                } else {
+                    let ws = ws_opt.and_then(|s| Uuid::parse_str(&s).ok()).unwrap_or(user_id);
+                    let em = em_opt.unwrap_or_else(|| "user@llvy.space".to_string());
+                    let ro = ro_opt.unwrap_or_else(|| "pro".to_string());
+                    (ws, em, ro)
+                }
+            } else {
+                let ws = ws_opt.and_then(|s| Uuid::parse_str(&s).ok()).unwrap_or(user_id);
+                let em = em_opt.unwrap_or_else(|| "user@llvy.space".to_string());
+                let ro = ro_opt.unwrap_or_else(|| "pro".to_string());
+                (ws, em, ro)
+            }
         }
     };
 
     let auth_user = AuthUser {
         user_id,
         workspace_id,
-        email: claims.email,
-        role: claims.role,
+        email,
+        role,
     };
 
     req.extensions_mut().insert(auth_user);

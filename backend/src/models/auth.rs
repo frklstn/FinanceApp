@@ -52,10 +52,13 @@ pub struct WorkspaceMember {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
-    pub sub: String,         // user_id Uuid as string
-    pub workspace_id: String, // workspace_id Uuid as string
-    pub email: String,
-    pub role: String,
+    pub sub: String,                   // user_id Uuid as string
+    #[serde(default)]
+    pub workspace_id: Option<String>, // workspace_id Uuid as string (optional for universal tokens)
+    #[serde(default)]
+    pub email: Option<String>,
+    #[serde(default)]
+    pub role: Option<String>,
     pub exp: usize,
 }
 

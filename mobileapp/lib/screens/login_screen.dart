@@ -97,11 +97,20 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (_) => const MainNavigation()),
         );
         return;
+      } else if (mounted) {
+        setState(() {
+          _error = 'Sesi login Google tidak valid atau gagal dimuat.';
+        });
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Gagal memproses sesi login Google.';
+          _error = 'Gagal memproses sesi login Google: $e';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
           _loading = false;
         });
       }

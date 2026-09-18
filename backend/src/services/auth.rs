@@ -72,9 +72,9 @@ impl AuthService {
 
         let claims = Claims {
             sub: user_id.to_string(),
-            workspace_id: workspace_id.to_string(),
-            email: email.to_string(),
-            role: role.to_string(),
+            workspace_id: Some(workspace_id.to_string()),
+            email: Some(email.to_string()),
+            role: Some(role.to_string()),
             exp: expiration,
         };
 
@@ -112,9 +112,9 @@ mod tests {
 
         let claims = AuthService::verify_jwt(&token, secret).unwrap();
         assert_eq!(claims.sub, user_id.to_string());
-        assert_eq!(claims.workspace_id, workspace_id.to_string());
-        assert_eq!(claims.email, email);
-        assert_eq!(claims.role, role);
+        assert_eq!(claims.workspace_id, Some(workspace_id.to_string()));
+        assert_eq!(claims.email, Some(email.to_string()));
+        assert_eq!(claims.role, Some(role.to_string()));
     }
 
     #[test]

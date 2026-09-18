@@ -52,7 +52,9 @@ pub fn create_router(pool: PgPool, jwt_secret: Arc<String>) -> Router {
         // API Keys (Third-Party Integration)
         .route("/keys", get(list_keys_handler).post(create_key_handler))
         .route("/keys/{id}", delete(revoke_key_handler))
-        .layer(from_fn(auth_middleware));
+        .layer(from_fn(auth_middleware))
+        .layer(Extension(pool.clone()))
+        .layer(Extension(jwt_secret.clone()));
 
     Router::new()
         .nest("/api/v1", public_routes.merge(protected_routes))
