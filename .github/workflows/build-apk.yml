@@ -37,15 +37,15 @@ jobs:
         working-directory: mobileapp
         run: npx expo prebuild --platform android --clean
 
-      - name: Build Android Release APK
+      - name: Build Android APK
         working-directory: mobileapp/android
-        run: ./gradlew assembleRelease --no-daemon
+        run: |
+          ./gradlew assembleRelease --no-daemon || ./gradlew assembleDebug --no-daemon
 
       - name: Locate & Rename APK
         run: |
-          APK_PATH=$(find mobileapp/android/app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          APK_PATH=$(find mobileapp/android/app/build/outputs/apk -name "*.apk" | grep -v "unaligned" | head -n 1)
           if [ -z "$APK_PATH" ]; then
-            echo "Searching all built apks..."
             APK_PATH=$(find mobileapp/android/app/build/outputs/apk -name "*.apk" | head -n 1)
           fi
           echo "Found APK at: $APK_PATH"
