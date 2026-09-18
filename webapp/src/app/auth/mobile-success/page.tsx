@@ -13,15 +13,16 @@ function MobileSuccessContent() {
   const name = searchParams.get('name');
   const [redirected, setRedirected] = useState(false);
 
-  const deepLink = token ? `financeapp://auth/callback?token=${token}&email=${encodeURIComponent(email || '')}&name=${encodeURIComponent(name || '')}` : '';
+  const finappLink = token ? `finapp://auth/callback?token=${token}&email=${encodeURIComponent(email || '')}&name=${encodeURIComponent(name || '')}` : '';
+  const financeappLink = token ? `financeapp://auth/callback?token=${token}&email=${encodeURIComponent(email || '')}&name=${encodeURIComponent(name || '')}` : '';
 
   useEffect(() => {
-    if (deepLink) {
-      // Auto-trigger deep link
-      window.location.href = deepLink;
+    if (finappLink) {
+      // Auto-trigger clean Flutter deep link
+      window.location.href = finappLink;
       setRedirected(true);
     }
-  }, [deepLink]);
+  }, [finappLink]);
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-[#15130F] text-[#F3EDE3]">
@@ -40,7 +41,7 @@ function MobileSuccessContent() {
         <div className="pt-2">
           <Button
             onClick={() => {
-              if (deepLink) window.location.href = deepLink;
+              if (finappLink) window.location.href = finappLink;
             }}
             className="w-full bg-[#E2916A] text-[#15130F] hover:bg-[#EDA684] font-semibold py-3 flex items-center justify-center gap-2"
           >

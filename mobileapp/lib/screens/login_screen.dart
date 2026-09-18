@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _appLinks = AppLinks();
 
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      if (uri.scheme == 'financeapp' && uri.host == 'auth' && uri.path == '/callback') {
+      if ((uri.scheme == 'finapp' || uri.scheme == 'financeapp') && uri.host == 'auth' && uri.path == '/callback') {
         final token = uri.queryParameters['token'];
         if (token != null && token.isNotEmpty) {
           _handleAuthCallbackToken(token);
