@@ -1,0 +1,393 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useApp } from '@/contexts/app-context';
+import { User, Monitor, Languages, Download, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
+import { SubscriptionStatus } from '../subscription/subscription-status';
+import { useUser } from '@/hooks/use-user';
+import { getAllTransactionsForExport, getSupportContactAction } from '@/app/actions/profile';
+import * as XLSX from 'xlsx';
+import { BRAND } from '@/lib/branding';
+import { useToast } from '@/components/ui/toast';
+import { useTheme } from '@/contexts/theme-context';
+
+export function SettingsForm() {
+  const { user, profile, accountId, t } = useApp();
+  const { toast } = useToast();
+  const { updateProfile, updateLanguage, resetData, deleteAccount, submitting } = useUser();
+  const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
+
+  // Zona berbahaya: kata konfirmasi harus diketik ulang persis sebelum aksi
+  // destruktif aktif. 'reset' mengosongkan data, 'delete' menghapus akun.
+  const [danger, setDanger] = useState<null | 'reset' | 'delete'>(null);
+  const [confirmText, setConfirmText] = useState('');
+  const dangerWord = danger === 'delete' ? 'HAPUS' : 'RESET';
+
+  const handleReset = async () => {
+    const ok = await resetData();
+    if (ok) {
+      setDanger(null);
+      setConfirmText('');
+      router.refresh();
+      window.location.href = '/finance/dashboard';
+    }
+  };
+
+  const handleDelete = async () => {
+    const ok = await deleteAccount();
+    if (ok) window.location.href = '/';
+  };
+
+  const handleToggleLanguage = () => updateLanguage(profile?.language === 'en' ? 'id' : 'en');
+
+  const handleExcelExport = async () => {
+    if (!accountId) {
+      toast(t('settings.export.noWorkspace', 'Workspace ID tidak ditemukan.'), 'warning');
+      return;
+    }
+    toast(t('settings.export.fetching', 'Mengambil seluruh data transaksi...'), 'info');
+
+    try {
+      const allTxs = await getAllTransactionsForExport();
+
+      if (allTxs.length === 0) {
+        toast(t('settings.export.empty', 'Tidak ada transaksi untuk diekspor.'), 'warning');
+        return;
+      }
+
+      const rows = allTxs.map((tx) => ({
+        [t('settings.export.id', 'ID')]: tx.id,
+        [t('settings.export.date', 'Tanggal')]: new Date(tx.date).toLocaleDateString('id-ID'),
+        [t('settings.export.type', 'Tipe')]: tx.type === 'income' 
+          ? t('settings.export.income', 'PEMASUKAN') 
+          : tx.type === 'expense' 
+            ? t('settings.export.expense', 'PENGELUARAN') 
+            : t('settings.export.transfer', 'TRANSFER'),
+        [t('settings.export.amount', 'Nominal')]: Number(tx.amount),
+        [t('settings.export.wallet', 'Dompet')]: tx.wallets?.name || t('settings.export.general', 'Umum'),
+        [t('settings.export.category', 'Kategori')]: tx.categories?.name || t('settings.export.general', 'Umum'),
+        [t('settings.export.note', 'Catatan')]: tx.note || '',
+        [t('settings.export.tag', 'Tag')]: tx.tags?.join(', ') || '',
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, t('settings.export.sheetName', 'Laporan Keuangan'));
+
+      const colWidths = [
+        { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, 
+        { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 20 },
+      ];
+      worksheet['!cols'] = colWidths;
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const fileName = `${BRAND.name.replace(/\s+/g, '_')}_Buku_Besar_${timestamp}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+      toast(t('settings.export.success', 'Buku besar berhasil diekspor ke Excel!'), 'success');
+
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : t('settings.export.failed', 'Gagal mengekspor file Excel.');
+      toast(msg, 'danger');
+    }
+  };
+
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
+
+  // Upgrade ke Pro lewat kontak admin (WhatsApp), sama seperti UpgradeGate --
+  // tombol ini sebelumnya tanpa onClick sehingga tidak melakukan apa pun.
+  // Sebelumnya pemanggilannya dikomentari, jadi whatsappLink selamanya null dan
+  // tombol "Hubungi admin untuk upgrade" terkunci di "Memuat kontak admin...".
+  useEffect(() => {
+    if (profile?.plan !== 'free') return;
+    let batal = false;
+    getSupportContactAction()
+      .then((link) => { if (!batal) setWhatsappLink(link); })
+      .catch(() => {});
+    return () => { batal = true; };
+  }, [profile?.plan]);
+
+  useEffect(() => {
+    const fn = profile?.full_name || '';
+    const em = profile?.email || user?.email || '';
+    const av = profile?.avatar_url || '';
+    Promise.resolve().then(() => {
+      setFullName(fn);
+      setEmail(em);
+      setAvatarUrl(av);
+    });
+  }, [profile, user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // Konfirmasi sandi sebelumnya tidak pernah dicek: pengguna bisa mengetik
+    // sandi baru yang berbeda dari konfirmasinya dan diam-diam tersimpan.
+    if (password && password !== confirmPassword) {
+      toast(t('settings.password.mismatch', 'Konfirmasi kata sandi tidak cocok.'), 'danger');
+      return;
+    }
+    const success = await updateProfile({
+      fullName,
+      password: password || undefined,
+      avatarUrl
+    });
+    if (success) {
+      setPassword('');
+      setConfirmPassword('');
+    }
+  };
+
+  return (
+    <>
+      {/* Dua kolom di desktop supaya tidak jadi satu kolom panjang: Akun yang
+          isinya paling banyak mengambil dua pertiga, Preferensi dan Data
+          menumpuk di sisanya. Di hp otomatis menumpuk seperti biasa.
+          Tetap satu halaman tanpa tab -- yang dipangkas panjangnya, bukan
+          jumlah langkahnya. */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <Card className="lg:col-span-2 gap-6">
+          <h3 className="font-heading text-lg font-semibold tracking-tight text-text-primary">Akun</h3>
+          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Input
+              label="Nama Pengguna"
+              placeholder="Masukkan nama Anda"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              disabled={submitting}
+            />
+            {/* Hanya tampilan. Mengganti email tanpa verifikasi ulang berarti akun
+                bisa dipindah ke alamat yang belum tentu dimiliki, jadi server
+                memang mengabaikannya. Dulu kolom ini bisa diketik dan tetap
+                memunculkan "berhasil disimpan" padahal tidak berubah. */}
+            <Input
+              label="Alamat Email"
+              type="email"
+              value={email}
+              readOnly
+              disabled
+              description="Email tidak bisa diubah sendiri. Hubungi admin bila perlu."
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Input
+              label="Kata Sandi Baru"
+              type="password"
+              placeholder="••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              disabled={submitting}
+              description="Kosongkan jika tidak ingin mengubah kata sandi."
+            />
+            <Input
+              label="Konfirmasi Kata Sandi Baru"
+              type="password"
+              placeholder="••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={submitting}
+            />
+          </div>
+
+          <div className="pt-4 border-t border-light-border/40 dark:border-dark-border/40">
+            <label className="text-sm font-semibold text-text-primary mb-3 block">
+              Foto Profil
+            </label>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl border border-light-border/40 dark:border-dark-border/40 bg-light-bg/50 dark:bg-dark-bg/25">
+              <div className="w-16 h-16 rounded-2xl bg-light-border/40 flex items-center justify-center overflow-hidden shrink-0 border border-light-border/50">
+                {avatarUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={avatarUrl} alt="Preview Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-6 h-6 text-light-text-secondary" />
+                )}
+              </div>
+
+              <div className="flex-1 w-full">
+                <Input
+                  label=""
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                  placeholder="Tempel URL gambar avatar..."
+                  disabled={submitting}
+                  className="bg-transparent border-light-border/40"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Status langganan digabung ke Akun sesuai permintaan. */}
+          <div className="pt-4 border-t border-line space-y-3">
+            <SubscriptionStatus plan={profile?.plan} expiresAt={profile?.plan_expires_at} />
+            {profile?.plan === 'free' && (
+              <div className="p-4 rounded-xl border border-primary-border bg-primary-glow">
+                <p className="text-xs text-text-primary mb-3">Upgrade ke Pro untuk fitur tanpa batas dan analisis lebih mendalam.</p>
+                {whatsappLink ? (
+                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
+                    <Button type="button" variant="primary" className="w-full">Hubungi admin untuk upgrade</Button>
+                  </a>
+                ) : (
+                  <Button type="button" variant="primary" className="w-full" disabled>Memuat kontak admin...</Button>
+                )}
+              </div>
+            )}
+          </div>
+
+            <div className="flex justify-end pt-6 border-t border-line">
+              <Button type="submit" variant="primary" loading={submitting} className="px-6">
+                Simpan Perubahan
+              </Button>
+            </div>
+          </form>
+        </Card>
+
+        <div className="space-y-6">
+        <Card className="gap-4">
+          <h3 className="font-heading text-lg font-semibold tracking-tight text-text-primary">Preferensi</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
+              <div className="flex items-center gap-3">
+                <Monitor className="w-4 h-4 text-primary" />
+                <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Mode Tampilan</span>
+              </div>
+              <Button variant="outline" size="sm" onClick={toggleTheme} className="capitalize font-bold cursor-pointer">
+                {theme === 'light' ? 'Mode Terang' : 'Mode Gelap'}
+              </Button>
+            </div>
+
+            {/* Sebelumnya baris ini hanya label statis bertuliskan "Bahasa
+                Indonesia" padahal kolom profiles.language bisa bernilai 'en',
+                dan tidak ada cara mengubahnya dari UI. */}
+            <div className="flex items-center justify-between p-4 rounded-xl border border-light-border/40 dark:border-dark-border/40">
+              <div className="flex items-center gap-3">
+                <Languages className="w-4 h-4 text-primary" />
+                <span className="text-sm font-bold text-light-text-primary dark:text-dark-text-primary">Bahasa</span>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                loading={submitting}
+                className="font-bold cursor-pointer"
+                onClick={handleToggleLanguage}
+              >
+                {profile?.language === 'en' ? 'English' : 'Bahasa Indonesia'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="gap-4">
+          <h3 className="font-heading text-lg font-semibold tracking-tight text-text-primary">Data</h3>
+          <div className="space-y-4">
+            <h4 className="text-sm font-semibold text-light-text-primary dark:text-dark-text-primary flex items-center gap-2">
+              Ekspor Data Keuangan
+            </h4>
+            <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary leading-relaxed">
+              Unduh seluruh transaksi akun Anda dalam format `.xlsx` (kategori, dompet, nominal, catatan).
+            </p>
+            <Button type="button" variant="outline" className="flex items-center justify-center gap-2 cursor-pointer w-full border-line bg-surface" onClick={handleExcelExport}>
+              <Download className="w-4 h-4" />
+              Ekspor ke Excel (.xlsx)
+            </Button>
+          </div>
+
+          {/* Zona berbahaya */}
+          <div className="pt-4 border-t border-danger/20 space-y-3">
+            <h4 className="text-sm font-semibold text-danger flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" /> Zona Berbahaya
+            </h4>
+
+            <div className="flex flex-col gap-3 rounded-2xl border border-danger/20 bg-danger/[0.04] p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-text-primary">Reset data</p>
+                  <p className="text-xs text-text-secondary">Kosongkan semua transaksi, dompet, dan catatan. Akun tetap ada, mulai dari nol.</p>
+                </div>
+                <Button type="button" variant="outline" className="shrink-0 gap-2" onClick={() => { setDanger('reset'); setConfirmText(''); }}>
+                  <RotateCcw className="w-4 h-4" /> Reset
+                </Button>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-danger/15">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-danger">Hapus akun</p>
+                  <p className="text-xs text-text-secondary">Menghapus akun dan seluruh data secara permanen. Tidak bisa dibatalkan.</p>
+                </div>
+                <Button type="button" variant="destructive" className="shrink-0 gap-2" onClick={() => { setDanger('delete'); setConfirmText(''); }}>
+                  <Trash2 className="w-4 h-4" /> Hapus akun
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+        </div>
+      </div>
+
+      {danger && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+          onClick={() => { setDanger(null); setConfirmText(''); }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-line bg-card p-6 space-y-4 shadow-2xl animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-1.5">
+              <h3 className="font-heading text-base font-semibold tracking-tight text-danger flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                {danger === 'delete' ? 'Hapus akun permanen' : 'Reset semua data'}
+              </h3>
+              <p className="text-sm text-text-secondary">
+                {danger === 'delete'
+                  ? 'Akun dan seluruh data akan dihapus permanen dan tidak bisa dipulihkan.'
+                  : 'Semua transaksi, dompet, dan catatan akan dikosongkan. Akun tetap ada.'}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs text-text-secondary">
+                Ketik <span className="font-semibold text-text-primary">{dangerWord}</span> untuk konfirmasi
+              </label>
+              <Input
+                label=""
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder={dangerWord}
+                autoFocus
+              />
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => { setDanger(null); setConfirmText(''); }} disabled={submitting}>
+                Batal
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                loading={submitting}
+                disabled={confirmText.trim().toUpperCase() !== dangerWord}
+                onClick={danger === 'delete' ? handleDelete : handleReset}
+              >
+                {danger === 'delete' ? 'Hapus akun' : 'Reset data'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
