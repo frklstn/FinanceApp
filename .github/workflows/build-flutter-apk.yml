@@ -31,7 +31,7 @@ jobs:
       - name: Initialize Android Scaffolding & Get Dependencies
         working-directory: mobileapp
         run: |
-          flutter create . --org com.financeapp.mobile --platforms android --project-name financeapp_mobile
+          flutter create . --org com.financeapp --platforms android --project-name mobile
           cp key.properties android/key.properties
           python3 scripts/configure_android.py
           flutter pub get
