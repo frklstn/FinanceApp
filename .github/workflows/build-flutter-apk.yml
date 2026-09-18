@@ -28,9 +28,11 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Get Dependencies
+      - name: Initialize Android Scaffolding & Get Dependencies
         working-directory: mobileapp
-        run: flutter pub get
+        run: |
+          flutter create . --org com.financeapp.mobile --platforms android --project-name financeapp_mobile
+          flutter pub get
 
       - name: Build Android Release APK
         working-directory: mobileapp
