@@ -127,7 +127,7 @@ class ApiService {
     return null;
   }
 
-  // --- Dashboard ---
+  // --- Dashboard Aggregations ---
   static Future<DashboardSummary?> getSummary() async {
     try {
       final res = await http.get(
@@ -143,6 +143,23 @@ class ApiService {
       }
     } catch (_) {}
     return null;
+  }
+
+  static Future<List<CategorySpending>> getCategorySpending() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/dashboard/categories'),
+        headers: await _headers(),
+      );
+
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body);
+        if (json['success'] == true && json['data'] is List) {
+          return (json['data'] as List).map((c) => CategorySpending.fromJson(c)).toList();
+        }
+      }
+    } catch (_) {}
+    return [];
   }
 
   // --- Wallets ---
@@ -180,7 +197,7 @@ class ApiService {
   }
 
   // --- Transactions ---
-  static Future<List<Transaction>> getTransactions({int limit = 15}) async {
+  static Future<List<Transaction>> getTransactions({int limit = 25}) async {
     try {
       final res = await http.get(
         Uri.parse('$baseUrl/transactions?limit=$limit'),
@@ -215,6 +232,138 @@ class ApiService {
     );
 
     return res.statusCode == 201;
+  }
+
+  static Future<bool> deleteTransaction(String id) async {
+    final res = await http.delete(
+      Uri.parse('$baseUrl/transactions/$id'),
+      headers: await _headers(),
+    );
+    return res.statusCode == 200;
+  }
+
+  // --- Budgets (Anggaran) ---
+  static Future<List<Budget>> getBudgets() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/budgets'),
+        headers: await _headers(),
+      );
+
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body);
+        if (json['success'] == true && json['data'] is List) {
+          return (json['data'] as List).map((b) => Budget.fromJson(b)).toList();
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  static Future<bool> setBudget({
+    required String categoryId,
+    required double amount,
+    required int month,
+    required int year,
+  }) async {
+    final res = await http.post(
+      Uri.parse('$baseUrl/budgets'),
+      headers: await _headers(),
+      body: jsonEncode({
+        'category_id': categoryId,
+        'amount': amount,
+        'month': month,
+        'year': year,
+      }),
+    );
+    return res.statusCode == 200 || res.statusCode == 201;
+  }
+
+  // --- Savings (Tabungan) ---
+  static Future<List<SavingsGoal>> getSavings() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/savings'),
+        headers: await _headers(),
+      );
+
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body);
+        if (json['success'] == true && json['data'] is List) {
+          return (json['data'] as List).map((s) => SavingsGoal.fromJson(s)).toList();
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  static Future<bool> createSavings({
+    required String name,
+    required double targetAmount,
+    DateTime? targetDate,
+  }) async {
+    final res = await http.post(
+      Uri.parse('$baseUrl/savings'),
+      headers: await _headers(),
+      body: jsonEncode({
+        'name': name,
+        'target_amount': targetAmount,
+        'target_date': targetDate?.toIso8601String(),
+      }),
+    );
+    return res.statusCode == 201;
+  }
+
+  static Future<bool> contributeSavings({
+    required String savingsGoalId,
+    required String walletId,
+    required double amount,
+  }) async {
+    final res = await http.post(
+      Uri.parse('$baseUrl/savings/contribute'),
+      headers: await _headers(),
+      body: jsonEncode({
+        'savings_goal_id': savingsGoalId,
+        'wallet_id': walletId,
+        'amount': amount,
+      }),
+    );
+    return res.statusCode == 200 || res.statusCode == 201;
+  }
+
+  // --- Debts (Utang Piutang) ---
+  static Future<List<DebtItem>> getDebts() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/debts'),
+        headers: await _headers(),
+      );
+
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body);
+        if (json['success'] == true && json['data'] is List) {
+          return (json['data'] as List).map((d) => DebtItem.fromJson(d)).toList();
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  static Future<bool> payDebt({
+    required String debtId,
+    required String walletId,
+    required double amount,
+  }) async {
+    final res = await http.post(
+      Uri.parse('$baseUrl/debts/pay'),
+      headers: await _headers(),
+      body: jsonEncode({
+        'debt_id': debtId,
+        'wallet_id': walletId,
+        'amount': amount,
+      }),
+    );
+    return res.statusCode == 200 || res.statusCode == 201;
   }
 
   // --- Loans / Pinjol ---

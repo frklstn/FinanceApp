@@ -3,6 +3,11 @@ import 'package:intl/intl.dart';
 import '../constants/theme.dart';
 import '../models/models.dart';
 import '../services/api_service.dart';
+import 'budgets_screen.dart';
+import 'savings_screen.dart';
+import 'debts_screen.dart';
+import 'pinjol_screen.dart';
+import 'transactions_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,6 +20,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DashboardSummary? _summary;
   List<Wallet> _wallets = [];
   List<Transaction> _transactions = [];
+  List<CategorySpending> _categories = [];
   bool _loading = true;
 
   final _currencyFormat = NumberFormat.currency(
@@ -32,13 +38,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _fetchData() async {
     final summary = await ApiService.getSummary();
     final wallets = await ApiService.getWallets();
-    final transactions = await ApiService.getTransactions(limit: 10);
+    final transactions = await ApiService.getTransactions(limit: 6);
+    final categories = await ApiService.getCategorySpending();
 
     if (mounted) {
       setState(() {
         _summary = summary;
         _wallets = wallets;
         _transactions = transactions;
+        _categories = categories;
         _loading = false;
       });
     }
@@ -146,6 +154,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 14),
 
+              DropdownButtonFormField<String>(
+                value: selectedWalletId,
+                dropdownColor: AppTheme.surface,
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
+                decoration: InputDecoration(
+                  labelText: 'Pilih Dompet',
+                  labelStyle: const TextStyle(color: AppTheme.textMuted),
+                  filled: true,
+                  fillColor: AppTheme.surface,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                items: _wallets.map((w) {
+                  return DropdownMenuItem(
+                    value: w.id,
+                    child: Text('${w.name} (${_currencyFormat.format(w.balance)})'),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  if (val != null) setModalState(() => selectedWalletId = val);
+                },
+              ),
+              const SizedBox(height: 12),
+
               TextField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
@@ -192,7 +223,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
-                  foregroundColor: Colors.black,
+                  foregroundColor: const Color(0xFF15130F),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
@@ -217,7 +248,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('FinanceApp Native'),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.primary, size: 18),
+            ),
+            const SizedBox(width: 10),
+            const Text('FinanceApp', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add, color: AppTheme.primary),
@@ -231,6 +275,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
+            // 1. Hero Net Worth Card (Sesuai Webapp)
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -307,11 +352,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+
+            // 2. Menu Pintas Cepat (Quick Access Grid Identik Webapp)
+            Row(
+              children: [
+                _buildQuickAction(
+                  context,
+                  icon: Icons.pie_chart_outline,
+                  label: 'Anggaran',
+                  destination: const BudgetsScreen(),
+                  color: AppTheme.primary,
+                ),
+                const SizedBox(width: 10),
+                _buildQuickAction(
+                  context,
+                  icon: Icons.savings_outlined,
+                  label: 'Tabungan',
+                  destination: const SavingsScreen(),
+                  color: AppTheme.info,
+                ),
+                const SizedBox(width: 10),
+                _buildQuickAction(
+                  context,
+                  icon: Icons.handshake_outlined,
+                  label: 'Utang',
+                  destination: const DebtsScreen(),
+                  color: AppTheme.warning,
+                ),
+                const SizedBox(width: 10),
+                _buildQuickAction(
+                  context,
+                  icon: Icons.credit_card_outlined,
+                  label: 'Pinjol',
+                  destination: const PinjolScreen(),
+                  color: AppTheme.danger,
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
 
-            const Text(
-              'Dompet Aktif',
-              style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
+            // 3. Dompet Aktif (Horizontal Scroll)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Dompet Aktif',
+                  style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  '${_wallets.length} dompet',
+                  style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -325,14 +418,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       itemCount: _wallets.length,
                       itemBuilder: (context, index) {
                         final w = _wallets[index];
+                        final colorInt = int.tryParse(w.color.replaceAll('#', '0xFF')) ?? 0xFFE2916A;
+
                         return Container(
-                          width: 150,
+                          width: 160,
                           margin: const EdgeInsets.only(right: 12),
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: AppTheme.card,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppTheme.cardBorder),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border(
+                              left: BorderSide(color: Color(colorInt), width: 3.5),
+                              top: const BorderSide(color: AppTheme.cardBorder),
+                              right: const BorderSide(color: AppTheme.cardBorder),
+                              bottom: const BorderSide(color: AppTheme.cardBorder),
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,6 +460,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 24),
 
+            // 4. Kategori Pengeluaran Terbesar (Jika Ada)
+            if (_categories.isNotEmpty) ...[
+              const Text(
+                'Alokasi Pengeluaran Terbesar',
+                style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.card,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppTheme.cardBorder),
+                ),
+                child: Column(
+                  children: _categories.map((c) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(c.name, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+                              Text(_currencyFormat.format(c.amount), style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w700)),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: c.share / 100,
+                              minHeight: 6,
+                              backgroundColor: AppTheme.surface,
+                              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+
+            // 5. Aktivitas Transaksi Terbaru
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -367,9 +515,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   'Aktivitas Terbaru',
                   style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
                 ),
-                Text(
-                  '${_summary?.transactionCount ?? 0} transaksi',
-                  style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const TransactionsScreen()));
+                  },
+                  child: const Text(
+                    'Lihat Semua →',
+                    style: TextStyle(color: AppTheme.primary, fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
@@ -450,6 +603,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Widget destination,
+    required Color color,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => destination));
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: AppTheme.card,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppTheme.cardBorder),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 11, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
         ),
       ),
     );
