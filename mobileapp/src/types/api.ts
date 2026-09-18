@@ -1,4 +1,4 @@
-export interface UserProfile {
+export interface Profile {
   id: string;
   email: string;
   full_name: string | null;
@@ -13,7 +13,7 @@ export interface UserProfile {
 
 export interface AuthResponseData {
   token: string;
-  user: UserProfile;
+  user: Profile;
   workspace_id: string;
 }
 
@@ -21,59 +21,64 @@ export interface Wallet {
   id: string;
   workspace_id: string;
   name: string;
-  wallet_type: string;
-  currency: string;
-  initial_balance: number;
-  current_balance: number;
-  is_active: boolean;
+  type: string;
+  balance: number | string;
   color?: string;
   icon?: string;
+  is_active: boolean;
+  currency: string;
 }
 
 export interface Transaction {
   id: string;
   workspace_id: string;
   wallet_id: string;
-  wallet_name?: string;
-  category_id?: string;
-  category_name?: string;
-  amount: number;
+  category_id?: string | null;
+  amount: number | string;
   type: 'income' | 'expense' | 'transfer';
-  description?: string;
-  transaction_date: string;
-  destination_wallet_id?: string;
+  destination_wallet_id?: string | null;
+  note?: string | null;
+  date: string;
+  currency: string;
 }
 
 export interface DashboardSummary {
-  net_worth: number;
-  total_income_this_month: number;
-  total_expense_this_month: number;
-  currency: string;
-  active_wallets_count: number;
-  recent_transactions: Transaction[];
+  total_balance: number | string;
+  total_income: number | string;
+  total_expense: number | string;
+  net_savings: number | string;
+  savings_rate_percentage: number | string;
+  transaction_count: number;
 }
 
 export interface Debt {
   id: string;
   workspace_id: string;
-  title: string;
-  debt_type: 'debt' | 'loan' | 'pinjol';
-  total_amount: number;
-  remaining_amount: number;
-  due_date: string;
-  interest_rate?: number;
-  monthly_payment?: number;
-  status: 'active' | 'paid' | 'overdue';
+  name: string;
+  type: string;
+  amount: number | string;
+  interest_rate: number | string;
+  due_date?: string | null;
+  status: string;
+  description?: string | null;
+  remaining_amount: number | string;
+  currency: string;
 }
 
-export interface PinjolLoan {
+export interface LoanTracker {
   id: string;
-  provider_name: string;
-  principal_amount: number;
-  total_repayment: number;
-  monthly_installment: number;
-  due_date: number; // day of month
-  tenor_months: number;
-  remaining_installments: number;
+  workspace_id: string;
+  category: string;
+  amount_applied?: number | string | null;
+  amount_received: number | string;
+  total_repayment: number | string;
+  monthly_payment: number | string;
+  tenure_months: number;
+  due_day: number;
+  start_date: string;
+  salary_date?: number | null;
   status: string;
+  notes?: string | null;
+  total_remaining_balance?: number | string | null;
+  currency: string;
 }

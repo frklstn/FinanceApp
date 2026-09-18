@@ -82,6 +82,14 @@ export const storage = {
     return this.removeItem(USER_KEY);
   },
 
+  async getUserProfile(): Promise<any | null> {
+    return this.getUserData();
+  },
+
+  async saveUserProfile(profile: any): Promise<void> {
+    return this.setUserData(profile);
+  },
+
   async clearAuth(): Promise<void> {
     await Promise.all([this.removeAuthToken(), this.removeUserData()]);
   },
