@@ -35,17 +35,45 @@ jobs:
   backend:
     name: Backend (Rust API)
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: financeapp
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: financeapp
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     defaults:
       run:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4.2.2
 
+      - name: Setup Database Schema
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+          PGPASSWORD=password psql -h localhost -U financeapp -d financeapp -f ../database/init.sql
+          for f in ../database/migrations/*.sql; do
+            PGPASSWORD=password psql -h localhost -U financeapp -d financeapp -f "$f"
+          done
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cargo Check
+        env:
+          DATABASE_URL: postgres://financeapp:password@localhost:5432/financeapp
+          JWT_SECRET: ci-test-secret-key-1234567890
         run: cargo check
 
       - name: Cargo Test
+        env:
+          DATABASE_URL: postgres://financeapp:password@localhost:5432/financeapp
+          JWT_SECRET: ci-test-secret-key-1234567890
         run: cargo test

@@ -33,11 +33,12 @@ export async function apiFetch<T>(
 
     const json = (await res.json()) as ApiResponse<T>;
     return json;
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Gagal terhubung ke API backend';
     return {
       success: false,
       data: null,
-      message: err.message || 'Gagal terhubung ke API backend',
+      message,
     };
   }
 }

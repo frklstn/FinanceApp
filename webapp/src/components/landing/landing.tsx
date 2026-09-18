@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { login } from '@/app/login/actions';
 import { AuthShell, authInputClass, authButtonClass } from '@/components/auth/auth-shell';
-import { ArrowRight, Mail, Lock, Eye, EyeOff, X, User } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Eye, EyeOff, X } from 'lucide-react';
 
 function GoogleIcon() {
   return (
@@ -45,6 +45,7 @@ export function Landing({ openLogin = false }: LandingProps) {
     // 1. Baca url error jika ada
     const urlError = new URLSearchParams(window.location.search).get('error');
     if (urlError) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowLogin(true);
       setErrorMsg(decodeURIComponent(urlError));
     }
