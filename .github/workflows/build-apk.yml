@@ -37,27 +37,24 @@ jobs:
         working-directory: mobileapp
         run: npx expo prebuild --platform android --clean
 
-      - name: Build Android APK
+      - name: Build Android APK (Optimized ARM64)
         working-directory: mobileapp/android
         run: |
-          ./gradlew assembleRelease --no-daemon || ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a --no-daemon
 
       - name: Locate & Rename APK
         run: |
           APK_PATH=$(find mobileapp/android/app/build/outputs/apk -name "*.apk" | grep -v "unaligned" | head -n 1)
-          if [ -z "$APK_PATH" ]; then
-            APK_PATH=$(find mobileapp/android/app/build/outputs/apk -name "*.apk" | head -n 1)
-          fi
           echo "Found APK at: $APK_PATH"
           mkdir -p release-output
-          cp "$APK_PATH" release-output/FinanceApp.apk
-          ls -lh release-output/FinanceApp.apk
+          cp "$APK_PATH" release-output/FinanceApp-arm64.apk
+          ls -lh release-output/FinanceApp-arm64.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: FinanceApp-Android-APK
-          path: release-output/FinanceApp.apk
+          path: release-output/FinanceApp-arm64.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -66,7 +63,7 @@ jobs:
           tag_name: v1.0.0
           name: "FinanceApp Mobile Android v1.0.0"
           body: |
-            ## 📱 FinanceApp Android APK Release v1.0.0
+            ## 📱 FinanceApp Android APK Release v1.0.0 (Native ARM64)
             
             Standalone Android APK terhubung ke backend REST API `https://fin.llvy.space/api/v1`.
             
@@ -74,4 +71,4 @@ jobs:
             * Auth token JWT bearer session.
             * Dashboard & Saldo Dompet real-time.
             * Pencatatan transaksi & Pinjol Debt Survival Planner.
-          files: release-output/FinanceApp.apk
+          files: release-output/FinanceApp-arm64.apk
