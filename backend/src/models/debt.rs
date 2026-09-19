@@ -47,6 +47,16 @@ pub struct LoanTracker {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct CreateDebtRequest {
+    pub name: String,
+    pub r#type: String, // "i_owe" (utang perusahaan/orang) or "they_owe" (piutang)
+    pub amount: Decimal,
+    pub due_date: Option<NaiveDate>,
+    pub description: Option<String>,
+    pub contact_info: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct PayDebtRequest {
     pub debt_id: Uuid,
     pub wallet_id: Uuid,

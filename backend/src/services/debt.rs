@@ -1,10 +1,38 @@
-use crate::models::debt::{Debt, LoanTracker, PayDebtRequest, PayLoanRequest};
+use crate::models::debt::{CreateDebtRequest, Debt, LoanTracker, PayDebtRequest, PayLoanRequest};
 use sqlx::{PgPool, Postgres, Transaction as SqlxTx};
 use uuid::Uuid;
 
 pub struct DebtService;
 
 impl DebtService {
+    pub async fn create_debt(
+        pool: &PgPool,
+        workspace_id: Uuid,
+        req: CreateDebtRequest,
+    ) -> Result<Debt, sqlx::Error> {
+        let debt_type = if req.r#type == "they_owe" { "they_owe" } else { "i_owe" };
+        let created = sqlx::query_as::<_, Debt>(
+            r#"
+            INSERT INTO debts (workspace_id, name, type, amount, remaining_amount, due_date, description, contact_info, status, currency)
+            VALUES ($1, $2, $3, $4, $4, $5, $6, $7, 'active', 'IDR')
+            RETURNING id, workspace_id, name, type, amount, interest_rate, due_date, 
+                      status, description, remaining_amount, contact_info, currency, 
+                      created_at, updated_at
+            "#,
+        )
+        .bind(workspace_id)
+        .bind(req.name)
+        .bind(debt_type)
+        .bind(req.amount)
+        .bind(req.due_date)
+        .bind(req.description)
+        .bind(req.contact_info)
+        .fetch_one(pool)
+        .await?;
+
+        Ok(created)
+    }
+
     pub async fn get_debts(pool: &PgPool, workspace_id: Uuid) -> Result<Vec<Debt>, sqlx::Error> {
         sqlx::query_as::<_, Debt>(
             r#"

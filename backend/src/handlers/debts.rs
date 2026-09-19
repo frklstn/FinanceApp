@@ -1,6 +1,6 @@
 use crate::middleware::auth::AuthUser;
 use crate::models::common::ApiResponse;
-use crate::models::debt::{PayDebtRequest, PayLoanRequest};
+use crate::models::debt::{CreateDebtRequest, PayDebtRequest, PayLoanRequest};
 use crate::services::debt::DebtService;
 use axum::{
     extract::{Extension, State},
@@ -16,6 +16,25 @@ pub async fn list_debts_handler(
 ) -> impl IntoResponse {
     match DebtService::get_debts(&pool, auth.workspace_id).await {
         Ok(debts) => (StatusCode::OK, Json(ApiResponse::ok(debts))).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ApiResponse::<()>::err(&format!("Database error: {:?}", e))),
+        )
+            .into_response(),
+    }
+}
+
+pub async fn create_debt_handler(
+    State(pool): State<PgPool>,
+    Extension(auth): Extension<AuthUser>,
+    Json(payload): Json<CreateDebtRequest>,
+) -> impl IntoResponse {
+    match DebtService::create_debt(&pool, auth.workspace_id, payload).await {
+        Ok(debt) => (
+            StatusCode::CREATED,
+            Json(ApiResponse::ok_msg(debt, "Catatan utang/piutang berhasil dibuat")),
+        )
+            .into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(ApiResponse::<()>::err(&format!("Database error: {:?}", e))),

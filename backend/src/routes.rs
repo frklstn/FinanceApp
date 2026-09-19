@@ -36,7 +36,7 @@ pub fn create_router(pool: PgPool, jwt_secret: Arc<String>) -> Router {
         .route("/transactions", get(list_transactions_handler).post(create_transaction_handler))
         .route("/transactions/{id}", delete(delete_transaction_handler))
         // Debts & Pinjol
-        .route("/debts", get(list_debts_handler))
+        .route("/debts", get(list_debts_handler).post(create_debt_handler))
         .route("/debts/pay", post(pay_debt_handler))
         .route("/pinjol/loans", get(list_loans_handler))
         .route("/pinjol/pay", post(pay_loan_handler))
